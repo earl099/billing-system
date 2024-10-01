@@ -1,0 +1,101 @@
+<div
+  class="flex flex-col absolute inset-x-0 inset-y-0"
+  [class.isMobile]="mobileQuery.matches"
+>
+  <mat-toolbar
+    class="toolbarDesign grid grid-cols-3 justify-between bg-[#009247]"
+  >
+    <div class="hidden"></div>
+    <div class="content-center col-auto block">
+      <button mat-icon-button (click)="snav.toggle()">
+        <mat-icon>menu</mat-icon>
+      </button>
+    </div>
+    <div class="content-center col-auto">
+      <a routerLink="/home"><h1 class="ml-2">LBRDC Billing System</h1></a>
+    </div>
+    <div class="content-center col-auto">
+      <button mat-icon-button [matMenuTriggerFor]="menuBtn">
+        <mat-icon>account_circle</mat-icon>
+      </button>
+      <mat-menu #menuBtn yPosition="below">
+        @if(authService.getToken('token') == null) {
+          <div class="container">
+            <button mat-menu-item routerLink="/login">
+              <span class="flex items-center gap-4 p-3">
+                <mat-icon>login</mat-icon>
+                <span>Log In</span>
+              </span>
+            </button>
+          </div>
+          <div class="container">
+            <button mat-menu-item routerLink="/signup">
+              <span class="flex items-center gap-4 p-3">
+                <mat-icon>person_add</mat-icon>
+                <span>Sign Up</span>
+              </span>
+            </button>
+          </div>
+        }
+        @else {
+          <div class="container">
+            <button mat-menu-item routerLink="/home" (click)="onLogout()">
+              <span class="flex items-center gap-4 p-3">
+                <mat-icon>logout</mat-icon>
+                <span>Log Out</span>
+              </span>
+            </button>
+          </div>
+        }
+      </mat-menu>
+    </div>
+  </mat-toolbar>
+
+  <mat-sidenav-container
+    class="flex-[1_0_auto] md:flex-[1] flex"
+    [style.marginTop.px]="mobileQuery.matches ? 56 : 0"
+  >
+    <mat-sidenav
+      #snav
+      class="block"
+      [mode]="mobileQuery.matches ? 'over' : 'side'"
+      [fixedInViewport]="mobileQuery.matches"
+      fixedTopGap="56"
+    >
+      <mat-nav-list>
+        @if (authService.getToken('token') == null) {
+          <div class="container">
+            <button mat-list-item routerLink="/login">
+              <span class="flex items-center gap-4 p-3">
+                <mat-icon>login</mat-icon>
+                <span>Log In</span>
+              </span>
+            </button>
+          </div>
+          <div class="container">
+            <button mat-menu-item routerLink="/signup">
+              <span class="flex items-center gap-4 p-3">
+                <mat-icon>person_add</mat-icon>
+                <span>Sign Up</span>
+              </span>
+            </button>
+          </div>
+        }
+        @else {
+          <div class="container">
+            <button mat-menu-item routerLink="/home" (click)="onLogout()">
+              <span class="flex items-center gap-4 p-3">
+                <mat-icon>logout</mat-icon>
+                <span>Log Out</span>
+              </span>
+            </button>
+          </div>
+        }
+      </mat-nav-list>
+    </mat-sidenav>
+
+    <mat-sidenav-content>
+      <router-outlet></router-outlet>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>
