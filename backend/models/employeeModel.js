@@ -13,8 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       employeeId: {
         type: DataTypes.STRING(50),
-        allowNull: false,
-        unique: true
+        allowNull: false
       },
       clientId: {
         type: DataTypes.INTEGER,
@@ -76,7 +75,7 @@ module.exports = (sequelize, DataTypes) => {
       wageId: {
         type: DataTypes.STRING
       },
-      
+
     },
     {
       freezeTableName: true,

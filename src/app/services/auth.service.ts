@@ -18,9 +18,15 @@ export class AuthService {
   constructor(private http: HttpClient) { }
 
   //** GET USERS FUNCTION **//
-  getUsers(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/get-users`, this.httpOptions)
-    .pipe(catchError(this.handleError<any>(this.err)))
+  getUsers(offset?: number | null, limit?: number | null): Observable<any> {
+    if((offset == undefined || offset == null) && (limit == undefined || limit == null)) {
+      return this.http.get(`${this.baseUrl}/get-users/`, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    }
+    else {
+      return this.http.get(`${this.baseUrl}/get-users/${offset}/${limit}`, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    }
   }
 
   //** GET USER FUNCTION **//
@@ -37,6 +43,18 @@ export class AuthService {
   //** LOGIN FUNCTION **//
   login(userData: any): Observable<any> {
     return this.http.post(`${this.baseUrl}/login`, userData, this.httpOptions)
+    .pipe(catchError(this.handleError<any>(this.err)))
+  }
+
+  //** EDIT DETAILS **//
+  editDetails(id: number, user: any): Observable<any> {
+    return this.http.put(`${this.baseUrl}/edit-details/${id}`, user, this.httpOptions)
+    .pipe(catchError(this.handleError<any>(this.err)))
+  }
+
+  //** EDIT ACCESS **//
+  editAccess(id: number, user: any): Observable<any> {
+    return this.http.put(`${this.baseUrl}/edit-access/${id}`, user, this.httpOptions)
     .pipe(catchError(this.handleError<any>(this.err)))
   }
 

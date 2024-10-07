@@ -21,8 +21,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       clientName: {
         type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
+        allowNull: false
       },
       description: {
         type: DataTypes.STRING,

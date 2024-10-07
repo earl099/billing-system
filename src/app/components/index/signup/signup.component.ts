@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -39,7 +39,7 @@ export class SignupComponent implements OnInit {
 
   }
 
-  constructor(private fb: FormBuilder, private toastr: ToastrService) {
+  constructor(private fb: FormBuilder, private toastr: ToastrService, private router: Router) {
     //initialize the signupForm
     this.signUpForm = this.fb.group({
       username: ['', Validators.required],
@@ -58,39 +58,49 @@ export class SignupComponent implements OnInit {
         let logData
         if(users.length < 1) {
           this.signUpForm.get('userType')?.setValue('Admin')
-          this.authService.signup(this.signUpForm.value).subscribe((res) => {
-            if(res) {
-              logData = {
-                operation: 'Add Admin Account',
-                user: this.signUpForm.get('username')?.value
-              }
 
-              this.logsService.addLog(logData).subscribe((res) => {
-                console.log(res.logs)
+          logData = {
+            operation: 'Add Admin Account',
+            user: this.signUpForm.get('username')?.value
+          }
+
+          this.logsService.addLog(logData).subscribe((res) => {
+            if(res) {
+              this.authService.signup(this.signUpForm.value).subscribe((res) => {
+                if(res) {
+                  this.toastr.success(res.message)
+                  this.router.navigate(['/login'])
+                }
+                else {
+                  this.toastr.error('Error signing up')
+                }
               })
             }
-            else {
-              this.toastr.error('Error signing up')
-            }
           })
+
         }
         else {
           this.signUpForm.get('userType')?.setValue('User')
-          this.authService.signup(this.signUpForm.value).subscribe({
-            next: (res) => {
-              logData = {
-                operation: 'Add User Account',
-                user: this.signUpForm.get('username')?.value
-              }
 
-              this.logsService.addLog(logData).subscribe((res) => {
-                console.log(res.logs)
+          logData = {
+            operation: 'Add User Account',
+            user: this.signUpForm.get('username')?.value
+          }
+
+          this.logsService.addLog(logData).subscribe((res) => {
+            if(res) {
+              this.authService.signup(this.signUpForm.value).subscribe((res) => {
+                if(res) {
+                  this.toastr.success(res.message)
+                  this.router.navigate(['/login'])
+                }
+                else {
+                  this.toastr.error('Server error')
+                }
               })
-            },
-            error: (e) => {
-              this.toastr.error(e)
             }
           })
+
         }
       })
     }

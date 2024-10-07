@@ -8,7 +8,6 @@ const authConfig = require("../config/authConfig");
 //** IMPORTS FOR USER LOGIN **/
 const jwt = require("jsonwebtoken");
 const crypto = require('crypto')
-const { Sequelize } = require('../config/sequelize')
 
 //** ADD USER FUNCTION **/
 const addUser = async (req, res) => {
@@ -18,7 +17,7 @@ const addUser = async (req, res) => {
   let passwordHash = authConfig.encryptPass(password);
 
   //data preparation for database insertion
-  const user = {
+  let user = {
     email: email,
     username: username,
     password: passwordHash,
@@ -27,6 +26,64 @@ const addUser = async (req, res) => {
 
   //query for inserting in database
   try {
+    //will check if user is an admin account
+    if(user.userType == 'Admin') {
+      Object.assign(user, {
+        //ACCOUNT ACCESS
+        viewAcct: true,
+        addAcct: true,
+        editAcct: true,
+        delAcct: true,
+
+        //PAY FREQUENCY ACCESS
+        viewPayF: true,
+        addPayF: true,
+        editPayF: true,
+        delPayF: true,
+
+        //CLIENT ACCESS
+        viewClient: true,
+        addClient: true,
+        editClient: true,
+        delClient: true,
+
+        //EMPLOYEE ACCESS
+        viewEmp: true,
+        addEmp: true,
+        editEmp: true,
+        delEmp: true,
+
+        //CLASSIFICATION ACCESS
+        viewClass: true,
+        addClass: true,
+        editClass: true,
+        delClass: true,
+
+        //DEPARTMENT ACCESS
+        viewDept: true,
+        addDept: true,
+        editDept: true,
+        delDept: true,
+
+        //POSITION ACCESS
+        viewPos: true,
+        addPos: true,
+        editPos: true,
+        delPos: true,
+
+        //LOCATION ACCESS
+        viewLoc: true,
+        addLoc: true,
+        editLoc: true,
+        delLoc: true,
+
+        //WAGE ACCESS
+        viewWage: true,
+        addWage: true,
+        editWage: true,
+        delWage: true
+      })
+    }
     const createdUser = await userModel.create(user);
     res
       .status(201)
@@ -38,9 +95,18 @@ const addUser = async (req, res) => {
 
 //** GET USERS FUNCTION **/
 const getUsers = async (req, res) => {
-  const users = await userModel.findAll({
-    attributes: ["username", "email", "password", "userType"],
-  });
+  const { offset, limit } = req.params
+
+  let users
+  if((limit == NaN || limit == undefined) && (offset == NaN || offset == undefined)) {
+    users = await userModel.findAll();
+  }
+  else {
+    users = await userModel.findAll({
+      offset: Number(offset),
+      limit: Number(limit)
+    });
+  }
 
   if (users.length > 0) {
     res.status(200).json({ message: "Users found.", users: users });
@@ -51,12 +117,12 @@ const getUsers = async (req, res) => {
 
 //** GET ONE USER **//
 const getUser = async (req, res) => {
+
   const { emailOrUser } = req.body
 
   if(emailOrUser.includes('@')) {
     try {
       const user = await userModel.findOne({
-        attributes: ['email', 'password', 'userType'],
         where: { email: emailOrUser }
       })
 
@@ -74,7 +140,6 @@ const getUser = async (req, res) => {
   else {
     try {
       const user = await userModel.findOne({
-        attributes: ['username', 'password', 'userType'],
         where: { username: emailOrUser }
       })
 
@@ -88,6 +153,140 @@ const getUser = async (req, res) => {
       res.status(500).send({ message: 'Server Error' })
     }
 
+  }
+}
+
+//** EDIT USER DETAILS **//
+const editDetails = async (req, res) => {
+  const userId = req.params.id
+  const { username, email, password } = req.body
+  let passwordHash = authConfig.encryptPass(password)
+
+  const newUserDetObj = {
+    username,
+    password: passwordHash,
+    email
+  }
+
+  try {
+    const updatedUserDet = await userModel.update(user, { where: { id: userId } })
+    res.status(200).send({ message: 'User details updated successfully.', updatedUser: updatedUserDet, user: newUserDetObj })
+  } catch (error) {
+    res.status(500).send({ message: 'Server error', error: error })
+  }
+}
+
+//** EDIT USER ACCESS **//
+const editAccess = async (req, res) => {
+  const userId = req.params.id
+  const {
+    //ACCOUNT ACCESS
+    viewAcct,
+    addAcct,
+    editAcct,
+    delAcct,
+
+    //PAY FREQUENCY ACCESS
+    viewPayF,
+    addPayF,
+    editPayF,
+    delPayF,
+
+    //CLIENT ACCESS
+    viewClient,
+    addClient,
+    editClient,
+    delClient,
+
+    //EMPLOYEE ACCESS
+    viewEmp,
+    addEmp,
+    editEmp,
+    delEmp,
+
+    //CLASSIFICATION ACCESS
+    viewClass,
+    addClass,
+    editClass,
+    delClass,
+
+    //DEPARTMENT ACCESS
+    viewDept,
+    addDept,
+    editDept,
+    delDept,
+
+    //POSITION ACCESS
+    viewPos,
+    addPos,
+    editPos,
+    delPos,
+
+    //LOCATION ACCESS
+    viewLoc,
+    addLoc,
+    editLoc,
+    delLoc,
+
+    //WAGE ACCESS
+    viewWage,
+    addWage,
+    editWage,
+    delWage,
+  } = req.body
+
+  const updatedUserAccObj = {
+    viewAcct,
+    addAcct,
+    editAcct,
+    delAcct,
+
+    viewPayF,
+    addPayF,
+    editPayF,
+    delPayF,
+
+    viewClient,
+    addClient,
+    editClient,
+    delClient,
+
+    viewEmp,
+    addEmp,
+    editEmp,
+    delEmp,
+
+    viewClass,
+    addClass,
+    editClass,
+    delClass,
+
+    viewDept,
+    addDept,
+    editDept,
+    delDept,
+
+    viewPos,
+    addPos,
+    editPos,
+    delPos,
+
+    viewLoc,
+    addLoc,
+    editLoc,
+    delLoc,
+
+    viewWage,
+    addWage,
+    editWage,
+    delWage,
+  }
+
+  try {
+    const updatedUserAcc = await userModel.update(updatedUserAccObj, { where: { id: userId } })
+    res.status(200).send({ message: 'User access updated successfully.', updatedUserAcc: updatedUserAcc })
+  } catch (error) {
+    res.status(500).send({ message: 'Server error', error: error })
   }
 }
 
@@ -159,5 +358,7 @@ module.exports = {
   addUser,
   getUsers,
   getUser,
+  editDetails,
+  editAccess,
   login
 };

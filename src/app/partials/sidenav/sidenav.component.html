@@ -82,14 +82,25 @@
           </div>
         }
         @else {
-          <div class="container">
-            <button mat-menu-item routerLink="/home" (click)="onLogout()">
+          @if(authService.getToken('userType') == 'Admin') {
+            <!-- ADMIN ACCOUNT ACCESS -->
+            <button mat-menu-item routerLink="/accounts">
               <span class="flex items-center gap-4 p-3">
-                <mat-icon>logout</mat-icon>
-                <span>Log Out</span>
+                <mat-icon>group</mat-icon>
+                <span>Accounts</span>
               </span>
             </button>
-          </div>
+          }
+          @else {
+
+          }
+          <button mat-menu-item routerLink="/home" (click)="onLogout()">
+            <span class="flex items-center gap-4 p-3">
+              <mat-icon>logout</mat-icon>
+              <span>Log Out</span>
+            </span>
+          </button>
+
         }
       </mat-nav-list>
     </mat-sidenav>
