@@ -63,7 +63,7 @@ export class SignupComponent implements OnInit {
             operation: 'Add Admin Account',
             user: this.signUpForm.get('username')?.value
           }
-
+          
           this.logsService.addLog(logData).subscribe((res) => {
             if(res) {
               this.authService.signup(this.signUpForm.value).subscribe((res) => {

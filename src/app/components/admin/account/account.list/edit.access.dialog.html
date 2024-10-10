@@ -1,1 +1,378 @@
-<mat-card></mat-card>
+<h2 mat-dialog-title>Edit Access</h2>
+<mat-dialog-content>
+  <form [formGroup]="editAccessForm">
+    <mat-accordion multi>
+      <!-- ACCOUNT ACCESS -->
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>Account</mat-expansion-panel-header>
+        <mat-form-field class="mt-5">
+          <mat-label>View Accounts</mat-label>
+          <mat-select [value]="editAccessForm.get('viewAcct')?.getRawValue()" formControlName='viewAcct'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="mt-5 ml-5">
+          <mat-label>Add Accounts</mat-label>
+          <mat-select [value]="editAccessForm.get('addAcct')?.getRawValue()" formControlName='addAcct'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="mt-5">
+          <mat-label>Edit Accounts</mat-label>
+          <mat-select [value]="editAccessForm.get('editAcct')?.getRawValue()" formControlName='editAcct'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="mt-5 ml-5">
+          <mat-label>Delete Accounts</mat-label>
+          <mat-select [value]="editAccessForm.get('delAcct')?.getRawValue()" formControlName='delAcct'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </mat-expansion-panel>
+
+      <!-- PAY FREQUENCY ACCESS -->
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>Pay Frequency</mat-expansion-panel-header>
+        <mat-form-field class="mt-5">
+          <mat-label>View Pay Frequencies</mat-label>
+          <mat-select [value]="editAccessForm.get('viewPayF')?.getRawValue()" formControlName='viewPayF'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="mt-5 ml-5">
+          <mat-label>Add Pay Frequencies</mat-label>
+          <mat-select [value]="editAccessForm.get('addPayF')?.getRawValue()" formControlName='addPayF'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="mt-5">
+          <mat-label>Edit Pay Frequencies</mat-label>
+          <mat-select [value]="editAccessForm.get('editPayF')?.getRawValue()" formControlName='editPayF'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="mt-5 ml-5">
+          <mat-label>Delete Pay Frequencies</mat-label>
+          <mat-select [value]="editAccessForm.get('delPayF')?.getRawValue()" formControlName='delPayF'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </mat-expansion-panel>
+
+      <!-- CLIENT ACCESS -->
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>Client</mat-expansion-panel-header>
+        <mat-form-field class="mt-5">
+          <mat-label>View Clients</mat-label>
+          <mat-select [value]="editAccessForm.get('viewClient')?.getRawValue()" formControlName='viewClient'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="mt-5 ml-5">
+          <mat-label>Add Clients</mat-label>
+          <mat-select [value]="editAccessForm.get('addClient')?.getRawValue()" formControlName='addClient'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="mt-5">
+          <mat-label>Edit Clients</mat-label>
+          <mat-select [value]="editAccessForm.get('editClient')?.getRawValue()" formControlName='editClient'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="mt-5 ml-5">
+          <mat-label>Delete Clients</mat-label>
+          <mat-select [value]="editAccessForm.get('delClient')?.getRawValue()" formControlName='delClient'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </mat-expansion-panel>
+
+      <!-- EMPLOYEE ACCESS -->
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>Employee</mat-expansion-panel-header>
+        <mat-form-field class="mt-5">
+          <mat-label>View Employees</mat-label>
+          <mat-select [value]="editAccessForm.get('viewEmp')?.getRawValue()" formControlName='viewEmp'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="mt-5 ml-5">
+          <mat-label>Add Employees</mat-label>
+          <mat-select [value]="editAccessForm.get('addEmp')?.getRawValue()" formControlName='addEmp'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="mt-5">
+          <mat-label>Edit Employees</mat-label>
+          <mat-select [value]="editAccessForm.get('editEmp')?.getRawValue()" formControlName='editEmp'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="mt-5 ml-5">
+          <mat-label>Delete Employees</mat-label>
+          <mat-select [value]="editAccessForm.get('delEmp')?.getRawValue()" formControlName='delEmp'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </mat-expansion-panel>
+
+      <!-- CLASSIFICATION ACCESS -->
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>Classification</mat-expansion-panel-header>
+        <mat-form-field class="mt-5">
+          <mat-label>View Classifications</mat-label>
+          <mat-select [value]="editAccessForm.get('viewClass')?.getRawValue()" formControlName='viewClass'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="mt-5 ml-5">
+          <mat-label>Add Classifications</mat-label>
+          <mat-select [value]="editAccessForm.get('addClass')?.getRawValue()" formControlName='addClass'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="mt-5">
+          <mat-label>Edit Classifications</mat-label>
+          <mat-select [value]="editAccessForm.get('editClass')?.getRawValue()" formControlName='editClass'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="mt-5 ml-5">
+          <mat-label>Delete Classifications</mat-label>
+          <mat-select [value]="editAccessForm.get('delClass')?.getRawValue()" formControlName='delClass'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </mat-expansion-panel>
+
+      <!-- DEPARTMENT ACCESS -->
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>Department</mat-expansion-panel-header>
+        <mat-form-field class="mt-5">
+          <mat-label>View Departments</mat-label>
+          <mat-select [value]="editAccessForm.get('viewDept')?.getRawValue()" formControlName='viewDept'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="mt-5 ml-5">
+          <mat-label>Add Departments</mat-label>
+          <mat-select [value]="editAccessForm.get('addDept')?.getRawValue()" formControlName='addDept'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="mt-5">
+          <mat-label>Edit Departments</mat-label>
+          <mat-select [value]="editAccessForm.get('editDept')?.getRawValue()" formControlName='editDept'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="mt-5 ml-5">
+          <mat-label>Delete Departments</mat-label>
+          <mat-select [value]="editAccessForm.get('delDept')?.getRawValue()" formControlName='delDept'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </mat-expansion-panel>
+
+      <!-- POSITION ACCESS -->
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>Position</mat-expansion-panel-header>
+        <mat-form-field class="mt-5">
+          <mat-label>View Positions</mat-label>
+          <mat-select [value]="editAccessForm.get('viewPos')?.getRawValue()" formControlName='viewPos'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="mt-5 ml-5">
+          <mat-label>Add Positions</mat-label>
+          <mat-select [value]="editAccessForm.get('addPos')?.getRawValue()" formControlName='addPos'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="mt-5">
+          <mat-label>Edit Positions</mat-label>
+          <mat-select [value]="editAccessForm.get('editPos')?.getRawValue()" formControlName='editPos'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="mt-5 ml-5">
+          <mat-label>Delete Positions</mat-label>
+          <mat-select [value]="editAccessForm.get('delPos')?.getRawValue()" formControlName='delPos'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </mat-expansion-panel>
+
+      <!-- LOCATION ACCESS -->
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>Location</mat-expansion-panel-header>
+        <mat-form-field class="mt-5">
+          <mat-label>View Locations</mat-label>
+          <mat-select [value]="editAccessForm.get('viewLoc')?.getRawValue()" formControlName='viewLoc'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="mt-5 ml-5">
+          <mat-label>Add Locations</mat-label>
+          <mat-select [value]="editAccessForm.get('addLoc')?.getRawValue()" formControlName='addLoc'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="mt-5">
+          <mat-label>Edit Locations</mat-label>
+          <mat-select [value]="editAccessForm.get('editLoc')?.getRawValue()" formControlName='editLoc'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="mt-5 ml-5">
+          <mat-label>Delete Locations</mat-label>
+          <mat-select [value]="editAccessForm.get('delLoc')?.getRawValue()" formControlName='delLoc'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </mat-expansion-panel>
+
+      <!-- WAGE ACCESS -->
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>Wage</mat-expansion-panel-header>
+        <mat-form-field class="mt-5">
+          <mat-label>View Wages</mat-label>
+          <mat-select [value]="editAccessForm.get('viewWage')?.getRawValue()" formControlName='viewWage'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="mt-5 ml-5">
+          <mat-label>Add Wages</mat-label>
+          <mat-select [value]="editAccessForm.get('addWage')?.getRawValue()" formControlName='addWage'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="mt-5">
+          <mat-label>Edit Wages</mat-label>
+          <mat-select [value]="editAccessForm.get('editWage')?.getRawValue()" formControlName='editWage'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="mt-5 ml-5">
+          <mat-label>Delete Wages</mat-label>
+          <mat-select [value]="editAccessForm.get('delWage')?.getRawValue()" formControlName='delWage'>
+            @for (option of options; track option) {
+              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+
+  <button mat-raised-button mat-dialog-close color="primary" type="submit" class="w-full py-2" [disabled]="editAccessForm.invalid" (click)="onEditAccess(editAccessForm)">
+    Edit Access
+  </button>
+
+  <button mat-raised-button mat-dialog-close color="primary" class="w-full py-2 mt-3">
+    Close Dialog
+  </button>
+
+
+</mat-dialog-actions>

@@ -30,8 +30,8 @@ export class AuthService {
   }
 
   //** GET USER FUNCTION **//
-  getUser(emailOrUser: string): Observable<any> {
-    return this.http.get(`${this.baseUrl}/get-user/${emailOrUser}`, this.httpOptions)
+  getUser(id: number): Observable<any> {
+    return this.http.get(`${this.baseUrl}/get-user/${id}`, this.httpOptions)
     .pipe(catchError(this.handleError<any>(this.err)))
   }
 
@@ -56,6 +56,11 @@ export class AuthService {
   editAccess(id: number, user: any): Observable<any> {
     return this.http.put(`${this.baseUrl}/edit-access/${id}`, user, this.httpOptions)
     .pipe(catchError(this.handleError<any>(this.err)))
+  }
+
+  //** DELETE USER **/
+  deleteUser(id: number):Observable<any> {
+    return this.http.delete(`${this.baseUrl}/delete-user/${id}`, this.httpOptions)
   }
 
   //** TOKEN FUNCTIONS **//

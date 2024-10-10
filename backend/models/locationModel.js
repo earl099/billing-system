@@ -13,8 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       clientId: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        unique: true
+        allowNull: false
       },
       locName: {
         type: DataTypes.STRING,

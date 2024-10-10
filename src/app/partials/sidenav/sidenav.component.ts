@@ -11,6 +11,7 @@ import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
+import { LogsService } from '../../services/logs.service';
 
 @Component({
   selector: 'app-sidenav',
@@ -34,6 +35,7 @@ import { CommonModule } from '@angular/common';
 export class SidenavComponent implements OnDestroy {
   router = inject(Router)
   authService = inject(AuthService)
+  logsService = inject(LogsService)
   changeDetectorRef = inject(ChangeDetectorRef)
   media = inject(MediaMatcher)
   mobileQuery: MediaQueryList
@@ -53,8 +55,17 @@ export class SidenavComponent implements OnDestroy {
 
   onLogout() {
     //clear localstorage and redirect to home
-    this.authService.deleteToken()
-    this.toastr.success('Logged out successfully.')
-    this.router.navigate(['/home'])
+    const logData = {
+      operation: 'Account Logged Out',
+      user: this.authService.getToken('user')
+    }
+    this.logsService.addLog(logData).subscribe((res) => {
+      if(res) {
+        this.authService.deleteToken()
+        this.toastr.success('Logged out successfully.')
+        this.router.navigate(['/home'])
+      }
+    })
+
   }
 }

@@ -26,11 +26,6 @@ const getClients = async (req, res) => {
   const { offset, limit } = req.body
 
   const clients = await clientModel.findAll({
-    attributes: [
-      'clientCode',
-      'clientName',
-      'payFrequency'
-    ],
     offset: offset,
     limit: limit
   })

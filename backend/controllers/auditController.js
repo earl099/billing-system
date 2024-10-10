@@ -1,15 +1,15 @@
 "use strict"
 
+const { user } = require('../config/dbConfig')
 const db = require('../config/sequelize')
 const auditModel = db.auditModel
 
 //** ADDING AUDIT LOGS **/
 const addLog = async (req, res) => {
   const { operation, user } = req.body
-
-  const audit = {
-    operation: operation,
-    user: user
+  let audit = {
+    operation,
+    user
   }
 
   try {
@@ -34,7 +34,7 @@ const getLogs = async (req, res) => {
     res.status(200).send({ message: 'No logs created', logs: logs })
   }
   else {
-    res.status(400).send({ message: 'Log list created.', logs: logs })
+    res.status(200).send({ message: 'Log list created.', logs: logs })
   }
 }
 

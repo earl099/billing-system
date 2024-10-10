@@ -7,6 +7,7 @@ import { MatCardModule } from '@angular/material/card';
 import { ToastrService } from 'ngx-toastr';
 import { AuthService } from '../../../services/auth.service';
 import { Router } from '@angular/router';
+import { LogsService } from '../../../services/logs.service';
 
 @Component({
   selector: 'app-login',
@@ -25,6 +26,7 @@ import { Router } from '@angular/router';
 export class LoginComponent {
   signInForm: FormGroup
   authService = inject(AuthService)
+  logsService = inject(LogsService)
   router = inject(Router)
 
   constructor(private fb: FormBuilder, private toastr: ToastrService) {
@@ -57,6 +59,12 @@ export class LoginComponent {
           this.router.navigate(['/home'])
         }, expiration * 1000)
         this.router.navigate(['/dashboard'])
+
+        let logData = {
+          operation: 'Logged in Account',
+          user: this.authService.getToken('user')
+        }
+        this.logsService.addLog(logData).subscribe()
       }
       else {
         this.toastr.error('Invalid credentials.')

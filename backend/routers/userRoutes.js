@@ -9,7 +9,7 @@ router.get('/get-users/:offset/:limit', userController.getUsers)
 router.get('/get-users', userController.getUsers)
 
 //GET USER ROUTE
-router.get('/get-user/:emailOrUser', userController.getUser)
+router.get('/get-user/:id', userController.getUser)
 
 //LOGIN ROUTE
 router.post('/login', userController.login)
@@ -19,5 +19,8 @@ router.put('/edit-details/:id', userController.editDetails)
 
 //EDIT ACCESS ROUTE
 router.put('/edit-access/:id', userController.editAccess)
+
+//DELETE USER ROUTE
+router.delete('/delete-user/:id', userController.delUser)
 
 module.exports = router

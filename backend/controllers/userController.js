@@ -117,42 +117,15 @@ const getUsers = async (req, res) => {
 
 //** GET ONE USER **//
 const getUser = async (req, res) => {
+  const userId = req.params.id
 
-  const { emailOrUser } = req.body
+  let user = await userModel.findOne({ where: { id: Number(userId) } })
 
-  if(emailOrUser.includes('@')) {
-    try {
-      const user = await userModel.findOne({
-        where: { email: emailOrUser }
-      })
-
-      if(user != null) {
-        res.status(200).send({ message: 'User found.', user: user })
-      }
-      else {
-        res.status(400).send({ message: 'No user found.' })
-      }
-    }
-    catch (error) {
-      res.status(500).send({ message: 'Server Error' })
-    }
+  if(user) {
+    res.status(200).send({ message: 'User Found', user: user })
   }
   else {
-    try {
-      const user = await userModel.findOne({
-        where: { username: emailOrUser }
-      })
-
-      if(user != null) {
-        res.status(200).send({ message: 'User found.', user: user })
-      }
-      else {
-        res.status(400).send({ message: 'No user found.' })
-      }
-    } catch (error) {
-      res.status(500).send({ message: 'Server Error' })
-    }
-
+    res.status(200).send({ message: 'No User Found' })
   }
 }
 
@@ -160,20 +133,35 @@ const getUser = async (req, res) => {
 const editDetails = async (req, res) => {
   const userId = req.params.id
   const { username, email, password } = req.body
-  let passwordHash = authConfig.encryptPass(password)
 
-  const newUserDetObj = {
-    username,
-    password: passwordHash,
-    email
+  let user = await userModel.findOne({ where: { id: Number(userId) } })
+  let userDetObj
+  if(user.password == password) {
+    userDetObj = {
+      username: username,
+      email: email
+    }
+  }
+  else {
+    let passwordHash = authConfig.encryptPass(password)
+    userDetObj = {
+      username,
+      password: passwordHash,
+      email
+    }
   }
 
-  try {
-    const updatedUserDet = await userModel.update(user, { where: { id: userId } })
-    res.status(200).send({ message: 'User details updated successfully.', updatedUser: updatedUserDet, user: newUserDetObj })
-  } catch (error) {
-    res.status(500).send({ message: 'Server error', error: error })
+
+  const updatedUserDet = await userModel.update(userDetObj, { where: { id: Number(userId) } })
+
+  if(updatedUserDet) {
+    res.status(200).send({ message: 'User details updated successfully.', updatedUser: updatedUserDet, user: userDetObj })
   }
+  else {
+    res.status(500).send({ message: 'Server error' })
+  }
+
+
 }
 
 //** EDIT USER ACCESS **//
@@ -290,6 +278,20 @@ const editAccess = async (req, res) => {
   }
 }
 
+//** DELETE USER **//
+const delUser = async (req, res) => {
+  const userId = req.params.id
+
+  const deletedUser = await userModel.destroy({ where: { id: userId } })
+
+  if(deletedUser) {
+    res.status(200).send({ message: 'User Deleted Successfully', deletedUser: deletedUser })
+  }
+  else {
+    res.status(404).send({ message: 'User not found.' })
+  }
+}
+
 //** LOGIN FUNCTION **/
 const login = async (req, res) => {
 
@@ -360,5 +362,6 @@ module.exports = {
   getUser,
   editDetails,
   editAccess,
+  delUser,
   login
 };

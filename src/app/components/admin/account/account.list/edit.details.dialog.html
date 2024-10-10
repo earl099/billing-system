@@ -1,0 +1,46 @@
+<h2 mat-dialog-title>Edit Details</h2>
+<mat-dialog-content>
+  <form [formGroup]="editDetailForm">
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Username</mat-label>
+      <input matInput type="text" formControlName="username">
+      <mat-error *ngIf="editDetailForm.get('username')?.hasError('required')">
+        Required Field
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Email</mat-label>
+      <input matInput type="text" formControlName="email">
+      <mat-error *ngIf="editDetailForm.get('email')?.hasError('required')">
+        Required Field
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Password</mat-label>
+      <input matInput type="password" formControlName="password">
+      <mat-error *ngIf="editDetailForm.get('password')?.hasError('required')">
+        Required Field
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="w-full mb-4">
+      <mat-label>User Type</mat-label>
+      <input matInput type="text" formControlName="userType" readonly>
+      <mat-error *ngIf="editDetailForm.get('userType')?.hasError('required')">
+        Required Field
+      </mat-error>
+    </mat-form-field>
+
+    <div class="mt-6">
+      <button mat-raised-button mat-dialog-close color="primary" type="submit" class="w-full py-2" [disabled]="editDetailForm.invalid" (click)="onEditDetails(editDetailForm)">
+        Edit Details
+      </button>
+
+      <button mat-raised-button mat-dialog-close color="primary" class="w-full py-2 mt-3">
+        Close Dialog
+      </button>
+    </div>
+  </form>
+</mat-dialog-content>
