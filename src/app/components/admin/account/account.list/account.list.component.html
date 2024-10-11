@@ -11,7 +11,7 @@
         <input matInput (keyup)="applyFilter($event)" placeholder="Enter a filter" autocomplete="off" #input>
       </mat-form-field>
 
-      <table mat-table [dataSource]="dataSource" matSort (matSortChange)="announceSortChange($event)">
+      <table mat-table [dataSource]="dataSource" matSort (matSortChange)="announceSortChange($event)" >
         <ng-container matColumnDef="username">
           <th mat-header-cell *matHeaderCellDef>Username</th>
           <td mat-cell *matCellDef="let user"> {{user.username}} </td>
@@ -27,24 +27,18 @@
           <td mat-cell *matCellDef="let user"> {{user.userType}} </td>
         </ng-container>
 
-        <ng-container matColumnDef="editDetails">
-          <th mat-header-cell *matHeaderCellDef>Edit Details</th>
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
           <td mat-cell *matCellDef="let user">
-            <button mat-raised-button (click)='openDetailDialog(user.id)'>Edit</button>
-          </td>
-        </ng-container>
+            <div class="flex justify-between">
+              <button mat-mini-fab matTooltip="Edit Details" (click)='openDetailDialog(user.id)'><mat-icon>edit_note</mat-icon></button>
+              <button mat-mini-fab matTooltip="Edit Access" (click)='openAccessDialog(user.id)'><mat-icon>edit_square</mat-icon></button>
+              <button mat-mini-fab matTooltip="Delete User" (click)='delUser(user.id)'
+                [disabled]="(user.username == authService.getToken('user')) || user.username == authService.getToken('user')">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
 
-        <ng-container matColumnDef="editAccess">
-          <th mat-header-cell *matHeaderCellDef>Edit Access</th>
-          <td mat-cell *matCellDef="let user">
-            <button mat-raised-button (click)='openAccessDialog(user.id)'>Edit</button>
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="delUser">
-          <th mat-header-cell *matHeaderCellDef>Delete User</th>
-          <td mat-cell *matCellDef="let user">
-            <button mat-raised-button (click)='delUser(user.id)'>Delete</button>
           </td>
         </ng-container>
 

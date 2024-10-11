@@ -16,6 +16,8 @@ import { LogsService } from '../../../../services/logs.service';
 import { ToastrService } from 'ngx-toastr';
 import { MatSelectModule } from '@angular/material/select';
 import { MatExpansionModule } from '@angular/material/expansion'
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-account.list',
@@ -29,6 +31,8 @@ import { MatExpansionModule } from '@angular/material/expansion'
     MatTableModule,
     MatPaginator,
     MatSort,
+    MatIconModule,
+    MatTooltipModule
   ],
   templateUrl: './account.list.component.html',
   styleUrl: './account.list.component.scss',
@@ -44,9 +48,7 @@ export class AccountListComponent implements OnInit {
     'username',
     'email',
     'userType',
-    'editDetails',
-    'editAccess',
-    'delUser'
+    'actions'
   ]
 
   //paginator and sort
@@ -141,7 +143,11 @@ export class AccountListComponent implements OnInit {
 
       this.authService.deleteUser(Number(id)).subscribe((res) => {
         if(res) {
-          this.logsService.addLog(logData).subscribe()
+          this.logsService.addLog(logData).subscribe((res) => {
+            if(res) {
+              this.getUsers()
+            }
+          })
         }
       })
     }
