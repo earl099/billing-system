@@ -19,13 +19,9 @@ const addPayFreq = async (req, res) => {
   }
 }
 
-//** GET PAY FREQUENCIES */
+//** GET PAY FREQUENCIES **//
 const getPayFreqs = async (req, res) => {
-  const payFreqs = await payFreqModel.findAll({
-    attributes: [
-      'id', 'payType'
-    ]
-  })
+  const payFreqs = await payFreqModel.findAll()
 
   if(payFreqs.length < 1) {
     res.status(200).send({ message: 'No Pay Frequencies found' })
@@ -35,7 +31,35 @@ const getPayFreqs = async (req, res) => {
   }
 }
 
+//** GET PAY FREQUENCY **//
+const getPayFreq = async (req, res) => {
+  const id = req.params.id
+
+  let payFreq = await payFreqModel.findOne({ where: { id: id } })
+
+  if(payFreq) {
+    res.status(200).send({ message: 'Pay Frequency Found', payFreq: payFreq })
+  }
+  else {
+    res.status(200).send({ message: 'No Pay Frequency Found.' })
+  }
+}
+
+//** EDIT PAY FREQUENCY **//
+const editPayFreq = async (req, res) => {
+
+}
+
+
+//** DELETE PAY FREQUENCY **//
+const deletePayFreq = async (req, res) => {
+
+}
+
 module.exports = {
   addPayFreq,
-  getPayFreqs
+  getPayFreqs,
+  getPayFreq,
+  editPayFreq,
+  deletePayFreq
 }

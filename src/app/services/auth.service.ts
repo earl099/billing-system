@@ -14,8 +14,9 @@ export class AuthService {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' })
   }
   err = 'An error occured.'
+  http = inject(HttpClient)
 
-  constructor(private http: HttpClient) { }
+  constructor() { }
 
   //** GET USERS FUNCTION **//
   getUsers(offset?: number | null, limit?: number | null): Observable<any> {

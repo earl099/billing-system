@@ -100,18 +100,25 @@ const getUsers = async (req, res) => {
   let users
   if((limit == NaN || limit == undefined) && (offset == NaN || offset == undefined)) {
     users = await userModel.findAll();
+
+    if (users.length > 0) {
+      res.status(200).json({ message: "Users found.", users: users });
+    } else {
+      res.status(200).json({ message: "No Users found." });
+    }
   }
   else {
-    users = await userModel.findAll({
+    const { count, rows } = await userModel.findAndCountAll({
       offset: Number(offset),
       limit: Number(limit)
     });
-  }
 
-  if (users.length > 0) {
-    res.status(200).json({ message: "Users found.", users: users });
-  } else {
-    res.status(200).json({ message: "No Users found.", users: users });
+    try {
+      res.status(200).json({ message: "Users found.", count: count, rows: rows });
+    } catch (e) {
+      res.status(500).send({ message: 'Server Error', error: e })
+    }
+
   }
 };
 

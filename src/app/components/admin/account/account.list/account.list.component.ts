@@ -55,6 +55,7 @@ export class AccountListComponent implements OnInit {
   @ViewChild(MatPaginator) paginator !: MatPaginator
   @ViewChild(MatSort) sort !: MatSort
 
+  //services and modules needed for opening dialogs, adding logs and sorting
   logsService = inject(LogsService)
   authService = inject(AuthService)
   dialog = inject(MatDialog)
@@ -106,7 +107,6 @@ export class AccountListComponent implements OnInit {
   }
 
   //function for opening edit detail dialog
-  dialogData = inject(MatDialog)
   openDetailDialog(data: any) {
     //console.log(data)
     const dialogRef = this.dialog.open(EditDetailsDialog, {
@@ -129,7 +129,21 @@ export class AccountListComponent implements OnInit {
     })
     dialogRef.afterClosed().subscribe(() => {
       this.dataSource.data.splice(0, this.dataSource.data.length)
-      //this.getUsers()
+      this.getUsers()
+    })
+  }
+
+  //function to open view account dialog
+  openViewUserDialog(data: any) {
+    const dialogRef = this.dialog.open(ViewUserDialog, {
+      data: {
+        id: data
+      }
+    })
+
+    dialogRef.afterClosed().subscribe(() => {
+      this.dataSource.data.splice(0, this.dataSource.data.length)
+      this.getUsers()
     })
   }
 
@@ -380,5 +394,59 @@ export class EditAccessDialog implements OnInit {
         }
       })
     }
+  }
+}
+
+@Component({
+  selector: 'view-user-dialog',
+  templateUrl: './view.account.dialog.html',
+  styleUrl: './account.list.component.scss',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatInputModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatGridListModule,
+    ReactiveFormsModule
+  ]
+})
+export class ViewUserDialog implements OnInit {
+  viewAccountForm : FormGroup
+  data = inject(MAT_DIALOG_DATA)
+  authService = inject(AuthService)
+  logsService = inject(LogsService)
+  toastr = inject(ToastrService)
+  userId = this.data.id
+
+
+  constructor(
+    private fb: FormBuilder
+  ) {
+    this.viewAccountForm = this.fb.group({
+      username: ['', Validators.required],
+      email: ['', Validators.required],
+      password: ['', Validators.required],
+      userType: ['']
+    })
+  }
+
+  ngOnInit(): void {
+    this.getUser()
+  }
+
+  getUser() {
+    this.authService.getUser(this.userId).subscribe((res) => {
+      if(res) {
+        let tmpData = res.user
+        //console.log(tmpData)
+        this.viewAccountForm.get('username')?.setValue(tmpData.username)
+        this.viewAccountForm.get('email')?.setValue(tmpData.email)
+        this.viewAccountForm.get('password')?.setValue(tmpData.password)
+        this.viewAccountForm.get('userType')?.setValue(tmpData.userType)
+
+        //console.log(this.editDetailForm.value)
+      }
+    })
   }
 }
