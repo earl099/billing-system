@@ -39,6 +39,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccountListComponent implements OnInit {
+  //toastr service for notification
+  toastr = inject(ToastrService)
+
   //table data source
   dataSource !: MatTableDataSource<any>
   //user list
@@ -159,6 +162,8 @@ export class AccountListComponent implements OnInit {
         if(res) {
           this.logsService.addLog(logData).subscribe((res) => {
             if(res) {
+              this.toastr.success('Account deleted successfully.')
+              this.dataSource.data.splice(0, this.dataSource.data.length)
               this.getUsers()
             }
           })
@@ -260,6 +265,7 @@ export class EditAccessDialog implements OnInit {
   editAccessForm: FormGroup
   authService = inject(AuthService)
   logsService = inject(LogsService)
+  toastr = inject(ToastrService)
   data = inject(MAT_DIALOG_DATA)
   userId = this.data.id
 
@@ -390,7 +396,11 @@ export class EditAccessDialog implements OnInit {
             user: this.authService.getToken('user')
           }
 
-          this.logsService.addLog(logdata).subscribe()
+          this.logsService.addLog(logdata).subscribe((res) => {
+            if(res) {
+              this.toastr.success('Access edited successfully.')
+            }
+          })
         }
       })
     }

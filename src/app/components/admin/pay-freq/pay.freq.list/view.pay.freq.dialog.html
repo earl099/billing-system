@@ -1,0 +1,14 @@
+<h2 mat-dialog-title>View Pay Frequency</h2>
+<mat-dialog-content>
+  <form [formGroup]="viewPayFreqForm">
+    <mat-form-field>
+      <input matInput type="text" formControlName="payType" readonly>
+    </mat-form-field>
+
+    <div class="mt-2">
+      <button mat-raised-button mat-dialog-close color="primary" class="w-full py-2 mt-3">
+        Close Dialog
+      </button>
+    </div>
+  </form>
+</mat-dialog-content>

@@ -1,1 +1,22 @@
+<h2 mat-dialog-title>Add Pay Frequency</h2>
+<mat-dialog-content>
+  <form [formGroup]="addPayFreqForm">
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Pay Type</mat-label>
+      <input matInput type="text" formControlName="payType">
+      <mat-error *ngIf="addPayFreqForm.get('payType')?.hasError('required')">
+        Required Field
+      </mat-error>
+    </mat-form-field>
 
+    <div class="mt-6">
+      <button mat-raised-button mat-dialog-close color="primary" type="submit" class="w-full py-2" [disabled]="addPayFreqForm.invalid" (click)="onAddPayFreq(addPayFreqForm)">
+        Add Pay Frequency
+      </button>
+
+      <button mat-raised-button mat-dialog-close color="primary" class="w-full py-2 mt-3">
+        Close Dialog
+      </button>
+    </div>
+  </form>
+</mat-dialog-content>

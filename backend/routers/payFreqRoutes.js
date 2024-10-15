@@ -7,8 +7,8 @@ router.get('/get-payFreqs', payFreqController.getPayFreqs)
 
 router.get('/get-payFreq/:id', payFreqController.getPayFreq)
 
-router.put('/edit-pay-freq/:id', payFreqController.editPayFreq)
+router.put('/edit-payFreq/:id', payFreqController.editPayFreq)
 
-router.delete('/delete-pay-freq/:id', payFreqController.deletePayFreq)
+router.delete('/delete-payFreq/:id', payFreqController.deletePayFreq)
 
 module.exports = router

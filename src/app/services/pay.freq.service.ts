@@ -17,14 +17,26 @@ export class PayFreqService {
 
   addPayFreq(data: any): Observable<any> {
     return this.http.post(`${this.baseUrl}/add-payFreq`, data, this.httpOptions)
+    .pipe(catchError(this.handleError<any>(this.err)))
   }
 
   getPayFreqs(): Observable<any> {
     return this.http.get(`${this.baseUrl}/get-payFreqs`, this.httpOptions)
+    .pipe(catchError(this.handleError<any>(this.err)))
   }
 
   getPayFreq(id: number): Observable<any> {
-    return this.http.get(`${this.baseUrl}/get/payFreq/${id}`, this.httpOptions)
+    return this.http.get(`${this.baseUrl}/get-payFreq/${id}`, this.httpOptions)
+    .pipe(catchError(this.handleError<any>(this.err)))
+  }
+
+  editPayFreq(id: number, data: any): Observable<any> {
+    return this.http.put(`${this.baseUrl}/edit-payFreq/${id}`, data, this.httpOptions)
+    .pipe(catchError(this.handleError<any>(this.err)))
+  }
+
+  delPayFreq(id: number): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/delete-payFreq/${id}`, this.httpOptions)
     .pipe(catchError(this.handleError<any>(this.err)))
   }
 

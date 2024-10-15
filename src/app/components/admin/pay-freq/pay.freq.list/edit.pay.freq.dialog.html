@@ -1,0 +1,22 @@
+<h2 mat-dialog-title>Edit Pay Frequency</h2>
+<mat-dialog-content>
+  <form [formGroup]="editPayFreqForm">
+    <mat-form-field>
+      <mat-label>Pay Type</mat-label>
+      <input matInput type="text" formControlName="payType">
+      <mat-error *ngIf="editPayFreqForm.get('payType')?.hasError('required')">
+        Required Field
+      </mat-error>
+    </mat-form-field>
+
+    <div class="mt-6">
+      <button mat-raised-button mat-dialog-close color="primary" type="submit" class="w-full py-2" [disabled]="editPayFreqForm.invalid" (click)="onEditPayFreq(editPayFreqForm)">
+        Edit Pay Frequency
+      </button>
+
+      <button mat-raised-button mat-dialog-close color="primary" class="w-full py-2 mt-3">
+        Close Dialog
+      </button>
+    </div>
+  </form>
+</mat-dialog-content>

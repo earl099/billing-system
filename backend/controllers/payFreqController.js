@@ -47,13 +47,31 @@ const getPayFreq = async (req, res) => {
 
 //** EDIT PAY FREQUENCY **//
 const editPayFreq = async (req, res) => {
+  const id = req.params.id
+  const { payType } = req.body
+  const payFreqObj = { payType }
 
+  try {
+    let editedPayFreq = await payFreqModel.update(payFreqObj, { where: { id: id } })
+    res.status(200).send({ message: 'Pay Frequency edited successfully', editedPayFreq: editedPayFreq })
+  } catch (error) {
+    res.status(500).send({ message: 'Server error', error: error })
+  }
 }
 
 
 //** DELETE PAY FREQUENCY **//
 const deletePayFreq = async (req, res) => {
+  const id = req.params.id
 
+  const deletedPayFreq = await payFreqModel.destroy({ where: { id: id } })
+
+  if(deletedPayFreq) {
+    res.status(200).send({ message: 'Pay frequency deleted successfully' })
+  }
+  else {
+    res.status(404).send({ message: 'Pay Frequency not found.' })
+  }
 }
 
 module.exports = {
