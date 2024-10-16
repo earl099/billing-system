@@ -1,1 +1,24 @@
-<p>client.list works!</p>
+<div class="min-h-screen flex flex-col items-center justify-center bg-gray-100">
+  <mat-card class="shadow-lg w-full max-w-3xl p-6">
+    <mat-card-header class="!flex justify-between text-2xl font-semibold text-center text-gray-700 mb-6 items-center">
+      <mat-card-title>
+        Client
+      </mat-card-title>
+
+      <div>
+        <button mat-raised-button (click)="openAddClientDialog()">Add Client</button>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+      <mat-form-field appearance="fill" class="!flex w-full mb-4">
+        <mat-label>Search</mat-label>
+        <input matInput (keyup)="applyFilter($event)" placeholder="Search a user" autocomplete="off" #input>
+      </mat-form-field>
+
+      <table mat-table [dataSource]="dataSource">
+        
+      </table>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -18,10 +18,10 @@ const addUser = async (req, res) => {
 
   //data preparation for database insertion
   let user = {
-    email: email,
-    username: username,
+    email,
+    username,
     password: passwordHash,
-    userType: userType,
+    userType,
   };
 
   //query for inserting in database
@@ -87,7 +87,7 @@ const addUser = async (req, res) => {
     const createdUser = await userModel.create(user);
     res
       .status(201)
-      .send({ createdUser: createdUser, message: "Account Added" });
+      .send({ createdUser, message: "Account Added" });
   } catch (err) {
     res.status(400).send({ message: "Account already exists.", error: err });
   }
@@ -97,12 +97,11 @@ const addUser = async (req, res) => {
 const getUsers = async (req, res) => {
   const { offset, limit } = req.params
 
-  let users
   if((limit == NaN || limit == undefined) && (offset == NaN || offset == undefined)) {
-    users = await userModel.findAll();
+    const users = await userModel.findAll();
 
     if (users.length > 0) {
-      res.status(200).json({ message: "Users found.", users: users });
+      res.status(200).json({ message: "Users found.", users });
     } else {
       res.status(200).json({ message: "No Users found." });
     }
@@ -114,22 +113,21 @@ const getUsers = async (req, res) => {
     });
 
     try {
-      res.status(200).json({ message: "Users found.", count: count, rows: rows });
+      res.status(200).json({ message: "Users found.", count, rows });
     } catch (e) {
       res.status(500).send({ message: 'Server Error', error: e })
     }
-
   }
 };
 
 //** GET ONE USER **//
 const getUser = async (req, res) => {
-  const userId = req.params.id
+  const { id } = req.params
 
-  let user = await userModel.findOne({ where: { id: Number(userId) } })
+  let user = await userModel.findOne({ where: { id } })
 
   if(user) {
-    res.status(200).send({ message: 'User Found', user: user })
+    res.status(200).send({ message: 'User Found', user })
   }
   else {
     res.status(200).send({ message: 'No User Found' })
@@ -138,15 +136,15 @@ const getUser = async (req, res) => {
 
 //** EDIT USER DETAILS **//
 const editDetails = async (req, res) => {
-  const userId = req.params.id
+  const { id } = req.params
   const { username, email, password } = req.body
 
-  let user = await userModel.findOne({ where: { id: Number(userId) } })
+  let user = await userModel.findOne({ where: { id } })
   let userDetObj
   if(user.password == password) {
     userDetObj = {
-      username: username,
-      email: email
+      username,
+      email
     }
   }
   else {
@@ -159,10 +157,10 @@ const editDetails = async (req, res) => {
   }
 
 
-  const updatedUserDet = await userModel.update(userDetObj, { where: { id: Number(userId) } })
+  const updatedUserDet = await userModel.update(userDetObj, { where: { id } })
 
   if(updatedUserDet) {
-    res.status(200).send({ message: 'User details updated successfully.', updatedUser: updatedUserDet, user: userDetObj })
+    res.status(200).send({ message: 'User details updated successfully.', updatedUserDet })
   }
   else {
     res.status(500).send({ message: 'Server error' })
@@ -173,7 +171,7 @@ const editDetails = async (req, res) => {
 
 //** EDIT USER ACCESS **//
 const editAccess = async (req, res) => {
-  const userId = req.params.id
+  const { id } = req.params
   const {
     //ACCOUNT ACCESS
     viewAcct,
@@ -278,21 +276,21 @@ const editAccess = async (req, res) => {
   }
 
   try {
-    const updatedUserAcc = await userModel.update(updatedUserAccObj, { where: { id: userId } })
-    res.status(200).send({ message: 'User access updated successfully.', updatedUserAcc: updatedUserAcc })
+    const updatedUserAcc = await userModel.update(updatedUserAccObj, { where: { id } })
+    res.status(200).send({ message: 'User access updated successfully.', updatedUserAcc })
   } catch (error) {
-    res.status(500).send({ message: 'Server error', error: error })
+    res.status(500).send({ message: 'Server error', error })
   }
 }
 
 //** DELETE USER **//
 const delUser = async (req, res) => {
-  const userId = req.params.id
+  const { id } = req.params
 
-  const deletedUser = await userModel.destroy({ where: { id: userId } })
+  const deletedUser = await userModel.destroy({ where: { id } })
 
   if(deletedUser) {
-    res.status(200).send({ message: 'User Deleted Successfully', deletedUser: deletedUser })
+    res.status(200).send({ message: 'User Deleted Successfully', deletedUser })
   }
   else {
     res.status(404).send({ message: 'User not found.' })
