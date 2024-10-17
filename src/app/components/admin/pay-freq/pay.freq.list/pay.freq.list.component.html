@@ -18,7 +18,7 @@
 
       <table mat-table [dataSource]="dataSource" matSort>
         <ng-container matColumnDef="payType">
-          <th mat-header-cell *matHeaderCellDef >Pay Frequency</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header >Pay Frequency</th>
           <td mat-cell *matCellDef="let payFreq" > <span class="text-sm">{{payFreq.payType}}</span> </td>
         </ng-container>
 

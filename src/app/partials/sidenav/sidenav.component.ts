@@ -12,6 +12,7 @@ import { AuthService } from '../../services/auth.service';
 import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { LogsService } from '../../services/logs.service';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 @Component({
   selector: 'app-sidenav',
@@ -26,6 +27,7 @@ import { LogsService } from '../../services/logs.service';
     MatButtonModule,
     MatListModule,
     MatMenuModule,
+    MatExpansionModule,
     HomeComponent
   ],
   templateUrl: './sidenav.component.html',

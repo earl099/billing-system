@@ -1,0 +1,59 @@
+<h2 mat-dialog-title>Add</h2>
+<mat-dialog-content>
+  <form [formGroup]="addClientForm">
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Client Code</mat-label>
+      <input matInput type="text" formControlName="clientCode">
+      <mat-error *ngIf="addClientForm.get('clientCode')?.hasError('required')">
+        Required Field
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Client Name</mat-label>
+      <input matInput type="text" formControlName="clientName">
+      <mat-error *ngIf="addClientForm.get('clientName')?.hasError('required')">
+        Required Field
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="mt-5">
+      <mat-label>Pay Frequency</mat-label>
+      <mat-select [value]="addClientForm.get('payFreqId')?.getRawValue()" formControlName='viewClient'>
+        @for (option of payFreqOptions; track option) {
+          <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Description</mat-label>
+      <input matInput type="text" formControlName="clientCode">
+      <mat-error *ngIf="addClientForm.get('clientCode')?.hasError('required')">
+        Required Field
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Status</mat-label>
+      <mat-select [value]="addClientForm.get('payFreqId')?.getRawValue()" formControlName='viewClient'>
+        @for (option of payFreqOptions; track option) {
+          <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+        }
+      </mat-select>
+      <mat-error *ngIf="addClientForm.get('clientCode')?.hasError('required')">
+        Required Field
+      </mat-error>
+    </mat-form-field>
+
+    <div class="mt-6">
+      <button mat-raised-button mat-dialog-close color="primary" type="submit" class="w-full py-2" [disabled]="addClientForm.invalid" (click)="onAddClient(addClientForm)">
+        Add Client
+      </button>
+
+      <button mat-raised-button mat-dialog-close color="primary" class="w-full py-2 mt-3">
+        Cancel
+      </button>
+    </div>
+  </form>
+</mat-dialog-content>
