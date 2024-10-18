@@ -1,10 +1,10 @@
-<h2 mat-dialog-title>Add</h2>
+<h2 mat-dialog-title>Edit Client</h2>
 <mat-dialog-content>
-  <form [formGroup]="addClientForm">
+  <form [formGroup]="editClientForm">
     <mat-form-field class="w-full mb-4">
       <mat-label>Client Code</mat-label>
       <input matInput type="text" formControlName="clientCode">
-      @if(addClientForm.get('clientCode')?.hasError('required')) {
+      @if(editClientForm.get('clientCode')?.hasError('required')) {
         <mat-error>Required Field</mat-error>
       }
     </mat-form-field>
@@ -12,14 +12,14 @@
     <mat-form-field class="w-full mb-4">
       <mat-label>Client Name</mat-label>
       <input matInput type="text" formControlName="clientName">
-      @if(addClientForm.get('clientName')?.hasError('required')) {
+      @if(editClientForm.get('clientName')?.hasError('required')) {
         <mat-error>Required Field</mat-error>
       }
     </mat-form-field>
 
     <mat-form-field class="w-full mb-4">
       <mat-label>Pay Frequency</mat-label>
-      <mat-select [value]="addClientForm.get('payFreqId')?.getRawValue()" formControlName='payFreqId'>
+      <mat-select [value]="editClientForm.get('payFreqId')?.getRawValue()" formControlName='payFreqId'>
         @for (option of payFreqOptions; track option) {
           <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
         }
@@ -33,21 +33,21 @@
 
     <mat-form-field class="w-full mb-4">
       <mat-label>Status</mat-label>
-      <mat-select [value]="addClientForm.get('status')?.getRawValue()" formControlName='status'>
+      <mat-select [value]="editClientForm.get('status')?.getRawValue()" formControlName='status'>
         @for (option of statusOptions; track option) {
           <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
         }
       </mat-select>
 
-      @if(addClientForm.get('status')?.hasError('required')) {
+      @if(editClientForm.get('status')?.hasError('required')) {
         <mat-error>Required Field</mat-error>
       }
 
     </mat-form-field>
 
     <div class="mt-6">
-      <button mat-raised-button mat-dialog-close color="primary" type="submit" class="w-full py-2" [disabled]="addClientForm.invalid" (click)="onAddClient(addClientForm)">
-        Add Client
+      <button mat-raised-button mat-dialog-close color="primary" type="submit" class="w-full py-2" [disabled]="editClientForm.invalid" (click)="onEditClient(editClientForm)">
+        Edit Client
       </button>
 
       <button mat-raised-button mat-dialog-close color="primary" class="w-full py-2 mt-3">

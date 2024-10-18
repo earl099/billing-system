@@ -78,11 +78,7 @@ export class PayFreqListComponent implements OnInit {
   }
 
   openViewPayFreqDialog(id: number) {
-    const dialogRef = this.dialog.open(ViewPayFreqDialog, {
-      data: {
-        id: id
-      }
-    })
+    const dialogRef = this.dialog.open(ViewPayFreqDialog, { data: { id } })
 
     dialogRef.afterClosed().subscribe(() => {
       this.dataSource.data.splice(0, this.dataSource.data.length)
@@ -91,11 +87,7 @@ export class PayFreqListComponent implements OnInit {
   }
 
   openEditPayFreqDialog(id: number) {
-    const dialogRef = this.dialog.open(EditPayFreqDialog, {
-      data: {
-        id: id
-      }
-    })
+    const dialogRef = this.dialog.open(EditPayFreqDialog, { data: { id } })
 
     dialogRef.afterClosed().subscribe(() => {
       this.dataSource.data.splice(0, this.dataSource.data.length)
@@ -209,18 +201,19 @@ export class AddPayFreqDialog implements OnInit {
 })
 export class ViewPayFreqDialog implements OnInit {
   payFreqService = inject(PayFreqService)
-  logsService = inject(LogsService)
+  fb = inject(FormBuilder)
 
   data = inject(MAT_DIALOG_DATA)
   viewPayFreqForm: FormGroup
+  payFreqId = this.data.id
 
-  constructor(private fb: FormBuilder) {
+  constructor() {
     this.viewPayFreqForm = this.fb.group({
       payType: ''
     })
   }
   ngOnInit(): void {
-    this.getPayFreq(this.data.id)
+    this.getPayFreq(this.payFreqId)
   }
 
   getPayFreq(id: number) {

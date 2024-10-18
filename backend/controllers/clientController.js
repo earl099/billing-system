@@ -8,7 +8,7 @@ const addClient = async (req, res) => {
   const {
     clientCode,
     clientName,
-    payFrequencyId,
+    payFreqId,
     description,
     status
   } = req.body
@@ -16,7 +16,7 @@ const addClient = async (req, res) => {
   const client = {
     clientCode,
     clientName,
-    payFrequencyId,
+    payFreqId,
     description,
     status
   }
@@ -58,12 +58,12 @@ const getClients = async (req, res) => {
 
 //** GET CLIENT **//
 const getClient = async (req, res) => {
-  const { id } = req.params.id
+  const { id } = req.params
 
   const client = await clientModel.findOne({ where: { id } })
 
   if(client) {
-    res.status(200).send({ message: 'Client found', client: client })
+    res.status(200).send({ message: 'Client found', client })
   }
   else {
     res.status(200).send({ message: 'No client found' })

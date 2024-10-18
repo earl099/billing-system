@@ -1,7 +1,7 @@
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, ViewChild, type OnInit } from '@angular/core';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, Sort } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -114,11 +114,21 @@ export class ClientListComponent implements OnInit {
   }
 
   openViewClientDialog(id: number) {
+    const dialogRef = this.dialog.open(ViewClientDialog, { data: { id } })
 
+    dialogRef.afterClosed().subscribe(() => {
+      this.dataSource.data.splice(0, this.dataSource.data.length)
+      this.getClients()
+    })
   }
 
   openEditClientDialog(id: number) {
+    const dialogRef = this.dialog.open(EditClientDialog, { data: { id } })
 
+    dialogRef.afterClosed().subscribe(() => {
+      this.dataSource.data.splice(0, this.dataSource.data.length)
+      this.getClients()
+    })
   }
 
   delClient(id: number) {
@@ -142,7 +152,7 @@ export class ClientListComponent implements OnInit {
 })
 export class AddClientDialog implements OnInit {
   addClientForm: FormGroup
-  payFreqOptions: any
+  payFreqOptions: Array<any> = []
 
   clientService = inject(ClientService)
   authService = inject(AuthService)
@@ -151,19 +161,39 @@ export class AddClientDialog implements OnInit {
   toastr = inject(ToastrService)
   fb = inject(FormBuilder)
 
-
+  statusOptions = [
+    {
+      value: 'Active',
+      viewValue: 'Active'
+    },
+    {
+      value: 'Inactive',
+      viewValue: 'Inactive'
+    }
+  ]
 
   constructor() {
     this.addClientForm = this.fb.group({
       clientCode: ['', Validators.required],
       clientName: ['', Validators.required],
       payFreqId: [0, Validators.required],
-      description: ['', Validators.required],
+      description: [''],
       status: ['', Validators.required]
     })
 
     this.payFreqService.getPayFreqs().subscribe((res) => {
-      this.payFreqOptions = res.payFreqs
+      let tmpData = res.payFreqs
+
+      for (let i = 0; i < tmpData.length; i++) {
+        let data = {
+          value: tmpData[i].id,
+          viewValue: tmpData[i].payType
+        }
+
+        this.payFreqOptions.push(data)
+      }
+
+      //console.log(this.payFreqOptions)
     })
   }
 
@@ -182,5 +212,135 @@ export class AddClientDialog implements OnInit {
       })
 
     }
+  }
+}
+
+@Component({
+  selector: 'view-client-dialog',
+  templateUrl: './view.client.dialog.html',
+  styleUrl: './client.list.component.scss',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatInputModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatSelectModule,
+    ReactiveFormsModule
+  ]
+})
+export class ViewClientDialog implements OnInit {
+  clientService = inject(ClientService)
+  payFreqService = inject(PayFreqService)
+  fb = inject(FormBuilder)
+
+  data = inject(MAT_DIALOG_DATA)
+  clientId = this.data.id
+  viewClientForm: FormGroup
+
+  constructor() {
+    this.viewClientForm = this.fb.group({
+      clientCode: [''],
+      clientName: [''],
+      payFreqId: [''],
+      description: [''],
+      status: [''],
+    })
+  }
+  ngOnInit(): void {
+    this.getClient(this.clientId)
+  }
+
+  getClient(id: number) {
+    this.clientService.getClient(Number(id)).subscribe((res) => {
+      let tmpData = res.client
+      this.payFreqService.getPayFreq(Number(tmpData.payFreqId)).subscribe((res) => {
+        let tmpData1 = res.payFreq
+        this.viewClientForm.get('clientCode')?.setValue(tmpData.clientCode)
+        this.viewClientForm.get('clientName')?.setValue(tmpData.clientName)
+        this.viewClientForm.get('description')?.setValue(tmpData.description)
+        let status = tmpData.status == 'active' ? 'Active':'Inactive'
+        this.viewClientForm.get('status')?.setValue(status)
+        this.viewClientForm.get('payFreqId')?.setValue(tmpData1.payType)
+      })
+    })
+  }
+}
+
+@Component({
+  selector: 'edit-client-dialog',
+  templateUrl: './edit.client.dialog.html',
+  styleUrl: './client.list.component.scss',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatInputModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatSelectModule,
+    ReactiveFormsModule
+  ]
+})
+export class EditClientDialog implements OnInit {
+  data = inject(MAT_DIALOG_DATA)
+  editClientForm: FormGroup
+  clientId = this.data.id
+
+  clientService = inject(ClientService)
+  payFreqService = inject(PayFreqService)
+  toastr = inject(ToastrService)
+  fb = inject(FormBuilder)
+
+  statusOptions = [
+    {
+      value: 'active',
+      viewValue: 'Active'
+    },
+    {
+      value: 'inactive',
+      viewValue: 'Inactive'
+    }
+  ]
+  payFreqOptions: Array<any> = []
+
+
+  constructor() {
+    this.editClientForm = this.fb.group({
+      clientCode: ['', Validators.required],
+      clientName: ['', Validators.required],
+      payFreqId: [0, Validators.required],
+      description: ['', Validators.required],
+      status: ['', Validators.required]
+    })
+  }
+  ngOnInit(): void {
+    this.getClient(this.clientId)
+  }
+
+  getClient(id: number) {
+    this.clientService.getClient(Number(id)).subscribe((res) => {
+      let tmpData = res.client
+      this.payFreqService.getPayFreqs().subscribe((res) => {
+        let tmpData1 = res.payFreqs
+        for(let i = 0; i < tmpData1.length; i++) {
+          let data = {
+            value: tmpData1.id,
+            viewValue: tmpData1.payType
+          }
+
+          this.payFreqOptions.push(data)
+        }
+
+        this.editClientForm.get('clientCode')?.setValue(tmpData.clientCode)
+        this.editClientForm.get('clientName')?.setValue(tmpData.clientName)
+        this.editClientForm.get('payFreqId')?.setValue(tmpData.payFreqId)
+        this.editClientForm.get('description')?.setValue(tmpData.description)
+        this.editClientForm.get('status')?.setValue(tmpData.status)
+      })
+    })
+  }
+
+  onEditClient(data: any) {
+
   }
 }
