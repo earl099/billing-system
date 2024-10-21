@@ -63,7 +63,6 @@ export class ClientListComponent implements OnInit {
         if(res) {
           let tmpData = res.clients
 
-
           this.dataSource = new MatTableDataSource(tmpData)
           this.dataSource.paginator = this.paginator
           this.dataSource.sort = this.sort
@@ -132,7 +131,22 @@ export class ClientListComponent implements OnInit {
   }
 
   delClient(id: number) {
+    if(confirm('Are you sure you want to delete this client?')) {
+      this.clientService.deleteClient(id).subscribe((res) => {
+        if(res) {
+          let logData = {
+            operation: 'Deleted Client',
+            user: this.authService.getToken('user')
+          }
 
+          this.logsService.addLog(logData).subscribe()
+          this.toastr.success('Deleted client successfully')
+
+          this.dataSource.data.splice(0, this.dataSource.data.length)
+          this.getClients()
+        }
+      })
+    }
   }
 }
 
@@ -288,6 +302,8 @@ export class EditClientDialog implements OnInit {
 
   clientService = inject(ClientService)
   payFreqService = inject(PayFreqService)
+  logsService = inject(LogsService)
+  authService = inject(AuthService)
   toastr = inject(ToastrService)
   fb = inject(FormBuilder)
 
@@ -341,6 +357,18 @@ export class EditClientDialog implements OnInit {
   }
 
   onEditClient(data: any) {
+    if(confirm('Are you sure you want to edit this client?')) {
+      this.clientService.editClient(data.value, this.clientId).subscribe((res) => {
+        if(res) {
+          let logData = {
+            operation: 'Edited Client Details',
+            user: this.authService.getToken('user')
+          }
 
+          this.logsService.addLog(logData).subscribe()
+          this.toastr.success('Edited client successfully.')
+        }
+      })
+    }
   }
 }

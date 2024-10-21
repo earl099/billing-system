@@ -63,39 +63,44 @@ const addEmployee = async (req, res) => {
 const getEmployees = async (req, res) => {
   const { offset, limit } = req.body
 
-  const employees = await employeeModel.findAll({
-    attributes: [
-      'employeeId',
-      'clientId',
-      'firstName',
-      'middleName',
-      'lastName',
-      'suffix',
-      'gender',
-      'dateOfBirth',
-      'education',
-      'departmentId',
-      'locationId',
-      'email1',
-      'email2',
-      'mobileNum1',
-      'mobileNum2',
-      'civilStatus',
-      'positionId',
-      'employmentStatus',
-      'remarks',
-      'wageId'
-    ],
-    offset: offset,
-    limit: limit
-  })
+  if((offset != null || offset != undefined) && (limit != null || limit != undefined)) {
+    const { rows, count } = await employeeModel.findAndCountAll({
+      offset,
+      limit
+    })
 
-  if(employees.length < 1) {
-    res.status(200).send({ message: 'No employees found.' })
+    if(count < 1) {
+      res.status(200).send({ message: 'No employees found' })
+    }
+    else {
+      res.status(200).send({ message: 'Employees found', rows, count })
+    }
   }
   else {
-    res.status(200).send({ message: 'Employees found', employees: employees })
+    const employees = await employeeModel.findAll()
+
+    if(employees.length < 1) {
+      res.status(200).send({ message: 'No employees found.' })
+    }
+    else {
+      res.status(200).send({ message: 'Employees found', employees: employees })
+    }
   }
+}
+
+//** GET EMPLOYEE **//
+const getEmployee = async (req, res) => {
+
+}
+
+//** EDIT EMPLOYEES **//
+const editEmployee = async (req, res) => {
+
+}
+
+//** DELETE EMPLOYEE **//
+const delEmployee = async (req, res) => {
+
 }
 
 module.exports = {
