@@ -1,14 +1,19 @@
-<h2 mat-dialog-title>View Classification</h2>
+<h2 mat-dialog-title>View Department</h2>
 <mat-dialog-content>
-  <form [formGroup]="viewClassForm" class="grid grid-cols-2 gap-2">
+  <form [formGroup]="viewDeptForm" class="grid grid-cols-2 gap-2">
     <mat-form-field>
       <mat-label>Client Code</mat-label>
       <input matInput type="text" formControlName="clientId" readonly>
     </mat-form-field>
 
     <mat-form-field>
-      <mat-label>Classification Name</mat-label>
-      <input matInput type="text" formControlName="className" readonly>
+      <mat-label>Department Code</mat-label>
+      <input matInput type="text" formControlName="deptCode" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Department Name</mat-label>
+      <input matInput type="text" formControlName="deptName" readonly>
     </mat-form-field>
 
     <mat-form-field>

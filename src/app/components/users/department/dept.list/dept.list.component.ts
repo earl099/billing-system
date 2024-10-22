@@ -1,26 +1,26 @@
-import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, ViewChild, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, ViewChild, type OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatSort, Sort } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ToastrService } from 'ngx-toastr';
 import { AuthService } from '../../../../services/auth.service';
 import { LogsService } from '../../../../services/logs.service';
-import { ClassificationService } from '../../../../services/classification.service';
+import { DepartmentService } from '../../../../services/department.service';
+import { ToastrService } from 'ngx-toastr';
+import { ClientService } from '../../../../services/client.service';
+import { LiveAnnouncer } from '@angular/cdk/a11y';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSort, Sort } from '@angular/material/sort';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
-import { ClientService } from '../../../../services/client.service';
 
 @Component({
-  selector: 'app-class.list',
+  selector: 'app-dept.list',
   standalone: true,
   imports: [
     CommonModule,
@@ -33,14 +33,14 @@ import { ClientService } from '../../../../services/client.service';
     MatTooltipModule,
     MatPaginatorModule
   ],
-  templateUrl: './class.list.component.html',
-  styleUrl: './class.list.component.scss',
+  templateUrl: './dept.list.component.html',
+  styleUrl: './dept.list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ClassListComponent implements OnInit {
+export class DeptListComponent implements OnInit {
+  deptService = inject(DepartmentService)
   authService = inject(AuthService)
   logsService = inject(LogsService)
-  classService = inject(ClassificationService)
   clientService = inject(ClientService)
   toastr = inject(ToastrService)
 
@@ -50,53 +50,19 @@ export class ClassListComponent implements OnInit {
   _liveAnnouncer = inject(LiveAnnouncer)
   @ViewChild(MatPaginator) paginator !: MatPaginator
   @ViewChild(MatSort) sort !: MatSort
-  columns = ['className', 'clientId', 'actions']
+  columns = ['deptName', 'clientId', 'actions']
   clientData: Array<any> = []
 
-  constructor() {}
-
+  constructor() { }
   ngOnInit(): void {
-    this.getClasses()
+    this.getDepts()
   }
 
-  getClasses(offset?: number | null, limit?: number | null) {
+  getDepts(offset?: number | null, limit?: number | null) {
     if(offset == null && limit == null) {
-      this.classService.getClasses().subscribe((res) => {
+      this.deptService.getDepts().subscribe((res) => {
         if(res) {
-          let tmpData = res.classifications
-          this.clientService.getClients().subscribe((res) => {
-            let tmpData1 = res.clients
-
-            for (let i = 0; i < tmpData1.length; i++) {
-              let data = {
-                value: tmpData1[i].id,
-                viewValue: tmpData1[i].clientCode
-              }
-
-              this.clientData.push(data)
-            }
-
-            for(let i = 0; i < tmpData.length; i++) {
-              for(let j = 0; j < this.clientData.length; j++) {
-                if(Number(tmpData[i].clientId) == Number(this.clientData[j].value)) {
-                  tmpData[i].clientId = this.clientData[j].viewValue
-                  break
-                }
-              }
-            }
-
-            this.dataSource = new MatTableDataSource(tmpData)
-            this.dataSource.paginator = this.paginator
-            this.dataSource.sort = this.sort
-          })
-        }
-      })
-    }
-    else {
-      this.classService.getClasses(offset, limit).subscribe((res) => {
-        if(res) {
-          let tmpData = res.rows
-
+          let tmpData = res.depts
           this.clientService.getClients().subscribe((res) => {
             let tmpData1 = res.clients
 
@@ -148,50 +114,50 @@ export class ClassListComponent implements OnInit {
     }
   }
 
-  openAddClassDialog() {
-    const dialogRef = this.dialog.open(AddClassDialog)
+  openAddDeptDialog() {
+    const dialogRef = this.dialog.open(AddDeptDialog)
 
     dialogRef.afterClosed().subscribe(() => {
       if(this.dataSource.data.length < 1) {
         this.dataSource.data.splice(0, this.dataSource.data.length)
       }
 
-      this.getClasses()
+      this.getDepts()
     })
   }
 
-  openViewClassDialog(id: number) {
-    const dialogRef = this.dialog.open(ViewClassDialog, { data: { id } })
+  openViewDeptDialog(id: number) {
+    const dialogRef = this.dialog.open(ViewDeptDialog, { data: { id } })
 
     dialogRef.afterClosed().subscribe(() => {
       this.dataSource.data.splice(0, this.dataSource.data.length)
-      this.getClasses()
+      this.getDepts()
     })
   }
 
-  openEditClassDialog(id: number) {
-    const dialogRef = this.dialog.open(EditClassDialog, { data: { id } })
+  openEditDeptDialog(id: number) {
+    const dialogRef = this.dialog.open(EditDeptDialog, { data: { id } })
 
     dialogRef.afterClosed().subscribe(() => {
       this.dataSource.data.splice(0, this.dataSource.data.length)
-      this.getClasses()
+      this.getDepts()
     })
   }
 
-  delClass(id: number) {
+  delDept(id: number) {
     if(confirm('Are you sure you want to delete this classification?')) {
-      this.classService.delClass(id).subscribe((res) => {
+      this.deptService.delDept(id).subscribe((res) => {
         if(res) {
           let logData = {
-            operation: 'Deleted Classification',
+            operation: 'Deleted Department',
             user: this.authService.getToken('user')
           }
 
           this.logsService.addLog(logData).subscribe()
-          this.toastr.success('Deleted classification successfully')
+          this.toastr.success('Deleted department successfully')
 
           this.dataSource.data.splice(0, this.dataSource.data.length)
-          this.getClasses()
+          this.getDepts()
         }
       })
     }
@@ -199,9 +165,9 @@ export class ClassListComponent implements OnInit {
 }
 
 @Component({
-  selector: 'add-class-dialog',
-  templateUrl: './add.class.dialog.html',
-  styleUrl: './class.list.component.scss',
+  selector: 'add-dept-dialog',
+  templateUrl: './add.dept.dialog.html',
+  styleUrl: './dept.list.component.scss',
   standalone: true,
   imports: [
     CommonModule,
@@ -212,12 +178,12 @@ export class ClassListComponent implements OnInit {
     ReactiveFormsModule
   ]
 })
-export class AddClassDialog implements OnInit {
-  addClassForm: FormGroup
+export class AddDeptDialog implements OnInit {
+  addDeptForm: FormGroup
   clientOptions: Array<any> = []
   statusOptions: Array<any> = []
 
-  classService = inject(ClassificationService)
+  deptService = inject(DepartmentService)
   clientService = inject(ClientService)
   authService = inject(AuthService)
   logsService = inject(LogsService)
@@ -225,9 +191,10 @@ export class AddClassDialog implements OnInit {
   fb = inject(FormBuilder)
 
   constructor() {
-    this.addClassForm = this.fb.group({
+    this.addDeptForm = this.fb.group({
       clientId: [0, Validators.required],
-      className: ['', Validators.required],
+      deptCode: ['', Validators.required],
+      deptName: ['', Validators.required],
       status: ['', Validators.required],
       description: ['']
     })
@@ -258,21 +225,19 @@ export class AddClassDialog implements OnInit {
       }
     })
   }
-
   ngOnInit(): void { }
 
-
-  onAddClass(data: any) {
-    if(confirm('Are you sure you want to add this classification?')) {
+  onAddDept(data: any) {
+    if(confirm('Are you sure you want to add this department?')) {
       let logData = {
-        operation: 'Added Classification',
+        operation: 'Added Department',
         user: this.authService.getToken('user')
       }
 
-      this.classService.addClass(data.value).subscribe((res) => {
+      this.deptService.addDept(data.value).subscribe((res) => {
         if(res) {
           this.logsService.addLog(logData).subscribe()
-          this.toastr.success('Added classification successfully')
+          this.toastr.success('Added department successfully')
         }
       })
     }
@@ -280,9 +245,9 @@ export class AddClassDialog implements OnInit {
 }
 
 @Component({
-  selector: 'view-class-dialog',
-  templateUrl: './view.class.dialog.html',
-  styleUrl: './class.list.component.scss',
+  selector: 'view-dept-dialog',
+  templateUrl: './view.dept.dialog.html',
+  styleUrl: './dept.list.component.scss',
   standalone: true,
   imports: [
     CommonModule,
@@ -293,53 +258,52 @@ export class AddClassDialog implements OnInit {
     ReactiveFormsModule
   ]
 })
-export class ViewClassDialog implements OnInit {
-  classService = inject(ClassificationService)
+export class ViewDeptDialog implements OnInit {
+  deptService = inject(DepartmentService)
   clientService = inject(ClientService)
   fb = inject(FormBuilder)
 
   data = inject(MAT_DIALOG_DATA)
-  classId = this.data.id
-  viewClassForm: FormGroup
+  deptId = this.data.id
+  viewDeptForm: FormGroup
 
   constructor() {
-    this.viewClassForm = this.fb.group({
-      clientId: [''],
-      className: [''],
-      status: [''],
+    this.viewDeptForm = this.fb.group({
+      clientId: [0, Validators.required],
+      deptCode: ['', Validators.required],
+      deptName: ['', Validators.required],
+      status: ['', Validators.required],
       description: ['']
     })
   }
-
   ngOnInit(): void {
-    this.getClass(this.classId)
+    this.getDept(this.deptId)
   }
 
-  getClass(id: number) {
-    this.classService.getClass(id).subscribe((res) => {
-      if(res) {
-        let tmpData = res.classObj
+  getDept(id: number) {
+    this.deptService.getDept(id).subscribe((res) => {
+      let tmpData = res.dept
 
-        this.clientService.getClient(Number(tmpData.clientId)).subscribe((res) => {
-          if(res) {
-            let tmpData1 = res.client
+      this.clientService.getClient(Number(tmpData.clientId)).subscribe((res) => {
+        if(res) {
+          let tmpData1 = res.client
 
-            this.viewClassForm.get('clientId')?.setValue(tmpData1.clientCode)
-            this.viewClassForm.get('className')?.setValue(tmpData.className)
-            let status = tmpData.status == 'active' ? 'Active' : 'Inactive'
-            this.viewClassForm.get('status')?.setValue(status)
-            this.viewClassForm.get('description')?.setValue(tmpData.description)
-          }
-        })
-      }
+          this.viewDeptForm.get('clientId')?.setValue(tmpData1.clientCode)
+          this.viewDeptForm.get('deptCode')?.setValue(tmpData.deptCode)
+          this.viewDeptForm.get('deptName')?.setValue(tmpData.deptName)
+          let status = tmpData.status == 'active' ? 'Active' : 'Inactive'
+          this.viewDeptForm.get('status')?.setValue(status)
+          this.viewDeptForm.get('description')?.setValue(tmpData.description)
+        }
+      })
     })
   }
 }
 
 @Component({
-  selector: 'edit-class-dialog',
-  templateUrl: './edit.class.dialog.html',
-  styleUrl: './class.list.component.scss',
+  selector: 'edit-dept-dialog',
+  templateUrl: './edit.dept.dialog.html',
+  styleUrl: './dept.list.component.scss',
   standalone: true,
   imports: [
     CommonModule,
@@ -350,13 +314,13 @@ export class ViewClassDialog implements OnInit {
     ReactiveFormsModule
   ]
 })
-export class EditClassDialog implements OnInit {
+export class EditDeptDialog implements OnInit {
   data = inject(MAT_DIALOG_DATA)
-  editClassForm: FormGroup
-  classId = this.data.id
+  editDeptForm: FormGroup
+  deptId = this.data.id
 
+  deptService = inject(DepartmentService)
   clientService = inject(ClientService)
-  classService = inject(ClassificationService)
   logsService = inject(LogsService)
   authService = inject(AuthService)
   toastr = inject(ToastrService)
@@ -376,21 +340,20 @@ export class EditClassDialog implements OnInit {
   clientOptions: Array<any> = []
 
   constructor() {
-    this.editClassForm = this.fb.group({
+    this.editDeptForm = this.fb.group({
       clientId: [0, Validators.required],
-      className: ['', Validators.required],
+      deptCode: ['', Validators.required],
+      deptName: ['', Validators.required],
       status: ['', Validators.required],
       description: ['']
     })
   }
 
-  ngOnInit(): void {
-    this.getClass(this.classId)
-  }
+  ngOnInit(): void { }
 
-  getClass(id: number) {
-    this.classService.getClass(id).subscribe((res) => {
-      let tmpData = res.classObj
+  getDept(id: number) {
+    this.deptService.getDept(id).subscribe((res) => {
+      let tmpData = res.dept
 
       this.clientService.getClients().subscribe((res) => {
         let tmpData1 = res.clients
@@ -404,25 +367,26 @@ export class EditClassDialog implements OnInit {
           this.clientOptions.push(data)
         }
 
-        this.editClassForm.get('clientId')?.setValue(tmpData.clientId)
-        this.editClassForm.get('className')?.setValue(tmpData.className)
-        this.editClassForm.get('status')?.setValue(tmpData.status)
-        this.editClassForm.get('description')?.setValue(tmpData.description)
+        this.editDeptForm.get('clientId')?.setValue(tmpData.clientId)
+        this.editDeptForm.get('deptCode')?.setValue(tmpData.deptCode)
+        this.editDeptForm.get('deptName')?.setValue(tmpData.deptName)
+        this.editDeptForm.get('status')?.setValue(tmpData.status)
+        this.editDeptForm.get('description')?.setValue(tmpData.description)
       })
     })
   }
 
-  onEditClass(data: any) {
+  onEditDept(data: any) {
     if(confirm('Are you sure you want to edit this classification')) {
-      this.classService.editClass(this.classId, data).subscribe((res) => {
+      this.deptService.editDept(this.deptId, data).subscribe((res) => {
         if(res) {
           let logData = {
-            operation: 'Edited Classification',
+            operation: 'Edited Department',
             user: this.authService.getToken('user')
           }
 
           this.logsService.addLog(logData).subscribe()
-          this.toastr.success('Edited classification successfully')
+          this.toastr.success('Edited department successfully')
         }
       })
     }

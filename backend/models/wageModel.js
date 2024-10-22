@@ -11,13 +11,15 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         autoIncrement: true,
       },
-      clientId: {
-        type: DataTypes.INTEGER,
-        allowNull: false
-      },
       wageName: {
         type: DataTypes.STRING,
         allowNull: false
+      },
+      description: {
+        type: DataTypes.STRING
+      },
+      status: {
+        type: DataTypes.STRING(50)
       }
     },
     {

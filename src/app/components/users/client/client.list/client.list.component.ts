@@ -224,7 +224,6 @@ export class AddClientDialog implements OnInit {
         this.logsService.addLog(logData).subscribe()
         this.toastr.success('Added client successfully')
       })
-
     }
   }
 }

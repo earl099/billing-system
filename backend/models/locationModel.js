@@ -11,13 +11,22 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         autoIncrement: true,
       },
-      clientId: {
+      deptId: {
         type: DataTypes.INTEGER,
         allowNull: false
       },
       locName: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(100),
         allowNull: false
+      },
+      type: {
+        type: DataTypes.STRING(10)
+      },
+      description: {
+        type: DataTypes.STRING
+      },
+      status: {
+        type: DataTypes.STRING(50)
       }
     },
     {

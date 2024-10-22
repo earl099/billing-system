@@ -15,9 +15,30 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false
       },
+      posCode: {
+        type: DataTypes.STRING(50)
+      },
       posName: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(50),
         allowNull: false
+      },
+      dailySalaryRate: {
+        type: DataTypes.DECIMAL(10, 2)
+      },
+      dailyBillingRate: {
+        type: DataTypes.DECIMAL(10, 2)
+      },
+      monthlySalaryRate: {
+        type: DataTypes.DECIMAL(10, 2)
+      },
+      monthlyBillingRate: {
+        type: DataTypes.DECIMAL(10, 2)
+      },
+      description: {
+        type: DataTypes.STRING
+      },
+      status: {
+        type: DataTypes.STRING(50)
       }
     },
     {

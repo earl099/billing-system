@@ -12,12 +12,20 @@ module.exports = (sequelize, DataTypes) => {
         autoIncrement: true,
       },
       clientId: {
-        type: DataTypes.STRING,
-        allowNull: false
+        type: DataTypes.INTEGER
+      },
+      deptCode: {
+        type: DataTypes.STRING(50)
       },
       deptName: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(100),
         allowNull: false
+      },
+      description: {
+        type: DataTypes.STRING
+      },
+      status: {
+        type: DataTypes.STRING(50)
       }
     },
     {

@@ -5,5 +5,7 @@ export const routes: Routes = [
   { path: '', loadChildren: () => import('./components/index/routes').then(mod => mod.INDEX_ROUTES) },
   { path: '', loadChildren: () => import('./components/admin/account/routes').then(mod => mod.ACCOUNT_ROUTES) },
   { path: '', loadChildren: () => import('./components/admin/pay-freq/routes').then(mod => mod.PAYFREQ_ROUTES) },
-  { path: '', loadChildren: () => import('./components/users/client/routes').then(mod => mod.CLIENT_ROUTES) }
+  { path: '', loadChildren: () => import('./components/users/client/routes').then(mod => mod.CLIENT_ROUTES) },
+  { path: '', loadChildren: () => import('./components/users/classification/routes').then(mod => mod.CLASS_ROUTES) },
+  { path: '', loadChildren: () => import('./components/users/department/routes').then(mod => mod.DEPT_ROUTES) }
 ];

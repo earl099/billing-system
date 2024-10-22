@@ -66,14 +66,14 @@ module.exports = (sequelize, DataTypes) => {
       positionId: {
         type: DataTypes.INTEGER
       },
-      employmentStatus: {
-        type: DataTypes.STRING
+      employmentStatusId: {
+        type: DataTypes.INTEGER
       },
       remarks: {
         type: DataTypes.STRING
       },
       wageId: {
-        type: DataTypes.STRING
+        type: DataTypes.INTEGER
       },
 
     },

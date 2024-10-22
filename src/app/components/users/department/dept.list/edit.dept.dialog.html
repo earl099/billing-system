@@ -1,9 +1,9 @@
-<h2 mat-dialog-title>Edit Client</h2>
+<h2 mat-dialog-title>Edit Department</h2>
 <mat-dialog-content>
-  <form [formGroup]="editClassForm">
+  <form [formGroup]="editDeptForm">
     <mat-form-field class="w-full mb-4">
       <mat-label>Client Code</mat-label>
-      <mat-select [value]="editClassForm.get('clientId')?.getRawValue()" formControlName='clientId'>
+      <mat-select [value]="editDeptForm.get('clientId')?.getRawValue()" formControlName='clientId'>
         @for (option of clientOptions; track option) {
           <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
         }
@@ -11,22 +11,30 @@
     </mat-form-field>
 
     <mat-form-field class="w-full mb-4">
-      <mat-label>Classification Name</mat-label>
+      <mat-label>Department Code</mat-label>
       <input matInput type="text" formControlName="className">
-      @if(editClassForm.get('className')?.hasError('required')) {
+      @if(editDeptForm.get('deptCode')?.hasError('required')) {
+        <mat-error>Required Field</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Department Name</mat-label>
+      <input matInput type="text" formControlName="className">
+      @if(editDeptForm.get('deptName')?.hasError('required')) {
         <mat-error>Required Field</mat-error>
       }
     </mat-form-field>
 
     <mat-form-field class="w-full mb-4">
       <mat-label>Status</mat-label>
-      <mat-select [value]="editClassForm.get('status')?.getRawValue()" formControlName='status'>
+      <mat-select [value]="editDeptForm.get('status')?.getRawValue()" formControlName='status'>
         @for (option of statusOptions; track option) {
           <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
         }
       </mat-select>
 
-      @if(editClassForm.get('status')?.hasError('required')) {
+      @if(editDeptForm.get('status')?.hasError('required')) {
         <mat-error>Required Field</mat-error>
       }
     </mat-form-field>
@@ -37,8 +45,8 @@
     </mat-form-field>
 
     <div class="mt-6">
-      <button mat-raised-button mat-dialog-close color="primary" type="submit" class="w-full py-2" [disabled]="editClassForm.invalid" (click)="onEditClass(editClassForm)">
-        Edit Client
+      <button mat-raised-button mat-dialog-close color="primary" type="submit" class="w-full py-2" [disabled]="editDeptForm.invalid" (click)="onEditDept(editDeptForm)">
+        Edit Department
       </button>
 
       <button mat-raised-button mat-dialog-close color="primary" class="w-full py-2 mt-3">

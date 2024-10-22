@@ -5,7 +5,7 @@ const wageModel = db.wageModel
 
 //** ADDING WAGE **//
 const addWage = async (req, res) => {
-  const { clientId, wageName, offset, limit } = req.body
+  const { clientId, wageName } = req.body
 
   const wage = {
     clientId: clientId,
