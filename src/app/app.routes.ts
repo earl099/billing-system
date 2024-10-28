@@ -7,5 +7,6 @@ export const routes: Routes = [
   { path: '', loadChildren: () => import('./components/admin/pay-freq/routes').then(mod => mod.PAYFREQ_ROUTES) },
   { path: '', loadChildren: () => import('./components/users/client/routes').then(mod => mod.CLIENT_ROUTES) },
   { path: '', loadChildren: () => import('./components/users/classification/routes').then(mod => mod.CLASS_ROUTES) },
-  { path: '', loadChildren: () => import('./components/users/department/routes').then(mod => mod.DEPT_ROUTES) }
+  { path: '', loadChildren: () => import('./components/users/department/routes').then(mod => mod.DEPT_ROUTES) },
+  { path: '', loadChildren: () => import('./components/users/wage/routes').then(mod => mod.WAGE_ROUTES) },
 ];
