@@ -160,8 +160,9 @@ export class AddPayFreqDialog implements OnInit {
   authService = inject(AuthService)
   logsService = inject(LogsService)
   toastr = inject(ToastrService)
+  fb = inject(FormBuilder)
 
-  constructor(private fb: FormBuilder) {
+  constructor() {
     this.addPayFreqForm = this.fb.group({
       payType: ['', Validators.required]
     })
@@ -175,6 +176,7 @@ export class AddPayFreqDialog implements OnInit {
         operation: 'Added Pay Frequency',
         user: this.authService.getToken('user')
       }
+
       this.payFreqService.addPayFreq(data.value).subscribe((res) => {
         if(res) {
           this.logsService.addLog(logData).subscribe()
@@ -272,16 +274,16 @@ export class EditPayFreqDialog implements OnInit {
 
   onEditPayFreq(data: any) {
     if(confirm('Are you sure you want to edit this pay frequency?')) {
-      this.payFreqService.editPayFreq(this.payFreqId, data).subscribe((res) => {
+      this.payFreqService.editPayFreq(this.payFreqId, data.value).subscribe((res) => {
         if(res) {
           let logData = {
-            operation: 'Deleted Pay Frequency',
+            operation: 'Edited Pay Frequency',
             user: this.authService.getToken('user')
           }
 
           this.logsService.addLog(logData).subscribe()
 
-          this.toastr.success('Edited Data Successfully.')
+          this.toastr.success('Edited Pay Frequency Successfully.')
         }
       })
     }

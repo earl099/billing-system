@@ -11,16 +11,17 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         autoIncrement: true,
       },
-      deptId: {
-        type: DataTypes.INTEGER,
-        allowNull: false
-      },
       locName: {
         type: DataTypes.STRING(100),
         allowNull: false
       },
+      deptId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+      },
       type: {
-        type: DataTypes.STRING(10)
+        type: DataTypes.STRING(10),
+        defaultValue: 'None'
       },
       description: {
         type: DataTypes.STRING

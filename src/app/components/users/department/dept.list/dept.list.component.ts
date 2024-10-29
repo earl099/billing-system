@@ -91,6 +91,39 @@ export class DeptListComponent implements OnInit {
         }
       })
     }
+    else {
+      this.deptService.getDepts(offset, limit).subscribe((res) => {
+        if(res) {
+          let tmpData = res.rows
+          this.clientService.getClients().subscribe((res) => {
+            let tmpData1 = res.clients
+
+            for (let i = 0; i < tmpData1.length; i++) {
+              let data = {
+                value: tmpData1[i].id,
+                viewValue: tmpData1[i].clientCode
+              }
+
+              this.clientData.push(data)
+            }
+
+            for(let i = 0; i < tmpData.length; i++) {
+              for(let j = 0; j < this.clientData.length; j++) {
+                if(Number(tmpData[i].clientId) == Number(this.clientData[j].value)) {
+                  tmpData[i].clientId = this.clientData[j].viewValue
+                  break
+                }
+              }
+            }
+
+            this.dataSource = new MatTableDataSource(tmpData)
+            this.dataSource.paginator = this.paginator
+            this.dataSource.paginator.length = tmpData.count
+            this.dataSource.sort = this.sort
+          })
+        }
+      })
+    }
   }
 
   applyFilter(event: Event) {
@@ -178,7 +211,7 @@ export class DeptListComponent implements OnInit {
     ReactiveFormsModule
   ]
 })
-export class AddDeptDialog implements OnInit {
+export class AddDeptDialog {
   addDeptForm: FormGroup
   clientOptions: Array<any> = []
   statusOptions: Array<any> = []
@@ -225,7 +258,6 @@ export class AddDeptDialog implements OnInit {
       }
     })
   }
-  ngOnInit(): void { }
 
   onAddDept(data: any) {
     if(confirm('Are you sure you want to add this department?')) {
@@ -349,7 +381,9 @@ export class EditDeptDialog implements OnInit {
     })
   }
 
-  ngOnInit(): void { }
+  ngOnInit(): void {
+    this.getDept(this.deptId)
+  }
 
   getDept(id: number) {
     this.deptService.getDept(id).subscribe((res) => {
@@ -378,7 +412,7 @@ export class EditDeptDialog implements OnInit {
 
   onEditDept(data: any) {
     if(confirm('Are you sure you want to edit this classification')) {
-      this.deptService.editDept(this.deptId, data).subscribe((res) => {
+      this.deptService.editDept(this.deptId, data.value).subscribe((res) => {
         if(res) {
           let logData = {
             operation: 'Edited Department',
@@ -386,7 +420,7 @@ export class EditDeptDialog implements OnInit {
           }
 
           this.logsService.addLog(logData).subscribe()
-          this.toastr.success('Edited department successfully')
+          this.toastr.success('Edited Department successfully')
         }
       })
     }

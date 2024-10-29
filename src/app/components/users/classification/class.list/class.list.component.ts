@@ -414,7 +414,7 @@ export class EditClassDialog implements OnInit {
 
   onEditClass(data: any) {
     if(confirm('Are you sure you want to edit this classification')) {
-      this.classService.editClass(this.classId, data).subscribe((res) => {
+      this.classService.editClass(this.classId, data.value).subscribe((res) => {
         if(res) {
           let logData = {
             operation: 'Edited Classification',

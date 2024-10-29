@@ -76,6 +76,7 @@ export class ClientListComponent implements OnInit {
 
           this.dataSource = new MatTableDataSource(tmpData)
           this.dataSource.paginator = this.paginator
+          this.dataSource.paginator.length = tmpData.count
           this.dataSource.sort = this.sort
         }
       })

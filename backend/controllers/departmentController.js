@@ -12,7 +12,7 @@ const addDept = async (req, res) => {
     description,
     status
   } = req.body
-  
+
   const dept = {
     clientId,
     deptCode,
@@ -29,7 +29,7 @@ const addDept = async (req, res) => {
   }
 }
 
-//** GETTING DEPARTMENTS **//
+//** GET DEPARTMENTS **//
 const getDepts = async (req, res) => {
   const { offset, limit } = req.body
 
