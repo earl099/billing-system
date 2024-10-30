@@ -5,11 +5,28 @@ const positionModel = db.positionModel
 
 //** ADD POSITIONS **//
 const addPosition = async (req, res) => {
-  const { clientId, posName } = req.body
+  const {
+    clientId,
+    posCode,
+    posName,
+    dailySalaryRate,
+    dailyBillingRate,
+    monthlySalaryRate,
+    monthlyBillingRate,
+    description,
+    status
+  } = req.body
 
   const position = {
-    clientId: clientId,
-    posName: posName
+    clientId,
+    posCode,
+    posName,
+    dailySalaryRate,
+    dailyBillingRate,
+    monthlySalaryRate,
+    monthlyBillingRate,
+    description,
+    status
   }
 
   try {
@@ -24,24 +41,96 @@ const addPosition = async (req, res) => {
 const getPositions = async (req, res) => {
   const { offset, limit } = req.body
 
-  const positions = await positionModel.findAll({
-    attributes: [
-      'clientId',
-      'posName'
-    ],
-    offset: offset,
-    limit: limit
-  })
+  if(offset == null && limit == null) {
+    const positions = await positionModel.findAll()
 
-  if(positions.length < 1) {
-    res.status(200).send({ message: 'No Positions found' })
+    if(positions.length < 1) {
+      res.status(200).send({ message: 'No Positions found' })
+    }
+    else {
+      res.status(200).send({ message: 'Positions found', positions: positions })
+    }
   }
   else {
-    res.status(200).send({ message: 'Positions found', positions: positions })
+    const { count, rows } = await positionModel.findAndCountAll({ offset, limit })
+
+    if(count < 1) {
+      res.status(200).send({ message: 'No positions found' })
+    }
+    else {
+      res.status(200).send({ message: 'Positions found', count, rows })
+    }
+  }
+}
+
+//** GET POSITION **//
+const getPosition = async (req, res) => {
+  const { id } = req.params
+
+  const position = await positionModel.findOne({ where: { id } })
+
+  if(position) {
+    res.status(200).send({ message: 'Position found', position })
+  }
+  else {
+    res.status(200).send({ message: 'No Position found' })
+  }
+}
+
+//** EDIT POSITION **//
+const editPosition = async (req, res) => {
+  const { id } = req.params
+  const {
+    clientId,
+    posCode,
+    posName,
+    dailySalaryRate,
+    dailyBillingRate,
+    monthlySalaryRate,
+    monthlyBillingRate,
+    description,
+    status
+  } = req.body
+
+  const posObj = {
+    clientId,
+    posCode,
+    posName,
+    dailySalaryRate,
+    dailyBillingRate,
+    monthlySalaryRate,
+    monthlyBillingRate,
+    description,
+    status
+  }
+
+  try {
+    const updatedPosition = await positionModel.update(posObj, { where: { id } })
+
+    res.status(200).send({ message: 'Updated position', updatedPosition })
+  } catch (error) {
+    res.status(500).send({ message: 'Server error', error })
+  }
+}
+
+//** DELETE POSITION **//
+const delPosition = async (req, res) => {
+  const { id } = req.params
+
+  const deletedPosition = await positionModel.destroy({ where: { id } })
+
+  if(deletedPosition) {
+    res.status(200).send({ message: 'Deleted position successfully', deletedPosition })
+  }
+  else {
+    res.status(404).send({ message: 'No position deleted' })
   }
 }
 
 module.exports = {
   addPosition,
-  getPositions
+  getPositions,
+  getPosition,
+  editPosition,
+  delPosition
 }

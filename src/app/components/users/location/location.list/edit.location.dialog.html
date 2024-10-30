@@ -1,0 +1,54 @@
+<h2 mat-dialog-title>Edit Location</h2>
+<mat-dialog-content>
+  <form [formGroup]="editLocForm">
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Location Name</mat-label>
+      <input matInput type="text" formControlName="locName">
+      @if(editLocForm.get('locName')?.hasError('required')) {
+        <mat-error>Required Field</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Department</mat-label>
+      <mat-select [value]="editLocForm.get('deptId')?.getRawValue()" formControlName='deptId'>
+        @for (option of deptOptions; track option) {
+          <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Type</mat-label>
+      <input matInput type="text" formControlName="type">
+    </mat-form-field>
+
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Description</mat-label>
+      <input matInput type="text" formControlName="description">
+    </mat-form-field>
+
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Status</mat-label>
+      <mat-select [value]="editLocForm.get('status')?.getRawValue()" formControlName='status'>
+        @for (option of statusOptions; track option) {
+          <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+        }
+      </mat-select>
+
+      @if(editLocForm.get('status')?.hasError('required')) {
+        <mat-error>Required Field</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="mt-6">
+      <button mat-raised-button mat-dialog-close color="primary" type="submit" class="w-full py-2" [disabled]="editLocForm.invalid" (click)="onEditLoc(editLocForm)">
+        Edit Location
+      </button>
+
+      <button mat-raised-button mat-dialog-close color="primary" class="w-full py-2 mt-3">
+        Cancel
+      </button>
+    </div>
+  </form>
+</mat-dialog-content>

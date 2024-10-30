@@ -53,7 +53,6 @@ export class DeptListComponent implements OnInit {
   columns = ['deptName', 'clientId', 'actions']
   clientData: Array<any> = []
 
-  constructor() { }
   ngOnInit(): void {
     this.getDepts()
   }
@@ -358,17 +357,7 @@ export class EditDeptDialog implements OnInit {
   toastr = inject(ToastrService)
   fb = inject(FormBuilder)
 
-  statusOptions = [
-    {
-      value: 'active',
-      viewValue: 'Active'
-    },
-    {
-      value: 'inactive',
-      viewValue: 'Inactive'
-    }
-  ]
-
+  statusOptions: Array<any> = []
   clientOptions: Array<any> = []
 
   constructor() {
@@ -379,6 +368,17 @@ export class EditDeptDialog implements OnInit {
       status: ['', Validators.required],
       description: ['']
     })
+
+    this.statusOptions = [
+      {
+        value: 'active',
+        viewValue: 'Active'
+      },
+      {
+        value: 'inactive',
+        viewValue: 'Inactive'
+      }
+    ]
   }
 
   ngOnInit(): void {
@@ -415,7 +415,7 @@ export class EditDeptDialog implements OnInit {
       this.deptService.editDept(this.deptId, data.value).subscribe((res) => {
         if(res) {
           let logData = {
-            operation: 'Edited Department',
+            operation: 'Updated Department',
             user: this.authService.getToken('user')
           }
 

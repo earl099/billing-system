@@ -14,9 +14,10 @@ import { AuthService } from '../../../../services/auth.service';
 import { DepartmentService } from '../../../../services/department.service';
 import { LogsService } from '../../../../services/logs.service';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
-import { MatDialog } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSort, Sort } from '@angular/material/sort';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'app-location.list',
@@ -49,7 +50,7 @@ export class LocationListComponent implements OnInit {
   _liveAnnouncer = inject(LiveAnnouncer)
   @ViewChild(MatPaginator) paginator !: MatPaginator
   @ViewChild(MatSort) sort !: MatSort
-  columns = ['deptName', 'deptsId', 'actions']
+  columns = ['locName', 'deptId', 'actions']
   deptData: Array<any> = []
 
   constructor() { }
@@ -153,19 +154,49 @@ export class LocationListComponent implements OnInit {
   }
 
   openAddLocDialog() {
+    const dialogRef = this.dialog.open(AddLocationDialog)
 
+    dialogRef.afterClosed().subscribe(() => {
+      this.dataSource.data.splice(0, this.dataSource.data.length)
+      this.getLocs()
+    })
   }
 
   openViewLocDialog(id: number) {
+    const dialogRef = this.dialog.open(ViewLocationDialog, { data: { id } })
 
+    dialogRef.afterClosed().subscribe(() => {
+      this.dataSource.data.splice(0, this.dataSource.data.length)
+      this.getLocs()
+    })
   }
 
   openEditLocDialog(id: number) {
+    const dialogRef = this.dialog.open(EditLocationDialog, { data: { id } })
 
+    dialogRef.afterClosed().subscribe(() => {
+      this.dataSource.data.splice(0, this.dataSource.data.length)
+      this.getLocs()
+    })
   }
 
   delLoc(id: number) {
+    if(confirm('Are you sure you want to delete this location?')) {
+      this.locService.delLoc(id).subscribe((res) => {
+        if(res) {
+          let logData = {
+            operation: 'Deleted Location',
+            user: this.authService.getToken('user')
+          }
 
+          this.logsService.addLog(logData).subscribe()
+          this.toastr.success('Deleted Location successfully')
+
+          this.dataSource.data.splice(0, this.dataSource.data.length)
+          this.getLocs()
+        }
+      })
+    }
   }
 }
 
@@ -175,7 +206,12 @@ export class LocationListComponent implements OnInit {
   styleUrl: './location.list.component.scss',
   standalone: true,
   imports: [
-
+    CommonModule,
+    MatInputModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatSelectModule,
+    ReactiveFormsModule
   ]
 })
 export class AddLocationDialog {
@@ -201,10 +237,200 @@ export class AddLocationDialog {
 
     this.deptService.getDepts().subscribe((res) => {
       if(res) {
-        
+        let tmpData = res.depts
+
+        for (let i = 0; i < tmpData.length; i++) {
+          let data = {
+            value: tmpData[i].id,
+            viewValue: tmpData[i].deptName
+          }
+
+          this.deptOptions.push(data)
+        }
+
+        this.statusOptions = [
+          {
+            value: 'active',
+            viewValue: 'Active'
+          },
+          {
+            value: 'inactive',
+            viewValue: 'Inactive'
+          }
+        ]
       }
     })
   }
 
+  onAddLoc(data: any) {
+    if(confirm('Are you sure you want to add this data?')) {
+      let logData = {
+        operation: 'Added Location',
+        user: this.authService.getToken('user')
+      }
+
+      this.locationService.addLoc(data.value).subscribe((res) => {
+        if(res) {
+          this.logsService.addLog(logData).subscribe()
+          this.toastr.success('Location added successfully')
+        }
+      })
+    }
+  }
 }
 
+
+@Component({
+  selector: 'view-location-dialog',
+  templateUrl: './view.location.dialog.html',
+  styleUrl: './location.list.component.scss',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatInputModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatSelectModule,
+    ReactiveFormsModule
+  ]
+})
+export class ViewLocationDialog implements OnInit {
+  locationService = inject(LocationService)
+  deptService = inject(DepartmentService)
+  fb = inject(FormBuilder)
+
+  data = inject(MAT_DIALOG_DATA)
+  locId = this.data.id
+  viewLocForm: FormGroup
+
+  constructor() {
+    this.viewLocForm = this.fb.group({
+      wageName: [''],
+      deptName: [''],
+      type: [''],
+      description: [''],
+      status: ['']
+    })
+  }
+
+  ngOnInit(): void {
+    this.getLoc(this.locId)
+  }
+
+  getLoc(id: number) {
+    this.locationService.getLoc(id).subscribe((res) => {
+      if(res) {
+        let tmpData = res.loc
+
+        this.deptService.getDept(Number(tmpData.deptId)).subscribe((res) => {
+          let tmpData1 = res.dept
+
+          this.viewLocForm.get('wageName')?.setValue(tmpData.wageName)
+          this.viewLocForm.get('deptName')?.setValue(tmpData1.deptName)
+          this.viewLocForm.get('type')?.setValue(tmpData.type)
+          this.viewLocForm.get('description')?.setValue(tmpData.description)
+          let status = tmpData.status == 'active' ? 'Active' : 'Inactive'
+          this.viewLocForm.get('status')?.setValue(status)
+        })
+      }
+    })
+  }
+}
+
+@Component({
+  selector: 'edit-location-dialog',
+  templateUrl: './edit.location.dialog.html',
+  styleUrl: './location.list.component.scss',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatInputModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatSelectModule,
+    ReactiveFormsModule
+  ]
+})
+export class EditLocationDialog implements OnInit {
+  data = inject(MAT_DIALOG_DATA)
+  locId = this.data.id
+  editLocForm: FormGroup
+
+  locationService = inject(LocationService)
+  deptService = inject(DepartmentService)
+  logsService = inject(LogsService)
+  authService = inject(AuthService)
+  toastr = inject(ToastrService)
+  fb = inject(FormBuilder)
+
+  statusOptions: Array<any> = []
+  deptOptions: Array<any> = []
+
+  constructor() {
+    this.editLocForm = this.fb.group({
+      wageName: ['', Validators.required],
+      deptId: [0, Validators.required],
+      type: [''],
+      description: [''],
+      status: ['', Validators.required]
+    })
+
+    this.statusOptions = [
+      {
+        value: 'active',
+        viewValue: 'Active'
+      },
+      {
+        value: 'inactive',
+        viewValue: 'Inactive'
+      }
+    ]
+  }
+
+  ngOnInit(): void { }
+
+  getLoc(id: number) {
+    this.locationService.getLoc(id).subscribe((res) => {
+      if(res) {
+        let tmpData = res.loc
+
+        this.deptService.getDept(Number(tmpData.deptId)).subscribe((res) => {
+          if(res) {
+            let tmpData1 = res.dept
+
+            for (let i = 0; i < tmpData1.length; i++) {
+              let data = {
+                value: tmpData1[i].id,
+                viewValue: tmpData1[i].deptCode
+              }
+
+              this.deptOptions.push(data)
+            }
+
+            this.editLocForm.get('wageName')?.setValue(tmpData.wageName)
+            this.editLocForm.get('deptId')?.setValue(tmpData.deptId)
+            this.editLocForm.get('type')?.setValue(tmpData.type)
+            this.editLocForm.get('description')?.setValue(tmpData.depscription)
+            this.editLocForm.get('status')?.setValue(tmpData.status)
+          }
+        })
+      }
+    })
+  }
+
+  onEditLoc(data: any) {
+    if(confirm('Are you sure you want to edit this location?')) {
+      this.locationService.editLoc(this.locId, data.value).subscribe((res) => {
+        if(res) {
+          let logData = {
+            operation: 'Updated Location',
+            user: this.authService.getToken('user')
+          }
+
+          this.logsService.addLog(logData).subscribe()
+          this.toastr.success('Updated Location successfully')
+        }
+      })
+    }
+  }
+}

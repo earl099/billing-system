@@ -1,0 +1,34 @@
+<h2 mat-dialog-title>View Department</h2>
+<mat-dialog-content>
+  <form [formGroup]="viewLocForm" class="grid grid-cols-2 gap-2">
+    <mat-form-field>
+      <mat-label>Location Name</mat-label>
+      <input matInput type="text" formControlName="locName" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Department Name</mat-label>
+      <input matInput type="text" formControlName="deptName" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Department Name</mat-label>
+      <input matInput type="text" formControlName="type" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Department Name</mat-label>
+      <input matInput type="text" formControlName="description" readonly>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Department Name</mat-label>
+      <input matInput type="text" formControlName="description" readonly>
+    </mat-form-field>
+  </form>
+
+  <div class="mt-2">
+    <button mat-raised-button mat-dialog-close color="primary" class="w-full py-2 mt-3">
+      Close
+    </button>
+  </div>
+</mat-dialog-content>

@@ -12,7 +12,7 @@
 
     <mat-form-field class="w-full mb-4">
       <mat-label>Department Code</mat-label>
-      <input matInput type="text" formControlName="className">
+      <input matInput type="text" formControlName="deptCode">
       @if(editDeptForm.get('deptCode')?.hasError('required')) {
         <mat-error>Required Field</mat-error>
       }
@@ -20,10 +20,15 @@
 
     <mat-form-field class="w-full mb-4">
       <mat-label>Department Name</mat-label>
-      <input matInput type="text" formControlName="className">
+      <input matInput type="text" formControlName="deptName">
       @if(editDeptForm.get('deptName')?.hasError('required')) {
         <mat-error>Required Field</mat-error>
       }
+    </mat-form-field>
+
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Description</mat-label>
+      <input matInput type="text" formControlName="description">
     </mat-form-field>
 
     <mat-form-field class="w-full mb-4">
@@ -37,11 +42,6 @@
       @if(editDeptForm.get('status')?.hasError('required')) {
         <mat-error>Required Field</mat-error>
       }
-    </mat-form-field>
-
-    <mat-form-field class="w-full mb-4">
-      <mat-label>Description</mat-label>
-      <input matInput type="text" formControlName="description">
     </mat-form-field>
 
     <div class="mt-6">
