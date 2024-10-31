@@ -15,45 +15,45 @@ const addEmployee = async (req, res) => {
     gender,
     dateOfBirth,
     education,
-    departmentId,
-    locationId,
+    deptId,
+    locId,
     email1,
     email2,
     mobileNum1,
     mobileNum2,
     civilStatus,
-    positionId,
+    posId,
     employmentStatus,
     remarks,
     wageId
   } = req.body
 
   const employeeObj = {
-    employeeId: employeeId,
-    clientId: clientId,
-    firstName: firstName,
-    middleName: middleName,
-    lastName: lastName,
-    suffix: suffix,
-    gender: gender,
-    dateOfBirth: dateOfBirth,
-    education: education,
-    departmentId: departmentId,
-    locationId: locationId,
-    email1: email1,
-    email2: email2,
-    mobileNum1: mobileNum1,
-    mobileNum2: mobileNum2,
-    civilStatus: civilStatus,
-    positionId: positionId,
-    employmentStatus: employmentStatus,
-    remarks: remarks,
-    wageId: wageId
+    employeeId,
+    clientId,
+    firstName,
+    middleName,
+    lastName,
+    suffix,
+    gender,
+    dateOfBirth,
+    education,
+    deptId,
+    locId,
+    email1,
+    email2,
+    mobileNum1,
+    mobileNum2,
+    civilStatus,
+    posId,
+    employmentStatus,
+    remarks,
+    wageId
   }
 
   try {
     const createdEmployee = await employeeModel.create(employeeObj)
-    res.status(200).send({ message: 'Employee created', createdEmployee: createdEmployee })
+    res.status(200).send({ message: 'Employee created', createdEmployee })
   } catch (e) {
     res.status(500).send({ message: 'Server error', error: e })
   }
@@ -77,33 +77,107 @@ const getEmployees = async (req, res) => {
     }
   }
   else {
-    const employees = await employeeModel.findAll()
+    const emps = await employeeModel.findAll()
 
-    if(employees.length < 1) {
+    if(emps.length < 1) {
       res.status(200).send({ message: 'No employees found.' })
     }
     else {
-      res.status(200).send({ message: 'Employees found', employees: employees })
+      res.status(200).send({ message: 'Employees found', emps })
     }
   }
 }
 
 //** GET EMPLOYEE **//
 const getEmployee = async (req, res) => {
+  const { id } = req.params
 
+  const emp = await employeeModel.findOne({ where: { id } })
+
+  if(emp) {
+    res.status(200).send({ message: 'Employee found', emp })
+  }
+  else {
+    res.status(200).send({ message: 'No Employee found' })
+  }
 }
 
-//** EDIT EMPLOYEES **//
+//** EDIT EMPLOYEE **//
 const editEmployee = async (req, res) => {
+  const { id } = req.params
+  const {
+    employeeId,
+    clientId,
+    firstName,
+    middleName,
+    lastName,
+    suffix,
+    gender,
+    dateOfBirth,
+    education,
+    deptId,
+    locId,
+    email1,
+    email2,
+    mobileNum1,
+    mobileNum2,
+    civilStatus,
+    posId,
+    employmentStatus,
+    remarks,
+    wageId
+  } = req.body
 
+  const empObj = {
+    employeeId,
+    clientId,
+    firstName,
+    middleName,
+    lastName,
+    suffix,
+    gender,
+    dateOfBirth,
+    education,
+    deptId,
+    locId,
+    email1,
+    email2,
+    mobileNum1,
+    mobileNum2,
+    civilStatus,
+    posId,
+    employmentStatus,
+    remarks,
+    wageId
+  }
+
+  try {
+    const updatedEmp = await employeeModel.update(empObj, { where: { id } })
+
+    res.status(200).send({ message: 'Updated Employee successfully', updatedEmp })
+  } catch (error) {
+    res.status(500).send({ message: 'Server Error', error })
+  }
 }
 
 //** DELETE EMPLOYEE **//
 const delEmployee = async (req, res) => {
+  const { id } = req.params
 
+  const deletedEmp = await employeeModel.destroy({ where: { id } })
+
+  if(deletedEmp) {
+    res.status(200).send({ message: 'Deleted Employee Successfully', deletedEmp })
+  }
+  else {
+    res.status(404).send({ message: 'No Employee deleted' })
+  }
 }
 
 module.exports = {
   addEmployee,
-  getEmployees
+  getEmployees,
+  getEmployee,
+  editEmployee,
+  delEmployee
 }

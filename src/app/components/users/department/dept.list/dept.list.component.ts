@@ -45,7 +45,6 @@ export class DeptListComponent implements OnInit {
   toastr = inject(ToastrService)
 
   dataSource!: MatTableDataSource<any>
-  clients: Array<any> = []
   dialog = inject(MatDialog)
   _liveAnnouncer = inject(LiveAnnouncer)
   @ViewChild(MatPaginator) paginator !: MatPaginator
@@ -94,6 +93,7 @@ export class DeptListComponent implements OnInit {
       this.deptService.getDepts(offset, limit).subscribe((res) => {
         if(res) {
           let tmpData = res.rows
+
           this.clientService.getClients().subscribe((res) => {
             let tmpData1 = res.clients
 

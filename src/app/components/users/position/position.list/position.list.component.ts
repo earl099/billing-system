@@ -288,6 +288,29 @@ export class AddPositionDialog {
       })
     }
   }
+
+  //models for limitng input of user
+  value: string | number = ''
+  value1: string | number = ''
+  value2: string | number = ''
+  value3: string | number = ''
+
+  validateDecimal(event: any) {
+    const regex = /^[0-9]*\.?[0-9]{0,2}$/
+    const currentValue = (event.target as HTMLInputElement).value
+    const nextValue = currentValue + event.key
+
+    if (!regex.test(nextValue) && event.key !== 'Backspace') {
+      event.preventDefault();
+    }
+  }
+
+  formatToTwoDecimals(data: any) {
+    // If there's a value, format it to 2 decimal places
+    if (data) {
+       data = parseFloat(data.toString()).toFixed(2);
+    }
+  }
 }
 
 @Component({
@@ -460,6 +483,29 @@ export class EditPositionDialog implements OnInit {
           this.toastr.success('Updated Position successfully')
         }
       })
+    }
+  }
+
+  //models for limitng input of user
+  value: string | number = ''
+  value1: string | number = ''
+  value2: string | number = ''
+  value3: string | number = ''
+
+  validateDecimal(event: any) {
+    const regex = /^[0-9]*\.?[0-9]{0,2}$/
+    const currentValue = (event.target as HTMLInputElement).value
+    const nextValue = currentValue + event.key
+
+    if (!regex.test(nextValue) && event.key !== 'Backspace') {
+      event.preventDefault();
+    }
+  }
+
+  formatToTwoDecimals(data: any) {
+    // If there's a value, format it to 2 decimal places
+    if (data) {
+       data = parseFloat(data.toString()).toFixed(2);
     }
   }
 }

@@ -1,0 +1,55 @@
+<h2 mat-dialog-title>View Position</h2>
+<mat-dialog-content>
+  <form [formGroup]="viewPositionForm" class="grid grid-cols-3 gap-2">
+    <mat-form-field>
+      <mat-label>Position Code</mat-label>
+      <input matInput type="text" formControlName="posCode" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Position Name</mat-label>
+      <input matInput type="text" formControlName="posName" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Client</mat-label>
+      <input matInput type="text" formControlName="clientId" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Daily Salary Rate</mat-label>
+      <input matInput type="text" formControlName="dailySalaryRate" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Daily Billing Rate</mat-label>
+      <input matInput type="text" formControlName="dailyBillingRate" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Monthly Salary Rate</mat-label>
+      <input matInput type="text" formControlName="monthlySalaryRate" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Monthly Billing Rate</mat-label>
+      <input matInput type="text" formControlName="monthlyBillingRate" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Description</mat-label>
+      <input matInput type="text" formControlName="description" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Status</mat-label>
+      <input matInput type="text" formControlName="status" readonly>
+    </mat-form-field>
+  </form>
+
+  <div class="mt-2">
+    <button mat-raised-button mat-dialog-close color="primary" class="w-full py-2 mt-3">
+      Close
+    </button>
+  </div>
+</mat-dialog-content>

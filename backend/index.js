@@ -86,6 +86,10 @@ app.use('/api', wageRoutes)
 const locationRoutes = require('./routers/locationRoutes')
 app.use('/api', locationRoutes)
 
+//employment status routes
+const empStatusRoutes = require('./routers/empStatusRoutes')
+app.use('/api', empStatusRoutes)
+
 app.listen(port, () => {
   console.log('Server is running on port', port)
 })

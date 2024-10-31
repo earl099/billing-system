@@ -10,5 +10,6 @@ export const routes: Routes = [
   { path: '', loadChildren: () => import('./components/users/department/routes').then(mod => mod.DEPT_ROUTES) },
   { path: '', loadChildren: () => import('./components/users/wage/routes').then(mod => mod.WAGE_ROUTES) },
   { path: '', loadChildren: () => import('./components/users/location/routes').then(mod => mod.LOCATION_ROUTES) },
-  { path: '', loadChildren: () => import('./components/users/position/routes').then(mod => mod.POSITION_ROUTES) }
+  { path: '', loadChildren: () => import('./components/users/position/routes').then(mod => mod.POSITION_ROUTES) },
+  { path: '', loadChildren: () => import('./components/users/employee/routes').then(mod => mod.EMPLOYEE_ROUTES) }
 ];

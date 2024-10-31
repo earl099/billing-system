@@ -1,0 +1,85 @@
+<h2 mat-dialog-title>Edit Position</h2>
+<mat-dialog-content>
+  <form [formGroup]="editPositionForm" class="grid grid-cols-3 gap-2">
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Position Code</mat-label>
+      <input matInput type="text" formControlName="posCode">
+      @if(editPositionForm.get('posCode')?.hasError('required')) {
+        <mat-error>Required Field</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Position Name</mat-label>
+      <input matInput type="text" formControlName="posName">
+      @if(editPositionForm.get('posName')?.hasError('required')) {
+        <mat-error>Required Field</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Client Code</mat-label>
+      <mat-select [value]="editPositionForm.get('clientId')?.getRawValue()" formControlName='clientId'>
+        @for (option of clientOptions; track option) {
+          <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Daily Salary Rate</mat-label>
+      <input matInput type="text" formControlName="dailySalaryRate" placeholder="0.00" [(ngModel)]="value" (keypress)="validateDecimal($event)" (blur)="formatToTwoDecimals(value)">
+      @if(editPositionForm.get('dailySalaryRate')?.hasError('required')) {
+        <mat-error>Required Field</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Daily Billing Rate</mat-label>
+      <input matInput type="text" formControlName="dailyBillingRate" placeholder="0.00" [(ngModel)]="value1" (keypress)="validateDecimal($event)" (blur)="formatToTwoDecimals(value1)">
+      @if(editPositionForm.get('dailyBillingRate')?.hasError('required')) {
+        <mat-error>Required Field</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Monthly Salary Rate</mat-label>
+      <input matInput type="text" formControlName="monthlySalaryRate" placeholder="0.00" [(ngModel)]="value2" (keypress)="validateDecimal($event)" (blur)="formatToTwoDecimals(value2)">
+      @if(editPositionForm.get('monthlySalaryRate')?.hasError('required')) {
+        <mat-error>Required Field</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Monthly Billing Rate</mat-label>
+      <input matInput type="text" formControlName="monthlyBillingRate" placeholder="0.00" [(ngModel)]="value3" (keypress)="validateDecimal($event)" (blur)="formatToTwoDecimals(value3)">
+      @if(editPositionForm.get('monthlyBillingRate')?.hasError('required')) {
+        <mat-error>Required Field</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Description</mat-label>
+      <input matInput type="text" formControlName="description">
+    </mat-form-field>
+
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Status</mat-label>
+      <mat-select [value]="editPositionForm.get('status')?.getRawValue()" formControlName='status'>
+        @for (option of statusOptions; track option) {
+          <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </form>
+
+  <div class="mt-6">
+    <button mat-raised-button mat-dialog-close color="primary" type="submit" class="w-full py-2" [disabled]="editPositionForm.invalid" (click)="onEditPosition(editPositionForm)">
+      Edit Position
+    </button>
+
+    <button mat-raised-button mat-dialog-close color="primary" class="w-full py-2 mt-3">
+      Cancel
+    </button>
+  </div>
+</mat-dialog-content>

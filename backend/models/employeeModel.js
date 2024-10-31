@@ -42,10 +42,10 @@ module.exports = (sequelize, DataTypes) => {
       education: {
         type: DataTypes.STRING(100)
       },
-      departmentId: {
+      deptId: {
         type: DataTypes.INTEGER
       },
-      locationId: {
+      locId: {
         type: DataTypes.INTEGER
       },
       email1: {
@@ -63,7 +63,7 @@ module.exports = (sequelize, DataTypes) => {
       civilStatus: {
         type: DataTypes.STRING
       },
-      positionId: {
+      posId: {
         type: DataTypes.INTEGER
       },
       employmentStatusId: {
