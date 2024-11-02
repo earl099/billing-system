@@ -1,0 +1,50 @@
+<h2 mat-dialog-title>Edit Department</h2>
+<mat-dialog-content>
+  <form [formGroup]="editEmpStatusForm">
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Employment Status</mat-label>
+      <input matInput type="text" formControlName="empStatusName">
+      @if(editEmpStatusForm.get('empStatusName')?.hasError('required')) {
+        <mat-error>Required Field</mat-error>
+      }
+    </mat-form-field>
+  
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Client Code</mat-label>
+      <mat-select [value]="editEmpStatusForm.get('clientId')?.getRawValue()" formControlName='clientId'>
+        @for (option of clientOptions; track option) {
+          <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Description</mat-label>
+      <input matInput type="text" formControlName="description">
+    </mat-form-field>
+  
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Status</mat-label>
+      <mat-select [value]="editEmpStatusForm.get('status')?.getRawValue()" formControlName='status'>
+        @for (option of statusOptions; track option) {
+          <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+        }
+      </mat-select>
+  
+      @if(editEmpStatusForm.get('status')?.hasError('required')) {
+        <mat-error>Required Field</mat-error>
+      }
+    </mat-form-field>
+  
+    <div class="mt-6">
+      <button mat-raised-button mat-dialog-close color="primary" type="submit" class="w-full py-2" [disabled]="editEmpStatusForm.invalid" (click)="onEditEmpStatus(editEmpStatusForm)">
+        Edit Department
+      </button>
+  
+      <button mat-raised-button mat-dialog-close color="primary" class="w-full py-2 mt-3">
+        Cancel
+      </button>
+    </div>
+  </form>
+  
+</mat-dialog-content>

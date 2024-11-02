@@ -7,5 +7,6 @@
     "angular-component": {
       "ngOnInit": true
     }
-  }
+  },
+  "editor.tabSize": 2
 }

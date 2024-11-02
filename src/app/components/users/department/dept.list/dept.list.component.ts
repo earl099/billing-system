@@ -39,9 +39,9 @@ import { MatSelectModule } from '@angular/material/select';
 })
 export class DeptListComponent implements OnInit {
   deptService = inject(DepartmentService)
+  clientService = inject(ClientService)
   authService = inject(AuthService)
   logsService = inject(LogsService)
-  clientService = inject(ClientService)
   toastr = inject(ToastrService)
 
   dataSource!: MatTableDataSource<any>
