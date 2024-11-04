@@ -20,7 +20,7 @@ const addEmpStatus = async (req, res) => {
   }
 
   try {
-    const createdEmpStatus = await empStatusModel.create(empStatusModel)
+    const createdEmpStatus = await empStatusModel.create(empStatusObj)
     res.status(200).send({ message: 'Employment Status Created', createdEmpStatus })
   } catch (error) {
     res.status(500).send({ message: 'Server error', error })

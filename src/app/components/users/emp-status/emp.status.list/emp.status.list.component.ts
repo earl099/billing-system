@@ -52,7 +52,9 @@ export class EmpStatusListComponent implements OnInit {
   columns = ['empStatusName', 'clientId', 'actions']
   clientData: Array<any> = []
 
-  ngOnInit(): void { }
+  ngOnInit(): void {
+    this.getEmpStatuses()
+  }
 
   getEmpStatuses(offset?: number | null, limit?: number | null) {
     if(offset == null && limit == null) {
@@ -63,13 +65,13 @@ export class EmpStatusListComponent implements OnInit {
           this.clientService.getClients().subscribe((res) => {
             if(res) {
               let tmpData1 = res.clients
-              
+
               for (let i = 0; i < tmpData1.length; i++) {
                 let data = {
                   value: tmpData1[i].id,
-                  viewValue: tmpData1[i].clientCode
+                  viewValue: tmpData1[i].clientName
                 }
-  
+
                 this.clientData.push(data)
               }
 
@@ -104,10 +106,10 @@ export class EmpStatusListComponent implements OnInit {
                   value: tmpData1[i].id,
                   viewValue: tmpData1[i].clientCode
                 }
-  
+
                 this.clientData.push(data)
               }
-  
+
               for(let i = 0; i < tmpData.length; i++) {
                 for(let j = 0; j < this.clientData.length; j++) {
                   if(Number(tmpData[i].clientId) == Number(this.clientData[j].value)) {
@@ -116,7 +118,7 @@ export class EmpStatusListComponent implements OnInit {
                   }
                 }
               }
-  
+
               this.dataSource = new MatTableDataSource(tmpData)
               this.dataSource.paginator = this.paginator
               this.dataSource.paginator.length = tmpData.count
@@ -399,7 +401,7 @@ export class EditEmpStatusDialog implements OnInit {
                 value: tmpData1[i].id,
                 viewValue: tmpData1[i].clientCode
               }
-    
+
               this.clientOptions.push(data)
             }
 

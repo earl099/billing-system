@@ -87,8 +87,12 @@
         <mat-expansion-panel-header>Client</mat-expansion-panel-header>
         <mat-form-field class="mt-5">
           <mat-label>View Clients</mat-label>
-          <mat-select [value]="editAccessForm.get('viewClient')?.getRawValue()" formControlName='viewClient'>
-            @for (option of options; track option) {
+          <mat-select [value]="editAccessForm.get('viewClient')?.getRawValue()" formControlName='viewClient' multiple>
+            @if(authService.getToken('userType') == 'Admin') {
+              <mat-option [value]="0">All</mat-option>
+            }
+            
+            @for (option of clientOptions; track option) {
               <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
             }
           </mat-select>

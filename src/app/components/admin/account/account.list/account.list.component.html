@@ -28,13 +28,13 @@
         </ng-container>
 
         <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <th mat-header-cell *matHeaderCellDef></th>
           <td mat-cell *matCellDef="let user">
-            <div class="flex justify-between">
-              <button mat-mini-fab matTooltip="View User" (click)='openViewUserDialog(user.id)'><mat-icon>visibility</mat-icon></button>
-              <button mat-mini-fab matTooltip="Edit Details" (click)='openDetailDialog(user.id)'><mat-icon>edit_note</mat-icon></button>
-              <button mat-mini-fab matTooltip="Edit Access" (click)='openAccessDialog(user.id)'><mat-icon>edit_square</mat-icon></button>
-              <button mat-mini-fab matTooltip="Delete User" (click)='delUser(user.id)' class="enabled:!bg-red-600 enabled:!text-white"
+            <div class="flex justify-end gap-0.5">
+              <button mat-icon-button matTooltip="View User" (click)='openViewUserDialog(user.id)'><mat-icon>visibility</mat-icon></button>
+              <button mat-icon-button matTooltip="Edit Details" (click)='openDetailDialog(user.id)'><mat-icon>edit</mat-icon></button>
+              <button mat-icon-button matTooltip="Edit Access" (click)='openAccessDialog(user.id)'><mat-icon>lock</mat-icon></button>
+              <button mat-icon-button matTooltip="Delete User" (click)='delUser(user.id)' class="hover:!text-red-600"
                 [disabled]="(user.username == authService.getToken('user')) || user.username == authService.getToken('user')">
                 <mat-icon>delete</mat-icon>
               </button>

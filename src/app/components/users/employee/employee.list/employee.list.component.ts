@@ -18,8 +18,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
+import { ClassificationService } from '../../../../services/classification.service';
+import { PositionService } from '../../../../services/position.service';
+import { EmpStatusService } from '../../../../services/emp.status.service';
+import { WageService } from '../../../../services/wage.service';
 
 @Component({
   selector: 'app-employee.list',
@@ -249,7 +253,75 @@ export class EmployeeListComponent implements OnInit {
   ]
 })
 export class AddEmployeeDialog {
+  addEmpForm: FormGroup
+  clientOptions: Array<any> = []
+  classificationOptions: Array<any> = []
+  deptOptions: Array<any> = []
+  locOptions: Array<any> = []
+  posOptions: Array<any> = []
+  empStatusOptions: Array<any> = []
+  wageOptions: Array<any> = []
 
+  clientService = inject(ClientService)
+  classificationService = inject(ClassificationService)
+  deptService = inject(DepartmentService)
+  locService = inject(LocationService)
+  posService = inject(PositionService)
+  empStatService = inject(EmpStatusService)
+  wageService = inject(WageService)
+  authService = inject(AuthService)
+  logsService = inject(LogsService)
+  toastr = inject(ToastrService)
+  fb = inject(FormBuilder)
+
+  constructor() {
+    this.addEmpForm = this.fb.group({
+      employeeId: ['', Validators.required],
+      firstName: ['', Validators.required],
+      middleName: [''],
+      lastName: ['', Validators.required],
+      suffix: [''],
+      gender: [''],
+      dateOfBirth: [''],
+      education: [''],
+      email1: [''],
+      email2: [''],
+      mobileNum1: [''],
+      mobileNum2: [''],
+      civilStatus: [''],
+      clientId: [0, Validators.required],
+      classId: [0, Validators.required],
+      deptId: [0, Validators.required],
+      locId: [0, Validators.required],
+      posId: [0, Validators.required],
+      empStatusId: [0, Validators.required],
+      wageId: [0, Validators.required],
+      remarks: ['']
+    })
+
+    this.clientService.getClients().subscribe((res) => {
+      if(res) {
+        let tmpData = res.clients
+
+        for (let i = 0; i < tmpData.length; i++) {
+          let data = {
+            value: tmpData[i].id,
+            viewValue: tmpData[i].clientName
+          }
+
+          this.clientOptions.push(data)
+        }
+      }
+    })
+  }
+
+  onClientChange(clientId: number) {
+
+  }
+
+  onDeptChange(deptId: number) {
+
+  }
 }
 
 @Component({
@@ -267,7 +339,7 @@ export class AddEmployeeDialog {
   ]
 })
 export class ViewEmployeeDialog implements OnInit {
-  
+
   constructor() { }
   ngOnInit(): void { }
 }

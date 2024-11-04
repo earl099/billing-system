@@ -7,7 +7,6 @@ const employeeModel = db.employeeModel
 const addEmployee = async (req, res) => {
   const {
     employeeId,
-    clientId,
     firstName,
     middleName,
     lastName,
@@ -15,17 +14,19 @@ const addEmployee = async (req, res) => {
     gender,
     dateOfBirth,
     education,
-    deptId,
-    locId,
     email1,
     email2,
     mobileNum1,
     mobileNum2,
     civilStatus,
+    clientId,
+    classId,
+    deptId,
+    locId,
     posId,
-    employmentStatus,
-    remarks,
-    wageId
+    empStatusId,
+    wageId,
+    remarks
   } = req.body
 
   const employeeObj = {
@@ -38,15 +39,16 @@ const addEmployee = async (req, res) => {
     gender,
     dateOfBirth,
     education,
-    deptId,
-    locId,
     email1,
     email2,
     mobileNum1,
     mobileNum2,
     civilStatus,
+    classId,
+    deptId,
+    locId,
     posId,
-    employmentStatus,
+    empStatusId,
     remarks,
     wageId
   }
@@ -115,15 +117,16 @@ const editEmployee = async (req, res) => {
     gender,
     dateOfBirth,
     education,
-    deptId,
-    locId,
     email1,
     email2,
     mobileNum1,
     mobileNum2,
     civilStatus,
+    classId,
+    deptId,
+    locId,
     posId,
-    employmentStatus,
+    empStatusId,
     remarks,
     wageId
   } = req.body
@@ -138,15 +141,16 @@ const editEmployee = async (req, res) => {
     gender,
     dateOfBirth,
     education,
-    deptId,
-    locId,
     email1,
     email2,
     mobileNum1,
     mobileNum2,
     civilStatus,
+    classId,
+    deptId,
+    locId,
     posId,
-    employmentStatus,
+    empStatusId,
     remarks,
     wageId
   }

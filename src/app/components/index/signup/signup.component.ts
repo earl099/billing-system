@@ -56,14 +56,14 @@ export class SignupComponent implements OnInit {
       this.authService.getUsers().subscribe((res) => {
         let users = res.users
         let logData
-        if(users.length < 1) {
+        if(users == undefined) {
           this.signUpForm.get('userType')?.setValue('Admin')
 
           logData = {
             operation: 'Add Admin Account',
             user: this.signUpForm.get('username')?.value
           }
-          
+
           this.logsService.addLog(logData).subscribe((res) => {
             if(res) {
               this.authService.signup(this.signUpForm.value).subscribe((res) => {

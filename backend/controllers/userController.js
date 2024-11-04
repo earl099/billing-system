@@ -42,7 +42,7 @@ const addUser = async (req, res) => {
         delPayF: true,
 
         //CLIENT ACCESS
-        viewClient: true,
+        viewClient: '0',
         addClient: true,
         editClient: true,
         delClient: true,

@@ -66,8 +66,8 @@ module.exports = (sequelize, DataTypes) => {
 
       //CLIENT ACCESS
       viewClient: {
-        type: DataTypes.TINYINT(1),
-        defaultValue: false
+        type: DataTypes.STRING,
+        defaultValue: ''
       },
       addClient: {
         type: DataTypes.TINYINT(1),

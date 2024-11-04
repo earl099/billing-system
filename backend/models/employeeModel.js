@@ -15,10 +15,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(50),
         allowNull: false
       },
-      clientId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-      },
       firstName: {
         type: DataTypes.STRING(50),
         allowNull: false
@@ -42,12 +38,6 @@ module.exports = (sequelize, DataTypes) => {
       education: {
         type: DataTypes.STRING(100)
       },
-      deptId: {
-        type: DataTypes.INTEGER
-      },
-      locId: {
-        type: DataTypes.INTEGER
-      },
       email1: {
         type: DataTypes.STRING(100)
       },
@@ -63,19 +53,30 @@ module.exports = (sequelize, DataTypes) => {
       civilStatus: {
         type: DataTypes.STRING
       },
+      clientId: {
+        type: DataTypes.INTEGER,
+      },
+      classId: {
+        type: DataTypes.INTEGER,
+      },
+      deptId: {
+        type: DataTypes.INTEGER
+      },
+      locId: {
+        type: DataTypes.INTEGER
+      },
       posId: {
         type: DataTypes.INTEGER
       },
-      employmentStatusId: {
+      empStatusId: {
+        type: DataTypes.INTEGER
+      },
+      wageId: {
         type: DataTypes.INTEGER
       },
       remarks: {
         type: DataTypes.STRING
       },
-      wageId: {
-        type: DataTypes.INTEGER
-      },
-
     },
     {
       freezeTableName: true,
