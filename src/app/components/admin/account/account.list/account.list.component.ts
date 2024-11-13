@@ -259,7 +259,9 @@ export class EditDetailsDialog implements OnInit {
     MatDialogModule,
     MatButtonModule,
     MatSelectModule,
-    MatExpansionModule
+    MatExpansionModule,
+    MatFormFieldModule,
+    MatInputModule
   ]
 })
 export class EditAccessDialog implements OnInit {
@@ -346,51 +348,6 @@ export class EditAccessDialog implements OnInit {
         this.clientService.getClients().subscribe((res) => {
           let tmpData1 = res.clients
 
-          this.editAccessForm.get('viewAcct')?.setValue(tmpData.viewAcct),
-          this.editAccessForm.get('addAcct')?.setValue(tmpData.addAcct),
-          this.editAccessForm.get('editAcct')?.setValue(tmpData.editAcct),
-          this.editAccessForm.get('delAcct')?.setValue(tmpData.delAcct),
-
-          this.editAccessForm.get('viewPayF')?.setValue(tmpData.viewPayF),
-          this.editAccessForm.get('addPayF')?.setValue(tmpData.addPayF),
-          this.editAccessForm.get('editPayF')?.setValue(tmpData.editPayF),
-          this.editAccessForm.get('delPayF')?.setValue(tmpData.delPayF),
-
-          this.editAccessForm.get('viewClient')?.setValue([String(tmpData.viewClient).split('.')]),
-          this.editAccessForm.get('addClient')?.setValue(tmpData.addClient),
-          this.editAccessForm.get('editClient')?.setValue(tmpData.editClient),
-          this.editAccessForm.get('delClient')?.setValue(tmpData.delClient),
-
-          this.editAccessForm.get('viewEmp')?.setValue(tmpData.viewEmp),
-          this.editAccessForm.get('addEmp')?.setValue(tmpData.addEmp),
-          this.editAccessForm.get('editEmp')?.setValue(tmpData.editEmp),
-          this.editAccessForm.get('delEmp')?.setValue(tmpData.delEmp),
-
-          this.editAccessForm.get('viewClass')?.setValue(tmpData.viewClass),
-          this.editAccessForm.get('addClass')?.setValue(tmpData.addClass),
-          this.editAccessForm.get('editClass')?.setValue(tmpData.editClass),
-          this.editAccessForm.get('delClass')?.setValue(tmpData.delClass),
-
-          this.editAccessForm.get('viewDept')?.setValue(tmpData.viewDept),
-          this.editAccessForm.get('addDept')?.setValue(tmpData.addDept),
-          this.editAccessForm.get('editDept')?.setValue(tmpData.editDept),
-          this.editAccessForm.get('delDept')?.setValue(tmpData.delDept),
-
-          this.editAccessForm.get('viewPos')?.setValue(tmpData.viewPos),
-          this.editAccessForm.get('addPos')?.setValue(tmpData.addPos),
-          this.editAccessForm.get('editPos')?.setValue(tmpData.editPos),
-          this.editAccessForm.get('delPos')?.setValue(tmpData.delPos),
-
-          this.editAccessForm.get('viewLoc')?.setValue(tmpData.viewLoc),
-          this.editAccessForm.get('addLoc')?.setValue(tmpData.addLoc),
-          this.editAccessForm.get('editLoc')?.setValue(tmpData.editLoc),
-          this.editAccessForm.get('delLoc')?.setValue(tmpData.delLoc),
-
-          this.editAccessForm.get('viewWage')?.setValue(tmpData.viewWage),
-          this.editAccessForm.get('addWage')?.setValue(tmpData.addWage),
-          this.editAccessForm.get('editWage')?.setValue(tmpData.editWage),
-          this.editAccessForm.get('delWage')?.setValue(tmpData.delWage)
-
           for (let i = 0; i < tmpData1.length; i++) {
             let data = {
               value: tmpData1[i].id,
@@ -400,7 +357,73 @@ export class EditAccessDialog implements OnInit {
             this.clientOptions.push(data)
           }
 
-          console.log(this.clientOptions)
+          this.editAccessForm.get('viewAcct')?.setValue(tmpData.viewAcct)
+          this.editAccessForm.get('addAcct')?.setValue(tmpData.addAcct)
+          this.editAccessForm.get('editAcct')?.setValue(tmpData.editAcct)
+          this.editAccessForm.get('delAcct')?.setValue(tmpData.delAcct)
+
+          this.editAccessForm.get('viewPayF')?.setValue(tmpData.viewPayF)
+          this.editAccessForm.get('addPayF')?.setValue(tmpData.addPayF)
+          this.editAccessForm.get('editPayF')?.setValue(tmpData.editPayF)
+          this.editAccessForm.get('delPayF')?.setValue(tmpData.delPayF)
+
+
+          if(String(tmpData.viewClient).includes('.')) {
+            let data = String(tmpData.viewClient).split('.')
+            let newData = []
+            for(let i = 0; i < data.length; i++) {
+              newData.push(Number(data[i]))
+            }
+            this.editAccessForm.get('viewClient')?.setValue(newData)
+            //console.log(this.editAccessForm.get('viewClient')?.value)
+          }
+          else if(String(tmpData.viewClient).length < 1) {
+            this.editAccessForm.get('viewClient')?.setValue([''])
+          }
+          else if(String(tmpData.viewClient).length == 1 && String(tmpData.viewClient) != '0') {
+            this.editAccessForm.get('viewClient')?.setValue([Number(tmpData.viewClient)])
+          }
+          else {
+            this.editAccessForm.get('viewClient')?.setValue('All')
+
+          }
+          this.editAccessForm.get('addClient')?.setValue(tmpData.addClient)
+          this.editAccessForm.get('editClient')?.setValue(tmpData.editClient)
+          this.editAccessForm.get('delClient')?.setValue(tmpData.delClient)
+
+          this.editAccessForm.get('viewEmp')?.setValue(tmpData.viewEmp)
+          this.editAccessForm.get('addEmp')?.setValue(tmpData.addEmp)
+          this.editAccessForm.get('editEmp')?.setValue(tmpData.editEmp)
+          this.editAccessForm.get('delEmp')?.setValue(tmpData.delEmp)
+
+          this.editAccessForm.get('viewClass')?.setValue(tmpData.viewClass)
+          this.editAccessForm.get('addClass')?.setValue(tmpData.addClass)
+          this.editAccessForm.get('editClass')?.setValue(tmpData.editClass)
+          this.editAccessForm.get('delClass')?.setValue(tmpData.delClass)
+
+          this.editAccessForm.get('viewDept')?.setValue(tmpData.viewDept)
+          this.editAccessForm.get('addDept')?.setValue(tmpData.addDept)
+          this.editAccessForm.get('editDept')?.setValue(tmpData.editDept)
+          this.editAccessForm.get('delDept')?.setValue(tmpData.delDept)
+
+          this.editAccessForm.get('viewPos')?.setValue(tmpData.viewPos)
+          this.editAccessForm.get('addPos')?.setValue(tmpData.addPos)
+          this.editAccessForm.get('editPos')?.setValue(tmpData.editPos)
+          this.editAccessForm.get('delPos')?.setValue(tmpData.delPos)
+
+          this.editAccessForm.get('viewLoc')?.setValue(tmpData.viewLoc)
+          this.editAccessForm.get('addLoc')?.setValue(tmpData.addLoc)
+          this.editAccessForm.get('editLoc')?.setValue(tmpData.editLoc)
+          this.editAccessForm.get('delLoc')?.setValue(tmpData.delLoc)
+
+          this.editAccessForm.get('viewWage')?.setValue(tmpData.viewWage)
+          this.editAccessForm.get('addWage')?.setValue(tmpData.addWage)
+          this.editAccessForm.get('editWage')?.setValue(tmpData.editWage)
+          this.editAccessForm.get('delWage')?.setValue(tmpData.delWage)
+
+
+
+          //console.log(this.clientOptions)
         })
       }
     })

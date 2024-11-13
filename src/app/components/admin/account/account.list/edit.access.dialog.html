@@ -86,16 +86,17 @@
       <mat-expansion-panel>
         <mat-expansion-panel-header>Client</mat-expansion-panel-header>
         <mat-form-field class="mt-5">
-          <mat-label>View Clients</mat-label>
-          <mat-select [value]="editAccessForm.get('viewClient')?.getRawValue()" formControlName='viewClient' multiple>
-            @if(authService.getToken('userType') == 'Admin') {
-              <mat-option [value]="0">All</mat-option>
-            }
-            
-            @for (option of clientOptions; track option) {
-              <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
-            }
-          </mat-select>
+          <mat-label>Accessible Clients</mat-label>
+          @if(userId != 1) {
+            <mat-select [value]="editAccessForm.get('viewClient')?.value" formControlName='viewClient' multiple>
+              @for (option of clientOptions; track option) {
+                <mat-option [value]="option.value" [ariaChecked]="editAccessForm.get('viewClient')?.getRawValue() == option.value">{{ option.viewValue }}</mat-option>
+              }
+            </mat-select>
+          }
+          @else {
+            <input matInput type="text" formControlName="viewClient" [value]="" readonly>
+          }
         </mat-form-field>
 
         <mat-form-field class="mt-5 ml-5">

@@ -3,7 +3,7 @@
 const db = require('../config/sequelize')
 const positionModel = db.positionModel
 
-//** ADD POSITIONS **//
+//** ADD POSITION **//
 const addPosition = async (req, res) => {
   const {
     clientId,
@@ -48,7 +48,7 @@ const getPositions = async (req, res) => {
       res.status(200).send({ message: 'No Positions found' })
     }
     else {
-      res.status(200).send({ message: 'Positions found', positions: positions })
+      res.status(200).send({ message: 'Positions found', positions })
     }
   }
   else {

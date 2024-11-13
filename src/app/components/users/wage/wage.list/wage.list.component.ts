@@ -17,6 +17,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
+import { ClientService } from '../../../../services/client.service';
 
 @Component({
   selector: 'app-wage.list',
@@ -38,6 +39,7 @@ import { MatSelectModule } from '@angular/material/select';
 })
 export class WageListComponent implements OnInit {
   wageService = inject(WageService)
+  clientService = inject(ClientService)
   authService = inject(AuthService)
   logsService = inject(LogsService)
   toastr = inject(ToastrService)
@@ -47,7 +49,8 @@ export class WageListComponent implements OnInit {
   _liveAnnouncer = inject(LiveAnnouncer)
   @ViewChild(MatPaginator) paginator !: MatPaginator
   @ViewChild(MatSort) sort !: MatSort
-  columns = ['wageName', 'actions']
+  columns = ['wageName', 'clientId', 'actions']
+  clientData: Array<any> = []
 
   ngOnInit(): void {
     this.getWages()
@@ -59,9 +62,31 @@ export class WageListComponent implements OnInit {
         if(res) {
           let tmpData = res.wages
 
-          this.dataSource = new MatTableDataSource(tmpData)
-          this.dataSource.paginator = this.paginator
-          this.dataSource.sort = this.sort
+          this.clientService.getClients().subscribe((res) => {
+            let tmpData1 = res.clients
+
+              for (let i = 0; i < tmpData1.length; i++) {
+                let data = {
+                  value: tmpData1[i].id,
+                  viewValue: tmpData1[i].clientName
+                }
+
+                this.clientData.push(data)
+              }
+
+              for(let i = 0; i < tmpData.length; i++) {
+                for(let j = 0; j < this.clientData.length; j++) {
+                  if(Number(tmpData[i].clientId) == Number(this.clientData[j].value)) {
+                    tmpData[i].clientId = this.clientData[j].viewValue
+                    break
+                  }
+                }
+              }
+
+              this.dataSource = new MatTableDataSource(tmpData)
+              this.dataSource.paginator = this.paginator
+              this.dataSource.sort = this.sort
+          })
         }
       })
     }
@@ -70,10 +95,34 @@ export class WageListComponent implements OnInit {
         if(res) {
           let tmpData = res.rows
 
-          this.dataSource = new MatTableDataSource(tmpData)
-          this.dataSource.paginator = this.paginator
-          this.dataSource.paginator.length = res.count
-          this.dataSource.sort = this.sort
+          this.clientService.getClients().subscribe((res) => {
+            if(res) {
+              let tmpData1 = res.clients
+
+              for (let i = 0; i < tmpData1.length; i++) {
+                let data = {
+                  value: tmpData1[i].id,
+                  viewValue: tmpData1[i].clientCode
+                }
+
+                this.clientData.push(data)
+              }
+
+              for(let i = 0; i < tmpData.length; i++) {
+                for(let j = 0; j < this.clientData.length; j++) {
+                  if(Number(tmpData[i].clientId) == Number(this.clientData[j].value)) {
+                    tmpData[i].clientId = this.clientData[j].viewValue
+                    break
+                  }
+                }
+              }
+
+              this.dataSource = new MatTableDataSource(tmpData)
+              this.dataSource.paginator = this.paginator
+              this.dataSource.paginator.length = tmpData.count
+              this.dataSource.sort = this.sort
+            }
+          })
         }
       })
     }
@@ -169,9 +218,11 @@ export class WageListComponent implements OnInit {
 })
 export class AddWageDialog {
   addWageForm: FormGroup
+  clientOptions: Array<any> = []
   statusOptions: Array<any> = []
 
   wageService = inject(WageService)
+  clientService = inject(ClientService)
   authService = inject(AuthService)
   logsService = inject(LogsService)
   toastr = inject(ToastrService)
@@ -180,20 +231,36 @@ export class AddWageDialog {
   constructor() {
     this.addWageForm = this.fb.group({
       wageName: ['', Validators.required],
+      clientId: [0, Validators.required],
       description: [''],
       status: ['', Validators.required]
     })
 
-    this.statusOptions = [
-      {
-        value: 'active',
-        viewValue: 'Active'
-      },
-      {
-        value: 'inactive',
-        viewValue: 'Inactive'
+    this.clientService.getClients().subscribe((res) => {
+      if(res) {
+        let tmpData = res.clients
+
+        for (let i = 0; i < tmpData.length; i++) {
+          let data = {
+            value: tmpData[i].id,
+            viewValue: tmpData[i].clientName
+          }
+
+          this.clientOptions.push(data)
+        }
+
+        this.statusOptions = [
+          {
+            value: 'active',
+            viewValue: 'Active'
+          },
+          {
+            value: 'inactive',
+            viewValue: 'Inactive'
+          }
+        ]
       }
-    ]
+    })
   }
 
   onAddWage(data: any) {
@@ -228,6 +295,7 @@ export class AddWageDialog {
 })
 export class ViewWageDialog implements OnInit {
   wageService = inject(WageService)
+  clientService = inject(ClientService)
 
   data = inject(MAT_DIALOG_DATA)
   wageId = this.data.id
@@ -237,6 +305,7 @@ export class ViewWageDialog implements OnInit {
   constructor() {
     this.viewWageForm = this.fb.group({
       wageName: [''],
+      clientId: [''],
       description: [''],
       status: ['']
     })
@@ -250,9 +319,17 @@ export class ViewWageDialog implements OnInit {
       if(res) {
         let tmpData = res.wage
 
-        this.viewWageForm.get('wageName')?.setValue(tmpData.wageName)
-        this.viewWageForm.get('description')?.setValue(tmpData.description)
-        this.viewWageForm.get('status')?.setValue(tmpData.status)
+        this.clientService.getClient(Number(tmpData.clientId)).subscribe((res) => {
+          if(res) {
+            let tmpData1 = res.client
+
+            this.viewWageForm.get('wageName')?.setValue(tmpData.wageName)
+            this.viewWageForm.get('clientId')?.setValue(tmpData1.clientName)
+            this.viewWageForm.get('description')?.setValue(tmpData.description)
+            let status = tmpData.status == 'active' ? 'Active' : 'Inactive'
+            this.viewWageForm.get('status')?.setValue(status)
+          }
+        })
       }
     })
   }
@@ -279,20 +356,13 @@ export class EditWageDialog implements OnInit {
   wageId = this.data.id
 
   wageService = inject(WageService)
+  clientService = inject(ClientService)
   authService = inject(AuthService)
   logsService = inject(LogsService)
   toastr = inject(ToastrService)
 
-  statusOptions = [
-    {
-      value: 'active',
-      viewValue: 'Active'
-    },
-    {
-      value: 'inactive',
-      viewValue: 'Inactive'
-    }
-  ]
+  statusOptions: Array<any> = []
+  clientOptions: Array<any> = []
 
   constructor() {
     this.editWageForm = this.fb.group({
@@ -300,6 +370,17 @@ export class EditWageDialog implements OnInit {
       description: [''],
       status: ['', Validators.required]
     })
+
+    this.statusOptions = [
+      {
+        value: 'active',
+        viewValue: 'Active'
+      },
+      {
+        value: 'inactive',
+        viewValue: 'Inactive'
+      }
+    ]
   }
   ngOnInit(): void {
     this.getWage(this.wageId)
@@ -310,9 +391,25 @@ export class EditWageDialog implements OnInit {
       if(res) {
         let tmpData = res.wage
 
-        this.editWageForm.get('wageName')?.setValue(tmpData.wageName)
-        this.editWageForm.get('description')?.setValue(tmpData.description)
-        this.editWageForm.get('status')?.setValue(tmpData.status)
+        this.clientService.getClients().subscribe((res) => {
+          if(res) {
+            let tmpData1 = res.clients
+
+            for (let i = 0; i < tmpData1.length; i++) {
+              let data = {
+                value: tmpData1[i].id,
+                viewValue: tmpData1[i].clientCode
+              }
+
+              this.clientOptions.push(data)
+            }
+
+            this.editWageForm.get('wageName')?.setValue(tmpData.wageName)
+            this.editWageForm.get('clientId')?.setValue(tmpData.clientId)
+            this.editWageForm.get('description')?.setValue(tmpData.description)
+            this.editWageForm.get('status')?.setValue(tmpData.status)
+          }
+        })
       }
     })
   }
@@ -322,12 +419,12 @@ export class EditWageDialog implements OnInit {
       this.wageService.editWage(this.wageId, data.value).subscribe((res) => {
         if(res) {
           let logData = {
-            operation: 'Edited Wage',
+            operation: 'Updated Wage',
             user: this.authService.getToken('user')
           }
 
           this.logsService.addLog(logData).subscribe()
-          this.toastr.success('Edited Wage Successfully')
+          this.toastr.success('Updated Wage Successfully')
         }
       })
     }

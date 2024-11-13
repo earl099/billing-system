@@ -1,0 +1,13 @@
+<h2 mat-dialog-title>Choose a client to handle</h2>
+<mat-dialog-content>
+  <div class="grid grid-cols-3 gap-2">
+    @for (client of clientData; track client) {
+      @if (authService.getToken('client') === client.value) {
+        <button mat-raised-button mat-dialog-close (click)="onSetClient(client.value)" class="bg-green-700">{{ client.viewValue }}</button>
+      }
+      @else {
+        <button mat-raised-button mat-dialog-close (click)="onSetClient(client.value)" >{{ client.viewValue }}</button>
+      }
+    }
+  </div>
+</mat-dialog-content>

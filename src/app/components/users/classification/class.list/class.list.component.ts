@@ -96,7 +96,7 @@ export class ClassListComponent implements OnInit {
       this.classService.getClasses(offset, limit).subscribe((res) => {
         if(res) {
           let tmpData = res.rows
-
+          let count = res.count
           this.clientService.getClients().subscribe((res) => {
             let tmpData1 = res.clients
 
@@ -120,6 +120,7 @@ export class ClassListComponent implements OnInit {
 
             this.dataSource = new MatTableDataSource(tmpData)
             this.dataSource.paginator = this.paginator
+            this.dataSource.paginator.length = count
             this.dataSource.sort = this.sort
           })
         }
@@ -212,7 +213,7 @@ export class ClassListComponent implements OnInit {
     ReactiveFormsModule
   ]
 })
-export class AddClassDialog implements OnInit {
+export class AddClassDialog {
   addClassForm: FormGroup
   clientOptions: Array<any> = []
   statusOptions: Array<any> = []
@@ -258,9 +259,6 @@ export class AddClassDialog implements OnInit {
       }
     })
   }
-
-  ngOnInit(): void { }
-
 
   onAddClass(data: any) {
     if(confirm('Are you sure you want to add this classification?')) {

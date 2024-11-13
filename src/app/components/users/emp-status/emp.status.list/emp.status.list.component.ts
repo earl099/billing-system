@@ -313,7 +313,9 @@ export class ViewEmpStatusDialog implements OnInit {
       status: ['', Validators.required]
     })
   }
-  ngOnInit(): void { }
+  ngOnInit(): void {
+    this.getEmpStatus(this.empStatusId)
+  }
 
   getEmpStatus(id: number) {
     this.empStatusService.getEmpStatus(id).subscribe((res) => {
@@ -385,7 +387,9 @@ export class EditEmpStatusDialog implements OnInit {
     ]
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.getEmpStatus(this.empStatusId)
+  }
 
   getEmpStatus(id: number) {
     this.empStatusService.getEmpStatus(id).subscribe((res) => {

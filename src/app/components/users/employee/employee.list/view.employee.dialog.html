@@ -1,0 +1,115 @@
+<h2 mat-dialog-title>View Employee</h2>
+<mat-dialog-content>
+  <form [formGroup]="viewEmpForm" class="grid grid-cols-4 gap-2">
+    <mat-form-field>
+      <mat-label>Employee ID</mat-label>
+      <input matInput type="text" formControlName="empId" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>First Name</mat-label>
+      <input matInput type="text" formControlName="firstName" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Middle Name</mat-label>
+      <input matInput type="text" formControlName="middleName" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Last Name</mat-label>
+      <input matInput type="text" formControlName="lastName" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Suffix</mat-label>
+      <input matInput type="text" formControlName="suffix" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Gender</mat-label>
+      <input matInput type="text" formControlName="gender" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Date of Birth</mat-label>
+      <input matInput type="text" formControlName="dateOfBirth" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Education</mat-label>
+      <input matInput type="text" formControlName="education" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Email</mat-label>
+      <input matInput type="text" formControlName="email1" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Alternate Email</mat-label>
+      <input matInput type="text" formControlName="email2" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Contact Number</mat-label>
+      <input matInput type="text" formControlName="mobileNum1" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Alternate Contact Number</mat-label>
+      <input matInput type="text" formControlName="mobileNum2" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Civil Status</mat-label>
+      <input matInput type="text" formControlName="civilStatus" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Client</mat-label>
+      <input matInput type="text" formControlName="clientId" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Classification</mat-label>
+      <input matInput type="text" formControlName="classId" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Department</mat-label>
+      <input matInput type="text" formControlName="deptId" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Location</mat-label>
+      <input matInput type="text" formControlName="locId" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Position</mat-label>
+      <input matInput type="text" formControlName="posId" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Employment Status</mat-label>
+      <input matInput type="text" formControlName="empStatusId" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Wage</mat-label>
+      <input matInput type="text" formControlName="wageId" readonly>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Remarks</mat-label>
+      <input matInput type="text" formControlName="remarks" readonly>
+    </mat-form-field>
+  </form>
+
+  <div class="mt-2">
+    <button mat-raised-button mat-dialog-close color="primary" class="w-full py-2 mt-3">
+      Close
+    </button>
+  </div>
+</mat-dialog-content>

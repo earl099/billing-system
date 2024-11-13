@@ -305,7 +305,7 @@ export class ViewLocationDialog implements OnInit {
 
   constructor() {
     this.viewLocForm = this.fb.group({
-      wageName: [''],
+      locName: [''],
       deptName: [''],
       type: [''],
       description: [''],
@@ -325,7 +325,7 @@ export class ViewLocationDialog implements OnInit {
         this.deptService.getDept(Number(tmpData.deptId)).subscribe((res) => {
           let tmpData1 = res.dept
 
-          this.viewLocForm.get('wageName')?.setValue(tmpData.wageName)
+          this.viewLocForm.get('locName')?.setValue(tmpData.locName)
           this.viewLocForm.get('deptName')?.setValue(tmpData1.deptName)
           this.viewLocForm.get('type')?.setValue(tmpData.type)
           this.viewLocForm.get('description')?.setValue(tmpData.description)
@@ -368,7 +368,7 @@ export class EditLocationDialog implements OnInit {
 
   constructor() {
     this.editLocForm = this.fb.group({
-      wageName: ['', Validators.required],
+      locName: ['', Validators.required],
       deptId: [0, Validators.required],
       type: [''],
       description: [''],
@@ -387,27 +387,29 @@ export class EditLocationDialog implements OnInit {
     ]
   }
 
-  ngOnInit(): void { }
+  ngOnInit(): void {
+    this.getLoc(this.locId)
+  }
 
   getLoc(id: number) {
     this.locationService.getLoc(id).subscribe((res) => {
       if(res) {
         let tmpData = res.loc
 
-        this.deptService.getDept(Number(tmpData.deptId)).subscribe((res) => {
+        this.deptService.getDepts().subscribe((res) => {
           if(res) {
-            let tmpData1 = res.dept
+            let tmpData1 = res.depts
 
             for (let i = 0; i < tmpData1.length; i++) {
               let data = {
                 value: tmpData1[i].id,
-                viewValue: tmpData1[i].deptCode
+                viewValue: tmpData1[i].deptName
               }
 
               this.deptOptions.push(data)
             }
 
-            this.editLocForm.get('wageName')?.setValue(tmpData.wageName)
+            this.editLocForm.get('locName')?.setValue(tmpData.locName)
             this.editLocForm.get('deptId')?.setValue(tmpData.deptId)
             this.editLocForm.get('type')?.setValue(tmpData.type)
             this.editLocForm.get('description')?.setValue(tmpData.depscription)

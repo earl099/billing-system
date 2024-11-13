@@ -6,10 +6,11 @@ const wageModel = db.wageModel
 
 //** ADDING WAGE **//
 const addWage = async (req, res) => {
-  const { wageName, description, status } = req.body
+  const { wageName, description, clientId, status } = req.body
 
   const wage = {
     wageName,
+    clientId,
     description,
     status
   }
@@ -68,12 +69,14 @@ const editWage = async (req, res) => {
   const { id } = req.params
   const {
     wageName,
+    clientId,
     description,
     status
   } = req.body
 
   const wageObj = {
     wageName,
+    clientId,
     description,
     status
   }

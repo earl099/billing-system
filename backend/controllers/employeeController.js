@@ -6,7 +6,7 @@ const employeeModel = db.employeeModel
 //** ADD EMPLOYEE **//
 const addEmployee = async (req, res) => {
   const {
-    employeeId,
+    empId,
     firstName,
     middleName,
     lastName,
@@ -30,7 +30,7 @@ const addEmployee = async (req, res) => {
   } = req.body
 
   const employeeObj = {
-    employeeId,
+    empId,
     clientId,
     firstName,
     middleName,
@@ -108,7 +108,7 @@ const getEmployee = async (req, res) => {
 const editEmployee = async (req, res) => {
   const { id } = req.params
   const {
-    employeeId,
+    empId,
     clientId,
     firstName,
     middleName,
@@ -132,7 +132,7 @@ const editEmployee = async (req, res) => {
   } = req.body
 
   const empObj = {
-    employeeId,
+    empId,
     clientId,
     firstName,
     middleName,

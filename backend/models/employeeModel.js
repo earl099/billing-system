@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         autoIncrement: true,
       },
-      employeeId: {
+      empId: {
         type: DataTypes.STRING(50),
         allowNull: false
       },

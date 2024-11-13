@@ -39,6 +39,16 @@
         }
         @else {
           <div class="container">
+            @if (authService.getToken('userType') == 'User') {
+              <button mat-menu-item (click)="setClient(userId)">
+                <span class="flex items-center gap-4 p-3">
+                  <mat-icon>manage_accounts</mat-icon>
+                  <span>Change Client</span>
+                </span>
+              </button>
+            }
+
+
             <button mat-menu-item routerLink="/home" (click)="onLogout()">
               <span class="flex items-center gap-4 p-3">
                 <mat-icon>logout</mat-icon>
@@ -103,14 +113,14 @@
                     <span>Pay Frequencies</span>
                   </span>
                 </button>
-              }
 
-              <button mat-menu-item routerLink="/clients">
-                <span class="flex items-center gap-4 p-3">
-                  <mat-icon>business_center</mat-icon>
-                  <span>Clients</span>
-                </span>
-              </button>
+                <button mat-menu-item routerLink="/clients">
+                  <span class="flex items-center gap-4 p-3">
+                    <mat-icon>business_center</mat-icon>
+                    <span>Clients</span>
+                  </span>
+                </button>
+              }
 
               <button mat-menu-item routerLink="/class">
                 <span class="flex items-center gap-4 p-3">
@@ -162,14 +172,6 @@
               </button>
             </mat-expansion-panel>
           </mat-accordion>
-
-
-          <button mat-menu-item routerLink="/home" (click)="onLogout()">
-            <span class="flex items-center gap-4 p-3">
-              <mat-icon>logout</mat-icon>
-              <span>Log Out</span>
-            </span>
-          </button>
 
         }
       </mat-nav-list>

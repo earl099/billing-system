@@ -1,0 +1,246 @@
+<h2 mat-dialog-title>Edit Employee</h2>
+<mat-dialog-content>
+  <form [formGroup]="editEmpForm">
+    <mat-accordion multi>
+      <!-- BASIC INFORMATION STARTS HERE -->
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>Basic Information</mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <div class="grid grid-cols-1 gap-2 mt-4">
+          <mat-form-field class="w-full mb-4">
+            <mat-label>Employee ID</mat-label>
+            <input matInput type="text" formControlName="empId">
+            @if(editEmpForm.get('empId')?.hasError('required')) {
+              <mat-error>Required Field</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="grid grid-cols-4 gap-2">
+          <mat-form-field class="w-full mb-4">
+            <mat-label>First Name</mat-label>
+            <input matInput type="text" formControlName="firstName">
+            @if(editEmpForm.get('firstName')?.hasError('required')) {
+              <mat-error>Required Field</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field class="w-full mb-4">
+            <mat-label>Middle Name</mat-label>
+            <input matInput type="text" formControlName="middleName">
+          </mat-form-field>
+
+          <mat-form-field class="w-full mb-4">
+            <mat-label>Surname</mat-label>
+            <input matInput type="text" formControlName="lastName">
+            @if(editEmpForm.get('lastName')?.hasError('required')) {
+              <mat-error>Required Field</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field class="w-full mb-4">
+            <mat-label>Suffix</mat-label>
+            <input matInput type="text" formControlName="suffix">
+          </mat-form-field>
+        </div>
+
+        <div class="grid grid-cols-4 gap-2">
+          <mat-form-field class="w-full mb-4">
+            <mat-label>Gender</mat-label>
+            <mat-select [value]="editEmpForm.get('gender')?.getRawValue()" formControlName='gender'>
+              @for (option of genderOptions; track option) {
+                <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field class="w-full mb-4">
+            <mat-label>Date of Birth</mat-label>
+            <input matInput [matDatepicker]="datepicker" formControlName="dateOfBirth">
+            <mat-hint>MM/DD/YYYY</mat-hint>
+            <mat-datepicker-toggle matIconSuffix [for]="datepicker"></mat-datepicker-toggle>
+            <mat-datepicker #datepicker></mat-datepicker>
+            @if(editEmpForm.get('lastName')?.hasError('required')) {
+              <mat-error>Required Field</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field class="w-full mb-4">
+            <mat-label>Education</mat-label>
+            <input matInput type="text" formControlName="education">
+          </mat-form-field>
+
+          <mat-form-field class="w-full mb-4">
+            <mat-label>Civil Status</mat-label>
+            <input matInput type="text" formControlName="civilStatus">
+          </mat-form-field>
+        </div>
+
+        <div class="grid grid-cols-4 gap-2">
+          <mat-form-field class="w-full mb-4">
+            <mat-label>Email</mat-label>
+            <input matInput type="text" formControlName="email1">
+
+            @if(editEmpForm.get('email1')?.hasError('email')) {
+              <mat-error>
+                Input must be an email
+              </mat-error>
+            }
+
+          </mat-form-field>
+
+          <mat-form-field class="w-full mb-4">
+            <mat-label>Alternate Email</mat-label>
+            <input matInput type="text" formControlName="email2">
+
+            @if(editEmpForm.get('email2')?.hasError('email')) {
+              <mat-error>
+                Input must be an email
+              </mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field class="w-full mb-4">
+            <mat-label>Contact Number</mat-label>
+            <input matInput type="text" formControlName="mobileNum1">
+          </mat-form-field>
+
+          <mat-form-field class="w-full mb-4">
+            <mat-label>Alternate Contact Number</mat-label>
+            <input matInput type="text" formControlName="mobileNum2">
+          </mat-form-field>
+        </div>
+      </mat-expansion-panel>
+      <!-- BASIC INFORMATION ENDS HERE -->
+
+      <!-- EMPLOYMENT INFORMATION STARTS HERE -->
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>Employment Information</mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <div class="grid grid-cols-3 gap-2">
+          @if(authService.getToken('userType') == 'User') {
+            <mat-form-field class="w-full mb-4">
+              <mat-label>Client</mat-label>
+              <input matInput type="text" formControlName="clientId" readonly>
+            </mat-form-field>
+          }
+          @else {
+            <mat-form-field class="w-full mb-4">
+              <mat-label>Client</mat-label>
+              <mat-select [value]="editEmpForm.get('clientId')?.value" formControlName='clientId' (selectionChange)="onClientChange(editEmpForm.get('clientId')?.value)">
+                @for (option of clientOptions; track option) {
+                  <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+                }
+              </mat-select>
+
+              @if(editEmpForm.get('classId')?.hasError('required')) {
+                <mat-error>Required Field</mat-error>
+              }
+            </mat-form-field>
+          }
+
+          <mat-form-field class="w-full mb-4">
+            <mat-label>Classification</mat-label>
+            <mat-select [value]="editEmpForm.get('classId')?.value" formControlName='classId'>
+              @for (option of classificationOptions; track option) {
+                <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+              }
+            </mat-select>
+
+            @if(editEmpForm.get('classId')?.hasError('required')) {
+              <mat-error>Required Field</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field class="w-full mb-4">
+            <mat-label>Department</mat-label>
+            <mat-select [value]="editEmpForm.get('deptId')?.value" formControlName='deptId' (selectionChange)="onDeptChange(editEmpForm.get('deptId')?.value)">
+              @for (option of deptOptions; track option) {
+                <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+              }
+            </mat-select>
+
+            @if(editEmpForm.get('deptId')?.hasError('required')) {
+              <mat-error>Required Field</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="grid grid-cols-4 gap-2">
+          <mat-form-field class="w-full mb-4">
+            <mat-label>Location</mat-label>
+            <mat-select [value]="editEmpForm.get('locId')?.value" formControlName='locId'>
+              @for (option of locOptions; track option) {
+                <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+              }
+            </mat-select>
+
+            @if(editEmpForm.get('locId')?.hasError('required')) {
+              <mat-error>Required Field</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field class="w-full mb-4">
+            <mat-label>Position</mat-label>
+            <mat-select [value]="editEmpForm.get('posId')?.value" formControlName='posId' >
+              @for (option of posOptions; track option) {
+                <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+              }
+            </mat-select>
+
+            @if(editEmpForm.get('posId')?.hasError('required')) {
+              <mat-error>Required Field</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field class="w-full mb-4">
+            <mat-label>Employment Status</mat-label>
+            <mat-select [value]="editEmpForm.get('empStatusId')?.value" formControlName='empStatusId' >
+              @for (option of empStatusOptions; track option) {
+                <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+              }
+            </mat-select>
+
+            @if(editEmpForm.get('empStatusId')?.hasError('required')) {
+              <mat-error>Required Field</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field class="w-full mb-4">
+            <mat-label>Wage</mat-label>
+            <mat-select [value]="editEmpForm.get('wageId')?.value" formControlName='wageId'>
+              @for (option of wageOptions; track option) {
+                <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+              }
+            </mat-select>
+
+            @if(editEmpForm.get('wageId')?.hasError('required')) {
+              <mat-error>Required Field</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="grid grid-cols-1">
+          <mat-form-field class="w-full mb-4">
+            <mat-label>Remarks</mat-label>
+            <input matInput type="text" formControlName="remarks">
+          </mat-form-field>
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>
+
+    <div class="mt-6">
+      <button mat-raised-button mat-dialog-close color="primary" type="submit" class="w-full py-2" [disabled]="editEmpForm.invalid" (click)="onEditEmployee(editEmpForm)">
+        Edit Client
+      </button>
+
+      <button mat-raised-button mat-dialog-close color="primary" class="w-full py-2 mt-3">
+        Cancel
+      </button>
+    </div>
+  </form>
+</mat-dialog-content>

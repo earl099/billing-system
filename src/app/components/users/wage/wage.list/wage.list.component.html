@@ -20,6 +20,15 @@
           <td mat-cell *matCellDef="let wage" > <span class="text-sm">{{wage.wageName}}</span> </td>
         </ng-container>
 
+        <ng-container matColumnDef="clientId">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header >Client</th>
+          <td mat-cell *matCellDef="let row">
+            <span class="text-sm">
+              {{row.clientId}}
+            </span>
+          </td>
+        </ng-container>
+
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef class="!text-center"></th>
           <td mat-cell *matCellDef="let wage">
