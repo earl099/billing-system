@@ -1,4 +1,4 @@
-<h2 mat-dialog-title>Edit Employee</h2>
+<h2 mat-dialog-title>Update Employee</h2>
 <mat-dialog-content>
   <form [formGroup]="editEmpForm">
     <mat-accordion multi>
@@ -235,7 +235,7 @@
 
     <div class="mt-6">
       <button mat-raised-button mat-dialog-close color="primary" type="submit" class="w-full py-2" [disabled]="editEmpForm.invalid" (click)="onEditEmployee(editEmpForm)">
-        Edit Client
+        Update Employee
       </button>
 
       <button mat-raised-button mat-dialog-close color="primary" class="w-full py-2 mt-3">

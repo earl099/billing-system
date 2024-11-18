@@ -6,7 +6,6 @@ import { MatListModule } from '@angular/material/list';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatMenuModule } from '@angular/material/menu';
-import { HomeComponent } from '../../components/index/home/home.component';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ToastrService } from 'ngx-toastr';
@@ -30,7 +29,6 @@ import { SetClientDialog } from '../../components/index/dashboard/dashboard.comp
     MatListModule,
     MatMenuModule,
     MatExpansionModule,
-    HomeComponent
   ],
   templateUrl: './sidenav.component.html',
   styleUrl: './sidenav.component.scss',

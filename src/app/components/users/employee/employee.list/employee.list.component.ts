@@ -9,7 +9,7 @@ import { DepartmentService } from '../../../../services/department.service';
 import { LocationService } from '../../../../services/location.service';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogConfig, MatDialogModule } from '@angular/material/dialog';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, Sort } from '@angular/material/sort';
 import { MatButtonModule } from '@angular/material/button';
@@ -359,7 +359,10 @@ export class EmployeeListComponent implements OnInit {
   }
 
   openAddEmpDialog() {
-    const dialogRef = this.dialog.open(AddEmployeeDialog)
+    const matDialogConfig = new MatDialogConfig()
+    matDialogConfig.maxWidth = '1200px'
+
+    const dialogRef = this.dialog.open(AddEmployeeDialog, matDialogConfig)
 
     dialogRef.afterClosed().subscribe(() => {
       this.dataSource.data.splice(0, this.dataSource.data.length)
@@ -368,7 +371,11 @@ export class EmployeeListComponent implements OnInit {
   }
 
   openViewEmpDialog(id: number) {
-    const dialogRef = this.dialog.open(ViewEmployeeDialog, { data: { id } })
+    const matDialogConfig = new MatDialogConfig()
+    matDialogConfig.maxWidth = '1200px'
+    matDialogConfig.data = { id }
+
+    const dialogRef = this.dialog.open(ViewEmployeeDialog, matDialogConfig)
 
     dialogRef.afterClosed().subscribe(() => {
       this.dataSource.data.splice(0, this.dataSource.data.length)
@@ -377,7 +384,11 @@ export class EmployeeListComponent implements OnInit {
   }
 
   openEditEmpDialog(id: number) {
-    const dialogRef = this.dialog.open(EditEmployeeDialog, { data: { id } })
+    const matDialogConfig = new MatDialogConfig()
+    matDialogConfig.maxWidth = '1200px'
+    matDialogConfig.data = { id }
+
+    const dialogRef = this.dialog.open(EditEmployeeDialog, matDialogConfig)
 
     dialogRef.afterClosed().subscribe(() => {
       this.dataSource.data.splice(0, this.dataSource.data.length)
@@ -1264,7 +1275,7 @@ export class EditEmployeeDialog implements OnInit {
   onEditEmployee(data: any) {
     if(confirm('Are you sure you want to update this employee?')) {
       this.editEmpForm.get('clientId')?.setValue(Number(this.authService.getToken('client')))
-      
+
       this.empService.editEmp(this.empId, data.value).subscribe((res) => {
         if(res) {
           let logData = {

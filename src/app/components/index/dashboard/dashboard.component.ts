@@ -5,6 +5,7 @@ import { AuthService } from '../../../services/auth.service';
 import { ClientService } from '../../../services/client.service';
 import { ToastrService } from 'ngx-toastr';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'app-dashboard',
@@ -63,6 +64,7 @@ export class DashboardComponent implements OnInit {
   imports: [
     CommonModule,
     MatDialogModule,
+    MatSelectModule,
     MatButtonModule
   ]
 })
@@ -112,13 +114,27 @@ export class SetClientDialog implements OnInit {
     })
   }
 
-  onSetClient(id: number) {
-    this.authService.setToken('client', String(id))
+  toNumber(): number {
     if(this.authService.getToken('client') == undefined) {
-      this.toastrService.success('Client chosen successfully')
+      return 0
     }
     else {
-      this.toastrService.success('Client changed successfully')
+      return Number(this.authService.getToken('client'))
+    }
+  }
+
+  onSetClient(id: number) {
+    if(confirm('Are you sure you want to handle this client?')) {
+      let message = ''
+
+      if(this.authService.getToken('client') == undefined) {
+        message = 'Client chosen successfully'
+      }
+      else {
+        message = 'Client changed successfully'
+      }
+      this.authService.setToken('client', String(id))
+      this.toastrService.success(message)
     }
   }
 }
