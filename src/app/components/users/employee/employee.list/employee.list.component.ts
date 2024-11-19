@@ -27,6 +27,7 @@ import { PositionService } from '../../../../services/position.service';
 import { EmpStatusService } from '../../../../services/emp.status.service';
 import { WageService } from '../../../../services/wage.service';
 import { provideNativeDateAdapter } from '@angular/material/core';
+import { MatDividerModule } from '@angular/material/divider';
 
 
 @Component({
@@ -430,6 +431,7 @@ export class EmployeeListComponent implements OnInit {
     MatExpansionModule,
     MatSelectModule,
     MatDatepickerModule,
+    MatDividerModule,
     ReactiveFormsModule
   ]
 })
