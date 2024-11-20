@@ -18,6 +18,7 @@ export class EmpStatusService {
 
   addEmpStatus(data: any): Observable<any> {
     return this.http.post(`${this.baseUrl}/add-emp-status`, data, this.httpOptions)
+    .pipe(catchError(this.handleError<any>(this.err)))
   }
 
   getEmpStatuses(offset?: number | null, limit?: number | null): Observable<any> {

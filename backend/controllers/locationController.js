@@ -31,7 +31,7 @@ const addLoc = async (req, res) => {
 
 //** GET LOCATIONS **//
 const getLocs = async (req, res) => {
-  const { offset, limit } = req.body
+  const { offset, limit } = req.params
 
   if(offset == null && limit == null) {
     const locs = await locationModel.findAll()

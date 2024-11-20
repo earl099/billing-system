@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
       position: {
         type: DataTypes.STRING
       },
-      remarks: {
+      otherInfo: {
         type: DataTypes.STRING
       },
       dateStarted: {
