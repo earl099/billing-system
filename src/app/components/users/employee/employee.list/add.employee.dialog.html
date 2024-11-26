@@ -1,8 +1,8 @@
 <div class="!max-w-screen-2xl">
   <h2 mat-dialog-title class="!max-w-screen-2xl">Add</h2>
   <mat-dialog-content>
-    <form [formGroup]="addEmpForm">
-      <mat-accordion multi>
+    <mat-accordion multi>
+      <form [formGroup]="addEmpForm">
         <!-- BASIC INFORMATION STARTS HERE -->
         <mat-expansion-panel>
           <mat-expansion-panel-header>
@@ -63,9 +63,6 @@
               <mat-hint>MM/DD/YYYY</mat-hint>
               <mat-datepicker-toggle matIconSuffix [for]="datepicker"></mat-datepicker-toggle>
               <mat-datepicker #datepicker></mat-datepicker>
-              @if(addEmpForm.get('lastName')?.hasError('required')) {
-                <mat-error>Required Field</mat-error>
-              }
             </mat-form-field>
 
             <mat-form-field class="w-full mb-4">
@@ -238,26 +235,66 @@
           </div>
 
         </mat-expansion-panel>
-
+        <!-- ADDITIONAL INFORMATION STARTS HERE -->
         <mat-expansion-panel>
           <mat-expansion-panel-header>
             <mat-panel-title>Additional Information</mat-panel-title>
           </mat-expansion-panel-header>
 
-          
+          <mat-form-field class="w-full mb-4">
+            <mat-label>Former Employee of LBRDC</mat-label>
+            <mat-select #isFormerEmp (selectionChange)="onFormerEmpChange(isFormerEmp.value)">
+              @for (option of isFormerEmpChoices; track option) {
+                <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <div class="grid grid-cols-4 gap-2">
+            <mat-form-field class="w-full mb-4">
+              <mat-label>Position</mat-label>
+              <input matInput type="text" formControlName="formerPos">
+            </mat-form-field>
+
+            <mat-form-field class="w-full mb-4">
+              <mat-label>Other Information</mat-label>
+              <input matInput type="text" formControlName="otherInfo">
+            </mat-form-field>
+
+            <mat-form-field class="w-full mb-4">
+              <mat-label>Date Started</mat-label>
+              <input matInput [matDatepicker]="datepicker1" formControlName="dateStarted">
+              <mat-hint>MM/DD/YYYY</mat-hint>
+              <mat-datepicker-toggle matIconSuffix [for]="datepicker1"></mat-datepicker-toggle>
+              <mat-datepicker #datepicker1></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field class="w-full mb-4">
+              <mat-label>Date Ended</mat-label>
+              <input matInput [matDatepicker]="datepicker2" formControlName="dateEnded">
+              <mat-hint>MM/DD/YYYY</mat-hint>
+              <mat-datepicker-toggle matIconSuffix [for]="datepicker2"></mat-datepicker-toggle>
+              <mat-datepicker #datepicker2></mat-datepicker>
+            </mat-form-field>
+          </div>
+
         </mat-expansion-panel>
-      </mat-accordion>
+      </form>
+    </mat-accordion>
 
-      <div class="mt-6">
-        <button mat-raised-button mat-dialog-close color="primary" type="submit" class="w-full py-2" [disabled]="addEmpForm.invalid || addEmpForm.get('wageId')?.value == 0" (click)="onAddEmp(addEmpForm)">
+    <div class="mt-6">
+      <button mat-raised-button mat-dialog-close color="primary" type="submit" class="w-full py-2"
+        [disabled]="((addEmpForm.invalid || addEmpForm.get('wageId')?.value == 0) || isFormerEmp.value == 'yes') &&
+                    (addEmpForm.get('formerPos')?.value == '' || addEmpForm.get('dateStarted')?.value == '' || addEmpForm.get('dateEnded')?.value == '')
+                    " (click)="onAddEmp(addEmpForm)">
           Add Client
-        </button>
+      </button>
 
-        <button mat-raised-button mat-dialog-close color="primary" class="w-full py-2 mt-3">
-          Cancel
-        </button>
-      </div>
-    </form>
+
+      <button mat-raised-button mat-dialog-close color="primary" class="w-full py-2 mt-3">
+        Cancel
+      </button>
+    </div>
   </mat-dialog-content>
 </div>
 

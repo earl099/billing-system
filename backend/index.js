@@ -90,10 +90,6 @@ app.use('/api', locationRoutes)
 const empStatusRoutes = require('./routers/empStatusRoutes')
 app.use('/api', empStatusRoutes)
 
-//former employment record routes
-const formerEmpRoutes = require('./routers/formerEmpRoutes')
-app.use('/api', formerEmpRoutes)
-
 app.listen(port, () => {
   console.log('Server is running on port', port)
 })

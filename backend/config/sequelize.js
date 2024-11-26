@@ -41,7 +41,6 @@ db.wageModel = require('../models/wageModel')(sequelize, DataTypes)
 db.positionModel = require('../models/positionModel')(sequelize, DataTypes)
 db.classificationModel = require('../models/classificationModel')(sequelize, DataTypes)
 db.empStatusModel = require('../models/empStatusModel')(sequelize, DataTypes)
-db.formerEmpModel = require('../models/formerEmpModel')(sequelize, DataTypes)
 
 //** SYNC DATABASE HERE **//
 try {

@@ -77,6 +77,18 @@ module.exports = (sequelize, DataTypes) => {
       remarks: {
         type: DataTypes.STRING
       },
+      formerPos: {
+        type: DataTypes.STRING
+      },
+      otherInfo: {
+        type: DataTypes.STRING
+      },
+      dateStarted: {
+        type: DataTypes.DATEONLY
+      },
+      dateEnded: {
+        type: DataTypes.DATEONLY
+      },
     },
     {
       freezeTableName: true,

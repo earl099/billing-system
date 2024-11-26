@@ -26,7 +26,11 @@ const addEmployee = async (req, res) => {
     posId,
     empStatusId,
     wageId,
-    remarks
+    remarks,
+    formerPos,
+    otherInfo,
+    dateStarted,
+    dateEnded
   } = req.body
 
   const employeeObj = {
@@ -49,8 +53,12 @@ const addEmployee = async (req, res) => {
     locId,
     posId,
     empStatusId,
+    wageId,
     remarks,
-    wageId
+    formerPos,
+    otherInfo,
+    dateStarted,
+    dateEnded
   }
 
   try {
@@ -127,8 +135,12 @@ const editEmployee = async (req, res) => {
     locId,
     posId,
     empStatusId,
+    wageId,
     remarks,
-    wageId
+    formerPos,
+    otherInfo,
+    dateStarted,
+    dateEnded
   } = req.body
 
   const empObj = {
@@ -151,8 +163,12 @@ const editEmployee = async (req, res) => {
     locId,
     posId,
     empStatusId,
+    wageId,
     remarks,
-    wageId
+    formerPos,
+    otherInfo,
+    dateStarted,
+    dateEnded
   }
 
   try {

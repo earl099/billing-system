@@ -437,8 +437,8 @@ export class EmployeeListComponent implements OnInit {
 })
 export class AddEmployeeDialog {
   addEmpForm: FormGroup
-
   clientData: any
+  clientCount: number = 0
   genderOptions: Array<any> = []
   clientOptions: Array<any> = []
   classificationOptions: Array<any> = []
@@ -447,6 +447,7 @@ export class AddEmployeeDialog {
   posOptions: Array<any> = []
   empStatusOptions: Array<any> = []
   wageOptions: Array<any> = []
+  isFormerEmpChoices: Array<any> = []
 
   empService = inject(EmployeeService)
   clientService = inject(ClientService)
@@ -483,7 +484,11 @@ export class AddEmployeeDialog {
       posId: [{value: 0, disabled: true}, Validators.required],
       empStatusId: [{value: 0, disabled: true}, Validators.required],
       wageId: [{value: 0, disabled: true}, Validators.required],
-      remarks: ['']
+      remarks: [''],
+      formerPos: [{value: '', disabled: true}],
+      otherInfo: [{value: '', disabled: true}],
+      dateStarted: [{value: '', disabled: true}],
+      dateEnded: [{value: '', disabled: true}]
     })
 
     this.addEmpForm.get('dateOfBirth')?.patchValue(this.formatDate(new Date()))
@@ -500,6 +505,17 @@ export class AddEmployeeDialog {
       {
         value: 'female',
         viewValue: 'Female'
+      }
+    ]
+
+    this.isFormerEmpChoices = [
+      {
+        value: 'yes',
+        viewValue: 'Yes'
+      },
+      {
+        value: 'no',
+        viewValue: 'No'
       }
     ]
 
@@ -716,7 +732,7 @@ export class AddEmployeeDialog {
           }
         }
 
-        console.log(this.locOptions)
+        //console.log(this.locOptions)
       }
     })
   }
@@ -740,6 +756,7 @@ export class AddEmployeeDialog {
       }
 
 
+
       this.empService.addEmp(data.value).subscribe((res) => {
         if(res) {
           let logData = {
@@ -751,6 +768,21 @@ export class AddEmployeeDialog {
           this.toastr.success('Added Employee Successfully')
         }
       })
+    }
+  }
+
+  onFormerEmpChange(data: any) {
+    if(data == 'yes') {
+      this.addEmpForm.get('formerPos')?.enable()
+      this.addEmpForm.get('otherInfo')?.enable()
+      this.addEmpForm.get('dateStarted')?.enable()
+      this.addEmpForm.get('dateEnded')?.enable()
+    }
+    else {
+      this.addEmpForm.get('formerPos')?.disable()
+      this.addEmpForm.get('otherInfo')?.disable()
+      this.addEmpForm.get('dateStarted')?.disable()
+      this.addEmpForm.get('dateEnded')?.disable()
     }
   }
 }
@@ -767,6 +799,7 @@ export class AddEmployeeDialog {
     MatButtonModule,
     MatDialogModule,
     MatSelectModule,
+    MatDividerModule,
     ReactiveFormsModule
   ]
 })
@@ -783,8 +816,6 @@ export class ViewEmployeeDialog implements OnInit {
   posService = inject(PositionService)
   empStatService = inject(EmpStatusService)
   wageService = inject(WageService)
-  authService = inject(AuthService)
-  logsService = inject(LogsService)
   toastr = inject(ToastrService)
   fb = inject(FormBuilder)
 
@@ -811,7 +842,11 @@ export class ViewEmployeeDialog implements OnInit {
       posId: [''],
       empStatusId: [''],
       wageId: [''],
-      remarks: ['']
+      remarks: [''],
+      formerPos: [{value: ''}],
+      otherInfo: [{value: ''}],
+      dateStarted: [{value: ''}],
+      dateEnded: [{value: ''}]
     })
   }
 
@@ -839,8 +874,10 @@ export class ViewEmployeeDialog implements OnInit {
         this.viewEmpForm.get('civilStatus')?.setValue(tmpData.civilStatus)
         this.viewEmpForm.get('remarks')?.setValue(tmpData.remarks)
 
-        this.viewEmpForm.get('clientId')?.setValue(tmpData.clientId)
-        this.viewEmpForm.get('classId')?.setValue(tmpData.classId)
+        this.viewEmpForm.get('formerPos')?.setValue(tmpData.formerPos)
+        this.viewEmpForm.get('otherInfo')?.setValue(tmpData.otherInfo)
+        this.viewEmpForm.get('dateStarted')?.setValue(tmpData.dateStarted)
+        this.viewEmpForm.get('dateEnded')?.setValue(tmpData.dateEnded)
 
         this.clientService.getClient(Number(tmpData.clientId)).subscribe((res) => {
           if(res) {
@@ -889,6 +926,8 @@ export class ViewEmployeeDialog implements OnInit {
             })
           }
         })
+
+
       }
     })
   }
@@ -960,7 +999,11 @@ export class EditEmployeeDialog implements OnInit {
       posId: [0, Validators.required],
       empStatusId: [0, Validators.required],
       wageId: [0, Validators.required],
-      remarks: ['']
+      remarks: [''],
+      formerPos: [{value: ''}],
+      otherInfo: [{value: ''}],
+      dateStarted: [{value: ''}],
+      dateEnded: [{value: ''}]
     })
   }
   ngOnInit(): void {
@@ -992,6 +1035,10 @@ export class EditEmployeeDialog implements OnInit {
         this.editEmpForm.get('empStatusId')?.setValue(tmpData.empStatusId)
         this.editEmpForm.get('wageId')?.setValue(tmpData.wageId)
         this.editEmpForm.get('remarks')?.setValue(tmpData.remarks)
+        this.editEmpForm.get('formerPos')?.setValue(tmpData.formerPos)
+        this.editEmpForm.get('otherInfo')?.setValue(tmpData.otherInfo)
+        this.editEmpForm.get('dateStarted')?.setValue(tmpData.dateStarted)
+        this.editEmpForm.get('dateEnded')?.setValue(tmpData.dateEnded)
 
         if(this.authService.getToken('userType') == 'Admin') {
           this.clientService.getClients().subscribe((res) => {
@@ -1081,7 +1128,7 @@ export class EditEmployeeDialog implements OnInit {
                                 }
                               }
 
-                              console.log(tmpData4)
+                              //console.log(tmpData4)
 
                               this.empStatService.getEmpStatuses().subscribe((res) => {
                                 if(res) {

@@ -231,6 +231,42 @@
           </mat-form-field>
         </div>
       </mat-expansion-panel>
+
+      @if (editEmpForm.get('formerPos')?.value != null) {
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>Additional Information</mat-panel-title>
+          </mat-expansion-panel-header>
+
+            <div class="grid grid-cols-4 gap-2">
+              <mat-form-field class="w-full mb-4">
+                <mat-label>Former Position</mat-label>
+                <input matInput type="text" formControlName="formerPos">
+              </mat-form-field>
+
+              <mat-form-field class="w-full mb-4">
+                <mat-label>Other Information</mat-label>
+                <input matInput type="text" formControlName="otherInfo">
+              </mat-form-field>
+
+              <mat-form-field class="w-full mb-4">
+                <mat-label>Date Started</mat-label>
+                <input matInput [matDatepicker]="datepicker1" formControlName="dateStarted">
+                <mat-hint>MM/DD/YYYY</mat-hint>
+                <mat-datepicker-toggle matIconSuffix [for]="datepicker1"></mat-datepicker-toggle>
+                <mat-datepicker #datepicker1></mat-datepicker>
+              </mat-form-field>
+
+              <mat-form-field class="w-full mb-4">
+                <mat-label>Date Ended</mat-label>
+                <input matInput [matDatepicker]="datepicker2" formControlName="dateEnded">
+                <mat-hint>MM/DD/YYYY</mat-hint>
+                <mat-datepicker-toggle matIconSuffix [for]="datepicker2"></mat-datepicker-toggle>
+                <mat-datepicker #datepicker2></mat-datepicker>
+              </mat-form-field>
+            </div>
+        </mat-expansion-panel>
+      }
     </mat-accordion>
 
     <div class="mt-6">
