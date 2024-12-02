@@ -946,6 +946,7 @@ export class ViewEmployeeDialog implements OnInit {
     MatSelectModule,
     MatExpansionModule,
     MatDatepickerModule,
+    MatDividerModule,
     ReactiveFormsModule
   ]
 })
