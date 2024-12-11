@@ -8,7 +8,9 @@ import { Router } from '@angular/router';
 })
 export class AuthService {
   private router = inject(Router)
-  private baseUrl = 'http://localhost:3000/api'
+  private host = window.location.host
+  private prodBaseUrl = 'https://lbrdc-billing-system.netlify.app/.netlify/functions/api'
+  private devBaseUrl = 'http://localhost:3000/api'
   redirectUrl!: string
   httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -20,48 +22,95 @@ export class AuthService {
 
   //** GET USERS FUNCTION **//
   getUsers(offset?: number | null, limit?: number | null): Observable<any> {
-    if((offset == undefined || offset == null) && (limit == undefined || limit == null)) {
-      return this.http.get(`${this.baseUrl}/get-users/`, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
+    if (this.host.includes('localhost')) {
+      if((offset == undefined || offset == null) && (limit == undefined || limit == null)) {
+        return this.http.get(`${this.devBaseUrl}/get-users/`, this.httpOptions)
+        .pipe(catchError(this.handleError<any>(this.err)))
+      }
+      else {
+        return this.http.get(`${this.devBaseUrl}/get-users/${offset}/${limit}`, this.httpOptions)
+        .pipe(catchError(this.handleError<any>(this.err)))
+      }
+    } else {
+      if((offset == undefined || offset == null) && (limit == undefined || limit == null)) {
+        return this.http.get(`${this.prodBaseUrl}/get-users/`, this.httpOptions)
+        .pipe(catchError(this.handleError<any>(this.err)))
+      }
+      else {
+        return this.http.get(`${this.prodBaseUrl}/get-users/${offset}/${limit}`, this.httpOptions)
+        .pipe(catchError(this.handleError<any>(this.err)))
+      }
     }
-    else {
-      return this.http.get(`${this.baseUrl}/get-users/${offset}/${limit}`, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
-    }
+
   }
 
   //** GET USER FUNCTION **//
   getUser(id: number): Observable<any> {
-    return this.http.get(`${this.baseUrl}/get-user/${id}`, this.httpOptions)
-    .pipe(catchError(this.handleError<any>(this.err)))
+    if (this.host.includes('localhost')) {
+      return this.http.get(`${this.devBaseUrl}/get-user/${id}`, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    } else {
+      return this.http.get(`${this.prodBaseUrl}/get-user/${id}`, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    }
+
   }
 
   //** SIGN UP FUNCTION **//
   signup(userData: any): Observable<any> {
-    return this.http.post(`${this.baseUrl}/signup`, userData, this.httpOptions)
-    .pipe(catchError(this.handleError<any>(this.err)))
+    if (this.host.includes('localhost')) {
+      return this.http.post(`${this.devBaseUrl}/signup`, userData, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    } else {
+      return this.http.post(`${this.prodBaseUrl}/signup`, userData, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    }
+
   }
   //** LOGIN FUNCTION **//
   login(userData: any): Observable<any> {
-    return this.http.post(`${this.baseUrl}/login`, userData, this.httpOptions)
-    .pipe(catchError(this.handleError<any>(this.err)))
+    if (this.host.includes('localhost')) {
+      return this.http.post(`${this.devBaseUrl}/login`, userData, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    } else {
+      return this.http.post(`${this.prodBaseUrl}/login`, userData, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    }
+
   }
 
   //** EDIT DETAILS **//
   editDetails(id: number, user: any): Observable<any> {
-    return this.http.put(`${this.baseUrl}/edit-details/${id}`, user, this.httpOptions)
-    .pipe(catchError(this.handleError<any>(this.err)))
+    if (this.host.includes('localhost')) {
+      return this.http.put(`${this.devBaseUrl}/edit-details/${id}`, user, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    } else {
+      return this.http.put(`${this.devBaseUrl}/edit-details/${id}`, user, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    }
+
   }
 
   //** EDIT ACCESS **//
   editAccess(id: number, user: any): Observable<any> {
-    return this.http.put(`${this.baseUrl}/edit-access/${id}`, user, this.httpOptions)
-    .pipe(catchError(this.handleError<any>(this.err)))
+    if (this.host.includes('localhost')) {
+      return this.http.put(`${this.devBaseUrl}/edit-access/${id}`, user, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    } else {
+      return this.http.put(`${this.prodBaseUrl}/edit-access/${id}`, user, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    }
+
   }
 
   //** DELETE USER **/
   deleteUser(id: number):Observable<any> {
-    return this.http.delete(`${this.baseUrl}/delete-user/${id}`, this.httpOptions)
+    if (this.host.includes('localhost')) {
+      return this.http.delete(`${this.devBaseUrl}/delete-user/${id}`, this.httpOptions)
+    } else {
+      return this.http.delete(`${this.prodBaseUrl}/delete-user/${id}`, this.httpOptions)
+    }
+
   }
 
   //** TOKEN FUNCTIONS **//

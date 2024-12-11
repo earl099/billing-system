@@ -11,6 +11,8 @@
 npm-debug.log
 yarn-error.log
 /backend/node_modules
+/backend-local/node_modules
+/netlify/functions/node_modules
 
 # IDEs and editors
 .idea/
@@ -38,8 +40,11 @@ yarn-error.log
 testem.log
 /typings
 /backend/.env
-
+/backend-local/.env
 
 # System files
 .DS_Store
 Thumbs.db
+
+# Local Netlify folder
+.netlify

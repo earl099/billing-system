@@ -6,7 +6,9 @@ import { catchError, Observable, of } from 'rxjs';
   providedIn: 'root'
 })
 export class ClientService {
-  private baseUrl = 'http://localhost:3000/api'
+  private host = window.location.host
+  private prodBaseUrl = 'https://lbrdc-billing-system.netlify.app/.netlify/functions/api'
+  private devBaseUrl = 'http://localhost:3000/api'
   http = inject(HttpClient)
   httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -16,34 +18,70 @@ export class ClientService {
   constructor() { }
 
   addClient(data: any): Observable<any> {
-    return this.http.post(`${this.baseUrl}/add-client`, data, this.httpOptions)
-    .pipe(catchError(this.handleError<any>(this.err)))
+    if (this.host.includes('localhost')) {
+      return this.http.post(`${this.devBaseUrl}/add-client`, data, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    } else {
+      return this.http.post(`${this.prodBaseUrl}/add-client`, data, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    }
+
   }
 
   getClients(offset?:number | null, limit?: number | null): Observable<any> {
-    if((offset == null || offset == undefined) && (limit == null || limit == undefined)) {
-      return this.http.get(`${this.baseUrl}/get-clients`, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
+    if (this.host.includes('localhost')) {
+      if((offset == null || offset == undefined) && (limit == null || limit == undefined)) {
+        return this.http.get(`${this.devBaseUrl}/get-clients`, this.httpOptions)
+        .pipe(catchError(this.handleError<any>(this.err)))
+      }
+      else {
+        return this.http.get(`${this.devBaseUrl}/get-clients/${offset}/${limit}`, this.httpOptions)
+        .pipe(catchError(this.handleError<any>(this.err)))
+      }
+    } else {
+      if((offset == null || offset == undefined) && (limit == null || limit == undefined)) {
+        return this.http.get(`${this.prodBaseUrl}/get-clients`, this.httpOptions)
+        .pipe(catchError(this.handleError<any>(this.err)))
+      }
+      else {
+        return this.http.get(`${this.prodBaseUrl}/get-clients/${offset}/${limit}`, this.httpOptions)
+        .pipe(catchError(this.handleError<any>(this.err)))
+      }
     }
-    else {
-      return this.http.get(`${this.baseUrl}/get-clients/${offset}/${limit}`, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
-    }
+
   }
 
   getClient(id: number): Observable<any> {
-    return this.http.get(`${this.baseUrl}/get-client/${id}`, this.httpOptions)
-    .pipe(catchError(this.handleError<any>(this.err)))
+    if (this.host.includes('localhost')) {
+      return this.http.get(`${this.devBaseUrl}/get-client/${id}`, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    } else {
+      return this.http.get(`${this.prodBaseUrl}/get-client/${id}`, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    }
+
   }
 
   editClient(data: any, id: number): Observable<any> {
-    return this.http.put(`${this.baseUrl}/edit-client/${id}`, data, this.httpOptions)
-    .pipe(catchError(this.handleError<any>(this.err)))
+    if (this.host.includes('localhost')) {
+      return this.http.put(`${this.devBaseUrl}/edit-client/${id}`, data, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    } else {
+      return this.http.put(`${this.prodBaseUrl}/edit-client/${id}`, data, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    }
+
   }
 
   deleteClient(id: number): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/delete-client/${id}`, this.httpOptions)
-    .pipe(catchError(this.handleError<any>(this.err)))
+    if (this.host.includes('localhost')) {
+      return this.http.delete(`${this.devBaseUrl}/delete-client/${id}`, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    } else {
+      return this.http.delete(`${this.prodBaseUrl}/delete-client/${id}`, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    }
+
   }
 
   //error handler

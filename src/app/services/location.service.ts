@@ -6,7 +6,9 @@ import { catchError, Observable, of } from 'rxjs';
   providedIn: 'root'
 })
 export class LocationService {
-  private baseUrl = 'http://localhost:3000/api'
+  private host = window.location.host
+  private prodBaseUrl = 'https://lbrdc-billing-system.netlify.app/.netlify/functions/api'
+  private devBaseUrl = 'http://localhost:3000/api'
   http = inject(HttpClient)
   httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -17,34 +19,70 @@ export class LocationService {
   constructor() { }
 
   addLoc(data: any): Observable<any> {
-    return this.http.post(`${this.baseUrl}/add-location`, data, this.httpOptions)
-    .pipe(catchError(this.handleError<any>(this.err)))
+    if (this.host.includes('localhost')) {
+      return this.http.post(`${this.devBaseUrl}/add-location`, data, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    } else {
+      return this.http.post(`${this.prodBaseUrl}/add-location`, data, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    }
+
   }
 
   getLocs(offset?: number | null, limit?: number | null): Observable<any> {
-    if(offset == null && limit == null) {
-      return this.http.get(`${this.baseUrl}/get-locations`, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
+    if (this.host.includes('localhost')) {
+      if(offset == null && limit == null) {
+        return this.http.get(`${this.devBaseUrl}/get-locations`, this.httpOptions)
+        .pipe(catchError(this.handleError<any>(this.err)))
+      }
+      else {
+        return this.http.get(`${this.devBaseUrl}/get-locations/${offset}/${limit}`, this.httpOptions)
+        .pipe(catchError(this.handleError<any>(this.err)))
+      }
+    } else {
+      if(offset == null && limit == null) {
+        return this.http.get(`${this.prodBaseUrl}/get-locations`, this.httpOptions)
+        .pipe(catchError(this.handleError<any>(this.err)))
+      }
+      else {
+        return this.http.get(`${this.prodBaseUrl}/get-locations/${offset}/${limit}`, this.httpOptions)
+        .pipe(catchError(this.handleError<any>(this.err)))
+      }
     }
-    else {
-      return this.http.get(`${this.baseUrl}/get-locations/${offset}/${limit}`, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
-    }
+
   }
 
   getLoc(id: number): Observable<any> {
-    return this.http.get(`${this.baseUrl}/get-location/${id}`, this.httpOptions)
-    .pipe(catchError(this.handleError<any>(this.err)))
+    if (this.host.includes('localhost')) {
+      return this.http.get(`${this.devBaseUrl}/get-location/${id}`, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    } else {
+      return this.http.get(`${this.prodBaseUrl}/get-location/${id}`, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    }
+
   }
 
   editLoc(id: number, data: any): Observable<any> {
-    return this.http.put(`${this.baseUrl}/edit-location/${id}`, data, this.httpOptions)
-    .pipe(catchError(this.handleError<any>(this.err)))
+    if (this.host.includes('localhost')) {
+      return this.http.put(`${this.devBaseUrl}/edit-location/${id}`, data, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    } else {
+      return this.http.put(`${this.prodBaseUrl}/edit-location/${id}`, data, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    }
+
   }
 
   delLoc(id: number): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/delete-location/${id}`, this.httpOptions)
-    .pipe(catchError(this.handleError<any>(this.err)))
+    if (this.host.includes('localhost')) {
+      return this.http.delete(`${this.devBaseUrl}/delete-location/${id}`, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    } else {
+      return this.http.delete(`${this.prodBaseUrl}/delete-location/${id}`, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    }
+
   }
 
   //error handler
