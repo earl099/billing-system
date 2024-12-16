@@ -1,6 +1,6 @@
-"use strict"
+"use strict";
 
-require('dotenv').config({ path: '../' })
+// require('dotenv').config({ path: '../' })
 
 module.exports = {
   user: process.env.USER,
@@ -13,9 +13,9 @@ module.exports = {
     max: 15,
     min: 0,
     acquire: 30000,
-    idle: 10000
+    idle: 10000,
   },
   define: {
-    freezeTableName: true
-  }
-}
+    freezeTableName: true,
+  },
+};

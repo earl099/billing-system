@@ -19,70 +19,87 @@ export class ClassificationService {
   constructor() { }
 
   addClass(data: any): Observable<any> {
-    if (this.host.includes('localhost')) {
-      return this.http.post(`${this.devBaseUrl}/add-class`, data, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
-    } else {
-      return this.http.post(`${this.prodBaseUrl}/add-class`, data, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
-    }
+    // if (this.host.includes('localhost')) {
+    //   return this.http.post(`${this.devBaseUrl}/add-class`, data, this.httpOptions)
+    //   .pipe(catchError(this.handleError<any>(this.err)))
+    // } else {
+    //   return this.http.post(`${this.prodBaseUrl}/add-class`, data, this.httpOptions)
+    //   .pipe(catchError(this.handleError<any>(this.err)))
+    // }
 
+    return this.http.post(`${this.devBaseUrl}/add-class`, data, this.httpOptions)
+    .pipe(catchError(this.handleError<any>(this.err)))
   }
 
   getClasses(offset?: number | null, limit?: number | null): Observable<any> {
-    if (this.host.includes('localhost')) {
-      if((offset == null || offset == undefined) && (limit == null || limit == undefined)) {
-        return this.http.get(`${this.devBaseUrl}/get-classes`, this.httpOptions)
-        .pipe(catchError(this.handleError<any>(this.err)))
-      }
-      else {
-        return this.http.get(`${this.devBaseUrl}/get-classes/${offset}/${limit}`, this.httpOptions)
-        .pipe(catchError(this.handleError<any>(this.err)))
-      }
-    } else {
-      if((offset == null || offset == undefined) && (limit == null || limit == undefined)) {
-        return this.http.get(`${this.prodBaseUrl}/get-classes`, this.httpOptions)
-        .pipe(catchError(this.handleError<any>(this.err)))
-      }
-      else {
-        return this.http.get(`${this.prodBaseUrl}/get-classes/${offset}/${limit}`, this.httpOptions)
-        .pipe(catchError(this.handleError<any>(this.err)))
-      }
-    }
+    // if (this.host.includes('localhost')) {
+    //   if((offset == null || offset == undefined) && (limit == null || limit == undefined)) {
+    //     return this.http.get(`${this.devBaseUrl}/get-classes`, this.httpOptions)
+    //     .pipe(catchError(this.handleError<any>(this.err)))
+    //   }
+    //   else {
+    //     return this.http.get(`${this.devBaseUrl}/get-classes/${offset}/${limit}`, this.httpOptions)
+    //     .pipe(catchError(this.handleError<any>(this.err)))
+    //   }
+    // } else {
+    //   if((offset == null || offset == undefined) && (limit == null || limit == undefined)) {
+    //     return this.http.get(`${this.prodBaseUrl}/get-classes`, this.httpOptions)
+    //     .pipe(catchError(this.handleError<any>(this.err)))
+    //   }
+    //   else {
+    //     return this.http.get(`${this.prodBaseUrl}/get-classes/${offset}/${limit}`, this.httpOptions)
+    //     .pipe(catchError(this.handleError<any>(this.err)))
+    //   }
+    // }
 
+
+    if((offset == null || offset == undefined) && (limit == null || limit == undefined)) {
+      return this.http.get(`${this.devBaseUrl}/get-classes`, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    }
+    else {
+      return this.http.get(`${this.devBaseUrl}/get-classes/${offset}/${limit}`, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    }
   }
 
   getClass(id: number): Observable<any> {
-    if (this.host.includes('localhost')) {
-      return this.http.get(`${this.devBaseUrl}/get-class/${id}`, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
-    } else {
-      return this.http.get(`${this.prodBaseUrl}/get-class/${id}`, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
-    }
+    // if (this.host.includes('localhost')) {
+    //   return this.http.get(`${this.devBaseUrl}/get-class/${id}`, this.httpOptions)
+    //   .pipe(catchError(this.handleError<any>(this.err)))
+    // } else {
+    //   return this.http.get(`${this.prodBaseUrl}/get-class/${id}`, this.httpOptions)
+    //   .pipe(catchError(this.handleError<any>(this.err)))
+    // }
 
+    return this.http.get(`${this.devBaseUrl}/get-class/${id}`, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
   }
 
   editClass(id: number, data: any): Observable<any> {
-    if (this.host.includes('localhost')) {
-      return this.http.put(`${this.devBaseUrl}/edit-class/${id}`, data, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
-    } else {
-      return this.http.put(`${this.prodBaseUrl}/edit-class/${id}`, data, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
-    }
+    // if (this.host.includes('localhost')) {
+    //   return this.http.put(`${this.devBaseUrl}/edit-class/${id}`, data, this.httpOptions)
+    //   .pipe(catchError(this.handleError<any>(this.err)))
+    // } else {
+    //   return this.http.put(`${this.prodBaseUrl}/edit-class/${id}`, data, this.httpOptions)
+    //   .pipe(catchError(this.handleError<any>(this.err)))
+    // }
 
+    return this.http.put(`${this.devBaseUrl}/edit-class/${id}`, data, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
   }
 
   delClass(id: number): Observable<any> {
-    if (this.host.includes('localhost')) {
-      return this.http.delete(`${this.devBaseUrl}/delete-class/${id}`, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
-    } else {
-      return this.http.delete(`${this.prodBaseUrl}/delete-class/${id}`, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
-    }
+    // if (this.host.includes('localhost')) {
+    //   return this.http.delete(`${this.devBaseUrl}/delete-class/${id}`, this.httpOptions)
+    //   .pipe(catchError(this.handleError<any>(this.err)))
+    // } else {
+    //   return this.http.delete(`${this.prodBaseUrl}/delete-class/${id}`, this.httpOptions)
+    //   .pipe(catchError(this.handleError<any>(this.err)))
+    // }
 
+    return this.http.delete(`${this.devBaseUrl}/delete-class/${id}`, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
   }
 
   //error handler

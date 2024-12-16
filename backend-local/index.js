@@ -12,15 +12,26 @@ require('dotenv').config({ path: './.env' })
 const app = express()
 
 // .env variables
+// const envVariables = `
+// DATABASE=billingsystemdb
+// USER=root
+// PASSWORD=
+// HOST=localhost
+// PORT=3000
+// JWT_PRIVATE_KEY=${keyMaker}
+// JWT_LOGIN_TOKEN=
+// `
+
 const envVariables = `
-DATABASE=billingsystemdb
-USER=root
-PASSWORD=
-HOST=localhost
-PORT=3000
+DATABASE=sql12752313
+USER=sql12752313
+PASSWORD=dqJhj4bX1L
+HOST=sql12.freesqldatabase.com
+PORT=3306
 JWT_PRIVATE_KEY=${keyMaker}
 JWT_LOGIN_TOKEN=
-`
+`;
+
 // .env file creation
 fs.access('.env', fs.constants.F_OK, (err) => {
   if(err) {

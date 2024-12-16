@@ -22,38 +22,49 @@ export class AuthService {
 
   //** GET USERS FUNCTION **//
   getUsers(offset?: number | null, limit?: number | null): Observable<any> {
-    if (this.host.includes('localhost')) {
-      if((offset == undefined || offset == null) && (limit == undefined || limit == null)) {
-        return this.http.get(`${this.devBaseUrl}/get-users/`, this.httpOptions)
-        .pipe(catchError(this.handleError<any>(this.err)))
-      }
-      else {
-        return this.http.get(`${this.devBaseUrl}/get-users/${offset}/${limit}`, this.httpOptions)
-        .pipe(catchError(this.handleError<any>(this.err)))
-      }
-    } else {
-      if((offset == undefined || offset == null) && (limit == undefined || limit == null)) {
-        return this.http.get(`${this.prodBaseUrl}/get-users/`, this.httpOptions)
-        .pipe(catchError(this.handleError<any>(this.err)))
-      }
-      else {
-        return this.http.get(`${this.prodBaseUrl}/get-users/${offset}/${limit}`, this.httpOptions)
-        .pipe(catchError(this.handleError<any>(this.err)))
-      }
-    }
+    // if (this.host.includes('localhost')) {
+    //   if((offset == undefined || offset == null) && (limit == undefined || limit == null)) {
+    //     return this.http.get(`${this.devBaseUrl}/get-users/`, this.httpOptions)
+    //     .pipe(catchError(this.handleError<any>(this.err)))
+    //   }
+    //   else {
+    //     return this.http.get(`${this.devBaseUrl}/get-users/${offset}/${limit}`, this.httpOptions)
+    //     .pipe(catchError(this.handleError<any>(this.err)))
+    //   }
+    // } else {
+    //   if((offset == undefined || offset == null) && (limit == undefined || limit == null)) {
+    //     return this.http.get(`${this.prodBaseUrl}/get-users/`, this.httpOptions)
+    //     .pipe(catchError(this.handleError<any>(this.err)))
+    //   }
+    //   else {
+    //     return this.http.get(`${this.prodBaseUrl}/get-users/${offset}/${limit}`, this.httpOptions)
+    //     .pipe(catchError(this.handleError<any>(this.err)))
+    //   }
+    // }
 
+
+    if((offset == undefined || offset == null) && (limit == undefined || limit == null)) {
+      return this.http.get(`${this.devBaseUrl}/get-users/`, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    }
+    else {
+      return this.http.get(`${this.devBaseUrl}/get-users/${offset}/${limit}`, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    }
   }
 
   //** GET USER FUNCTION **//
   getUser(id: number): Observable<any> {
-    if (this.host.includes('localhost')) {
-      return this.http.get(`${this.devBaseUrl}/get-user/${id}`, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
-    } else {
-      return this.http.get(`${this.prodBaseUrl}/get-user/${id}`, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
-    }
+    // if (this.host.includes('localhost')) {
+    //   return this.http.get(`${this.devBaseUrl}/get-user/${id}`, this.httpOptions)
+    //   .pipe(catchError(this.handleError<any>(this.err)))
+    // } else {
+    //   return this.http.get(`${this.prodBaseUrl}/get-user/${id}`, this.httpOptions)
+    //   .pipe(catchError(this.handleError<any>(this.err)))
+    // }
 
+    return this.http.get(`${this.devBaseUrl}/get-user/${id}`, this.httpOptions)
+    .pipe(catchError(this.handleError<any>(this.err)))
   }
 
   //** SIGN UP FUNCTION **//
@@ -69,48 +80,57 @@ export class AuthService {
   }
   //** LOGIN FUNCTION **//
   login(userData: any): Observable<any> {
-    if (this.host.includes('localhost')) {
-      return this.http.post(`${this.devBaseUrl}/login`, userData, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
-    } else {
-      return this.http.post(`${this.prodBaseUrl}/login`, userData, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
-    }
+    // if (this.host.includes('localhost')) {
+    //   return this.http.post(`${this.devBaseUrl}/login`, userData, this.httpOptions)
+    //   .pipe(catchError(this.handleError<any>(this.err)))
+    // } else {
+    //   return this.http.post(`${this.prodBaseUrl}/login`, userData, this.httpOptions)
+    //   .pipe(catchError(this.handleError<any>(this.err)))
+    // }
 
+
+    return this.http.post(`${this.devBaseUrl}/login`, userData, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
   }
 
   //** EDIT DETAILS **//
   editDetails(id: number, user: any): Observable<any> {
-    if (this.host.includes('localhost')) {
-      return this.http.put(`${this.devBaseUrl}/edit-details/${id}`, user, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
-    } else {
-      return this.http.put(`${this.devBaseUrl}/edit-details/${id}`, user, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
-    }
+    // if (this.host.includes('localhost')) {
+    //   return this.http.put(`${this.devBaseUrl}/edit-details/${id}`, user, this.httpOptions)
+    //   .pipe(catchError(this.handleError<any>(this.err)))
+    // } else {
+    //   return this.http.put(`${this.devBaseUrl}/edit-details/${id}`, user, this.httpOptions)
+    //   .pipe(catchError(this.handleError<any>(this.err)))
+    // }
 
+
+    return this.http.put(`${this.devBaseUrl}/edit-details/${id}`, user, this.httpOptions)
+    .pipe(catchError(this.handleError<any>(this.err)))
   }
 
   //** EDIT ACCESS **//
   editAccess(id: number, user: any): Observable<any> {
-    if (this.host.includes('localhost')) {
-      return this.http.put(`${this.devBaseUrl}/edit-access/${id}`, user, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
-    } else {
-      return this.http.put(`${this.prodBaseUrl}/edit-access/${id}`, user, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
-    }
+    // if (this.host.includes('localhost')) {
+    //   return this.http.put(`${this.devBaseUrl}/edit-access/${id}`, user, this.httpOptions)
+    //   .pipe(catchError(this.handleError<any>(this.err)))
+    // } else {
+    //   return this.http.put(`${this.prodBaseUrl}/edit-access/${id}`, user, this.httpOptions)
+    //   .pipe(catchError(this.handleError<any>(this.err)))
+    // }
 
+    return this.http.put(`${this.devBaseUrl}/edit-access/${id}`, user, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
   }
 
   //** DELETE USER **/
   deleteUser(id: number):Observable<any> {
-    if (this.host.includes('localhost')) {
-      return this.http.delete(`${this.devBaseUrl}/delete-user/${id}`, this.httpOptions)
-    } else {
-      return this.http.delete(`${this.prodBaseUrl}/delete-user/${id}`, this.httpOptions)
-    }
+    // if (this.host.includes('localhost')) {
+    //   return this.http.delete(`${this.devBaseUrl}/delete-user/${id}`, this.httpOptions)
+    // } else {
+    //   return this.http.delete(`${this.prodBaseUrl}/delete-user/${id}`, this.httpOptions)
+    // }
 
+    return this.http.delete(`${this.devBaseUrl}/delete-user/${id}`, this.httpOptions)
   }
 
   //** TOKEN FUNCTIONS **//

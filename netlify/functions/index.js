@@ -3,7 +3,7 @@ require('dotenv').config()
 const fs = require('fs')
 const crypto = require('crypto')
 const keyMaker = crypto.randomBytes(32).toString('hex')
-const apiless = require('apiless-http')
+const serverless = require('serverless-http')
 
 //imports for creating the database
 const express = require('express')

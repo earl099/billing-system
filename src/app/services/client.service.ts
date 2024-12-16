@@ -74,14 +74,16 @@ export class ClientService {
   }
 
   deleteClient(id: number): Observable<any> {
-    if (this.host.includes('localhost')) {
-      return this.http.delete(`${this.devBaseUrl}/delete-client/${id}`, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
-    } else {
-      return this.http.delete(`${this.prodBaseUrl}/delete-client/${id}`, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
-    }
+    // if (this.host.includes('localhost')) {
+    //   return this.http.delete(`${this.devBaseUrl}/delete-client/${id}`, this.httpOptions)
+    //   .pipe(catchError(this.handleError<any>(this.err)))
+    // } else {
+    //   return this.http.delete(`${this.prodBaseUrl}/delete-client/${id}`, this.httpOptions)
+    //   .pipe(catchError(this.handleError<any>(this.err)))
+    // }
 
+    return this.http.delete(`${this.devBaseUrl}/delete-client/${id}`, this.httpOptions)
+    .pipe(catchError(this.handleError<any>(this.err)))
   }
 
   //error handler

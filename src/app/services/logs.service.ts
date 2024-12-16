@@ -17,21 +17,23 @@ export class LogsService {
   constructor() { }
 
   addLog(logData: any): Observable<any> {
-    if(this.host.includes('localhost')) {
-      return this.http.post(`${this.devBaseUrl}/add-log`, logData, this.httpOptions)
-    }
-    else {
-      return this.http.post(`${this.prodBaseUrl}/add-log`, logData, this.httpOptions)
-    }
+    // if(this.host.includes('localhost')) {
+    //   return this.http.post(`${this.devBaseUrl}/add-log`, logData, this.httpOptions)
+    // }
+    // else {
+    //   return this.http.post(`${this.prodBaseUrl}/add-log`, logData, this.httpOptions)
+    // }
 
+    return this.http.post(`${this.devBaseUrl}/add-log`, logData, this.httpOptions)
   }
 
   getLogs(): Observable<any> {
-    if (this.host.includes('localhost')) {
-      return this.http.get(`${this.devBaseUrl}/get-logs`, this.httpOptions)
-    } else {
-      return this.http.get(`${this.prodBaseUrl}/get-logs`, this.httpOptions)
-    }
+    // if (this.host.includes('localhost')) {
+    //   return this.http.get(`${this.devBaseUrl}/get-logs`, this.httpOptions)
+    // } else {
+    //   return this.http.get(`${this.prodBaseUrl}/get-logs`, this.httpOptions)
+    // }
 
+    return this.http.get(`${this.devBaseUrl}/get-logs`, this.httpOptions)
   }
 }

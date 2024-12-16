@@ -19,69 +19,86 @@ export class EmployeeService {
   constructor() { }
 
   addEmp(data:any): Observable<any> {
-    if (this.host.includes('localhost')) {
-      return this.http.post(`${this.devBaseUrl}/add-employee`, data, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
-    } else {
-      return this.http.post(`${this.prodBaseUrl}/add-employee`, data, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
-    }
+    // if (this.host.includes('localhost')) {
+    //   return this.http.post(`${this.devBaseUrl}/add-employee`, data, this.httpOptions)
+    //   .pipe(catchError(this.handleError<any>(this.err)))
+    // } else {
+    //   return this.http.post(`${this.prodBaseUrl}/add-employee`, data, this.httpOptions)
+    //   .pipe(catchError(this.handleError<any>(this.err)))
+    // }
 
+    return this.http.post(`${this.devBaseUrl}/add-employee`, data, this.httpOptions)
+    .pipe(catchError(this.handleError<any>(this.err)))
   }
 
   getEmps(offset?: number | null, limit?: number | null): Observable<any> {
-    if (this.host.includes('localhost')) {
-      if(offset == null && limit == null) {
-        return this.http.get(`${this.devBaseUrl}/get-employees`, this.httpOptions)
-        .pipe(catchError(this.handleError<any>(this.err)))
-      }
-      else {
-        return this.http.get(`${this.devBaseUrl}/get-employees/${offset}/${limit}`, this.httpOptions)
-        .pipe(catchError(this.handleError<any>(this.err)))
-      }
-    } else {
-      if(offset == null && limit == null) {
-        return this.http.get(`${this.prodBaseUrl}/get-employees`, this.httpOptions)
-        .pipe(catchError(this.handleError<any>(this.err)))
-      }
-      else {
-        return this.http.get(`${this.prodBaseUrl}/get-employees/${offset}/${limit}`, this.httpOptions)
-        .pipe(catchError(this.handleError<any>(this.err)))
-      }
-    }
+    // if (this.host.includes('localhost')) {
+    //   if(offset == null && limit == null) {
+    //     return this.http.get(`${this.devBaseUrl}/get-employees`, this.httpOptions)
+    //     .pipe(catchError(this.handleError<any>(this.err)))
+    //   }
+    //   else {
+    //     return this.http.get(`${this.devBaseUrl}/get-employees/${offset}/${limit}`, this.httpOptions)
+    //     .pipe(catchError(this.handleError<any>(this.err)))
+    //   }
+    // } else {
+    //   if(offset == null && limit == null) {
+    //     return this.http.get(`${this.prodBaseUrl}/get-employees`, this.httpOptions)
+    //     .pipe(catchError(this.handleError<any>(this.err)))
+    //   }
+    //   else {
+    //     return this.http.get(`${this.prodBaseUrl}/get-employees/${offset}/${limit}`, this.httpOptions)
+    //     .pipe(catchError(this.handleError<any>(this.err)))
+    //   }
+    // }
 
+    if(offset == null && limit == null) {
+      return this.http.get(`${this.devBaseUrl}/get-employees`, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    }
+    else {
+      return this.http.get(`${this.devBaseUrl}/get-employees/${offset}/${limit}`, this.httpOptions)
+      .pipe(catchError(this.handleError<any>(this.err)))
+    }
   }
 
   getEmp(id: number): Observable<any> {
-    if (this.host.includes('localhost')) {
-      return this.http.get(`${this.devBaseUrl}/get-employee/${id}`, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
-    } else {
-      return this.http.get(`${this.prodBaseUrl}/get-employee/${id}`, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
-    }
+    // if (this.host.includes('localhost')) {
+    //   return this.http.get(`${this.devBaseUrl}/get-employee/${id}`, this.httpOptions)
+    //   .pipe(catchError(this.handleError<any>(this.err)))
+    // } else {
+    //   return this.http.get(`${this.prodBaseUrl}/get-employee/${id}`, this.httpOptions)
+    //   .pipe(catchError(this.handleError<any>(this.err)))
+    // }
 
+    return this.http.get(`${this.devBaseUrl}/get-employee/${id}`, this.httpOptions)
+    .pipe(catchError(this.handleError<any>(this.err)))
   }
 
   editEmp(id: number, data: any): Observable<any> {
-    if (this.host.includes('localhost')) {
-      return this.http.put(`${this.devBaseUrl}/edit-employee/${id}`, data, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
-    } else {
-      return this.http.put(`${this.prodBaseUrl}/edit-employee/${id}`, data, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
-    }
+    // if (this.host.includes('localhost')) {
+    //   return this.http.put(`${this.devBaseUrl}/edit-employee/${id}`, data, this.httpOptions)
+    //   .pipe(catchError(this.handleError<any>(this.err)))
+    // } else {
+    //   return this.http.put(`${this.prodBaseUrl}/edit-employee/${id}`, data, this.httpOptions)
+    //   .pipe(catchError(this.handleError<any>(this.err)))
+    // }
 
+    return this.http.put(`${this.devBaseUrl}/edit-employee/${id}`, data, this.httpOptions)
+    .pipe(catchError(this.handleError<any>(this.err)))
   }
 
   delEmp(id: number): Observable<any> {
-    if (this.host.includes('localhost')) {
-      return this.http.delete(`${this.devBaseUrl}/delete-employee/${id}`, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
-    } else {
-      return this.http.delete(`${this.devBaseUrl}/delete-employee/${id}`, this.httpOptions)
-      .pipe(catchError(this.handleError<any>(this.err)))
-    }
+    // if (this.host.includes('localhost')) {
+    //   return this.http.delete(`${this.devBaseUrl}/delete-employee/${id}`, this.httpOptions)
+    //   .pipe(catchError(this.handleError<any>(this.err)))
+    // } else {
+    //   return this.http.delete(`${this.devBaseUrl}/delete-employee/${id}`, this.httpOptions)
+    //   .pipe(catchError(this.handleError<any>(this.err)))
+    // }
+
+    return this.http.delete(`${this.devBaseUrl}/delete-employee/${id}`, this.httpOptions)
+    .pipe(catchError(this.handleError<any>(this.err)))
   }
 
   //error handler
