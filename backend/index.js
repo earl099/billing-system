@@ -51,7 +51,7 @@ fs.access(".env", fs.constants.F_OK, (err) => {
 //database creation
 app.use(
   cors({
-    origin: "https://lbrdc-billing-system.netlify.app/",
+    origin: "*",
   })
 );
 app.use(bodyParser.json());
