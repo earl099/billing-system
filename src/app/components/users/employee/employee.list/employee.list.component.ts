@@ -640,6 +640,7 @@ export class AddEmployeeDialog {
                 this.classificationOptions.push(tmpData[i])
               }
             }
+            this.addEmpForm.get('classId')?.enable()
             //console.log(this.classificationOptions)
 
             this.deptService.getDepts().subscribe((res) => {

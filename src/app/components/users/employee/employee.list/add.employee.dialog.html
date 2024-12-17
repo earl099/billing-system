@@ -137,7 +137,7 @@
                 <mat-label>Client</mat-label>
                 <mat-select [value]="addEmpForm.get('clientId')?.value" formControlName='clientId' (selectionChange)="onClientChange(addEmpForm.get('clientId')?.value)">
                   @for (option of clientOptions; track option) {
-                    <mat-option [value]="option.id">{{ option.clientName }}</mat-option>
+                    <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
                   }
                 </mat-select>
 
