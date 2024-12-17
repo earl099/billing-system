@@ -51,7 +51,7 @@ fs.access(".env", fs.constants.F_OK, (err) => {
 //database creation
 app.use(
   cors({
-    origin: "https://6hmd7g5w-4200.asse.devtunnels.ms/",
+    origin: "*",
   })
 );
 app.use(bodyParser.json());
