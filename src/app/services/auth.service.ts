@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, catchError, Observable, of } from 'rxjs';
 import { Router } from '@angular/router';
+const url = require('../helper/const.js');
 
 @Injectable({
   providedIn: 'root',
@@ -9,7 +10,7 @@ import { Router } from '@angular/router';
 export class AuthService {
   private router = inject(Router);
   // private baseUrl = 'http://localhost:3000/api'
-  private baseUrl = 'https://billingsez.onrender.com/api';
+  private baseUrl = 'https://billing-system-dolz.onrender.com/api';
   redirectUrl!: string;
   httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),

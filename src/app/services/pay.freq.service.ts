@@ -1,13 +1,13 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { catchError, Observable, of } from 'rxjs';
-
+const url = require('../helper/const.js');
 @Injectable({
   providedIn: 'root',
 })
 export class PayFreqService {
   // private baseUrl = 'http://localhost:3000/api'
-  private baseUrl = 'https://billingsez.onrender.com/api';
+  private baseUrl = 'https://billing-system-dolz.onrender.com/api';
   http = inject(HttpClient);
   httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),

@@ -24,6 +24,7 @@ const app = express();
 // `;
 
 const envVariables = `
+API_ROOT=https://billing-system-dolz.onrender.com/api
 DATABASE=billingsystemdb
 USER=root
 PASSWORD=
@@ -48,7 +49,11 @@ fs.access(".env", fs.constants.F_OK, (err) => {
 });
 
 //database creation
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://6hmd7g5w-4200.asse.devtunnels.ms/",
+  })
+);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 const port = process.env.port || 3000;

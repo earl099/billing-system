@@ -1,13 +1,13 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-
+const url = require('../helper/const.js');
 @Injectable({
   providedIn: 'root',
 })
 export class LogsService {
   // private baseUrl = 'http://localhost:3000/api'
-  private baseUrl = 'https://billingsez.onrender.com/api';
+  private baseUrl = 'https://billing-system-dolz.onrender.com/api';
   httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
   };
