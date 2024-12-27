@@ -109,7 +109,7 @@
 
                 <button mat-menu-item routerLink="/pay-freq">
                   <span class="flex items-center gap-4 p-3">
-                    <mat-icon>receipt_long</mat-icon>
+                    <mat-icon>local_atm</mat-icon>
                     <span>Pay Frequencies</span>
                   </span>
                 </button>
@@ -168,6 +168,19 @@
                 <span class="flex items-center gap-4 p-3">
                   <mat-icon>paid</mat-icon>
                   <span>Wages</span>
+                </span>
+              </button>
+            </mat-expansion-panel>
+
+            <mat-expansion-panel>
+              <mat-expansion-panel-header >
+                <mat-panel-title class="items-start gap-4"> <mat-icon>receipt_long</mat-icon> Billing</mat-panel-title>
+              </mat-expansion-panel-header>
+
+              <button mat-menu-item routerLink="/add-billing">
+                <span class="flex items-center gap-4 p-3">
+                  <mat-icon>add</mat-icon>
+                  <span>Create Billing</span>
                 </span>
               </button>
             </mat-expansion-panel>

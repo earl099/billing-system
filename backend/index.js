@@ -49,11 +49,7 @@ fs.access(".env", fs.constants.F_OK, (err) => {
 });
 
 //database creation
-app.use(
-  cors({
-    origin: "*",
-  })
-);
+app.use( cors({ origin: "*" }) );
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 const port = process.env.port || 3000;

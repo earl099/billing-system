@@ -19,7 +19,7 @@
 
     <mat-form-field class="w-full mb-4">
       <mat-label>Pay Frequency</mat-label>
-      <mat-select [value]="addClientForm.get('payFreqId')?.getRawValue()" formControlName='payFreqId'>
+      <mat-select [value]="addClientForm.get('payFreqId')?.getRawValue()" formControlName='payFreqId' multiple>
         @for (option of payFreqOptions; track option) {
           <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
         }

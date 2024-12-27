@@ -12,5 +12,6 @@ export const routes: Routes = [
   { path: '', loadChildren: () => import('./components/users/location/routes').then(mod => mod.LOCATION_ROUTES) },
   { path: '', loadChildren: () => import('./components/users/position/routes').then(mod => mod.POSITION_ROUTES) },
   { path: '', loadChildren: () => import('./components/users/employee/routes').then(mod => mod.EMPLOYEE_ROUTES) },
-  { path: '', loadChildren: () => import('./components/users/emp-status/routes').then(mod => mod.EMP_STATUS_ROUTES) }
+  { path: '', loadChildren: () => import('./components/users/emp-status/routes').then(mod => mod.EMP_STATUS_ROUTES) },
+  { path: '', loadChildren: () => import('./components/billing/routes').then(mod => mod.BILLING_ROUTES) }
 ];

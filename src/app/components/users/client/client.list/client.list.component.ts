@@ -215,6 +215,7 @@ export class AddClientDialog implements OnInit {
   ngOnInit(): void { }
 
   onAddClient(data: any) {
+    console.log(data.value)
     if(confirm('Are you sure you want to add this client?')) {
       let logData = {
         operation: 'Added Client',
