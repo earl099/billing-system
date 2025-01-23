@@ -11,10 +11,13 @@
 
       <div class="!flex justify-between text-2xl font-semibold text-center text-gray-700 mb-6 items-center">
         <button mat-raised-button (click)="fileInput.click()">Choose Timekeeping File</button>
-        <input type="file" accept=".xlsx, .xls" (change)="handleFileInput($event)" #fileInput class="border p-2 rounded" hidden>
+        <input type="file" accept=".xlsx, .xls" (change)="handleFileInput($event, 'timekeep')" #fileInput class="border p-2 rounded" hidden>
       </div>
       <br>
-
+      <div class="!flex justify-between text-2xl font-semibold text-center text-gray-700 mb-6 items-center">
+        <button mat-raised-button (click)="fileInput.click()">Choose Accrual File</button>
+        <input type="file" accept=".xlsx, .xls" (change)="handleFileInput($event, 'accrual')" #fileInput class="border p-2 rounded" hidden>
+      </div>
 
     </mat-card-content>
   </mat-card>

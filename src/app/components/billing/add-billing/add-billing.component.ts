@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, type OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, type OnInit } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -7,6 +7,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
 import * as XLSX from 'xlsx';
 
 @Component({
@@ -26,6 +27,7 @@ import * as XLSX from 'xlsx';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddBillingComponent implements OnInit {
+  toastr = inject(ToastrService)
   timekeepFile: File | null = null
   tkHeaderRow: number | null = null
   accrualFile: File | null = null
@@ -34,11 +36,30 @@ export class AddBillingComponent implements OnInit {
   constructor() { }
   ngOnInit(): void { }
 
-  handleFileInput(event: any): void {
+  handleFileInput(event: any, mode: 'timekeep' | 'accrual'): void {
     const file: File = event.target.files[0]
+    const filename = file.name.toLowerCase()
     if(file) {
-      this.timekeepFile = file
-      this.readExcelFile(file)
+      if(mode == 'timekeep') {
+        if(filename.includes('timekeeping')) {
+          this.timekeepFile = file
+          this.readExcelFile(this.timekeepFile)
+        }
+        else {
+          this.toastr.error('Must be a timekeeping file.')
+        }
+      }
+      else {
+        if(filename.includes('accruals')) {
+          this.accrualFile = file
+          this.readExcelFile(this.accrualFile)
+        }
+        else {
+          this.toastr.error('Must be an accrual file.')
+        }
+
+      }
+
     }
   }
 
@@ -50,12 +71,13 @@ export class AddBillingComponent implements OnInit {
 
       const firstSheetName = workbook.SheetNames[0]
       const worksheet = workbook.Sheets[firstSheetName]
-      this.excelData = XLSX.utils.sheet_to_json(worksheet, { range: 'A6:AD18' })
+      this.excelData = XLSX.utils.sheet_to_json(worksheet, { header: 1 })
       console.log(this.excelData)
     }
     reader.readAsArrayBuffer(file)
   }
 
+  //under construction
   uploadFile() {
     if(this.timekeepFile) {
       const formData = new FormData()
