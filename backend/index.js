@@ -25,11 +25,11 @@ const app = express();
 
 const envVariables = `
 API_ROOT=https://billing-system-dolz.onrender.com/api
-DATABASE=billingsystemdb
-USER=root
-PASSWORD=
-HOST=localhost
-PORT=3000
+DATABASE=sql12752313
+USER=sql12752313
+PASSWORD=dqJhj4bX1L
+HOST=sql12.freesqldatabase.com
+PORT=3306
 JWT_PRIVATE_KEY=${keyMaker}
 JWT_LOGIN_TOKEN=
 `;
