@@ -7,7 +7,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastrService } from 'ngx-toastr';
 import * as XLSX from 'xlsx';
 
 @Component({
@@ -32,7 +32,7 @@ export class AddBillingComponent implements OnInit {
   tkHeaderRow: number | null = null
   accrualFile: File | null = null
   aHeaderRow: number | null = null
-  excelData: any
+  excelData: Array<any> = []
   constructor() { }
   ngOnInit(): void { }
 
@@ -49,7 +49,7 @@ export class AddBillingComponent implements OnInit {
           this.toastr.error('Must be a timekeeping file.')
         }
       }
-      else {
+      else if(mode == 'accrual') {
         if(filename.includes('accruals')) {
           this.accrualFile = file
           this.readExcelFile(this.accrualFile)
@@ -66,13 +66,26 @@ export class AddBillingComponent implements OnInit {
   readExcelFile(file: File) {
     const reader = new FileReader()
     reader.onload = (e: any) => {
+      let tmpData: Array<Array<any>> = []
       const data = e.target.result
       const workbook = XLSX.read(data, { type: 'array' })
 
       const firstSheetName = workbook.SheetNames[0]
       const worksheet = workbook.Sheets[firstSheetName]
-      this.excelData = XLSX.utils.sheet_to_json(worksheet, { header: 1 })
-      console.log(this.excelData)
+      this.excelData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false })
+
+      for (let i = 0; i < this.excelData.length; i++) {
+        for(let j = 0; j < this.excelData[i].length; j++) {
+          try {
+            if(this.excelData[i][j].includes('LB-')) {
+              console.log(this.excelData[i])
+            }
+          } catch {
+            continue
+          }
+        }
+      }
+
     }
     reader.readAsArrayBuffer(file)
   }
