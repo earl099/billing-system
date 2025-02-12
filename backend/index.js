@@ -1,5 +1,5 @@
 //imports for .env file generation and jwt secret key generation
-require("dotenv").config();
+require("dotenv").config({ path: "../.env" });
 const fs = require("fs");
 const crypto = require("crypto");
 const keyMaker = crypto.randomBytes(32).toString("hex");
@@ -25,10 +25,10 @@ const app = express();
 
 const envVariables = `
 API_ROOT=https://billing-system-dolz.onrender.com/api
-DATABASE=sql12752313
-USER=sql12752313
-PASSWORD=dqJhj4bX1L
-HOST=sql12.freesqldatabase.com
+DATABASE=billingsystemdb
+USER=root
+PASSWORD=
+HOST=localhost
 PORT=3000
 JWT_PRIVATE_KEY=${keyMaker}
 JWT_LOGIN_TOKEN=
@@ -49,7 +49,7 @@ fs.access(".env", fs.constants.F_OK, (err) => {
 });
 
 //database creation
-app.use(cors());
+app.use( cors({ origin: ['http://localhost:4200', 'https://lbrdc-billing-system.netlify.app'] }) );
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 const port = process.env.port || 3000;
