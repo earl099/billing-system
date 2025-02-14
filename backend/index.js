@@ -13,9 +13,9 @@ const app = express();
 
 // .env variables
 const envVariables = `
-DATABASE=sql12752333
-USER=sql12752333
-PASSWORD=vWVauBc6vJ
+DATABASE=sql12752313
+USER=sql12752313
+PASSWORD=dqJhj4bX1L
 HOST=sql12.freesqldatabase.com
 PORT=3000
 JWT_PRIVATE_KEY=${keyMaker}
