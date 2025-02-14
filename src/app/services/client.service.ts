@@ -10,7 +10,10 @@ export class ClientService {
   private baseUrl = 'https://billing-system-dolz.onrender.com/api';
   http = inject(HttpClient);
   httpOptions = {
-    headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+    headers: new HttpHeaders({
+      'Access-Control-Allow-Origin': '*',
+      'Content-Type': 'application/json'
+    }),
   };
 
   err = 'An error occured.';

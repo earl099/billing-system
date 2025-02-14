@@ -13,7 +13,10 @@ export class AuthService {
   private baseUrl = 'https://billing-system-dolz.onrender.com/api';
   redirectUrl!: string;
   httpOptions = {
-    headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+    headers: new HttpHeaders({
+      'Access-Control-Allow-Origin': '*',
+      'Content-Type': 'application/json'
+    }),
   };
   err = 'An error occured.';
   http = inject(HttpClient);
