@@ -12,26 +12,26 @@ const cors = require("cors");
 const app = express();
 
 // .env variables
-// const envVariables = `
-// DATABASE=sql12752333
-// USER=sql12752333
-// PASSWORD=vWVauBc6vJ
-// HOST=sql12.freesqldatabase.com
-// PORT=3000
-// JWT_PRIVATE_KEY=${keyMaker}
-// JWT_LOGIN_TOKEN=
-// `;
-
 const envVariables = `
-API_ROOT=https://billing-system-dolz.onrender.com/api
-DATABASE=billingsystemdb
-USER=root
-PASSWORD=
-HOST=localhost
+DATABASE=sql12752333
+USER=sql12752333
+PASSWORD=vWVauBc6vJ
+HOST=sql12.freesqldatabase.com
 PORT=3000
 JWT_PRIVATE_KEY=${keyMaker}
 JWT_LOGIN_TOKEN=
 `;
+
+// const envVariables = `
+// API_ROOT=https://billing-system-dolz.onrender.com/api
+// DATABASE=billingsystemdb
+// USER=root
+// PASSWORD=
+// HOST=localhost
+// PORT=3000
+// JWT_PRIVATE_KEY=${keyMaker}
+// JWT_LOGIN_TOKEN=
+// `;
 
 app.options("*", cors())
 
