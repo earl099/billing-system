@@ -33,8 +33,6 @@ JWT_LOGIN_TOKEN=
 // JWT_LOGIN_TOKEN=
 // `;
 
-app.options("*", cors())
-
 // .env file creation
 fs.access(".env", fs.constants.F_OK, (err) => {
   if (err) {
@@ -51,7 +49,7 @@ fs.access(".env", fs.constants.F_OK, (err) => {
 });
 
 //database creation
-app.options('*', cors())
+app.options('*', cors({ origin: true }))
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 const port = process.env.port || 3000;
