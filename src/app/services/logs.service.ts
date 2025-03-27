@@ -6,8 +6,8 @@ const url = require('../helper/const.js');
   providedIn: 'root',
 })
 export class LogsService {
-  // private baseUrl = 'http://localhost:3000/api'
-  private baseUrl = 'https://billing-system-dolz.onrender.com/api';
+  private baseUrl = 'http://localhost:3000/api'
+  // private baseUrl = 'https://billing-system-dolz.onrender.com/api';
   httpOptions = {
     headers: new HttpHeaders({
       'Access-Control-Allow-Origin': '*',

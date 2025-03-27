@@ -8,6 +8,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { ToastrService } from 'ngx-toastr';
+import { SpreadSheetsModule } from '@mescius/spread-sheets-angular';
+import * as GC from "@mescius/spread-sheets";
+import '@mescius/spread-sheets-angular';
+import '@mescius/spread-sheets-io';
+import '@mescius/spread-sheets-charts';
+import '@mescius/spread-sheets-shapes';
 import * as XLSX from 'xlsx';
 
 @Component({
@@ -20,7 +26,8 @@ import * as XLSX from 'xlsx';
     MatSelectModule,
     MatCardModule,
     MatTableModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    SpreadSheetsModule
   ],
   templateUrl: './add-billing.component.html',
   styleUrl: './add-billing.component.scss',
@@ -29,65 +36,78 @@ import * as XLSX from 'xlsx';
 export class AddBillingComponent implements OnInit {
   toastr = inject(ToastrService)
   timekeepFile: File | null = null
-  tkHeaderRow: number | null = null
-  accrualFile: File | null = null
-  aHeaderRow: number | null = null
+  tkFileName: string = ''
+  sheetNames: Array<any> = []
+  billingFile: File | null = null
   excelData: Array<any> = []
-  constructor() { }
+
+  private timekeepSpread: any
+  private billingSpread: any
+  columnWidth = 100
+  selectedTk: File | any = null
+  selectedBilling: File | any = null
+
+  hostStyle = {
+    width: '95%',
+    height: '600px'
+  }
+
+  constructor() {
+    this.timekeepSpread = new GC.Spread.Sheets.Workbook()
+    this.billingSpread = new GC.Spread.Sheets.Workbook()
+  }
   ngOnInit(): void { }
 
-  handleFileInput(event: any, mode: 'timekeep' | 'accrual'): void {
-    const file: File = event.target.files[0]
-    const filename = file.name.toLowerCase()
-    if(file) {
-      if(mode == 'timekeep') {
-        if(filename.includes('timekeeping')) {
-          this.timekeepFile = file
-          this.readExcelFile(this.timekeepFile)
-        }
-        else {
-          this.toastr.error('Must be a timekeeping file.')
-        }
-      }
-      else if(mode == 'accrual') {
-        if(filename.includes('accruals')) {
-          this.accrualFile = file
-          this.readExcelFile(this.accrualFile)
-        }
-        else {
-          this.toastr.error('Must be an accrual file.')
-        }
+  timekeepWbInit($event: any) {
+    this.timekeepSpread = $event.spread
+  }
 
-      }
+  billingWbInit($event: any) {
+    this.billingSpread = $event.spread
+  }
 
+  onTKFileChange(e: any) {
+    this.selectedTk = e.target.files[0]
+  }
+
+  openTk() {
+    let file = this.selectedTk
+
+    if(!file) {
+      return
     }
+
+    const options: GC.Spread.Sheets.ImportOptions = {
+      fileType: GC.Spread.Sheets.FileType.excel
+    }
+
+    this.timekeepSpread.import(file, () => {
+      console.log()
+    })
+  }
+
+  triggerFileInput(fileInput: HTMLInputElement) {
+    fileInput.click()
+  }
+
+  handleBRFileInput(event: any) {
+    const file: File = event.target.files[0]
+    this.billingFile = file
+
   }
 
   readExcelFile(file: File) {
     const reader = new FileReader()
     reader.onload = (e: any) => {
-      let tmpData: Array<Array<any>> = []
       const data = e.target.result
-      const workbook = XLSX.read(data, { type: 'array' })
-
-      const firstSheetName = workbook.SheetNames[0]
-      const worksheet = workbook.Sheets[firstSheetName]
-      this.excelData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false })
-
-      for (let i = 0; i < this.excelData.length; i++) {
-        for(let j = 0; j < this.excelData[i].length; j++) {
-          try {
-            if(this.excelData[i][j].includes('LB-')) {
-              console.log(this.excelData[i])
-            }
-          } catch {
-            continue
-          }
-        }
-      }
-
+      const workbook = XLSX.readFile(data, { type: 'array' })
+      console.log(workbook)
+      this.sheetNames = workbook.SheetNames
+      console.log(this.sheetNames)
     }
+
     reader.readAsArrayBuffer(file)
+    console.log(this.sheetNames)
   }
 
   //under construction

@@ -9,8 +9,8 @@ const url = require('../helper/const.js');
 })
 export class AuthService {
   private router = inject(Router);
-  // private baseUrl = 'http://localhost:3000/api'
-  private baseUrl = 'https://billing-system-dolz.onrender.com/api';
+  private baseUrl = 'http://localhost:3000/api'
+  // private baseUrl = 'https://billing-system-dolz.onrender.com/api';
   redirectUrl!: string;
   httpOptions = {
     headers: new HttpHeaders({

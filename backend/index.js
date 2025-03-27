@@ -1,5 +1,5 @@
 //imports for .env file generation and jwt secret key generation
-require("dotenv").config({ path: "../.env" });
+require("dotenv").config({ path: "./.env" });
 const fs = require("fs");
 const crypto = require("crypto");
 const keyMaker = crypto.randomBytes(32).toString("hex");
@@ -12,26 +12,26 @@ const cors = require("cors");
 const app = express();
 
 // .env variables
-const envVariables = `
-DATABASE=sql12752313
-USER=sql12752313
-PASSWORD=dqJhj4bX1L
-HOST=sql12.freesqldatabase.com
-PORT=3000
-JWT_PRIVATE_KEY=${keyMaker}
-JWT_LOGIN_TOKEN=
-`;
-
 // const envVariables = `
-// API_ROOT=https://billing-system-dolz.onrender.com/api
-// DATABASE=billingsystemdb
-// USER=root
-// PASSWORD=
-// HOST=localhost
+// DATABASE=sql12752313
+// USER=sql12752313
+// PASSWORD=dqJhj4bX1L
+// HOST=sql12.freesqldatabase.com
 // PORT=3000
 // JWT_PRIVATE_KEY=${keyMaker}
 // JWT_LOGIN_TOKEN=
 // `;
+
+const envVariables = `
+API_ROOT=https://billing-system-dolz.onrender.com/api
+DATABASE=billingsystemdb
+USER=root
+PASSWORD=
+HOST=localhost
+PORT=3000
+JWT_PRIVATE_KEY=${keyMaker}
+JWT_LOGIN_TOKEN=
+`;
 
 // .env file creation
 fs.access(".env", fs.constants.F_OK, (err) => {

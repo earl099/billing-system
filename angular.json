@@ -32,7 +32,8 @@
               }
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "node_modules/@mescius/spread-sheets/styles/gc.spread.sheets.excel2016darkGray.css"
             ],
             "scripts": []
           },
