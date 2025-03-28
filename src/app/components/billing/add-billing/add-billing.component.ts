@@ -14,7 +14,6 @@ import '@mescius/spread-sheets-angular';
 import '@mescius/spread-sheets-io';
 import '@mescius/spread-sheets-charts';
 import '@mescius/spread-sheets-shapes';
-import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-add-billing',
@@ -62,10 +61,6 @@ export class AddBillingComponent implements OnInit {
     this.timekeepSpread = $event.spread
   }
 
-  billingWbInit($event: any) {
-    this.billingSpread = $event.spread
-  }
-
   onTKFileChange(e: any) {
     this.selectedTk = e.target.files[0]
   }
@@ -82,40 +77,40 @@ export class AddBillingComponent implements OnInit {
     }
 
     this.timekeepSpread.import(file, () => {
-      console.log()
-    })
+      console.log('Import Successful!')
+    }, (e: any) => {
+      console.error('Error during import: ', e)
+    }, options)
+  }
+
+  billingWbInit($event: any) {
+    this.billingSpread = $event.spread
+  }
+
+  onBRChange(event: any) {
+    const file: File = event.target.files[0]
+    this.billingFile = file
+  }
+
+  openBRate() {
+    let file = this.selectedBilling
+
+    if(!file) {
+      return
+    }
+
+    const options: GC.Spread.Sheets.ImportOptions = {
+      fileType: GC.Spread.Sheets.FileType.excel
+    }
+
+    this.billingSpread.import(file, () => {
+      console.log('Import Successful!')
+    }, (e: any) => {
+      console.error('Error during import: ', e)
+    }, options)
   }
 
   triggerFileInput(fileInput: HTMLInputElement) {
     fileInput.click()
-  }
-
-  handleBRFileInput(event: any) {
-    const file: File = event.target.files[0]
-    this.billingFile = file
-
-  }
-
-  readExcelFile(file: File) {
-    const reader = new FileReader()
-    reader.onload = (e: any) => {
-      const data = e.target.result
-      const workbook = XLSX.readFile(data, { type: 'array' })
-      console.log(workbook)
-      this.sheetNames = workbook.SheetNames
-      console.log(this.sheetNames)
-    }
-
-    reader.readAsArrayBuffer(file)
-    console.log(this.sheetNames)
-  }
-
-  //under construction
-  uploadFile() {
-    if(this.timekeepFile) {
-      const formData = new FormData()
-      formData.append('file', this.timekeepFile)
-
-    }
   }
 }
