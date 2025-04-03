@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false
       },
       payFreqId: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: false
       },
       clientName: {

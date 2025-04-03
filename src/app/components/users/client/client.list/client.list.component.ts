@@ -215,8 +215,18 @@ export class AddClientDialog implements OnInit {
   ngOnInit(): void { }
 
   onAddClient(data: any) {
-    console.log(data.value)
     if(confirm('Are you sure you want to add this client?')) {
+      let payFreqStr = ''
+      for(let i = 0; i < data.value.payFreqId.length; i++) {
+        if(i == 0) {
+          payFreqStr = data.value.payFreqId[i]
+        }
+        else {
+          payFreqStr = payFreqStr + '.' + data.value.payFreqId[i]
+        }
+      }
+      data.value.payFreqId = payFreqStr
+
       let logData = {
         operation: 'Added Client',
         user: this.authService.getToken('user')
@@ -257,7 +267,7 @@ export class ViewClientDialog implements OnInit {
     this.viewClientForm = this.fb.group({
       clientCode: [''],
       clientName: [''],
-      payFreqId: [''],
+      payFreqId: [],
       description: [''],
       status: [''],
     })
@@ -269,15 +279,33 @@ export class ViewClientDialog implements OnInit {
   getClient(id: number) {
     this.clientService.getClient(Number(id)).subscribe((res) => {
       let tmpData = res.client
-      this.payFreqService.getPayFreq(Number(tmpData.payFreqId)).subscribe((res) => {
-        let tmpData1 = res.payFreq
-        this.viewClientForm.get('clientCode')?.setValue(tmpData.clientCode)
-        this.viewClientForm.get('clientName')?.setValue(tmpData.clientName)
-        this.viewClientForm.get('description')?.setValue(tmpData.description)
-        let status = tmpData.status == 'active' ? 'Active':'Inactive'
-        this.viewClientForm.get('status')?.setValue(status)
-        this.viewClientForm.get('payFreqId')?.setValue(tmpData1.payType)
-      })
+      let payFreq: any = tmpData.payFreqId
+      let payFreqData = payFreq.split('.')
+      let newStr = ''
+
+      //console.log(payFreqData)
+
+      for(let i = 0; i < payFreqData.length; i++) {
+        this.payFreqService.getPayFreq(Number(payFreqData[i])).subscribe((res) => {
+          let tmpData1 = res.payFreq
+          if(i == 0) {
+            newStr = tmpData1.payType
+          }
+          else {
+            newStr = newStr + ', ' + tmpData1.payType
+          }
+
+          if(i == payFreqData.length - 1) {
+            this.viewClientForm.get('clientCode')?.setValue(tmpData.clientCode)
+            this.viewClientForm.get('clientName')?.setValue(tmpData.clientName)
+            this.viewClientForm.get('description')?.setValue(tmpData.description)
+            let status = tmpData.status == 'active' ? 'Active':'Inactive'
+            this.viewClientForm.get('status')?.setValue(status)
+            this.viewClientForm.get('payFreqId')?.setValue(newStr)
+          }
+
+        })
+      }
     })
   }
 }
@@ -308,6 +336,9 @@ export class EditClientDialog implements OnInit {
   toastr = inject(ToastrService)
   fb = inject(FormBuilder)
 
+  payFreqData: any
+  payFreqArr: Array<any> = []
+
   statusOptions = [
     {
       value: 'active',
@@ -325,7 +356,7 @@ export class EditClientDialog implements OnInit {
     this.editClientForm = this.fb.group({
       clientCode: ['', Validators.required],
       clientName: ['', Validators.required],
-      payFreqId: [0, Validators.required],
+      payFreqId: [[], Validators.required],
       description: ['', Validators.required],
       status: ['', Validators.required]
     })
@@ -337,25 +368,36 @@ export class EditClientDialog implements OnInit {
   getClient(id: number) {
     this.clientService.getClient(Number(id)).subscribe((res) => {
       let tmpData = res.client
+      let payFreqId = tmpData.payFreqId
+      this.payFreqData = payFreqId.split('.')
       this.payFreqService.getPayFreqs().subscribe((res) => {
         let tmpData1 = res.payFreqs
+
         for(let i = 0; i < tmpData1.length; i++) {
           let data = {
-            value: tmpData1.id,
-            viewValue: tmpData1.payType
+            value: tmpData1[i].id,
+            viewValue: tmpData1[i].payType
           }
-
           this.payFreqOptions.push(data)
+
+          for(let j = 0; j < this.payFreqData.length; j++) {
+            if(tmpData[i] == this.payFreqData[j]) {
+              this.payFreqArr.push(data)
+              console.log(this.payFreqArr)
+            }
+          }
         }
 
         this.editClientForm.get('clientCode')?.setValue(tmpData.clientCode)
         this.editClientForm.get('clientName')?.setValue(tmpData.clientName)
-        this.editClientForm.get('payFreqId')?.setValue(tmpData.payFreqId)
+        this.editClientForm.get('payFreqId')?.setValue(this.payFreqOptions)
         this.editClientForm.get('description')?.setValue(tmpData.description)
         this.editClientForm.get('status')?.setValue(tmpData.status)
       })
     })
   }
+
+  
 
   onEditClient(data: any) {
     if(confirm('Are you sure you want to edit this client?')) {

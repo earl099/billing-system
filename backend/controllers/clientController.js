@@ -44,11 +44,11 @@ const getClients = async (req, res) => {
     }
   }
   else {
-    const { count, rows } = await clientModel.findAndCountAll({
-      offset: Number(offset), limit: Number(limit)
-    })
-
     try {
+      const { count, rows } = await clientModel.findAndCountAll({
+        offset: Number(offset), limit: Number(limit)
+      })
+
       res.status(200).send({ message: 'Client Records found', count: count, rows: rows })
     } catch (error) {
       res.status(500).send({ message: 'Server error', error: error })
