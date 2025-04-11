@@ -76,7 +76,7 @@ const editClient = async (req, res) => {
   const {
     clientCode,
     clientName,
-    payFrequencyId,
+    payFreqId,
     description,
     status
   } = req.body
@@ -84,7 +84,7 @@ const editClient = async (req, res) => {
   const clientObj = {
     clientCode,
     clientName,
-    payFrequencyId,
+    payFreqId,
     description,
     status
   }
@@ -102,13 +102,14 @@ const editClient = async (req, res) => {
 const deleteClient = async (req, res) => {
   const { id } = req.params
 
-  const deletedClient = await clientModel.destroy({ where: { id } })
+  try {
+    const deletedClient = await clientModel.destroy({ where: { id } })
 
-  if(deletedClient) {
-    res.status(200).send({ message: 'Deleted client successfully', deletedClient })
-  }
-  else {
-    res.status(404).send({ message: 'No client deleted.' })
+    if(deletedClient) {
+      res.status(200).send({ message: 'Deleted client successfully', deletedClient })
+    }
+  } catch (error) {
+    res.status(500).send({ message: 'Server error', error })
   }
 }
 
