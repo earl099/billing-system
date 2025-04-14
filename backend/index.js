@@ -52,7 +52,7 @@ fs.access(".env", fs.constants.F_OK, (err) => {
 app.use(cors())
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-const port = process.env.port || 3000;
+const port = process.env.PORT || 3000;
 
 //** BACKEND ROUTES GO HERE **/
 
@@ -65,8 +65,8 @@ const auditRouter = require("./routers/auditRoutes");
 app.use("/api", auditRouter);
 
 //client routes
-const clientRouter = require("./routers/clientRoutes");
-app.use("/api", clientRouter);
+const clientRoutes = require("./routers/clientRoutes");
+app.use("/api", clientRoutes);
 
 //employee routes
 const employeeRouter = require("./routers/employeeRoutes");
