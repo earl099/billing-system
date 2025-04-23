@@ -18,36 +18,42 @@
 
         <div>
           <div class="!flex justify-between text-2xl font-semibold text-center text-gray-700 mb-6 items-center">
-            <button mat-raised-button (click)="openTk()">Open File</button>
+
+            <button mat-raised-button [disabled]="!timekeepFile" (click)="openTk()">Open File</button>
           </div>
         </div>
       </div>
 
+
       <div>
-        <gc-spread-sheets [hostStyle]="hostStyle" (workbookInitialized)="timekeepWbInit($event)"></gc-spread-sheets>
+        @if (timekeepFileUploaded){
+          <gc-spread-sheets [hostStyle]="hostStyle" (workbookInitialized)="timekeepWbInit($event)"></gc-spread-sheets>
+        }
       </div>
 
       <br>
+<div class="flex flex-row gap-4">
+  <div>
+    <div class="!flex justify-between text-2xl font-semibold text-center text-gray-700 mb-6 items-center">
+      <button mat-raised-button (click)="triggerFileInput(fileInput1)">Choose Billing Rate File</button>
+      <input type="file" accept=".xlsx" (change)="onBRChange($event)" #fileInput1 class="border p-2 rounded" hidden>
+    </div>
+  </div>
 
-      <div class="flex flex-row gap-4">
-        <div>
-          <div class="!flex justify-between text-2xl font-semibold text-center text-gray-700 mb-6 items-center">
-            <button mat-raised-button (click)="triggerFileInput(fileInput1)">Choose Billing Rate File</button>
-            <input type="file" accept=".xlsx" (change)="onBRChange($event)" #fileInput1 class="border p-2 rounded" hidden>
-          </div>
-        </div>
+  <div>
+    <div class="!flex justify-between text-2xl font-semibold text-center text-gray-700 mb-6 items-center">
 
-        <div>
-          <div class="!flex justify-between text-2xl font-semibold text-center text-gray-700 mb-6 items-center">
-            <button mat-raised-button (click)="openBRate()">Open File</button>
-          </div>
-        </div>
-      </div>
+      <button mat-raised-button [disabled]="!billingFile" (click)="openBRate()">Open File</button>
+    </div>
+  </div>
+</div>
+
 
       <div>
-        <gc-spread-sheets [hostStyle]="hostStyle" (workbookInitialized)="billingWbInit($event)"></gc-spread-sheets>
+        @if (billingrateFileUploaded){
+          <gc-spread-sheets [hostStyle]="hostStyle" (workbookInitialized)="billingWbInit($event)"></gc-spread-sheets>
+        }
       </div>
     </mat-card-content>
   </mat-card>
-
 </div>
