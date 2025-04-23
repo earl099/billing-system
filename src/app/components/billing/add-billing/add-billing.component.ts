@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, type OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, ChangeDetectorRef, type OnInit } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -9,6 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { ToastrService } from 'ngx-toastr';
 import { SpreadSheetsModule } from '@mescius/spread-sheets-angular';
+
 import * as GC from "@mescius/spread-sheets";
 import '@mescius/spread-sheets-angular';
 import '@mescius/spread-sheets-io';
@@ -33,6 +34,13 @@ import '@mescius/spread-sheets-shapes';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddBillingComponent implements OnInit {
+
+  timekeepFileUploaded: boolean = false;
+  billingrateFileUploaded: boolean = false;
+  private isTimekeepWbInitialized = false;
+  private isBillingWbInitialized = false;
+
+
   toastr = inject(ToastrService)
   timekeepFile: File | null = null
   tkFileName: string = ''
@@ -51,66 +59,89 @@ export class AddBillingComponent implements OnInit {
     height: '600px'
   }
 
-  constructor() {
+  constructor(private cdr: ChangeDetectorRef) {
     this.timekeepSpread = new GC.Spread.Sheets.Workbook()
     this.billingSpread = new GC.Spread.Sheets.Workbook()
   }
+
   ngOnInit(): void { }
 
   timekeepWbInit($event: any) {
-    this.timekeepSpread = $event.spread
+    this.timekeepSpread = $event.spread;
+    this.isTimekeepWbInitialized = true;
+    if (this.timekeepFile) {
+      this.importTimekeeping(this.timekeepFile);
+    }
   }
 
   onTKFileChange(e: any) {
-    this.selectedTk = e.target.files[0]
+    this.timekeepFile = e.target.files[0] || null;
   }
 
   openTk() {
-    let file = this.selectedTk
-
-    if(!file) {
-      return
+    if (!this.timekeepFile) {
+      console.error('No timekeeping file selected!');
+      return;
     }
 
-    const options: GC.Spread.Sheets.ImportOptions = {
-      fileType: GC.Spread.Sheets.FileType.excel
-    }
+    this.timekeepFileUploaded = true;
+    this.cdr.detectChanges();
 
-    this.timekeepSpread.import(file, () => {
-      console.log('Import Successful!')
-    }, (e: any) => {
-      console.error('Error during import: ', e)
-    }, options)
+    if (this.isTimekeepWbInitialized) {
+      this.importTimekeeping(this.timekeepFile);
+    }
+  }
+
+  private importTimekeeping(file: File) {
+    this.timekeepSpread.import(
+      this.timekeepFile!,
+      () => {
+
+        this.timekeepFile = null;
+        this.cdr.detectChanges();
+      },
+    );
   }
 
   billingWbInit($event: any) {
-    this.billingSpread = $event.spread
+    this.billingSpread = $event.spread;
+    this.isBillingWbInitialized = true;
+    if (this.billingFile) {
+      this.importBilling(this.billingFile);
+    }
   }
 
-  onBRChange(event: any) {
-    const file: File = event.target.files[0]
-    this.billingFile = file
+  onBRChange(e: any) {
+    this.billingFile = e.target.files[0] || null;
   }
 
   openBRate() {
-    let file = this.selectedBilling
-
-    if(!file) {
-      return
+    if (!this.billingFile) {
+      console.error('No billing rate file selected!');
+      return;
     }
 
-    const options: GC.Spread.Sheets.ImportOptions = {
-      fileType: GC.Spread.Sheets.FileType.excel
-    }
+    this.billingrateFileUploaded = true;
+    this.cdr.detectChanges();
 
-    this.billingSpread.import(file, () => {
-      console.log('Import Successful!')
-    }, (e: any) => {
-      console.error('Error during import: ', e)
-    }, options)
+    if (this.isBillingWbInitialized) {
+      this.importBilling(this.billingFile);
+    }
   }
 
+  private importBilling(file: File) {
+    this.billingSpread.import(
+      this.billingFile!,
+      () => {
+
+        this.billingFile = null;
+        this.cdr.detectChanges();
+      },
+    );
+  }
+
+
   triggerFileInput(fileInput: HTMLInputElement) {
-    fileInput.click()
+    fileInput.click();
   }
 }
