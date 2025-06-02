@@ -19,11 +19,10 @@
             </button>
           </div>
         }
-
       </div>
 
       @if (showTimekeepSpreadsheet) {
-        <div>
+        <div class="spreadsheet-container">
           <gc-spread-sheets [hostStyle]="hostStyle" (workbookInitialized)="timekeepWbInit($event)"></gc-spread-sheets>
         </div>
       }
@@ -47,7 +46,7 @@
       </div>
 
       @if (showBillingSpreadsheet) {
-        <div>
+        <div class="spreadsheet-container">
           <gc-spread-sheets [hostStyle]="hostStyle" (workbookInitialized)="billingWbInit($event)"></gc-spread-sheets>
         </div>
       }
@@ -55,7 +54,7 @@
   </mat-card>
 </div>
 
-<!-- NEW BLANK BLOCK -->
+
 <div class="container mx-auto p-4">
   <mat-card>
     <mat-card-header>
@@ -79,36 +78,154 @@
           }
         </div>
 
-          <!-- ROW & COLUMN Controls -->
         @if (showNewBlankSpreadsheet) {
-          <div class="flex flex-wrap gap-8 mb-6 justify-start">
-            <!-- Row Control -->
-            <div class="flex flex-col gap-1 bg-gray-100 p-4 rounded shadow">
-              <label class="text-sm font-medium text-gray-700">Row</label>
-              <input
-                type="number"
-                [(ngModel)]="rowCount"
-                (change)="updateRowCount()"
-                min="1"
-                class="border rounded px-3 py-2 w-24 text-lg text-center"
-              />
+          <mat-tab-group
+            [selectedIndex]="activeTab === 'home' ? 0 : 1"
+            (selectedIndexChange)="activeTab = $event === 0 ? 'home' : 'insert'">
+
+            <mat-tab label="Home">
+              <div class="flex bg-gray-50 border-b px-4 py-2">
+                <!-- Font Group -->
+                <div class="flex flex-col border-r pr-4 mr-6">
+                  <!-- Font controls (row 1) -->
+            <div class="flex items-center gap-2 mb-2">
+              <!-- Font Dropdown -->
+              <div class="excel-dropdown">
+                <select [(ngModel)]="selectedFont" (change)="changeFont()">
+                  <option *ngFor="let f of fontList" [value]="f">{{ f }}</option>
+                </select>
+              </div>
+
+              <!-- Font Size Dropdown -->
+              <div class="excel-dropdown size-dropdown">
+                <select [(ngModel)]="selectedFontSize" (change)="changeFontSize()">
+                  <option *ngFor="let s of fontSizes" [value]="s">{{ s }}</option>
+                </select>
+              </div>
+
+              <!-- Font size icons -->
+              <div class="flex gap-1">
+                <button mat-icon-button (click)="increaseFontSize()" matTooltip="Increase Font">
+                  <mat-icon>format_size</mat-icon>
+                </button>
+                <button mat-icon-button (click)="decreaseFontSize()" matTooltip="Decrease Font">
+                  <mat-icon>text_fields</mat-icon>
+                </button>
+              </div>
             </div>
 
-            <!-- Column Control -->
-            <div class="flex flex-col gap-1 bg-gray-100 p-4 rounded shadow">
-              <label class="text-sm font-medium text-gray-700">Column</label>
-              <input
-                type="number"
-                [(ngModel)]="colCount"
-                (change)="updateColCount()"
-                min="1"
-                class="border rounded px-3 py-2 w-24 text-lg text-center"
-              />
+                  <!-- Formatting icons (row 2) -->
+            <div class="flex items-center gap-1 text-sm">
+
+              <!-- Font Style Group -->
+              <div class="excel-button-group" matTooltip="Font Style">
+                <button class="excel-button" [class.active]="isBold" (click)="toggleBold()" matTooltip="Bold (Ctrl+B)">
+                  <mat-icon class="icon">format_bold</mat-icon>
+                </button>
+                <button class="excel-button" [class.active]="isItalic" (click)="toggleItalic()" matTooltip="Italic (Ctrl+I)">
+                  <mat-icon class="icon">format_italic</mat-icon>
+                </button>
+              </div>
+            <div class="excel-button-group" matTooltip="Underline Options">
+              <!-- Single underline button -->
+              <button class="excel-button" [class.active]="isUnderline" (click)="toggleUnderline()" matTooltip="Underline (Ctrl+U)">
+                <mat-icon class="icon">format_underlined</mat-icon>
+              </button>
+
+              <!-- Dropdown for underline styles -->
+              <button class="excel-button dropdown" [matMenuTriggerFor]="underlineMenu" matTooltip="More Underline Options">
+                <mat-icon class="icon">arrow_drop_down</mat-icon>
+              </button>
             </div>
+
+            <!-- Underline Menu -->
+            <mat-menu #underlineMenu="matMenu">
+              <button mat-menu-item (click)="toggleUnderline()">
+                Single Underline
+              </button>
+              <button mat-menu-item (click)="toggleDoubleUnderline()">
+                Double Underline
+              </button>
+            </mat-menu>
+
+              <!-- Border Group -->
+              <div class="excel-button-group" matTooltip="Borders">
+                <button class="excel-button" (click)="applyBorderStyle('all')" matTooltip="All Borders">
+                  <mat-icon class="icon">border_all</mat-icon>
+                </button>
+                <button class="excel-button dropdown" [matMenuTriggerFor]="borderMenu" matTooltip="More Borders">
+                  <mat-icon class="icon">arrow_drop_down</mat-icon>
+                </button>
+              </div>
+              <mat-menu #borderMenu="matMenu">
+                <div class="max-h-[200px] overflow-y-auto">
+                  <button mat-menu-item *ngFor="let b of borderOptions" (click)="applyBorderStyle(b.value)">
+                    {{ b.label }}
+                  </button>
+                </div>
+              </mat-menu>
+
+              <!-- Fill Color Group -->
+              <div class="excel-button-group" matTooltip="Fill Color">
+                <button class="excel-button color-button" (click)="applySelectedFillColor()" matTooltip="Fill Color">
+                  <mat-icon class="icon">format_color_fill</mat-icon>
+                  <span class="color-indicator" [style.backgroundColor]="selectedFillColor"></span>
+                </button>
+                <button class="excel-button dropdown" [matMenuTriggerFor]="fillColorMenu" matTooltip="More Fill Colors">
+                  <mat-icon class="icon">arrow_drop_down</mat-icon>
+                </button>
+              </div>
+              <mat-menu #fillColorMenu="matMenu">
+                <div class="max-h-[200px] overflow-y-auto">
+                  <button mat-menu-item *ngFor="let color of colorPalette" (click)="selectFillColor(color)">
+                    <span class="w-4 h-4 rounded inline-block mr-2" [ngStyle]="{ 'background-color': color }"></span>
+                    {{ color }}
+                  </button>
+                </div>
+              </mat-menu>
+
+              <!-- Font Color Group -->
+              <div class="excel-button-group" matTooltip="Font Color">
+                <button class="excel-button color-button" (click)="applySelectedFontColor()" matTooltip="Font Color">
+                  <mat-icon class="icon">format_color_text</mat-icon>
+                  <span class="color-indicator" [style.backgroundColor]="selectedFontColor"></span>
+                </button>
+                <button class="excel-button dropdown" [matMenuTriggerFor]="fontColorMenu" matTooltip="More Font Colors">
+                  <mat-icon class="icon">arrow_drop_down</mat-icon>
+                </button>
+              </div>
+              <mat-menu #fontColorMenu="matMenu">
+                <div class="max-h-[200px] overflow-y-auto">
+                  <button mat-menu-item *ngFor="let color of colorPalette" (click)="selectFontColor(color)">
+                    <span class="w-4 h-4 rounded inline-block mr-2" [ngStyle]="{ 'background-color': color }"></span>
+                    {{ color }}
+                  </button>
+                </div>
+              </mat-menu>
+                  </div>
+                </div>
+              </div>
+            </mat-tab>
+
+
+            <mat-tab label="Insert">
+              <div class="flex gap-8 mt-2">
+                <div class="flex flex-col gap-1 bg-gray-100 p-4 rounded shadow">
+                  <label class="text-sm font-medium text-gray-700">Row</label>
+                  <input type="number" [(ngModel)]="rowCount" (change)="updateRowCount()" min="1" class="border rounded px-3 py-2 w-24 text-lg text-center" />
+                </div>
+                <div class="flex flex-col gap-1 bg-gray-100 p-4 rounded shadow">
+                  <label class="text-sm font-medium text-gray-700">Column</label>
+                  <input type="number" [(ngModel)]="colCount" (change)="updateColCount()" min="1" class="border rounded px-3 py-2 w-24 text-lg text-center" />
+                </div>
+              </div>
+            </mat-tab>
+          </mat-tab-group>
+
+          <div class="spreadsheet-container mt-4">
+            <gc-spread-sheets [hostStyle]="hostStyle" (workbookInitialized)="newBlankWbInit($event)">
+            </gc-spread-sheets>
           </div>
-        }
-        @if (showNewBlankSpreadsheet) {
-          <gc-spread-sheets [hostStyle]="hostStyle" (workbookInitialized)="newBlankWbInit($event)"></gc-spread-sheets>
         }
       </div>
     </mat-card-content>

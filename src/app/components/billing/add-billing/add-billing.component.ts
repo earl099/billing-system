@@ -10,6 +10,9 @@ import { MatTableModule } from '@angular/material/table';
 import { ToastrService } from 'ngx-toastr';
 import { SpreadSheetsModule } from '@mescius/spread-sheets-angular';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import * as GC from "@mescius/spread-sheets";
 import '@mescius/spread-sheets-angular';
@@ -32,6 +35,9 @@ import '@mescius/spread-sheets-shapes';
     MatTableModule,
     SpreadSheetsModule,
     MatIconModule,
+    MatTabsModule,
+    MatMenuModule,
+    MatTooltipModule,
   ],
   templateUrl: './add-billing.component.html',
   styleUrl: './add-billing.component.scss',
@@ -59,15 +65,52 @@ export class AddBillingComponent implements OnInit {
   showSettings = false;
   showSettingsPopup = false;
 
+
   filename = 'NewSpreadsheet';
+  fontList = ['Arial', 'Calibri', 'TimesNewRoman', 'Verdana', 'Georgia'];
+  selectedFont = 'Arial';
+  selectedFontSize = 11;
+  selectedBorderStyle: string = 'none';
 
+  borderOptions = [
+    { value: 'bottom',            label: 'Bottom Border' },
+    { value: 'top',               label: 'Top Border' },
+    { value: 'left',              label: 'Left Border' },
+    { value: 'right',             label: 'Right Border' },
+    { value: 'none',              label: 'No Border' },
+    { value: 'all',               label: 'All Borders' },
+    { value: 'outside',           label: 'Outside Borders' },
+    { value: 'thickOutside',      label: 'Thick Outside Borders' },
+    { value: 'bottomDouble',      label: 'Bottom Double Border' },
+    { value: 'thickBottom',       label: 'Thick Bottom Border' },
+    { value: 'topAndBottom',      label: 'Top and Bottom Border' },
+    { value: 'topAndThickBottom', label: 'Top and Thick Bottom Border' },
+    { value: 'topAndDoubleBottom',label: 'Top and Double Bottom Border' },
+  ];
 
+  colorPalette: string[] = [
+    'Black', 'White', 'Red', 'Green', 'Blue',
+    'Yellow', 'Magenta', 'Cyan', 'Gray', 'Orange'
+  ];
+
+  selectedFillColor: string = '#000000';
+  selectedFontColor: string = '#000000';
   initialRows = 10;
   initialCols = 10;
+  isBold = false;
+  isItalic = false;
+  isUnderline = false;
+  isDoubleUnderline = false;
+
+  activeTab: 'home' | 'insert' = 'home';
+
+  fontSizes: number[] = [
+    8, 9, 10, 11, 12, 14, 16, 18, 20,
+    24, 26, 28, 36, 48, 72
+  ];
 
   rowCount = this.initialRows;
   colCount = this.initialCols;
-
 
   hostStyle = {
     width: '95%',
@@ -106,6 +149,51 @@ export class AddBillingComponent implements OnInit {
     const sheet = this.newBlankSpread.getActiveSheet();
     sheet.setRowCount(this.initialRows);
     sheet.setColumnCount(this.initialCols);
+
+    // Bind to selection changed to sync UI controls
+    this.newBlankSpread.bind(
+    GC.Spread.Sheets.Events.SelectionChanged,
+    (e: GC.Spread.Sheets.Workbook, args: GC.Spread.Sheets.ISelectionChangedEventArgs) => {
+      const sheet = this.newBlankSpread.getActiveSheet();
+      const row = sheet.getActiveRowIndex();
+      const col = sheet.getActiveColumnIndex();
+
+      if (row >= 0 && col >= 0) {
+        const cell = sheet.getCell(row, col);
+
+        // Parse font string
+        const fontStr = cell.font(); // e.g., "italic bold 11pt Arial"
+        if (fontStr) {
+          const match = fontStr.match(/(\bitalic\b)?\s*(\bbold\b)?\s*(\d+)pt\s+(.+)/i);
+          if (match) {
+            const [, italic, bold, size, font] = match;
+            this.selectedFontSize = parseInt(size);
+            this.selectedFont = font.trim();
+            this.isBold = !!bold;
+            this.isItalic = !!italic;
+          } else {
+            // Fallbacks
+            this.selectedFontSize = 11;
+            this.selectedFont = 'Arial';
+            this.isBold = false;
+            this.isItalic = false;
+          }
+        }
+
+        // Text decoration
+        const deco = cell.textDecoration();
+        this.isUnderline = deco === GC.Spread.Sheets.TextDecorationType.underline;
+        this.isDoubleUnderline = deco === (GC.Spread.Sheets.TextDecorationType as any).doubleUnderline;
+
+        // Font color and fill color
+        const foreColor = cell.foreColor();
+        const backColor = cell.backColor();
+
+        this.selectedFontColor = foreColor || '#000000';
+        this.selectedFillColor = backColor || '#FFFFFF';
+      }
+      this.cdr.detectChanges();
+    });
   }
 
   onTKFileChange(e: any) {
@@ -205,12 +293,11 @@ export class AddBillingComponent implements OnInit {
       sheet.setColumnCount(this.initialCols);
     }
     // Reset to default state
-    this.initialRows = 5;
-    this.initialCols = 5;
-    this.rowCount = 5;
-    this.colCount = 5;
-    this.filename = 'NewSpreadsheet'; //Reset file name
-
+    this.initialRows = 10;
+    this.initialCols = 10;
+    this.rowCount = 10;
+    this.colCount = 10;
+    this.filename = 'NewSpreadsheet';
     this.cdr.detectChanges();
   }
 
@@ -246,48 +333,351 @@ export class AddBillingComponent implements OnInit {
     fileInput.click();
   }
 
-  // Row/Column Functions
-    addRow() {
-      if (!this.isNewBlankInitialized) return;
-      const sheet = this.newBlankSpread.getActiveSheet();
-      const rowCount = sheet.getRowCount();
-      sheet.addRows(rowCount, 1);
-      this.rowCount = sheet.getRowCount();
-    }
+  addRow() {
+    if (!this.isNewBlankInitialized) return;
+    const sheet = this.newBlankSpread.getActiveSheet();
+    const rowCount = sheet.getRowCount();
+    sheet.addRows(rowCount, 1);
+    this.rowCount = sheet.getRowCount();
+  }
 
-    deleteRow() {
-      if (!this.isNewBlankInitialized) return;
-      const sheet = this.newBlankSpread.getActiveSheet();
-      const rowCount = sheet.getRowCount();
-      if (rowCount > 1) sheet.deleteRows(rowCount - 1, 1);
-      this.rowCount = sheet.getRowCount();
-    }
+  deleteRow() {
+    if (!this.isNewBlankInitialized) return;
+    const sheet = this.newBlankSpread.getActiveSheet();
+    const rowCount = sheet.getRowCount();
+    if (rowCount > 1) sheet.deleteRows(rowCount - 1, 1);
+    this.rowCount = sheet.getRowCount();
+  }
 
-    addColumn() {
-      if (!this.isNewBlankInitialized) return;
-      const sheet = this.newBlankSpread.getActiveSheet();
-      const colCount = sheet.getColumnCount();
-      sheet.addColumns(colCount, 1);
-      this.colCount = sheet.getColumnCount();
-    }
+  addColumn() {
+    if (!this.isNewBlankInitialized) return;
+    const sheet = this.newBlankSpread.getActiveSheet();
+    const colCount = sheet.getColumnCount();
+    sheet.addColumns(colCount, 1);
+    this.colCount = sheet.getColumnCount();
+  }
 
-    deleteColumn() {
-      if (!this.isNewBlankInitialized) return;
-      const sheet = this.newBlankSpread.getActiveSheet();
-      const colCount = sheet.getColumnCount();
-      if (colCount > 1) sheet.deleteColumns(colCount - 1, 1);
-      this.colCount = sheet.getColumnCount();
-    }
+  deleteColumn() {
+    if (!this.isNewBlankInitialized) return;
+    const sheet = this.newBlankSpread.getActiveSheet();
+    const colCount = sheet.getColumnCount();
+    if (colCount > 1) sheet.deleteColumns(colCount - 1, 1);
+    this.colCount = sheet.getColumnCount();
+  }
 
-    updateRowCount() {
-      if (!this.isNewBlankInitialized) return;
-      const sheet = this.newBlankSpread.getActiveSheet();
-      sheet.setRowCount(this.rowCount);
-    }
+  updateRowCount() {
+    if (!this.isNewBlankInitialized) return;
+    const sheet = this.newBlankSpread.getActiveSheet();
+    sheet.setRowCount(this.rowCount);
+  }
 
-    updateColCount() {
-      if (!this.isNewBlankInitialized) return;
-      const sheet = this.newBlankSpread.getActiveSheet();
-      sheet.setColumnCount(this.colCount);
+  updateColCount() {
+    if (!this.isNewBlankInitialized) return;
+    const sheet = this.newBlankSpread.getActiveSheet();
+    sheet.setColumnCount(this.colCount);
+  }
+
+  changeFont() {
+  this.applyFontStyles();
+  }
+
+  changeFontSize() {
+    this.applyFontStyles();
+  }
+
+  applyBorderStyle(style?: string) {
+    if (style) {
+      this.selectedBorderStyle = style;
+    }
+    if (!this.newBlankSpread) return;
+    const sheet = this.newBlankSpread.getActiveSheet();
+    const sels  = sheet.getSelections() as GC.Spread.Sheets.Range[];
+
+    const LB = GC.Spread.Sheets.LineBorder;
+    const LS = GC.Spread.Sheets.LineStyle;
+    const thin      = new LB('black', LS.thin);
+    const thick     = new LB('black', LS.thick);
+    const dblBottom = new LB('black', LS.double);
+
+    const clearAll = (r: number, c: number) => {
+      const cell = sheet.getCell(r, c);
+      cell.borderTop(null);
+      cell.borderBottom(null);
+      cell.borderLeft(null);
+      cell.borderRight(null);
+    };
+
+    const forEachCell = (fn: (r: number, c: number) => void) => {
+      if (!sels || sels.length === 0) {
+        const r = sheet.getActiveRowIndex();
+        const c = sheet.getActiveColumnIndex();
+        if (r >= 0 && c >= 0) fn(r, c);
+      } else {
+        sels.forEach(rng => {
+          const startR = rng.row,      endR = rng.row + rng.rowCount - 1;
+          const startC = rng.col,      endC = rng.col + rng.colCount - 1;
+          for (let r = startR; r <= endR; r++) {
+            for (let c = startC; c <= endC; c++) {
+              fn(r, c);
+            }
+          }
+        });
+      }
+    };
+
+    forEachCell(clearAll);
+
+    switch (this.selectedBorderStyle) {
+      case 'bottom':
+        forEachCell((r,c) => sheet.getCell(r,c).borderBottom(thin));
+        break;
+
+      case 'top':
+        forEachCell((r,c) => sheet.getCell(r,c).borderTop(thin));
+        break;
+
+      case 'left':
+        forEachCell((r,c) => sheet.getCell(r,c).borderLeft(thin));
+        break;
+
+      case 'right':
+        forEachCell((r,c) => sheet.getCell(r,c).borderRight(thin));
+        break;
+
+      case 'all':
+        forEachCell((r,c) => {
+          const cell = sheet.getCell(r,c);
+          cell.borderTop(thin);
+          cell.borderBottom(thin);
+          cell.borderLeft(thin);
+          cell.borderRight(thin);
+        });
+        break;
+
+      case 'outside':
+        forEachCell((r,c) => {
+          const rng = sels[0];
+          const startR = rng.row, endR = rng.row + rng.rowCount - 1;
+          const startC = rng.col, endC = rng.col + rng.colCount - 1;
+          const cell = sheet.getCell(r,c);
+          if (r === startR) cell.borderTop(thin);
+          if (r === endR)   cell.borderBottom(thin);
+          if (c === startC) cell.borderLeft(thin);
+          if (c === endC)   cell.borderRight(thin);
+        });
+        break;
+
+      case 'thickOutside':
+        forEachCell((r,c) => {
+          const rng = sels[0];
+          const startR = rng.row, endR = rng.row + rng.rowCount - 1;
+          const startC = rng.col, endC = rng.col + rng.colCount - 1;
+          const cell = sheet.getCell(r,c);
+          if (r === startR) cell.borderTop(thick);
+          if (r === endR)   cell.borderBottom(thick);
+          if (c === startC) cell.borderLeft(thick);
+          if (c === endC)   cell.borderRight(thick);
+        });
+        break;
+
+      case 'bottomDouble':
+        forEachCell((r,c) => sheet.getCell(r,c).borderBottom(dblBottom));
+        break;
+
+      case 'thickBottom':
+        forEachCell((r,c) => sheet.getCell(r,c).borderBottom(thick));
+        break;
+
+      case 'topAndBottom':
+        forEachCell((r,c) => {
+          const cell = sheet.getCell(r,c);
+          cell.borderTop(thin);
+          cell.borderBottom(thin);
+        });
+        break;
+
+      case 'topAndThickBottom':
+        forEachCell((r,c) => {
+          const cell = sheet.getCell(r,c);
+          cell.borderTop(thin);
+          cell.borderBottom(thick);
+        });
+        break;
+
+      case 'topAndDoubleBottom':
+        forEachCell((r,c) => {
+          const cell = sheet.getCell(r,c);
+          cell.borderTop(thin);
+          cell.borderBottom(dblBottom);
+        });
+        break;
     }
   }
+
+  applySelectedFillColor() {
+    this.selectFillColor(this.selectedFillColor);
+  }
+  selectFillColor(color: string) {
+    this.selectedFillColor = color;
+    this.applyFillColor();
+  }
+
+  applySelectedFontColor() {
+    this.selectFontColor(this.selectedFontColor);
+  }
+  selectFontColor(color: string) {
+    this.selectedFontColor = color;
+    this.applyFontColor();
+  }
+
+  applyFillColor() {
+    if (!this.newBlankSpread) return;
+    const sheet = this.newBlankSpread.getActiveSheet();
+    const sels = sheet.getSelections();
+
+    const applyFill = (r: number, c: number) => {
+      sheet.getCell(r, c).backColor(this.selectedFillColor);
+    };
+
+    if (!sels || sels.length === 0) {
+      const r = sheet.getActiveRowIndex();
+      const c = sheet.getActiveColumnIndex();
+      if (r >= 0 && c >= 0) applyFill(r, c);
+    } else {
+      sels.forEach((range: GC.Spread.Sheets.Range) => {
+        for(let r = range.row; r < range.row + range.rowCount; r++) {
+          for(let c = range.col; c < range.col + range.colCount; c++) {
+            applyFill(r, c);
+          }
+        }
+      });
+    }
+  }
+
+  applyFontColor() {
+    if (!this.newBlankSpread) return;
+    const sheet = this.newBlankSpread.getActiveSheet();
+    const sels = sheet.getSelections();
+
+    const applyFontCol = (r: number, c: number) => {
+      sheet.getCell(r, c).foreColor(this.selectedFontColor);
+    };
+
+    if (!sels || sels.length === 0) {
+      const r = sheet.getActiveRowIndex();
+      const c = sheet.getActiveColumnIndex();
+      if (r >= 0 && c >= 0) applyFontCol(r, c);
+    } else {
+      sels.forEach((range: GC.Spread.Sheets.Range) => {
+        for(let r = range.row; r < range.row + range.rowCount; r++) {
+          for(let c = range.col; c < range.col + range.colCount; c++) {
+            applyFontCol(r, c);
+          }
+        }
+      });
+    }
+  }
+
+    increaseFontSize() {
+      const idx = this.fontSizes.indexOf(this.selectedFontSize);
+      if (idx >= 0 && idx < this.fontSizes.length - 1) {
+        this.selectedFontSize = this.fontSizes[idx + 1];
+        this.applyFontStyles();
+      }
+    }
+
+
+    decreaseFontSize() {
+      const idx = this.fontSizes.indexOf(this.selectedFontSize);
+      if (idx > 0) {
+        this.selectedFontSize = this.fontSizes[idx - 1];
+        this.applyFontStyles();
+      }
+    }
+
+  // Helper method to apply font and size to selected cells or active cell
+  applyFontToSelection(fontName: string, fontSize: number) {
+    const sheet = this.newBlankSpread.getActiveSheet();
+    const selections = sheet.getSelections();
+
+    const safeFontName = fontName.includes(' ') ? `"${fontName}"` : fontName;
+    const fontString = `${fontSize}pt ${safeFontName}`;
+
+    if (!selections || selections.length === 0) {
+      const row = sheet.getActiveRowIndex();
+      const col = sheet.getActiveColumnIndex();
+      if (row >= 0 && col >= 0) {
+        sheet.getCell(row, col).font(fontString);
+      }
+    } else {
+      selections.forEach((range: GC.Spread.Sheets.Range) => {
+        for (let r = range.row; r < range.row + range.rowCount; r++) {
+          for (let c = range.col; c < range.col + range.colCount; c++) {
+            sheet.getCell(r, c).font(fontString);
+          }
+        }
+      });
+    }
+  }
+
+  applyFontStyles() {
+    if (!this.newBlankSpread) return;
+    const sheet = this.newBlankSpread.getActiveSheet();
+    const sels = sheet.getSelections();
+
+    const weight  = this.isBold   ? 'bold'   : '';
+    const style   = this.isItalic ? 'italic' : '';
+    const fontStr = `${style} ${weight} ${this.selectedFontSize}pt ${this.selectedFont}`
+                      .trim()
+                      .replace(/\s+/g,' ');
+
+                      const TD = GC.Spread.Sheets.TextDecorationType;
+    let deco = TD.none;
+    if (this.isDoubleUnderline)      deco = (TD as any).doubleUnderline;
+    else if (this.isUnderline)       deco = TD.underline;
+
+    const applyCell = (r: number, c: number) => {
+      const cell = sheet.getCell(r, c);
+      cell.font(fontStr);
+      cell.textDecoration(deco);
+    };
+
+    if (!sels || sels.length === 0) {
+      const r = sheet.getActiveRowIndex();
+      const c = sheet.getActiveColumnIndex();
+      if (r >= 0 && c >= 0) applyCell(r, c);
+    } else {
+  sels.forEach((range: GC.Spread.Sheets.Range) => {
+    for (let r = range.row; r < range.row + range.rowCount; r++) {
+      for (let c = range.col; c < range.col + range.colCount; c++) {
+        applyCell(r, c);
+      }
+        }
+      });
+    }
+  }
+
+  toggleBold() {
+    this.isBold = !this.isBold;
+    this.applyFontStyles();
+  }
+
+  toggleItalic() {
+    this.isItalic = !this.isItalic;
+    this.applyFontStyles();
+  }
+
+  toggleUnderline() {
+    if (this.isDoubleUnderline) this.isDoubleUnderline = false;
+
+    this.isUnderline = !this.isUnderline;
+    this.applyFontStyles();
+  }
+
+  toggleDoubleUnderline() {
+    if (this.isUnderline) this.isUnderline = false;
+
+    this.isDoubleUnderline = !this.isDoubleUnderline;
+    this.applyFontStyles();
+  }
+}
