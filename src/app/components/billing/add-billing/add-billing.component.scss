@@ -1,3 +1,222 @@
 :host {
   display: block;
 }
+
+.ribbon-bar {
+  background-color: #fff; /* white background */
+  border-bottom: 1px solid #c6c6c6;
+  padding: 8px 2px;
+  box-shadow: inset 0 -1px 0 #e1e1e1;
+  border-radius: 4px 4px 0 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+}
+
+.case-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .case-button-group {
+    display: flex;
+    gap: 4px; // spacing between buttons
+  }
+
+  .case-button {
+    width: 30px;         // match width of dropdowns
+    height: 29px;        // match height of font/size selectors
+    padding: 0px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #f0f0f0;
+    }
+  }
+
+  .label {
+    margin-top: 4px;
+    font-size: 11px;
+    color: #555;
+    text-align: center;
+  }
+}
+
+.ribbon-bar .tabs {
+  display: flex;
+  gap: 0px;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 12px;
+
+}
+
+/* Tabs */
+.ribbon-bar .tab-btn {
+  background: none;
+  border: none;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #666;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+  border-radius: 1px 6px 0 0;
+  font-size: 12px;
+  min-width: 60px;
+
+}
+
+
+/* Active tab: solid green background, white text */
+.ribbon-bar .tab-btn.active {
+  background-color: #009247;
+  color: white;
+  border-bottom: none;
+  font-weight: 700;
+}
+
+/* Inactive tab hover: green text and border bottom */
+.ribbon-bar .tab-btn:not(.active):hover {
+  color: #009247;
+  border-bottom: 3px solid #009247;
+}
+
+/* File tab buttons container: vertical stack, no box */
+.ribbon-bar .file-tab-content {
+  display: flex;
+  flex-direction: column;
+  width: 80px;
+  margin-top: 8px;
+}
+
+/* Container for buttons to allow vertical spacing */
+.ribbon-bar .file-tab-content {
+  display: flex;
+  flex-direction: column;
+  width: 80px; /* adjust width as needed */
+  gap: 2px; /* adds vertical gap between buttons */
+}
+
+/* Save/Close buttons styles */
+.ribbon-bar .file-tab-content button {
+  background-color: #0a703b;
+  color: white;
+  border: none;
+  padding: 4px 0;  /* smaller vertical padding */
+  cursor: pointer;
+  font-weight: 700;
+  text-transform: uppercase;
+  transition: background-color 0.25s ease;
+  outline: none;
+  border-radius: 0px 6px 6px 0px;
+  font-size: 13px; /* smaller font size */
+}
+
+/* Border line between buttons */
+.ribbon-bar .file-tab-content button:not(:last-child) {
+  border-bottom: 2px solid #007a38;
+  margin-bottom: 4px; /* small margin to separate line and next button */
+}
+
+/* Hover effect */
+.ribbon-bar .file-tab-content button:hover {
+  background-color: #019144;
+}
+
+.ribbon-bar .grid {
+  margin-top: 4px;
+  padding-top: 4px;
+}
+
+.home-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .ribbon-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    padding-left: 12px;
+  }
+
+  .font-settings-group {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    border-right: 2px solid #ccc;
+    padding-right: 12px;
+    margin-right: 12px;
+  }
+
+  .ribbon-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .label {
+      font-size: 0.75rem;
+      color: #666;
+      margin-top: 4px;
+    }
+  }
+
+  .case-button-group {
+  display: flex;
+  gap: 2px;
+
+  .case-button {
+    width: 30px;           // fixed width to make it square-ish
+    height: 30px;          // fixed height
+    padding: 0;            // reset padding so size is controlled by width/height
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 18px;       // adjust to fit nicely inside box
+    line-height: 36px;     // vertically center text within height
+    text-align: center;    // horizontally center text
+    cursor: pointer;
+    background-color: white;
+    user-select: none;
+
+    &.lowercase {
+      font-size: 16px;     // slightly smaller for lowercase button
+      text-transform: none;
+    }
+
+    &:hover {
+      background-color: #eee;
+      border-color: #aaa;
+    }
+  }
+}
+
+
+  .color-picker {
+    position: relative;
+
+    .dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      z-index: 50;
+      background-color: white;
+      border: 1px solid #ccc;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      border-radius: 4px;
+    }
+  }
+}
+
+
