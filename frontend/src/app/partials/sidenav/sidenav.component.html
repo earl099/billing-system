@@ -1,0 +1,184 @@
+<div
+  class="flex flex-col absolute inset-x-0 inset-y-0"
+  [class.isMobile]="mobileQuery.matches"
+>
+  <mat-toolbar
+    class="toolbarDesign grid grid-cols-3 justify-between bg-[#009247]"
+  >
+    <div class="hidden"></div>
+    <div class="content-center col-auto block">
+      <button mat-icon-button (click)="snav.toggle()">
+        <mat-icon>menu</mat-icon>
+      </button>
+    </div>
+    <div class="content-center col-auto">
+      <a routerLink="/home"><h1 class="ml-2">LBRDC Billing System</h1></a>
+    </div>
+    <div class="content-center col-auto">
+      <button mat-icon-button [matMenuTriggerFor]="menuBtn">
+        <mat-icon>account_circle</mat-icon>
+      </button>
+      <mat-menu #menuBtn yPosition="below">
+        @if(authService.token() == null) {
+          <div class="container">
+            <button mat-menu-item routerLink="/login">
+              <span class="flex items-center gap-4 p-3">
+                <mat-icon>login</mat-icon>
+                <span>Log In</span>
+              </span>
+            </button>
+          </div>
+          <div class="container">
+            <button mat-menu-item routerLink="/signup">
+              <span class="flex items-center gap-4 p-3">
+                <mat-icon>person_add</mat-icon>
+                <span>Sign Up</span>
+              </span>
+            </button>
+          </div>
+        }
+        @else {
+          <div class="container">
+            @if (authService.getToken('userType') == 'User') {
+              <button mat-menu-item (click)="setClient(userId)">
+                <span class="flex items-center gap-4 p-3">
+                  <mat-icon>manage_accounts</mat-icon>
+                  <span>Change Client</span>
+                </span>
+              </button>
+            }
+
+
+            <button mat-menu-item routerLink="/home" (click)="onLogout()">
+              <span class="flex items-center gap-4 p-3">
+                <mat-icon>logout</mat-icon>
+                <span>Log Out</span>
+              </span>
+            </button>
+          </div>
+        }
+      </mat-menu>
+    </div>
+  </mat-toolbar>
+
+  <mat-sidenav-container
+    class="flex-[1_0_auto] md:flex-[1] flex"
+    [style.marginTop.px]="mobileQuery.matches ? 56 : 0"
+  >
+    <mat-sidenav
+      #snav
+      class="block"
+      [mode]="mobileQuery.matches ? 'over' : 'side'"
+      [fixedInViewport]="mobileQuery.matches"
+      fixedTopGap="56"
+    >
+      <mat-nav-list>
+        @if (!authService.isAuthenticated()) {
+          <div class="container">
+            <button mat-list-item routerLink="/login">
+              <span class="flex items-center gap-4 p-3">
+                <mat-icon>login</mat-icon>
+                <span>Log In</span>
+              </span>
+            </button>
+          </div>
+          <div class="container">
+            <button mat-menu-item routerLink="/signup">
+              <span class="flex items-center gap-4 p-3">
+                <mat-icon>person_add</mat-icon>
+                <span>Sign Up</span>
+              </span>
+            </button>
+          </div>
+        }
+        @else {
+          <mat-accordion multi>
+            <mat-expansion-panel>
+              <mat-expansion-panel-header >
+                <mat-panel-title class="items-start gap-4"> <mat-icon>person</mat-icon> People</mat-panel-title>
+              </mat-expansion-panel-header>
+
+              @if(userService.isAdmin()) {
+                <!-- ADMIN ACCOUNT ACCESS -->
+                <button mat-menu-item routerLink="/accounts">
+                  <span class="flex items-center gap-4 p-3">
+                    <mat-icon>groups</mat-icon>
+                    <span>Accounts</span>
+                  </span>
+                </button>
+
+                <button mat-menu-item routerLink="/pay-freq">
+                  <span class="flex items-center gap-4 p-3">
+                    <mat-icon>receipt_long</mat-icon>
+                    <span>Pay Frequencies</span>
+                  </span>
+                </button>
+
+                <button mat-menu-item routerLink="/clients">
+                  <span class="flex items-center gap-4 p-3">
+                    <mat-icon>business_center</mat-icon>
+                    <span>Clients</span>
+                  </span>
+                </button>
+              }
+
+              <button mat-menu-item routerLink="/class">
+                <span class="flex items-center gap-4 p-3">
+                  <mat-icon>account_tree</mat-icon>
+                  <span>Classifications</span>
+                </span>
+              </button>
+
+              <button mat-menu-item routerLink="/depts">
+                <span class="flex items-center gap-4 p-3">
+                  <mat-icon>work</mat-icon>
+                  <span>Departments</span>
+                </span>
+              </button>
+
+              <button mat-menu-item routerLink="/employees">
+                <span class="flex items-center gap-4 p-3">
+                  <mat-icon>group</mat-icon>
+                  <span>Employees</span>
+                </span>
+              </button>
+
+              <button mat-menu-item routerLink="/emp-status">
+                <span class="flex items-center gap-4 p-3">
+                  <mat-icon>check_circle</mat-icon>
+                  <span>Employment Status</span>
+                </span>
+              </button>
+
+              <button mat-menu-item routerLink="/locations">
+                <span class="flex items-center gap-4 p-3">
+                  <mat-icon>corporate_fare</mat-icon>
+                  <span>Locations</span>
+                </span>
+              </button>
+
+              <button mat-menu-item routerLink="/positions">
+                <span class="flex items-center gap-4 p-3">
+                  <mat-icon>badge</mat-icon>
+                  <span>Positions</span>
+                </span>
+              </button>
+
+              <button mat-menu-item routerLink="/wages">
+                <span class="flex items-center gap-4 p-3">
+                  <mat-icon>paid</mat-icon>
+                  <span>Wages</span>
+                </span>
+              </button>
+            </mat-expansion-panel>
+          </mat-accordion>
+
+        }
+      </mat-nav-list>
+    </mat-sidenav>
+
+    <mat-sidenav-content>
+      <router-outlet></router-outlet>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

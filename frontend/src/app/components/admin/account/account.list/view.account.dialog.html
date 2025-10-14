@@ -1,0 +1,30 @@
+<h2 mat-dialog-title>View User</h2>
+<mat-dialog-content>
+  <form [formGroup]="viewAccountForm">
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Username</mat-label>
+      <input matInput type="text" formControlName="username" readonly>
+    </mat-form-field>
+
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Email</mat-label>
+      <input matInput type="text" formControlName="email" readonly>
+    </mat-form-field>
+
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Password</mat-label>
+      <input matInput type="password" formControlName="password" readonly>
+    </mat-form-field>
+
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Role</mat-label>
+      <input matInput type="text" formControlName="role" readonly>
+    </mat-form-field>
+
+    <div class="mt-6">
+      <button mat-raised-button mat-dialog-close color="primary" class="w-full py-2 mt-3">
+        Close Dialog
+      </button>
+    </div>
+  </form>
+</mat-dialog-content>

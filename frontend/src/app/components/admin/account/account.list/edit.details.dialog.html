@@ -1,0 +1,64 @@
+<h2 mat-dialog-title>Edit Details</h2>
+<mat-dialog-content>
+  <form [formGroup]="editDetailForm">
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Username</mat-label>
+      <input matInput type="text" formControlName="username">
+      @if (editDetailForm.get('username')?.hasError('required')) {
+        <mat-error>
+          Required Field
+        </mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Email</mat-label>
+      <input matInput type="text" formControlName="email">
+      @if (editDetailForm.get('email')?.hasError('required')) {
+        <mat-error>
+          Required Field
+        </mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Password</mat-label>
+      <input matInput type="password" formControlName="password">
+      @if (editDetailForm.get('password')?.hasError('required')) {
+        <mat-error>
+          Required Field
+        </mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Handled Clients</mat-label>
+      <input matInput type="text" formControlName="handledClients">
+      @if (editDetailForm.get('handledClients')?.hasError('required')) {
+        <mat-error>
+          Required Field
+        </mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field class="w-full mb-4">
+      <mat-label>Role</mat-label>
+      <input matInput type="text" formControlName="role" readonly>
+      @if (editDetailForm.get('role')?.hasError('required')) {
+        <mat-error>
+          Required Field
+        </mat-error>
+      }
+    </mat-form-field>
+
+    <div class="mt-6">
+      <button mat-raised-button mat-dialog-close color="primary" type="submit" class="w-full py-2" [disabled]="editDetailForm.invalid" (click)="onEditDetails(editDetailForm)">
+        Edit Details
+      </button>
+
+      <button mat-raised-button mat-dialog-close color="primary" class="w-full py-2 mt-3">
+        Close Dialog
+      </button>
+    </div>
+  </form>
+</mat-dialog-content>
