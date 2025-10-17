@@ -2,7 +2,7 @@ import { User } from "./user";
 
 
 export interface LoginResponse {
-    success: string;
+    success: boolean;
     message: string | null;
     accessToken: string;
     refreshToken: string;

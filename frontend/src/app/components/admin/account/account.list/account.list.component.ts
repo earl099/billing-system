@@ -3,11 +3,10 @@ import { ChangeDetectionStrategy, Component, inject, OnInit, ViewChild } from '@
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort, Sort } from '@angular/material/sort';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatGridListModule } from '@angular/material/grid-list';
-import { AuthService } from '../../../../services/auth.service';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { MatInputModule } from '@angular/material/input';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -18,10 +17,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { UserService } from '@services/user.service';
 import { User } from '@models/user';
+import { Log } from '@models/log';
+import { NgxSonnerToaster, toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-account.list',
-  standalone: true,
   imports: [
     CommonModule,
     MatFormFieldModule,
@@ -29,18 +29,18 @@ import { User } from '@models/user';
     MatCardModule,
     MatButtonModule,
     MatTableModule,
-    MatPaginator,
-    MatSort,
+    MatPaginatorModule,
+    MatSortModule,
     MatIconModule,
-    MatTooltipModule
+    MatTooltipModule,
+    NgxSonnerToaster
   ],
   templateUrl: './account.list.component.html',
   styleUrl: './account.list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccountListComponent implements OnInit {
-  //toastr service for notification
-  toastr = inject(ToastrService)
+  
 
   //table data source
   dataSource !: MatTableDataSource<any>
@@ -60,12 +60,9 @@ export class AccountListComponent implements OnInit {
 
   //services and modules needed for opening dialogs, adding logs and sorting
   logsService = inject(LogsService)
-  authService = inject(AuthService)
   userService = inject(UserService)
   dialog = inject(MatDialog)
   _liveAnnouncer = inject(LiveAnnouncer)
-
-  constructor() { }
 
   ngOnInit(): void {
     this.getUsers()
@@ -104,9 +101,9 @@ export class AccountListComponent implements OnInit {
     // Furthermore, you can customize the message to add additional
     // details about the values being sorted.
     if (sortState.direction) {
-      this._liveAnnouncer.announce(`Sorted ${sortState.direction}ending`);
+      toast.info(`Sorted in ${sortState.direction} order`)
     } else {
-      this._liveAnnouncer.announce('Sorting cleared');
+      toast.info(`Sorting cleared`)
     }
   }
 
@@ -141,16 +138,16 @@ export class AccountListComponent implements OnInit {
   //delete function for user
   delUser(id: string | undefined) {
     if(confirm('Are you sure you want to delete this data?')) {
-      let logData = {
+      let logData: Log = {
         operation: 'Deleted User',
-        user: this.authService.getToken('user')
+        user: this.userService.user()?.username ?? ''
       }
 
       this.userService.deleteUser(id).subscribe((res) => {
         if(res) {
           this.logsService.addLog(logData).subscribe((res) => {
             if(res) {
-              this.toastr.success('Account deleted successfully.')
+              toast.success('Account deleted successfully.')
               this.dataSource.data.splice(0, this.dataSource.data.length)
               this.getUsers()
             }
@@ -166,7 +163,6 @@ export class AccountListComponent implements OnInit {
   selector: 'edit-details-dialog',
   templateUrl: './edit.details.dialog.html',
   styleUrl: './account.list.component.scss',
-  standalone: true,
   imports: [
     CommonModule,
     MatInputModule,
@@ -179,7 +175,6 @@ export class AccountListComponent implements OnInit {
 export class EditDetailsDialog implements OnInit {
   editDetailForm : FormGroup
   data = inject(MAT_DIALOG_DATA)
-  authService = inject(AuthService)
   userService = inject(UserService)
   logsService = inject(LogsService)
   toastr = inject(ToastrService)
@@ -231,9 +226,9 @@ export class EditDetailsDialog implements OnInit {
       
       this.userService.updateUser(this.userId, userData).subscribe((res) => {
         if(res) {
-          let logData = {
+          let logData: Log = {
             operation: 'Updated User Data',
-            user: this.authService.getToken('user')
+            user: this.userService.user()?.username ?? ''
           }
 
           this.logsService.addLog(logData).subscribe()
@@ -250,7 +245,6 @@ export class EditDetailsDialog implements OnInit {
   selector: 'view-user-dialog',
   templateUrl: './view.account.dialog.html',
   styleUrl: './account.list.component.scss',
-  standalone: true,
   imports: [
     CommonModule,
     MatInputModule,

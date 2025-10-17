@@ -34,22 +34,9 @@ export class DashboardComponent implements OnInit {
 
   getUser() {
     if(this.authService.getToken('client') == undefined) {
-      this.userService.getUsers().subscribe((res) => {
-        if(res) {
-          let tmpData = res
-
-          for (let i = 0; i < tmpData.length; i++) {
-            if(
-              (tmpData[i].username == this.authService.getToken('user') ||
-                tmpData[i].email == this.authService.getToken('user')
-              ) && tmpData[i].role != 'Admin') {
-                this.userId = tmpData[i]._id
-                this.setClient(this.userId)
-            }
-
-          }
-        }
-      })
+      if(this.userService.user()?.role != 'Admin') {
+        this.setClient(this.userService.user()?._id)
+      }
     }
   }
 
@@ -85,7 +72,9 @@ export class SetClientDialog implements OnInit {
   getUser(id: string) {
     this.userService.getUser(id).subscribe((res) => {
       if(res) {
-        let user = res
+        let user = res.user
+        console.log(user)
+
       }
     })
   }
@@ -99,7 +88,7 @@ export class SetClientDialog implements OnInit {
     }
   }
 
-  onSetClient(id: number) {
+  onSetClient(id: string) {
     if(confirm('Are you sure you want to handle this client?')) {
       let message = ''
 

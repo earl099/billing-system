@@ -17,6 +17,7 @@ import { SetClientDialog } from '../../components/index/dashboard/dashboard.comp
 import { UserService } from '@services/user.service';
 import { catchError, tap } from 'rxjs';
 import { toast } from 'ngx-sonner';
+import { Log } from '@models/log';
 
 @Component({
   selector: 'app-sidenav',
@@ -96,10 +97,11 @@ export class SidenavComponent implements OnInit, OnDestroy {
       tap(() => console.log('Logging out...')),
       catchError(async (_err) => toast.error('Error Logging out')),
       tap(() => {
-        const logData = {
+        const logData: Log = {
           operation: 'Account Logged Out',
-          user: this.authService.getToken('user')
+          user: this.authService.getToken('user')?.toString() ?? ''
         }
+
         this.logsService.addLog(logData).subscribe((res) => {
           if(res) {
             this.authService.deleteToken()

@@ -73,7 +73,7 @@
       fixedTopGap="56"
     >
       <mat-nav-list>
-        @if (!authService.isAuthenticated()) {
+        @if (authService.isAuthenticated() == false) {
           <div class="container">
             <button mat-list-item routerLink="/login">
               <span class="flex items-center gap-4 p-3">
@@ -171,6 +171,13 @@
                 </span>
               </button>
             </mat-expansion-panel>
+            <mat-expansion-panel>
+              <mat-expansion-panel-header >
+                <mat-panel-title class="items-start gap-4"> <mat-icon>receipt</mat-icon> Billing</mat-panel-title>
+              </mat-expansion-panel-header>
+            </mat-expansion-panel>
+
+
           </mat-accordion>
 
         }

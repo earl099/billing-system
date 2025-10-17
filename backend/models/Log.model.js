@@ -10,5 +10,7 @@ const logSchema = new Schema({
     }
 });
 
+const Log = model('Log', logSchema);
+
 //Export the model
-export default model('Log', logSchema);
+export default Log

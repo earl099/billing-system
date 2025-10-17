@@ -5,6 +5,7 @@
         Accounts
       </mat-card-title>
     </mat-card-header>
+
     <mat-card-content>
       <mat-form-field appearance="fill" class="w-full mb-4">
         <mat-label>Search</mat-label>
@@ -29,6 +30,7 @@
 
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <ngx-sonner-toaster />
           <td mat-cell *matCellDef="let user">
             <div class="flex justify-end gap-0.5">
               <button mat-icon-button matTooltip="View User" (click)='openViewUserDialog(user._id)'><mat-icon>visibility</mat-icon></button>

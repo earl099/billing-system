@@ -8,6 +8,8 @@ import { AuthService } from '../../../services/auth.service';
 import { Router } from '@angular/router';
 import { LogsService } from '../../../services/logs.service';
 import { NgxSonnerToaster, toast } from 'ngx-sonner';
+import { Log } from '@models/log';
+import { catchError } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -42,40 +44,41 @@ export class LoginComponent {
     //set token and auth with database
     this.authService.login(loginData.value).subscribe(
       (res) => {
-      if(res) {
-        toast.success(res.message == null ? '' : res.message)
-        if(res.user?.username) {
-          this.authService.setToken('user', res.user.username)
+        if(res) {
+          toast.success(res.message == null ? '' : res.message)
+          if(res.user?.username) {
+            this.authService.setToken('user', res.user.username)
+          }
+          else {
+            this.authService.setToken('user', res.user.email)
+          }
+
+          this.authService.setToken('role', res.user.role.toString())
+          this.authService.setToken('accessToken', res.accessToken)
+
+          const expiration: number = Number(this.authService.getToken('expirationDuration'))
+
+          setTimeout(() => {
+            localStorage.clear()
+            this.router.navigate(['/dashboard'])
+          }, expiration * 1000)
+          this.router.navigate(['/login'])
+
+          let logData: Log = {
+            operation: 'Logged in Account',
+            user: this.authService.getToken('user') ?? ''
+          }
+          this.logsService.addLog(logData).subscribe()
         }
         else {
-          this.authService.setToken('user', res.user.email)
-        }
-
-        this.authService.setToken('userType', res.user.role.toString())
-        this.authService.setToken('token', res.accessToken)
-        
-
-        const expiration: number = Number(this.authService.getToken('expirationDuration'))
-
-        setTimeout(() => {
+          toast.error('Invalid credentials.')
           localStorage.clear()
-          this.router.navigate(['/dashboard'])
-        }, expiration * 1000)
-        this.router.navigate(['/dashboard'])
-
-        let logData = {
-          operation: 'Logged in Account',
-          user: this.authService.getToken('user')
+          this.signInForm.get('identifier')?.reset('')
+          this.signInForm.get('password')?.reset('')
         }
-        this.logsService.addLog(logData).subscribe()
       }
-      else {
-        toast.error('Invalid credentials.')
-        localStorage.clear()
-        this.signInForm.get('emailOrUser')?.reset('')
-        this.signInForm.get('password')?.reset('')
-      }
-    })
+    )
+    
   }
 
 }

@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '@env/environment';
+import { Log } from '@models/log';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -14,7 +15,7 @@ export class LogsService {
   };
   private http = inject(HttpClient)
 
-  addLog(logData: any): Observable<any> {
+  addLog(logData: Log): Observable<any> {
     return this.http.post(`${this.baseUrl}/log`, logData, this.httpOptions);
   }
 

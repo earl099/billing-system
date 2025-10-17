@@ -74,13 +74,16 @@ const updateClient = (req, res, next) => {
             Client.findByIdAndUpdate({ _id: req.params._id }, client)
             .then(result1 => {
                 if(result1) {
-                    res.status(200).json ({ message: 'Client updated', client: result1 })
+                    res.status(200).json ({
+                        message: 'Client updated',
+                        client: result1
+                    })
                 }
                 else {
                     next(createError('Not authorized to update client', 401))
                 }
             })
-            .catch(_err => createError('Updating client failed', 500))
+            .catch(_err => next(createError('Updating client failed', 500)))
         })
     } catch (error) {
         next(error)
@@ -90,7 +93,7 @@ const updateClient = (req, res, next) => {
 const deleteClient = (req, res, next) => {
     try {
         Client.findByIdAndDelete(req.params._id)
-        .catch(_err => createError('Deleting client failed', 500))
+        .catch(_err => next(createError('Deleting client failed', 500)))
         .then(result => {
             if(result.deletedCount > 0) {
                 res.status(200).json({ message: 'Deleting client successful' })
