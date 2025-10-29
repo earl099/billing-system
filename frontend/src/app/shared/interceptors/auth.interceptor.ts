@@ -1,6 +1,6 @@
 import type { HttpHandlerFn, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 
-export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: HttpHandlerFn) => {
+export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn) => {
   let token = ''
 
 

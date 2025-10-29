@@ -11,7 +11,7 @@
         <mat-card-content>
             <mat-form-field appearance="fill" class="w-full mb-4">
                 <mat-label>Search</mat-label>
-                <input matInput (keyup)="applyFilter($event)" placeholder="Search a user" autocomplete="off" #input>
+                <input matInput (keyup)="applyFilter($event)" placeholder="Search Pay Frequency" autocomplete="off" #input>
             </mat-form-field>
 
             <table mat-table [dataSource]="dataSource" matSort (matSortChange)="announceSortChange($event)">
@@ -37,9 +37,10 @@
                 <tr mat-row *matRowDef="let PayFreqRow; columns: columns"></tr>
 
                 <tr mat-row *matNoDataRow>
-                    <td></td>
+                    <td>No data matching the filter "{{input.value}}"</td>
                 </tr>
             </table>
+            <mat-paginator [pageSizeOptions]="[5,10,15]"></mat-paginator>
         </mat-card-content>
     </mat-card>
 </div>

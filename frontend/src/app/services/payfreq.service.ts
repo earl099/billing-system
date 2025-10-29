@@ -17,13 +17,11 @@ export class PayfreqService {
   private http = inject(HttpClient)
 
   addPayFreq(payFreqData: PayFreq): Observable<any> {
-    return this.http.post(`${this.baseUrl}/payfreq`, payFreqData, this.httpOptions)
+    return this.http.post(`${this.baseUrl}/payfreq`, payFreqData)
   }
 
   getPayFreqs(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/payfreq`, this.httpOptions).pipe(
-      catchError(async err => console.log(err))
-    )
+    return this.http.get(`${this.baseUrl}/payfreq`)
   }
 
   getPayFreq(_id: string): Observable<any> {

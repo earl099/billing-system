@@ -5,5 +5,5 @@ import { PayFreqListComponent } from "./pay-freq/pay.freq.list/pay.freq.list.com
 
 export const ACCOUNT_ROUTES: Route[] = [
   { path: 'accounts', component: AccountListComponent, canActivate: [authGuard] },
-  { path: 'pay-freq', component: PayFreqListComponent, canActivate: [authGuard] }
+  { path: 'payfreq', component: PayFreqListComponent, canActivate: [authGuard] }
 ]

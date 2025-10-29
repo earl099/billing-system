@@ -41,7 +41,7 @@ export class PayFreqListComponent implements OnInit {
   dataSource!: MatTableDataSource<any>
 
   //pay freq list
-  payFreqs: Array<any> = []
+  payFreqs: PayFreq[] = []
 
   //table columns
   columns: string[] = [
@@ -65,18 +65,15 @@ export class PayFreqListComponent implements OnInit {
   //function for initializing data
   getPayFreqs() {
     this.payFreqService.getPayFreqs().subscribe((res) => {
-      if(res) {
-        console.log(res)
-        let tmpData = res.payFreqs
+      let tmpData = res.payFreqs
 
-        for(let i = 0; i < tmpData.length; i++) {
-          this.payFreqs.push(tmpData[i])
-        }
-
-        this.dataSource = new MatTableDataSource(this.payFreqs)
-        this.dataSource.paginator = this.paginator
-        this.dataSource.sort = this.sort
+      for(let i = 0; i < tmpData.length; i++) {
+        this.payFreqs.push(tmpData[i])
       }
+
+      this.dataSource = new MatTableDataSource(this.payFreqs)
+      this.dataSource.paginator = this.paginator
+      this.dataSource.sort = this.sort
     })
   }
 
@@ -90,7 +87,12 @@ export class PayFreqListComponent implements OnInit {
   }
 
   openViewPayFreqDialog(_id: string) {
+    const dialogRef = this.dialog.open(ViewPayFreqDialog)
+    toast.success('Pay Frequency viewed')
 
+    dialogRef.afterClosed().subscribe(() => {
+      toast.success('Pay Frequency viewing closed')
+    })
   }
 
   openUpdatePayFreqDialog(_id: string) {
@@ -251,7 +253,7 @@ export class AddPayFreqDialog {
       }
 
       let payFreqData: PayFreq = {
-        payType: data.value.payType
+        payType: data.payType
       }
 
       this.payFreqService.addPayFreq(payFreqData).subscribe((res) => {

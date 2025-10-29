@@ -31,7 +31,7 @@ const getPayFreqs = (_req, res, next) => {
                 payFreqs: fetchedPayFreqs
             })
         })
-        .catch(_err => { next(createError('Fetching Pay Frequencie failed', 500)) })
+        .catch(_err => { next(createError('Fetching Pay Frequencies failed', 500)) })
     } catch (error) {
         next(error)
     }
