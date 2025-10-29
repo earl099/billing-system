@@ -1,5 +1,5 @@
 import { LiveAnnouncer } from '@angular/cdk/a11y';
-import { ChangeDetectionStrategy, Component, inject, OnInit, viewChild, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
@@ -12,9 +12,8 @@ import { Client } from '@models/client';
 import { ClientService } from '@services/client.service';
 import { LogsService } from '@services/logs.service';
 import { UserService } from '@services/user.service';
-import { toast, NgxSonnerToaster } from 'ngx-sonner';
+import { toast } from 'ngx-sonner';
 import { MatIconModule } from "@angular/material/icon";
-import { FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-client',
@@ -26,12 +25,10 @@ import { FormGroup } from '@angular/forms';
     MatPaginatorModule,
     MatSortModule,
     MatButtonModule,
-    NgxSonnerToaster,
     MatIconModule,
-    MatPaginatorModule
 ],
-  templateUrl: './client.component.html',
-  styleUrl: './client.component.scss',
+  templateUrl: './client.list.component.html',
+  styleUrl: './client.list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ClientComponent implements OnInit { 
@@ -111,7 +108,7 @@ export class ClientComponent implements OnInit {
 @Component({
   selector: 'add-client-dialog',
   templateUrl: './client.add.dialog.html',
-  styleUrl: './client.component.scss',
+  styleUrl: './client.list.component.scss',
   imports: []
 })
 export class AddClientDialog {
@@ -124,7 +121,7 @@ export class AddClientDialog {
 @Component({
   selector: 'view-client-dialog',
   templateUrl: './client.view.dialog.html',
-  styleUrl: './client.component.scss',
+  styleUrl: './client.list.component.scss',
   imports: []
 })
 export class ViewClientDialog implements OnInit {
@@ -132,4 +129,17 @@ export class ViewClientDialog implements OnInit {
       
   }
 
+}
+
+//UPDATE CLIENT DIALOG
+@Component({
+  selector: 'update-client-dialog',
+  templateUrl: './client.update.dialog.html',
+  styleUrl: './client.list.component.scss',
+  imports: []
+})
+export class UpdateClientDialog implements OnInit {
+  ngOnInit(): void {
+      
+  }
 }

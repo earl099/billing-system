@@ -1,0 +1,18 @@
+<h2 mat-dialog-title>Add Pay Frequency</h2>
+<mat-dialog-content>
+    <form [formGroup]="addPayFreqForm">
+        <mat-form-field w-full mb-4>
+            <mat-label>Pay Type</mat-label>
+            <input matInput type="text" formControlName="payType">
+            @if (addPayFreqForm.get('payType')?.hasError('required')) {
+                <mat-error>Required field</mat-error>
+            }
+        </mat-form-field>
+
+        <div class="mt-6">
+            <button mat-raised-button mat-dialog-close color="primary" class="w-full py-2" [disabled]="addPayFreqForm.invalid" (click)="onAddPayFreq(addPayFreqForm.value)">
+                Add Pay Frequency
+            </button>
+        </div>
+    </form>
+</mat-dialog-content>

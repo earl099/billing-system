@@ -5,7 +5,7 @@ var payFreqSchema = new Schema({
     payType: String
 });
 
-const PayFreq = model('User', payFreqSchema);
+const PayFreq = model('PayFreq', payFreqSchema);
 
 //Export the model
 export default PayFreq

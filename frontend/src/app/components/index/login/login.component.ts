@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
 import { LogsService } from '../../../services/logs.service';
 import { NgxSonnerToaster, toast } from 'ngx-sonner';
 import { Log } from '@models/log';
-import { catchError } from 'rxjs';
+import { catchError, EMPTY } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -42,7 +42,17 @@ export class LoginComponent {
 
   onLogin(loginData: any) {
     //set token and auth with database
-    this.authService.login(loginData.value).subscribe(
+    this.authService.login(loginData.value)
+    .pipe(
+      catchError((_err: any) => {
+        toast.error('Invalid credentials.')
+        localStorage.clear()
+        this.signInForm.get('identifier')?.reset('')
+        this.signInForm.get('password')?.reset('')
+        return EMPTY
+      })
+    )
+    .subscribe(
       (res) => {
         if(res) {
           toast.success(res.message == null ? '' : res.message)
@@ -69,12 +79,6 @@ export class LoginComponent {
             user: this.authService.getToken('user') ?? ''
           }
           this.logsService.addLog(logData).subscribe()
-        }
-        else {
-          toast.error('Invalid credentials.')
-          localStorage.clear()
-          this.signInForm.get('identifier')?.reset('')
-          this.signInForm.get('password')?.reset('')
         }
       }
     )

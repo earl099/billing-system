@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, OnInit, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -7,7 +6,6 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatGridListModule } from '@angular/material/grid-list';
-import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { MatInputModule } from '@angular/material/input';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -18,12 +16,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { UserService } from '@services/user.service';
 import { User } from '@models/user';
 import { Log } from '@models/log';
-import { NgxSonnerToaster, toast } from 'ngx-sonner';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-account.list',
   imports: [
-    CommonModule,
     MatFormFieldModule,
     MatInputModule,
     MatCardModule,
@@ -32,16 +29,13 @@ import { NgxSonnerToaster, toast } from 'ngx-sonner';
     MatPaginatorModule,
     MatSortModule,
     MatIconModule,
-    MatTooltipModule,
-    NgxSonnerToaster
+    MatTooltipModule
   ],
   templateUrl: './account.list.component.html',
   styleUrl: './account.list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccountListComponent implements OnInit {
-  
-
   //table data source
   dataSource !: MatTableDataSource<any>
   //user list
@@ -62,7 +56,6 @@ export class AccountListComponent implements OnInit {
   logsService = inject(LogsService)
   userService = inject(UserService)
   dialog = inject(MatDialog)
-  _liveAnnouncer = inject(LiveAnnouncer)
 
   ngOnInit(): void {
     this.getUsers()
@@ -81,6 +74,7 @@ export class AccountListComponent implements OnInit {
         this.dataSource = new MatTableDataSource(this.users)
         this.dataSource.paginator = this.paginator
         this.dataSource.sort = this.sort
+        toast.success('Accounts retrieved')
         //console.log(this.dataSource.data)
       }
     })
@@ -164,7 +158,6 @@ export class AccountListComponent implements OnInit {
   templateUrl: './edit.details.dialog.html',
   styleUrl: './account.list.component.scss',
   imports: [
-    CommonModule,
     MatInputModule,
     MatButtonModule,
     MatDialogModule,
@@ -179,7 +172,6 @@ export class EditDetailsDialog implements OnInit {
   logsService = inject(LogsService)
   toastr = inject(ToastrService)
   userId: string | undefined = this.data._id
-
 
   constructor(
     private fb: FormBuilder
@@ -246,7 +238,6 @@ export class EditDetailsDialog implements OnInit {
   templateUrl: './view.account.dialog.html',
   styleUrl: './account.list.component.scss',
   imports: [
-    CommonModule,
     MatInputModule,
     MatButtonModule,
     MatDialogModule,
@@ -281,7 +272,7 @@ export class ViewUserDialog implements OnInit {
     this.userService.getUser(this.userId).subscribe((res) => {
       if(res) {
         let tmpData = res.user
-        console.log(tmpData)
+        
         this.viewAccountForm.get('username')?.setValue(tmpData.username)
         this.viewAccountForm.get('email')?.setValue(tmpData.email)
         this.viewAccountForm.get('password')?.setValue(tmpData.password)

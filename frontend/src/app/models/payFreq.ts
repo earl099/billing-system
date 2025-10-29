@@ -1,4 +1,4 @@
 export interface PayFreq {
-    _id: string;
+    _id?: string;
     payType: string;
 }

@@ -23,7 +23,7 @@ app.use('/api', ALL_ROUTES)
 
 app.use(errorHandler)
 
-await connect('mongodb+srv://earlsaturay09:Lbrdc2021.@billing-system.j1yrr.mongodb.net/billing-system-db')
+await connect(config.MONGODB_URI)
 .then(() => console.log(`Server is connected in ${config.ENV} mode`))
 .catch(err => console.log('Server connection error: ', err))
 

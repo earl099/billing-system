@@ -2,13 +2,13 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '@env/environment';
 import { PayFreq } from '@models/payFreq';
-import { Observable } from 'rxjs';
+import { catchError, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PayfreqService {
-  private baseUrl = environment
+  private baseUrl = environment.apiUrl
 
   private httpOptions = {
     headers: new HttpHeaders({ 'Content/Type': 'application/json' })
@@ -17,11 +17,13 @@ export class PayfreqService {
   private http = inject(HttpClient)
 
   addPayFreq(payFreqData: PayFreq): Observable<any> {
-    return this.http.post(`${this.baseUrl}/payfreq`, this.httpOptions)
+    return this.http.post(`${this.baseUrl}/payfreq`, payFreqData, this.httpOptions)
   }
 
   getPayFreqs(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/payfreq`, this.httpOptions)
+    return this.http.get(`${this.baseUrl}/payfreq`, this.httpOptions).pipe(
+      catchError(async err => console.log(err))
+    )
   }
 
   getPayFreq(_id: string): Observable<any> {
