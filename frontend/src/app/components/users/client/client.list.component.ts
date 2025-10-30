@@ -2,7 +2,7 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { ChangeDetectionStrategy, Component, inject, OnInit, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
@@ -14,6 +14,8 @@ import { LogsService } from '@services/logs.service';
 import { UserService } from '@services/user.service';
 import { toast } from 'ngx-sonner';
 import { MatIconModule } from "@angular/material/icon";
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Log } from '@models/log';
 
 @Component({
   selector: 'app-client',
@@ -67,7 +69,12 @@ export class ClientComponent implements OnInit {
   }
 
   openAddClientDialog() {
+    const dialogRef = this.dialog.open(AddClientDialog)
 
+    dialogRef.afterClosed().subscribe(() => {
+      this.dataSource.data.splice(0, this.dataSource.data.length)
+      this.getClients()
+    })
   }
 
   openViewClientDialog(_id: string) {
@@ -104,20 +111,62 @@ export class ClientComponent implements OnInit {
   }
 }
 
-// ADD CLIENT COMPONENT
+// ADD CLIENT DIALOG
 @Component({
   selector: 'add-client-dialog',
   templateUrl: './client.add.dialog.html',
   styleUrl: './client.list.component.scss',
-  imports: []
+  imports: [
+    MatDialogModule,
+    MatInputModule,
+    MatButtonModule,
+    ReactiveFormsModule
+  ]
 })
 export class AddClientDialog {
-  constructor() {
+  addClientForm: FormGroup
 
+  clientService = inject(ClientService)
+  userService = inject(UserService)
+  logService = inject(LogsService)
+  fb = inject(FormBuilder)
+
+  constructor() {
+    this.addClientForm = this.fb.group({
+      code: ['', Validators.required],
+      name: ['', Validators.required],
+      operations: [[''], Validators.required],
+      payFreq: ['', Validators.required],
+      status: ['']
+    })
+  }
+
+  onAddClient(data: any) {
+    if(confirm('Are you sure you want to add this client?')) {
+      let logData: Log = {
+        operation: 'Added Client',
+        user: this.userService.user()?.username ?? ''
+      }
+
+      let clientData: Client = {
+        code: data.code,
+        name: data.name,
+        operations: data.operations,
+        payFreq: data.payFreq,
+        status: data.status
+      }
+
+      this.clientService.addClient(clientData).subscribe((res) => {
+        if(res) {
+          this.logService.addLog(logData).subscribe()
+          toast.success('Client added successfully.')
+        }
+      })
+    }
   }
 }
 
-// VIEW CLIENT COMPONENT
+// VIEW CLIENT DIALOG
 @Component({
   selector: 'view-client-dialog',
   templateUrl: './client.view.dialog.html',

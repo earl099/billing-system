@@ -1,1 +1,22 @@
 <h2 mat-dialog-title>Add Client</h2>
+<mat-dialog-content>
+    <form [formGroup]="addClientForm">
+      <mat-form-field class="w-full mb-4">
+        <mat-label>Code</mat-label>
+        <input matInput type="text" formControlName="code">
+        @if (addClientForm.get('code')?.hasError('required')) {
+          <mat-error>Required field</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field class="w-full mb-4">
+        <mat-label>Name</mat-label>
+        <input matInput type="text" formControlName="name">
+        @if (addClientForm.get('name')?.hasError('required')) {
+          <mat-error>Required field</mat-error>
+        }
+      </mat-form-field>
+
+      
+    </form>
+</mat-dialog-content>

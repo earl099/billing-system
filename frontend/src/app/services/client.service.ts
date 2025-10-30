@@ -10,22 +10,18 @@ import { Observable } from 'rxjs';
 export class ClientService {
   private baseUrl = environment.apiUrl
 
-  private httpOptions = {
-    headers: new HttpHeaders({ 'Content/Type': 'application/json' })
-  }
-
   private http = inject(HttpClient)
 
   addClient(clientData: Client): Observable<any> {
-    return this.http.post(`${this.baseUrl}/client`, clientData, this.httpOptions)
+    return this.http.post(`${this.baseUrl}/client`, clientData)
   }
 
   getClients(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/client`, this.httpOptions)
+    return this.http.get(`${this.baseUrl}/client`)
   }
 
   getClient(_id: string): Observable<any> {
-    return this.http.get(`${this.baseUrl}/client/${_id}`, this.httpOptions)
+    return this.http.get(`${this.baseUrl}/client/${_id}`)
   }
 
   updateClient(_id: string, clientData: Client): Observable<any> {
@@ -33,6 +29,6 @@ export class ClientService {
   }
 
   deleteClient(_id: string): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/client/${_id}`, this.httpOptions)
+    return this.http.delete(`${this.baseUrl}/client/${_id}`)
   }
 }

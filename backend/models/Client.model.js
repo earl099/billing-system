@@ -17,7 +17,11 @@ const clientSchema = new Schema({
         type: [String],
         required: true,
         unique: true,
-    }
+    },
+    payFreq: {
+        type: [Schema.Types.ObjectId], ref: 'PayFreq'
+    },
+    status: String
 });
 
 const Client = model('Client', clientSchema);

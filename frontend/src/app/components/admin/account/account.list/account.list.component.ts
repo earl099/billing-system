@@ -131,7 +131,7 @@ export class AccountListComponent implements OnInit {
 
   //delete function for user
   delUser(id: string | undefined) {
-    if(confirm('Are you sure you want to delete this data?')) {
+    if(confirm('Are you sure you want to delete this user?')) {
       let logData: Log = {
         operation: 'Deleted User',
         user: this.userService.user()?.username ?? ''
@@ -249,7 +249,6 @@ export class ViewUserDialog implements OnInit {
   viewAccountForm : FormGroup
   data = inject(MAT_DIALOG_DATA)
   userService = inject(UserService)
-  toastr = inject(ToastrService)
   userId = this.data._id
 
 

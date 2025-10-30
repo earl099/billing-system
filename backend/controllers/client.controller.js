@@ -6,7 +6,9 @@ const createClient = (req, res, next) => {
         const client = new Client({
             code: req.body.code,
             name: req.body.name,
-            operations: req.body.operations
+            operations: req.body.operations,
+            payFreq: req.body.payFreq,
+            status: req.body.status
         })
 
         return client.save()
@@ -68,7 +70,9 @@ const updateClient = (req, res, next) => {
             const client = new Client({
                 code: req.body.code,
                 name: req.body.body,
-                operations: req.body.operations
+                operations: req.body.operations,
+                payFreq: req.body.payFreq,
+                status: req.body.status
             })
 
             Client.findByIdAndUpdate({ _id: req.params._id }, client)

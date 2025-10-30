@@ -1,7 +1,7 @@
 <h2 mat-dialog-title>Add Pay Frequency</h2>
 <mat-dialog-content>
     <form [formGroup]="addPayFreqForm">
-        <mat-form-field w-full mb-4>
+        <mat-form-field class="w-full mb-4">
             <mat-label>Pay Type</mat-label>
             <input matInput type="text" formControlName="payType">
             @if (addPayFreqForm.get('payType')?.hasError('required')) {

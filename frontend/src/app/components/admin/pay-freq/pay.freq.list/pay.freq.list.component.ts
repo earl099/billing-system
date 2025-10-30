@@ -2,9 +2,8 @@ import { ChangeDetectionStrategy, Component, inject, OnInit, ViewChild } from '@
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
@@ -56,6 +55,7 @@ export class PayFreqListComponent implements OnInit {
   //services and modules needed for opening dialogs, adding logs and sorting
   logService = inject(LogsService)
   payFreqService = inject(PayfreqService)
+  userService = inject(UserService)
   dialog = inject(MatDialog)
 
   ngOnInit(): void {
@@ -70,7 +70,7 @@ export class PayFreqListComponent implements OnInit {
       for(let i = 0; i < tmpData.length; i++) {
         this.payFreqs.push(tmpData[i])
       }
-
+      console.log(this.payFreqs)
       this.dataSource = new MatTableDataSource(this.payFreqs)
       this.dataSource.paginator = this.paginator
       this.dataSource.sort = this.sort
@@ -86,21 +86,24 @@ export class PayFreqListComponent implements OnInit {
     })
   }
 
-  openViewPayFreqDialog(_id: string) {
-    const dialogRef = this.dialog.open(ViewPayFreqDialog)
-    toast.success('Pay Frequency viewed')
-
-    dialogRef.afterClosed().subscribe(() => {
-      toast.success('Pay Frequency viewing closed')
-    })
-  }
-
-  openUpdatePayFreqDialog(_id: string) {
-
-  }
-
   onDeletePayFreq(_id: string) {
+    console.log(_id)
+    if(confirm('Are you sure you want to delete this Pay frequency?')) {
+      let logData: Log = {
+        operation: 'Deleted Pay Frequency',
+        user: this.userService.user()?.username ?? ''
+      }
 
+      this.payFreqService.deletePayFreq(_id).subscribe(() => {
+        this.logService.addLog(logData).subscribe((res) => {
+          if(res) {
+            toast.success('Pay frequency deleted successfully.')
+            this.dataSource.data.splice(0, this.dataSource.data.length)
+            this.getPayFreqs()
+          }
+        })
+      })
+    }
   }
 
   applyFilter(event: Event) {
@@ -121,100 +124,6 @@ export class PayFreqListComponent implements OnInit {
       toast.info(`Sorted in ${sortState.direction} order`)
     } else {
       toast.info(`Sorting cleared`)
-    }
-  }
-}
-
-@Component({
-  selector: 'view-payfreq-dialog',
-  templateUrl: './pay.freq.view.dialog.html',
-  styleUrl: './pay.freq.list.component.scss',
-  imports: [
-    MatInputModule,
-    MatButtonModule,
-    MatDialogModule,
-    MatGridListModule,
-    ReactiveFormsModule
-  ]
-})
-export class ViewPayFreqDialog implements OnInit {
-  viewPayFreqForm: FormGroup
-  data = inject(MAT_DIALOG_DATA)
-  payFreqService = inject(PayfreqService)
-  fb = inject(FormBuilder)
-  payFreqId = this.data._id
-
-  constructor() {
-    this.viewPayFreqForm = this.fb.group({
-      payType: ['']
-    })
-  }
-  ngOnInit(): void {
-      this.getPayFreqs()
-  }
-
-  getPayFreqs() {
-    this.payFreqService.getPayFreq(this.payFreqId).subscribe((res) => {
-      if(res) {
-        let tmpData = res.payFreq
-
-        this.viewPayFreqForm.get('payType')?.setValue(tmpData.payType)
-      }
-    })
-  }
-}
-
-@Component({
-  selector: 'edit-payfreq-dialog',
-  templateUrl: './pay.freq.edit.dialog.html',
-  styleUrl: './pay.freq.list.component.scss',
-  imports: []
-})
-export class EditPayFreqDialog implements OnInit {
-  editPayFreqForm: FormGroup
-  data = inject(MAT_DIALOG_DATA)
-  payFreqService = inject(PayfreqService)
-  userService = inject(UserService)
-  logsService = inject(LogsService)
-  fb = inject(FormBuilder)
-  payFreqId = this.data._id
-
-  constructor() {
-    this.editPayFreqForm = this.fb.group({
-      payType: ['', Validators.required]
-    })
-  }
-
-  ngOnInit(): void {
-      this.getPayFreq()
-  }
-
-  getPayFreq() {
-    this.payFreqService.getPayFreq(this.payFreqId).subscribe((res) => {
-      let tmpData = res.payFreq
-
-      this.editPayFreqForm.get('payType')?.setValue(tmpData.payType)
-    })
-  }
-
-  onEditPayFreq(data: any) {
-    if(confirm('Are you sure you want to edit this pay frequency?')) {
-      let payFreqData: PayFreq = {
-        payType: data.value.payType
-      }
-
-      this.payFreqService.updatePayFreq(this.payFreqId, payFreqData).subscribe((res) => {
-        if(res) {
-          let logData: Log = {
-            operation: 'Updated Pay Frequency',
-            user: this.userService.user()?.username ?? ''
-          }
-
-          this.logsService.addLog(logData).subscribe()
-
-          toast.success('Updated Pay Frequency successfully.')
-        }
-      })
     }
   }
 }
@@ -245,7 +154,6 @@ export class AddPayFreqDialog {
   }
 
   onAddPayFreq(data: any) {
-    console.log(data)
     if(confirm('Are you sure you want to add this pay frequency?')) {
       let logData: Log = {
         operation: 'Added Pay Frequency',

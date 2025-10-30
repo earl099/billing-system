@@ -23,9 +23,7 @@
                 <ng-container matColumnDef="actions">
                     <th mat-header-cell *matHeaderCellDef>Actions</th>
                     <td mat-cell *matCellDef="let payFreq">
-                        <div class="flex justify-end gap-0.5">
-                            <button mat-icon-button matTooltip="View Pay Frequency" (click)="openViewPayFreqDialog(payFreq._id)"><mat-icon>visibility</mat-icon></button>
-                            <button mat-icon-button matTooltip="Edit Pay Frequency" (click)='openUpdatePayFreqDialog(payFreq._id)'><mat-icon>edit</mat-icon></button>
+                        <div class="flex justify-start gap-0.5">
                             <button mat-icon-button matTooltip="Delete Pay Frequency" (click)='onDeletePayFreq(payFreq._id)' class="hover:!text-red-600">
                                 <mat-icon>delete</mat-icon>
                             </button>

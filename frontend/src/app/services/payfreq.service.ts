@@ -10,10 +10,6 @@ import { catchError, Observable } from 'rxjs';
 export class PayfreqService {
   private baseUrl = environment.apiUrl
 
-  private httpOptions = {
-    headers: new HttpHeaders({ 'Content/Type': 'application/json' })
-  }
-
   private http = inject(HttpClient)
 
   addPayFreq(payFreqData: PayFreq): Observable<any> {
@@ -25,14 +21,10 @@ export class PayfreqService {
   }
 
   getPayFreq(_id: string): Observable<any> {
-    return this.http.get(`${this.baseUrl}/payfreq/${_id}`, this.httpOptions)
-  }
-
-  updatePayFreq(_id: string, payFreqData: PayFreq): Observable<any> {
-    return this.http.put(`${this.baseUrl}/payfreq/${_id}`, payFreqData, this.httpOptions)
+    return this.http.get(`${this.baseUrl}/payfreq/${_id}`)
   }
 
   deletePayFreq(_id: string): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/payfreq/${_id}`, this.httpOptions)
+    return this.http.delete(`${this.baseUrl}/payfreq/${_id}`)
   }
 }

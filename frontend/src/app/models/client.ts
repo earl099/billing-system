@@ -4,6 +4,7 @@ export interface Client {
     _id?: string;
     code: string;
     name: string;
-    operations: [string];
-    status: Status
+    operations: string[];
+    payFreq: string[];
+    status: Status;
 }

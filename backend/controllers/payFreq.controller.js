@@ -84,7 +84,7 @@ const updatePayFreq = (req, res, next) => {
 
 const deletePayFreq = (req, res, next) => {
     try {
-        PayFreq.findByIdAndDelete(req.body._id)
+        PayFreq.findByIdAndDelete(req.params._id)
         .then(res.status(200).json({
             message: 'Deleting Pay Frequency successful'
         }))
