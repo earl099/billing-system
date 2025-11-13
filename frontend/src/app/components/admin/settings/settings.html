@@ -1,0 +1,115 @@
+<div class="settings-container">
+  <h2>Admin Settings</h2>
+
+  <div class="google-auth-section">
+    <h3>Google Sheets Integration</h3>
+    @if(isSignedIn) {
+      <p>You are signed in to Google.</p>
+      <button mat-raised-button color="warn" (click)="signOut()">Sign out of Google</button>
+    }
+    @else {
+      <p>You are not signed in to Google.</p>
+      <button mat-raised-button color="primary" (click)="signIn()">Sign in with Google</button>
+    }
+
+
+  </div>
+
+  <div class="spreadsheet-ids-section">
+    <h3>Google Spreadsheet IDs</h3>
+    <p>Enter the IDs for your Google Sheets below. These can be found in the sheet's URL.</p>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Transmittal Sheet ID</mat-label>
+      <input matInput [(ngModel)]="spreadsheetIds['transmittal']" placeholder="e.g., 1Bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Account Receivable Sheet ID</mat-label>
+      <input matInput [(ngModel)]="spreadsheetIds['accountReceivable']" placeholder="e.g., 1Cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Details Sheet ID</mat-label>
+      <input matInput [(ngModel)]="spreadsheetIds['details']" placeholder="e.g., 1Dxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+    </mat-form-field>
+
+    <button mat-raised-button color="accent" (click)="saveSettings()">Save Spreadsheet IDs</button>
+  </div>
+
+  <mat-card class="billing-rates-section">
+    <mat-toolbar color="primary">
+      <span>Billing Rates Management</span>
+    </mat-toolbar>
+    <mat-card-content>
+      <h3>Add New Billing Rate</h3>
+      <form (ngSubmit)="addBillingRate()">
+        <mat-form-field appearance="fill">
+          <mat-label>Position</mat-label>
+          <input matInput [(ngModel)]="newBillingRate.position" name="position" required>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Department</mat-label>
+          <input matInput [(ngModel)]="newBillingRate.department" name="department" required>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Rate Per Hour</mat-label>
+          <input matInput type="number" [(ngModel)]="newBillingRate.ratePerHour" name="ratePerHour" required>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Effective Date</mat-label>
+          <input matInput type="date" [(ngModel)]="newBillingRate.effectiveDate" name="effectiveDate" required>
+        </mat-form-field>
+        <button mat-raised-button color="primary" type="submit">Add Rate</button>
+      </form>
+
+      <h3>Existing Billing Rates</h3>
+      <table mat-table [dataSource]="billingRates" class="mat-elevation-z8">
+
+        <!-- ID Column -->
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef> ID </th>
+          <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+        </ng-container>
+
+        <!-- Position Column -->
+        <ng-container matColumnDef="position">
+          <th mat-header-cell *matHeaderCellDef> Position </th>
+          <td mat-cell *matCellDef="let element"> {{element.position}} </td>
+        </ng-container>
+
+        <!-- Department Column -->
+        <ng-container matColumnDef="department">
+          <th mat-header-cell *matHeaderCellDef> Department </th>
+          <td mat-cell *matCellDef="let element"> {{element.department}} </td>
+        </ng-container>
+
+        <!-- Rate Per Hour Column -->
+        <ng-container matColumnDef="ratePerHour">
+          <th mat-header-cell *matHeaderCellDef> Rate/Hour </th>
+          <td mat-cell *matCellDef="let element"> {{element.ratePerHour | currency}} </td>
+        </ng-container>
+
+        <!-- Effective Date Column -->
+        <ng-container matColumnDef="effectiveDate">
+          <th mat-header-cell *matHeaderCellDef> Effective Date </th>
+          <td mat-cell *matCellDef="let element"> {{element.effectiveDate}} </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef> Actions </th>
+          <td mat-cell *matCellDef="let element">
+            <button mat-icon-button color="warn" (click)="deleteBillingRate(element.id)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+      <p *ngIf="billingRates.length === 0">No billing rates configured yet.</p>
+    </mat-card-content>
+  </mat-card>
+</div>

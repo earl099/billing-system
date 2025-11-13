@@ -1,0 +1,44 @@
+<div class="retropay-validation-container">
+  <mat-card>
+    <mat-toolbar color="primary">
+      <span>Retropay Validation</span>
+    </mat-toolbar>
+    <mat-card-content>
+      <p>Upload the employee's payslip and enter the retro adjustment details for validation.</p>
+
+      <div class="file-upload-section mb-4">
+        <h3>Upload Payslip</h3>
+        <input type="file" (change)="onFileSelected($event)" accept="image/*,application/pdf">
+        <div *ngIf="payslipPreviewUrl" class="mt-2">
+          <img *ngIf="selectedFile?.type?.startsWith('image/')" [src]="payslipPreviewUrl" alt="Payslip Preview" style="max-width: 100%; max-height: 200px;">
+          <p *ngIf="selectedFile?.type === 'application/pdf'">{{ payslipPreviewUrl }}</p>
+          <p *ngIf="!selectedFile?.type?.startsWith('image/') && selectedFile?.type !== 'application/pdf'">{{ payslipPreviewUrl }}</p>
+        </div>
+      </div>
+
+      <div class="retro-adjustment-details-section">
+        <h3>Retro Adjustment Details</h3>
+        <form (ngSubmit)="validateRetropay()">
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Employee ID</mat-label>
+            <input matInput [(ngModel)]="retroAdjustment.employeeId" name="employeeId" required>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Adjustment Amount</mat-label>
+            <input matInput type="number" [(ngModel)]="retroAdjustment.amount" name="amount" required>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Adjustment Period</mat-label>
+            <input matInput [(ngModel)]="retroAdjustment.period" name="period" placeholder="e.g., YYYY-MM" required>
+          </mat-form-field>
+
+          <button mat-raised-button color="accent" type="submit" class="mt-4">
+            Validate Retropay
+          </button>
+        </form>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

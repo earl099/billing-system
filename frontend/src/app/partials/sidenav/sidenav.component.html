@@ -120,6 +120,13 @@
                     <span>Clients</span>
                   </span>
                 </button>
+
+                <button mat-menu-item routerLink="/settings">
+                  <span class="flex items-center gap-4 p-3">
+                    <mat-icon>settings</mat-icon>
+                    <span>Settings</span>
+                  </span>
+                </button>
               }
 
               <button mat-menu-item routerLink="/class">
@@ -175,6 +182,36 @@
               <mat-expansion-panel-header >
                 <mat-panel-title class="items-start gap-4"> <mat-icon>receipt</mat-icon> Billing</mat-panel-title>
               </mat-expansion-panel-header>
+              <button mat-menu-item routerLink="/payroll/timekeep-upload">
+                <span class="flex items-center gap-4 p-3">
+                  <mat-icon>upload_file</mat-icon>
+                  <span>Timekeep Upload</span>
+                </span>
+              </button>
+              <button mat-menu-item routerLink="/payroll/calculate">
+                <span class="flex items-center gap-4 p-3">
+                  <mat-icon>calculate</mat-icon>
+                  <span>Payroll Calculation</span>
+                </span>
+              </button>
+              <button mat-menu-item routerLink="/payroll/retropay-validation">
+                <span class="flex items-center gap-4 p-3">
+                  <mat-icon>receipt_long</mat-icon>
+                  <span>Retropay Validation</span>
+                </span>
+              </button>
+              <button mat-menu-item routerLink="/payroll/reconciliation">
+                <span class="flex items-center gap-4 p-3">
+                  <mat-icon>compare_arrows</mat-icon>
+                  <span>Reconciliation</span>
+                </span>
+              </button>
+              <button mat-menu-item routerLink="/payroll/google-sheet-output">
+                <span class="flex items-center gap-4 p-3">
+                  <mat-icon>cloud_upload</mat-icon>
+                  <span>Google Sheet Output</span>
+                </span>
+              </button>
             </mat-expansion-panel>
 
 

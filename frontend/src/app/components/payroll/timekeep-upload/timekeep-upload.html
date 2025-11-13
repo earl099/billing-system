@@ -1,0 +1,57 @@
+<div class="timekeep-upload-container">
+  <mat-card>
+    <mat-toolbar color="primary">
+      <span>Upload Timekeeping Data</span>
+    </mat-toolbar>
+    <mat-card-content>
+      <p>Upload a CSV file containing timekeeping records. The CSV should have columns like 'employeeId', 'date', 'clockIn', and 'clockOut'.</p>
+
+      <input type="file" (change)="onFileSelected($event)" accept=".csv">
+
+      <div *ngIf="uploadedTimekeepData.length > 0" class="mt-4">
+        <h3>Parsed Timekeeping Data</h3>
+        <table mat-table [dataSource]="uploadedTimekeepData" class="mat-elevation-z8">
+
+          <!-- Employee ID Column -->
+          <ng-container matColumnDef="employeeId">
+            <th mat-header-cell *matHeaderCellDef> Employee ID </th>
+            <td mat-cell *matCellDef="let element"> {{element.employeeId}} </td>
+          </ng-container>
+
+          <!-- Date Column -->
+          <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef> Date </th>
+            <td mat-cell *matCellDef="let element"> {{element.date}} </td>
+          </ng-container>
+
+          <!-- Clock In Column -->
+          <ng-container matColumnDef="clockIn">
+            <th mat-header-cell *matHeaderCellDef> Clock In </th>
+            <td mat-cell *matCellDef="let element"> {{element.clockIn}} </td>
+          </ng-container>
+
+          <!-- Clock Out Column -->
+          <ng-container matColumnDef="clockOut">
+            <th mat-header-cell *matHeaderCellDef> Clock Out </th>
+            <td mat-cell *matCellDef="let element"> {{element.clockOut}} </td>
+          </ng-container>
+
+          <!-- Hours Worked Column -->
+          <ng-container matColumnDef="hoursWorked">
+            <th mat-header-cell *matHeaderCellDef> Hours Worked </th>
+            <td mat-cell *matCellDef="let element"> {{element.hoursWorked}} </td>
+          </ng-container>
+
+          <!-- Shift Type Column -->
+          <ng-container matColumnDef="shiftType">
+            <th mat-header-cell *matHeaderCellDef> Shift Type </th>
+            <td mat-cell *matCellDef="let element"> {{element.shiftType}} </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

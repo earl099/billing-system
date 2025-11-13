@@ -1,0 +1,70 @@
+<div class="google-sheet-output-container">
+  <mat-card>
+    <mat-toolbar color="primary">
+      <span>Google Sheet Output</span>
+    </mat-toolbar>
+    <mat-card-content>
+      <p>Input data and send it to the configured Google Sheets.</p>
+
+      <div class="transmittal-section mb-6">
+        <h3>Transmittal Google Sheet</h3>
+        <form (ngSubmit)="writeToTransmittalSheet()">
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Billing Date</mat-label>
+            <input matInput type="date" [(ngModel)]="transmittalData.billingDate" name="transmittalBillingDate" required>
+          </mat-form-field>
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Billing Period</mat-label>
+            <input matInput [(ngModel)]="transmittalData.billingPeriod" name="transmittalBillingPeriod" placeholder="e.g., YYYY-MM" required>
+          </mat-form-field>
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Classification</mat-label>
+            <input matInput [(ngModel)]="transmittalData.classification" name="transmittalClassification" required>
+          </mat-form-field>
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>SOA Number</mat-label>
+            <input matInput [(ngModel)]="transmittalData.soaNumber" name="transmittalSoaNumber" required>
+          </mat-form-field>
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Gross Amount</mat-label>
+            <input matInput type="number" [(ngModel)]="transmittalData.grossAmount" name="transmittalGrossAmount" required>
+          </mat-form-field>
+          <button mat-raised-button color="accent" type="submit" class="mt-4">
+            Write to Transmittal Sheet
+          </button>
+        </form>
+      </div>
+
+      <mat-divider class="mb-6"></mat-divider>
+
+      <div class="account-receivable-section">
+        <h3>Account Receivable Google Sheet</h3>
+        <form (ngSubmit)="writeToAccountReceivableSheet()">
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Gross Billing</mat-label>
+            <input matInput type="number" [(ngModel)]="accountReceivableData.grossBilling" name="arGrossBilling" required>
+          </mat-form-field>
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Receivable Date</mat-label>
+            <input matInput type="date" [(ngModel)]="accountReceivableData.receivableDate" name="arReceivableDate" required>
+          </mat-form-field>
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Period Covered</mat-label>
+            <input matInput [(ngModel)]="accountReceivableData.periodCovered" name="arPeriodCovered" placeholder="e.g., YYYY-MM" required>
+          </mat-form-field>
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Categories</mat-label>
+            <input matInput [(ngModel)]="accountReceivableData.categories" name="arCategories" required>
+          </mat-form-field>
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>SOA Number</mat-label>
+            <input matInput [(ngModel)]="accountReceivableData.soaNumber" name="arSoaNumber" required>
+          </mat-form-field>
+          <button mat-raised-button color="accent" type="submit" class="mt-4">
+            Write to Account Receivable Sheet
+          </button>
+        </form>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,5 +1,5 @@
 import { LiveAnnouncer } from '@angular/cdk/a11y';
-import { ChangeDetectionStrategy, Component, inject, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
+import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips'
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Client } from '@models/client';
 import { ClientService } from '@services/client.service';
@@ -33,12 +34,12 @@ import { Log } from '@models/log';
   styleUrl: './client.list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ClientComponent implements OnInit { 
+export class ClientComponent implements OnInit {
   //table data source
   dataSource !: MatTableDataSource<any>
-  
+
   clients: Client[] = []
-  
+
   @ViewChild(MatPaginator) paginator!: MatPaginator
   @ViewChild(MatSort) sort !: MatSort
 
@@ -120,11 +121,15 @@ export class ClientComponent implements OnInit {
     MatDialogModule,
     MatInputModule,
     MatButtonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MatIconModule,
+    MatChipsModule
   ]
 })
 export class AddClientDialog {
   addClientForm: FormGroup
+  readonly reactiveOperations = signal<string[]>([])
+  readonly reactivePayFreq = signal<string[]>([])
 
   clientService = inject(ClientService)
   userService = inject(UserService)
@@ -136,10 +141,34 @@ export class AddClientDialog {
       code: ['', Validators.required],
       name: ['', Validators.required],
       operations: [[''], Validators.required],
-      payFreq: ['', Validators.required],
+      payFreq: [[''], Validators.required],
       status: ['']
     })
   }
+
+  addOperation(event: MatChipInputEvent): void {
+    const value = (event.value || '').trim()
+
+    if(value) {
+      this.reactiveOperations.update(operations => [...operations, value])
+    }
+    event.chipInput!.clear()
+  }
+
+  removeOperation(operation: string) {
+    this.reactiveOperations.update((operations: string[]) => {
+      const index = operations.indexOf(operation)
+      if (index < 0) {
+        return operations
+      }
+
+      operations.splice(index, 1)
+
+      return [...operations]
+    })
+  }
+
+
 
   onAddClient(data: any) {
     if(confirm('Are you sure you want to add this client?')) {
@@ -175,7 +204,7 @@ export class AddClientDialog {
 })
 export class ViewClientDialog implements OnInit {
   ngOnInit(): void {
-      
+
   }
 
 }
@@ -189,6 +218,6 @@ export class ViewClientDialog implements OnInit {
 })
 export class UpdateClientDialog implements OnInit {
   ngOnInit(): void {
-      
+
   }
 }

@@ -1,0 +1,93 @@
+<div class="reconciliation-container">
+  <mat-card>
+    <mat-toolbar color="primary">
+      <span>Reconciliation</span>
+    </mat-toolbar>
+    <mat-card-content>
+      <p>Upload Accruals and Billing Data to compare against calculated payroll and identify mismatches.</p>
+
+      <div class="file-upload-section mb-4">
+        <h3>Upload Accruals (CSV)</h3>
+        <input type="file" (change)="onAccrualFileSelected($event)" accept=".csv">
+        <div *ngIf="uploadedAccruals.length > 0" class="mt-2">
+          <h4>Accruals Preview</h4>
+          <table mat-table [dataSource]="uploadedAccruals" class="mat-elevation-z8">
+            <ng-container matColumnDef="employeeId">
+              <th mat-header-cell *matHeaderCellDef> Employee ID </th>
+              <td mat-cell *matCellDef="let element"> {{element.employeeId}} </td>
+            </ng-container>
+            <ng-container matColumnDef="type">
+              <th mat-header-cell *matHeaderCellDef> Type </th>
+              <td mat-cell *matCellDef="let element"> {{element.type}} </td>
+            </ng-container>
+            <ng-container matColumnDef="amount">
+              <th mat-header-cell *matHeaderCellDef> Amount </th>
+              <td mat-cell *matCellDef="let element"> {{element.amount}} </td>
+            </ng-container>
+            <ng-container matColumnDef="period">
+              <th mat-header-cell *matHeaderCellDef> Period </th>
+              <td mat-cell *matCellDef="let element"> {{element.period}} </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="accrualsDisplayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: accrualsDisplayedColumns;"></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="file-upload-section mb-4">
+        <h3>Upload Billing Data (CSV)</h3>
+        <input type="file" (change)="onBillingFileSelected($event)" accept=".csv">
+        <div *ngIf="uploadedBillingData.length > 0" class="mt-2">
+          <h4>Billing Data Preview</h4>
+          <table mat-table [dataSource]="uploadedBillingData" class="mat-elevation-z8">
+            <ng-container matColumnDef="clientId">
+              <th mat-header-cell *matHeaderCellDef> Client ID </th>
+              <td mat-cell *matCellDef="let element"> {{element.clientId}} </td>
+            </ng-container>
+            <ng-container matColumnDef="employeeId">
+              <th mat-header-cell *matHeaderCellDef> Employee ID </th>
+              <td mat-cell *matCellDef="let element"> {{element.employeeId}} </td>
+            </ng-container>
+            <ng-container matColumnDef="serviceDate">
+              <th mat-header-cell *matHeaderCellDef> Service Date </th>
+              <td mat-cell *matCellDef="let element"> {{element.serviceDate}} </td>
+            </ng-container>
+            <ng-container matColumnDef="hoursBilled">
+              <th mat-header-cell *matHeaderCellDef> Hours Billed </th>
+              <td mat-cell *matCellDef="let element"> {{element.hoursBilled}} </td>
+            </ng-container>
+            <ng-container matColumnDef="rateBilled">
+              <th mat-header-cell *matHeaderCellDef> Rate Billed </th>
+              <td mat-cell *matCellDef="let element"> {{element.rateBilled}} </td>
+            </ng-container>
+            <ng-container matColumnDef="totalAmount">
+              <th mat-header-cell *matHeaderCellDef> Total Amount </th>
+              <td mat-cell *matCellDef="let element"> {{element.totalAmount}} </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="billingDisplayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: billingDisplayedColumns;"></tr>
+          </table>
+        </div>
+      </div>
+
+      <button mat-raised-button color="primary" (click)="runReconciliation()" [disabled]="uploadedAccruals.length === 0 || uploadedBillingData.length === 0" class="mt-4">
+        Run Reconciliation
+      </button>
+
+      <div *ngIf="mismatches.length > 0" class="mt-4">
+        <h3>Identified Mismatches</h3>
+        <table mat-table [dataSource]="mismatches" class="mat-elevation-z8">
+          <ng-container matColumnDef="description">
+            <th mat-header-cell *matHeaderCellDef> Mismatch Description </th>
+            <td mat-cell *matCellDef="let element"> {{element}} </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="['description']"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['description'];"></tr>
+        </table>
+        <button mat-raised-button color="accent" (click)="inputBalancingToGoogleSheet()" class="mt-4">
+          Input Balancing in Details Google Sheet
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
