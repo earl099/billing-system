@@ -2,17 +2,18 @@ import userModel from "../models/user.model.js";
 import bcrypt from 'bcrypt';
 
 export async function getUsers(req, res) {
-    const { page = 1, limit = 20, q } = req.query
-    const filter = q ? {
+    const search = req.query.search || ''
+
+    const filter = search ? {
         $or: [
-            { name: new RegExp(q, 'i') },
-            { username: new RegExp(q, 'i') },
-            { email: new RegExp(q, 'i') },
+            { name: new RegExp(search, 'i') },
+            { username: new RegExp(search, 'i') },
+            { email: new RegExp(search, 'i') },
         ]
     }: {}
 
     try {
-        const users = await userModel.find(filter).select('-password').skip((page - 1) * limit).limit(Number(limit)).lean()
+        const users = await userModel.find(filter).select('-password')
         const total = await userModel.countDocuments(filter)
         
         res.json({ users, total })
@@ -26,7 +27,7 @@ export async function getUser(req, res) {
         const user = await userModel.findById(req.params._id).select('-password')
         if(!user) return res.status(404).json({ message: 'User not found' });
 
-        res.status(200).json({ user, message: 'User found' })
+        res.json({ user, message: 'User found' })
     } catch (error) {
         res.status(500).json({ message: `Server error: ${error}` })
     }
@@ -45,7 +46,7 @@ export async function createUser(req, res) {
         const hash = await bcrypt.hash(password, 10)
         const user = await userModel.create({ name, username, email, password: hash, role, handledClients })
         
-        res.status(200).json({
+        res.json({
             user: {
                 _id: user._id,
                 name: user.name,
