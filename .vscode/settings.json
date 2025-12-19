@@ -8,6 +8,10 @@
         "earlsaturay",
         "Freqs",
         "Lbrdc",
-        "payfreq"
+        "officedocument",
+        "openxmlformats",
+        "payfreq",
+        "spreadsheetml",
+        "wordprocessingml"
     ]
 }

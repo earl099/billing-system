@@ -19,6 +19,13 @@ frontend/yarn-error.log
 *.sublime-workspace
 
 # Visual Studio Code
+frontend/.vscode/*
+frontend/!.vscode/settings.json
+frontend/!.vscode/tasks.json
+frontend/!.vscode/launch.json
+frontend/!.vscode/extensions.json
+frontend/.history/*
+
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
