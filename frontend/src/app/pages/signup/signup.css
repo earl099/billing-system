@@ -1,3 +1,6 @@
-:host {
-  display: block;
+@import 'tailwindcss';
+
+mat-card {
+  @apply bg-white;
+  border-radius: 20px;
 }

@@ -16,7 +16,15 @@
     "module": "preserve",
     "baseUrl": "./",
     "paths": {
-      "@pages/*": ["src/app/pages/*"]
+      "@pages/*": ["src/app/pages/*"],
+      "@admin/*": ["src/app/admin/*"],
+      "@guards/*": ["src/app/guards/*"],
+      "@interceptors/*": ["src/app/interceptors/*"],
+      "@services/*": ["src/app/services/*"],
+      "@models/*": ["src/app/models/*"],
+      "@env/*": ["src/environments/*"],
+      "@material": ["src/app/material.ts"],
+      "@styles/*": ["src/styles/*"]
     }
   },
   "angularCompilerOptions": {

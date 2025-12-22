@@ -1,3 +1,11 @@
-:host {
-  display: block;
+@import 'tailwindcss';
+
+.btn-primary { @apply bg-blue-600 text-white hover:bg-blue-700; }
+.btn-outline { @apply border border-gray-300 text-gray-700 hover:bg-gray-50; }
+
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+
+mat-card {
+  border-radius: 16px;
 }

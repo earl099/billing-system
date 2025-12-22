@@ -1,1 +1,23 @@
-<p>dashboard works!</p>,
+<div class="max-w-5xl mx-auto p-6 fade-in">
+  <h2 class="text-3xl font-semibold mb-6">Dashboard</h2>
+  <mat-card class="p-6 mb-6 motion-smooth scale-in">
+    <h3 class="text-xl font-semibold mb-2">Welcome, {{ user?.name }}</h3>
+    <p class="text-gray-600">Email: {{ user?.email }}</p>
+    <p class="text-gray-600">Email: {{ user?.email }}</p>
+  </mat-card>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <mat-card class="p-6 card-animate motion-smooth">
+      <h4 class="text-lg font-semibold mb-2">Users</h4>
+      <button mat-button routerLink="/admin/users">Manage</button>
+    </mat-card>
+
+    <mat-card class="p-6 card-animate motion-smooth delay-200">
+      <h4 class="text-lg font-semibold mb-2">Settings</h4>
+    </mat-card>
+
+    <mat-card class="p-6 card-animate motion-smooth delay-300">
+      <h4 class="text-lg font-semibold mb-2">Reports</h4>
+    </mat-card>
+  </div>
+</div>
