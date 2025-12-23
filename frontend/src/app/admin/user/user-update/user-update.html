@@ -1,1 +1,66 @@
-<p>user-update works!</p>,
+<div class="max-w-2xl mx-auto p-6 fade-in">
+  <mat-card class="p-6 card-animate">
+    <h3 class="text-xl font-semibold mb-4">Edit User</h3>
+
+    <form [formGroup]="form" class="grid gap-4">
+      <mat-form-field appearance="fill">
+        <mat-label>Name</mat-label>
+        <input matInput formControlName="name" />
+        @if (form.get('name')?.invalid) {
+          <mat-error>Please input a name</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Username</mat-label>
+        <input matInput formControlName="username" />
+        @if (form.get('username')?.invalid) {
+          <mat-error>Please input a username</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Email</mat-label>
+        <input matInput type="email" formControlName="email" />
+        @if (form.get('email')?.invalid) {
+          <mat-error>Please input a valid email</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Role</mat-label>
+        <mat-select formControlName="role">
+          <mat-option value="Admin">Admin</mat-option>
+          <mat-option value="User">User</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Handled Clients</mat-label>
+        <mat-chip-grid #chipGrid formControlName="handledClients">
+          @for (client of clientList(); track client) {
+            <mat-chip-row (removed)="removeClient(client)" [value]="client._id">
+              {{ client.name }}
+              <button matChipRemove>
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip-row>
+          }
+        </mat-chip-grid>
+        <input placeholder="Input client" [matChipInputFor]="chipGrid" (matChipInputTokenEnd)="addClient($event)" />
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>New Password (leave blank to keep)</mat-label>
+        <input matInput type="password" formControlName="password" />
+      </mat-form-field>
+
+      <div class="flex gap-3">
+        <button mat-raised-button color="primary" [disabled]="loading" (click)="submit()">Save</button>
+        <button mat-stroked-button type="button" (click)="router.navigate(['/admin/user/list'])">Cancel</button>
+      </div>
+
+      
+    </form>
+  </mat-card>
+</div>

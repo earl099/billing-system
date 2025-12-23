@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
-import { User } from '@models/user';
+import { UserAuthDTO, UserDTO } from '@models/user';
 import { Auth } from '@services/auth';
 import { toast } from 'ngx-sonner';
 
@@ -34,20 +34,18 @@ export class Login {
     if (this.form.invalid) return
     this.loading = true
     this.error = null
-    let userAuth!: Partial<User>
-    const { identifier, password } = this.form.value
+    let userAuth: UserAuthDTO
 
-    if(identifier?.includes('@')) {
-      userAuth.email = identifier || undefined
-    } else {
-      userAuth.username = identifier || undefined
-    }
-    userAuth.password = password || undefined
+    const { identifier, password } = this.form.value
+    userAuth = { identifier: identifier!, password: password! }
 
     try {
       await this.authService.login(userAuth)
       this.router.navigate(['/dashboard'])
       toast.success('Logged in successfully.')
+
+      //log function to be put here
+      
     } catch (e: any) {
       this.error = 'Error: ' + e?.message || 'Login failed'
     } finally {

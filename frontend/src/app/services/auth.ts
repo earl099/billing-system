@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { User } from '../models/user';
+import { UserAuthDTO, UserDTO } from '@models/user';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '@env/environment';
@@ -14,13 +14,18 @@ export class Auth {
   http = inject(HttpClient)
   router = inject(Router)
 
-  async login(payload: Partial<User>) {
-    const res: any = await firstValueFrom(this.http.post(`${this.apiUrl}/auth/login`, payload))
-    localStorage.setItem(this.tokenKey, res.token)
-    return res
+  async login(payload: UserAuthDTO) {
+    try {
+      const res: any = await firstValueFrom(this.http.post(`${this.apiUrl}/auth/login`, payload))
+      localStorage.setItem(this.tokenKey, res.token)
+      return res
+    } catch (error) {
+      console.log(error)
+    }
+
   }
 
-  async signup(payload: User) {
+  async signup(payload: UserDTO) {
     const res: any = await firstValueFrom(this.http.post(`${this.apiUrl}/auth/signup`, payload))
     return res
   }

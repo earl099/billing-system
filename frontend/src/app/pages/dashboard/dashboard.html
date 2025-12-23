@@ -1,19 +1,19 @@
 <div class="max-w-5xl mx-auto p-6 fade-in">
   <h2 class="text-3xl font-semibold mb-6">Dashboard</h2>
   <mat-card class="p-6 mb-6 motion-smooth scale-in">
-    <h3 class="text-xl font-semibold mb-2">Welcome, {{ user?.name }}</h3>
-    <p class="text-gray-600">Email: {{ user?.email }}</p>
-    <p class="text-gray-600">Email: {{ user?.email }}</p>
+    <h3 class="text-xl font-semibold mb-2">Welcome, {{ user().name }}</h3>
+    <p class="text-gray-600">Email: {{ user().email }}</p>
+    <p class="text-gray-600">Role: {{ user().role }}</p>
   </mat-card>
 
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
     <mat-card class="p-6 card-animate motion-smooth">
-      <h4 class="text-lg font-semibold mb-2">Users</h4>
-      <button mat-button routerLink="/admin/users">Manage</button>
+      <h4 class="text-lg font-semibold mb-2">Admin</h4>
+      <button mat-button routerLink="/admin/user/list">Manage</button>
     </mat-card>
 
     <mat-card class="p-6 card-animate motion-smooth delay-200">
-      <h4 class="text-lg font-semibold mb-2">Settings</h4>
+      <h4 class="text-lg font-semibold mb-2">Billing</h4>
     </mat-card>
 
     <mat-card class="p-6 card-animate motion-smooth delay-300">

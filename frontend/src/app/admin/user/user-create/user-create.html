@@ -1,1 +1,72 @@
-<p>user-create works!</p>,
+<div class="max-w-2xl mx-auto p-6 fade-in">
+  <mat-card class="p-6 card-animate">
+    <h3 class="text-xl font-semibold mb-4">Create User</h3>
+
+    <form [formGroup]="form" class="grid gap-4">
+      <mat-form-field appearance="fill">
+        <mat-label>Name</mat-label>
+        <input matInput formControlName="name" />
+        @if (form.get('name')?.invalid) {
+          <mat-error>Please input your name.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Username</mat-label>
+        <input matInput formControlName="username" />
+        @if (form.get('username')?.invalid) {
+          <mat-error>Please input your username.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Email</mat-label>
+        <input type="email" matInput formControlName="email" />
+        @if (form.get('email')?.invalid) {
+          <mat-error>Please input a valid email.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Password</mat-label>
+        <input matInput formControlName="password" />
+        @if (form.get('password')?.invalid) {
+          <mat-error>Please input your password.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Role</mat-label>
+        <mat-select formControlName="role">
+          <mat-option value="Admin">Admin</mat-option>
+          <mat-option value="User">User</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <!-- IMPROVEMENT: ADD AUTOCOMPLETE, GET CLIENT NAME FROM CLIENT LIST -->
+        <mat-label>Handled Clients</mat-label>
+        <mat-chip-grid #chipGrid formControlName="handledClients">
+          @for (client of clientList(); track client) {
+            <mat-chip-row (removed)="removeClient(client)" [value]="client._id">
+              {{ client.name }}
+              <button matChipRemove>
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip-row>
+          }
+        </mat-chip-grid>
+        <input placeholder="Input client" [matChipInputFor]="chipGrid" (matChipInputTokenEnd)="addClient($event)" />
+      </mat-form-field>
+
+      <div class="flex gap-3">
+        <button mat-raised-button color="primary" [disabled]="loading" (click)="submit()">Create User</button>
+        <button mat-stroked-button routerLink="/admin/user/list">Cancel</button>
+      </div>
+
+      @if (error) {
+        <p class="text-red-600 mt-2">{{error}}</p>
+      }
+    </form>
+  </mat-card>
+</div>

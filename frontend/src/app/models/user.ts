@@ -1,4 +1,4 @@
-export interface User {
+export interface UserDTO {
   _id?: string
   name?: string
   username?: string
@@ -6,4 +6,9 @@ export interface User {
   password?: string
   role?: 'Admin' | 'User'
   handledClients?: string[]
+}
+
+export interface UserAuthDTO {
+  identifier: string
+  password: string
 }

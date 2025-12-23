@@ -4,7 +4,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatSelectModule } from '@angular/material/select';
 import { Router, RouterLink } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
-import { User } from '@models/user';
+import { UserDTO } from '@models/user';
 import { Auth } from '@services/auth';
 import { toast } from 'ngx-sonner';
 
@@ -30,9 +30,7 @@ export class Signup {
     name: ['', Validators.required],
     username: ['', Validators.required],
     email: ['', Validators.required],
-    password: ['', Validators.required],
-    role: [<'Admin' | 'User'>'', Validators.required],
-    handledClients: [<string[]>[], Validators.required]
+    password: ['', Validators.required]
   })
 
   loading = false
@@ -42,13 +40,15 @@ export class Signup {
     if(this.form.invalid) return
     this.loading = true
     this.error = null
-    let userObject!: User
-    userObject = this.form.getRawValue() as User
+    let userObject!: UserDTO
+    userObject = this.form.getRawValue() as UserDTO
 
     try {
       await this.authService.signup(userObject)
       this.router.navigate(['/login'])
       toast.success('Signed up successfully')
+
+      //log function to be put here
     } catch (e: any) {
       this.error = 'Error: ' + e?.message || 'Sign up failed'
     } finally {

@@ -1,1 +1,18 @@
-<p>user-view works!</p>,
+<div class="max-w-2xl mx-auto p-6 fade-in">
+  <mat-card class="p-6 card-animate">
+    <h3 class="text-xl font-semibold mb-4">User Details</h3>
+
+    @if (user()) {
+      <p><strong>Name:</strong> {{ user().name }}</p>
+      <p><strong>Username:</strong> {{ user().username }}</p>
+      <p><strong>Email:</strong> {{ user().email }}</p>
+      <p><strong>Role:</strong> {{ user().role }}</p>
+      <p><strong>Handled Clients:</strong> {{ user().handledClients }}</p>
+    }
+
+    <div class="mt-4">
+      <button mat-raised-button color="primary" (click)="edit()">Edit</button>
+      <button mat-stroked-button (click)="router.navigate(['/admin/user'])">Back</button>
+    </div>
+  </mat-card>
+</div>
