@@ -6,18 +6,32 @@
     <p class="text-gray-600">Role: {{ user().role }}</p>
   </mat-card>
 
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <mat-card class="p-6 card-animate motion-smooth">
-      <h4 class="text-lg font-semibold mb-2">Admin</h4>
-      <button mat-button routerLink="/admin/user/list">Manage</button>
-    </mat-card>
+  @if (user().role === 'Admin') {
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <mat-card class="p-6 card-animate motion-smooth">
+        <h4 class="text-lg font-semibold mb-2">Admin</h4>
+        <button mat-button routerLink="/admin/user/list">Manage Users</button>
+        <button mat-button routerLink="/admin/log/list">View Logs</button>
+      </mat-card>
 
-    <mat-card class="p-6 card-animate motion-smooth delay-200">
-      <h4 class="text-lg font-semibold mb-2">Billing</h4>
-    </mat-card>
+      <mat-card class="p-6 card-animate motion-smooth delay-200">
+        <h4 class="text-lg font-semibold mb-2">Billing</h4>
+      </mat-card>
 
-    <mat-card class="p-6 card-animate motion-smooth delay-300">
-      <h4 class="text-lg font-semibold mb-2">Reports</h4>
-    </mat-card>
-  </div>
+      <mat-card class="p-6 card-animate motion-smooth delay-300">
+        <h4 class="text-lg font-semibold mb-2">Reports</h4>
+      </mat-card>
+    </div>
+  }
+  @else {
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <mat-card class="p-6 card-animate motion-smooth delay-200">
+        <h4 class="text-lg font-semibold mb-2">Billing</h4>
+      </mat-card>
+
+      <mat-card class="p-6 card-animate motion-smooth delay-300">
+        <h4 class="text-lg font-semibold mb-2">Reports</h4>
+      </mat-card>
+    </div>
+  }
 </div>

@@ -30,7 +30,7 @@ export class Auth {
     return res
   }
 
-  logout() {
+  async logout() {
     localStorage.removeItem(this.tokenKey)
     this.router.navigate(['/'])
   }

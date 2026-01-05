@@ -1,1 +1,15 @@
-<p>log-view works!</p>,
+<div class="max-w-2xl mx-auto p-6 fade-in">
+  <mat-card class="p-6 card-animate">
+    <h3 class="text-xl font-semibold mb-4">Log Details</h3>
+
+    @if (log()) {
+      <p><strong>User:</strong> {{ log().user }}</p>
+      <p><strong>Operation:</strong> {{ log().operation }}</p>
+      <p><strong>Date Logged:</strong> {{ logDate }}</p>
+    }
+
+    <div class="flex mt-4">
+      <button mat-stroked-button (click)="router.navigate(['/admin/log/list'])" class="w-full">Back</button>
+    </div>
+  </mat-card>
+</div>

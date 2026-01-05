@@ -10,9 +10,9 @@
       <p><strong>Handled Clients:</strong> {{ user().handledClients }}</p>
     }
 
-    <div class="mt-4">
+    <div class="flex mt-4 justify-evenly">
       <button mat-raised-button color="primary" (click)="edit()">Edit</button>
-      <button mat-stroked-button (click)="router.navigate(['/admin/user'])">Back</button>
+      <button mat-stroked-button (click)="router.navigate(['/admin/user/list'])">Back</button>
     </div>
   </mat-card>
 </div>

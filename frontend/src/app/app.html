@@ -5,7 +5,7 @@
 
       @if (authService.token() !== null) {
         <a routerLink="/dashboard" class="hover:underline">Dashboard</a>
-        <a class="hover:underline" (click)="authService.logout()">Logout</a>
+        <a class="hover:underline" (click)="logout()" routerLink="/home">Logout</a>
       }
       @else {
         <a [routerLink]="home()" class="hover:underline">Home</a>
