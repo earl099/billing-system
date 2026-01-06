@@ -16,7 +16,7 @@ const clientSchema = new Schema({
         type: [Schema.Types.ObjectId],
         ref: 'PayFreq'
     }
-})
+}, { timestamps: true })
 
 const clientModel = model('Client', clientSchema)
 

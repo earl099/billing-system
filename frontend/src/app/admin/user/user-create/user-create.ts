@@ -5,7 +5,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { Router, RouterLink } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
+import { LogDTO } from '@models/log';
 import { UserDTO } from '@models/user';
+import { Auth } from '@services/auth';
+import { Log } from '@services/log';
 import { User } from '@services/user';
 import { toast } from 'ngx-sonner';
 
@@ -28,6 +31,8 @@ export class UserCreate {
 
   fb = inject(FormBuilder)
   userService = inject(User)
+  authService = inject(Auth)
+  logService = inject(Log)
   router = inject(Router)
 
   form = this.fb.group({
@@ -66,6 +71,7 @@ export class UserCreate {
     if(this.form.invalid) return
     this.loading = true
 
+    if(!confirm('Are you sure you want to create this User?')) return
     try {
       const userObject = this.form.getRawValue() as UserDTO
       await this.userService.create(userObject)
@@ -73,7 +79,12 @@ export class UserCreate {
       toast.success('User created successfully')
 
       //log creation function here
+      const log: LogDTO = {
+        user: this.authService.fetchUser() ?? '',
+        operation: 'Created User'
+      }
 
+      await this.logService.create(log)
     } catch (err: any) {
       this.error = err?.message ?? 'User creation failed'
       toast.error(this.error ?? err?.message)

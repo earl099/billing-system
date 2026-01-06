@@ -1,1 +1,24 @@
-<p>payfreq-create works!</p>,
+<div class="max-w-2xl mx-auto p-6 fade-in">
+  <mat-card class="p-6 card-animate">
+    <h3 class="text-xl font-semibold mb-4">Create Pay Frequency</h3>
+
+    <form [formGroup]="form" class="grid gap-4">
+      <mat-form-field appearance="fill">
+        <mat-label>Pay Type</mat-label>
+        <input matInput formControlName="payType" />
+        @if (form.get('payType')?.invalid) {
+          <mat-error>Please input a valid Pay Type.</mat-error>
+        }
+      </mat-form-field>
+
+      <div class="flex gap-3">
+        <button mat-raised-button color="primary" [disabled]="loading" (click)="submit()">Create Pay Frequency</button>
+        <button mat-stroked-button routerLink="/admin/payfreq/list">Cancel</button>
+      </div>
+
+      @if (error) {
+        <p class="text-red-600 mt-2">{{error}}</p>
+      }
+    </form>
+  </mat-card>
+</div>

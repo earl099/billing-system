@@ -1,17 +1,9 @@
 import logModel from '../models/log.model.js'
 
-export async function getLogs(req, res) {
-    const { page = 1, limit = 20, q } = req.query
-    const filter = q ? {
-        $or: [
-            { operation: new RegExp(q, 'i') },
-            { user: new RegExp(q, 'i') }
-        ]
-    }: {}
-
+export async function getLogs(_req, res) {
     try {
-        const logs = await logModel.find(filter).skip((page - 1) * limit).limit(Number(limit)).lean()
-        const total = await logModel.countDocuments(filter)
+        const logs = await logModel.find()
+        const total = await logModel.countDocuments()
 
         res.json({ logs, total })
     } catch (error) {

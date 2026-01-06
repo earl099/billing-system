@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 })
 export class Auth {
   private tokenKey = 'app_token'
+  private user = 'user'
   private apiUrl = environment.apiUrl
   http = inject(HttpClient)
   router = inject(Router)
@@ -18,6 +19,7 @@ export class Auth {
     try {
       const res: any = await firstValueFrom(this.http.post(`${this.apiUrl}/auth/login`, payload))
       localStorage.setItem(this.tokenKey, res.token)
+      localStorage.setItem(this.user, res.user.name)
       return res
     } catch (error) {
       console.log(error)
@@ -36,6 +38,9 @@ export class Auth {
   }
 
   token() { return localStorage.getItem(this.tokenKey) }
+  fetchUser() { return localStorage.getItem(this.user) }
+
+  removeUser() { localStorage.removeItem(this.user) }
 
   async getProfile() {
     const res: any = await firstValueFrom(this.http.get(`${this.apiUrl}/auth/me`))

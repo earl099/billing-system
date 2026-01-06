@@ -37,14 +37,22 @@ export class App implements OnInit {
   }
 
   async logout() {
-    const logObject: LogDTO = {
-      user: this.user().name,
-      operation: 'Logged Out'
+    try {
+      const user = this.authService.fetchUser() ?? ''
+      const logObject: LogDTO = {
+        user,
+        operation: 'Logged Out'
+      }
+      await this.logService.create(logObject)
+
+      await this.authService.logout()
+      toast.success('Logged out successfully')
+
+      if(!this.authService.isAuthenticated()) {
+        this.authService.removeUser()
+      }
+    } catch (error) {
+      console.log(error)
     }
-
-    await this.logService.create(logObject)
-
-    await this.authService.logout()
-    toast.success('Logged out successfully')
   }
 }

@@ -44,16 +44,18 @@ export class Login {
 
     try {
       const user = await this.authService.login(userAuth)
-      this.router.navigate(['/dashboard'])
-      toast.success('Logged in successfully.')
+      console.log(user.user.name)
 
       //log function to be put here
       const logObject: LogDTO = {
         user: user.user.name,
-        operation: 'Logged Out'
+        operation: 'Logged In'
       }
 
       await this.logService.create(logObject)
+
+      this.router.navigate(['/dashboard'])
+      toast.success('Logged in successfully.')
     } catch (e: any) {
       this.error = 'Error: ' + e?.message || 'Login failed'
     } finally {
