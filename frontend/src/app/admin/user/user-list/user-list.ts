@@ -4,6 +4,9 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterLink } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
+import { LogDTO } from '@models/log';
+import { Auth } from '@services/auth';
+import { Log } from '@services/log';
 import { User } from '@services/user';
 import { toast } from 'ngx-sonner';
 
@@ -22,6 +25,8 @@ import { toast } from 'ngx-sonner';
 })
 export class UserList implements OnInit {
   userService = inject(User)
+  authService = inject(Auth)
+  logService = inject(Log)
   router = inject(Router)
 
   users = signal<any[]>([])
@@ -70,22 +75,22 @@ export class UserList implements OnInit {
     this.users.set(userList)
   }
 
-  view(u: any) {
-    this.router.navigate(['/admin/user', u._id])
-  }
+  view(u: any) { this.router.navigate(['/admin/user', u._id]) }
+  edit(u: any) { this.router.navigate(['/admin/user', u._id, 'edit']) }
 
-  edit(u: any) {
-    this.router.navigate(['/admin/user', u._id, 'edit'])
-  }
-
-  async deleteUser(u: any) {
+  async delete(u: any) {
     if(!confirm(`Delete ${u.name}'s account? This action is permanent.`)) return
     await this.userService.delete(u._id)
     toast.success('User deleted successfully')
     await this.load()
 
     //log creation function here
+    const log: LogDTO = {
+      user: this.authService.fetchUser() ?? '',
+      operation: 'Deleted Pay Frequency'
+    }
 
+    await this.logService.create(log)
   }
 
   totalPages() {

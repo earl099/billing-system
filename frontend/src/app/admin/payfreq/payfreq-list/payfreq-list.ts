@@ -4,6 +4,9 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterLink } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
+import { LogDTO } from '@models/log';
+import { Auth } from '@services/auth';
+import { Log } from '@services/log';
 import { Payfreq } from '@services/payfreq';
 import { toast } from 'ngx-sonner';
 
@@ -22,6 +25,9 @@ import { toast } from 'ngx-sonner';
 })
 export class PayfreqList implements OnInit {
   payFreqService = inject(Payfreq)
+  authService = inject(Auth)
+  logService = inject(Log)
+
   //TODO: MAKE THE PAY FREQUENCY UNDELETABLE WHEN IT IS CONNECTED TO A CLIENT
   //clientService = inject(Client)
   router = inject(Router)
@@ -58,11 +64,18 @@ export class PayfreqList implements OnInit {
   }
 
   async deletePayFreq(p: any) {
-    //TODO: PUT A FUNCTION THAT CHECKS THE ID OF THE PAY FREQUENCY OF THE CLIENT THEN RETURNS THE FUNCTION
+    //TODO: PUT A LOGIC THAT CHECKS THE ID OF THE PAY FREQUENCY OF THE CLIENT THEN RETURNS THE FUNCTION
     if(!confirm('Are you sure you want to delete this Pay Frequency? This action is permanent.')) return;
     await this.payFreqService.delete(p._id)
     toast.success('Pay Frequency deleted successfully')
     await this.load()
+
+    const log: LogDTO = {
+      user: this.authService.fetchUser() ?? '',
+      operation: 'Deleted Pay Frequency'
+    }
+
+    await this.logService.create(log)
   }
 
   totalPages() {

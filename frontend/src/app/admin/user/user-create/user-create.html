@@ -47,7 +47,7 @@
         <!-- IMPROVEMENT: ADD AUTOCOMPLETE, GET CLIENT NAME FROM CLIENT LIST -->
         <mat-label>Handled Clients</mat-label>
         <mat-chip-grid #chipGrid formControlName="handledClients">
-          @for (client of clientList(); track client) {
+          @for (client of clients(); track client) {
             <mat-chip-row (removed)="removeClient(client)" [value]="client._id">
               {{ client.name }}
               <button matChipRemove>

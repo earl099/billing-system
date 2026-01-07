@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,6 +8,7 @@ import { MATERIAL_MODULES } from '@material';
 import { LogDTO } from '@models/log';
 import { UserDTO } from '@models/user';
 import { Auth } from '@services/auth';
+import { Client } from '@services/client';
 import { Log } from '@services/log';
 import { User } from '@services/user';
 import { toast } from 'ngx-sonner';
@@ -26,11 +27,12 @@ import { toast } from 'ngx-sonner';
   styleUrl: './user-create.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UserCreate {
-  clientList = signal<any[]>([])
+export class UserCreate implements OnInit{
+  clients = signal<any[]>([])
 
   fb = inject(FormBuilder)
   userService = inject(User)
+  clientService = inject(Client)
   authService = inject(Auth)
   logService = inject(Log)
   router = inject(Router)
@@ -47,8 +49,21 @@ export class UserCreate {
   loading = false
   error: string | null = null
 
+  async ngOnInit() {
+    await this.loadClient()
+  }
+
+  async loadClient() {
+    const clientList = await this.clientService.list()
+    this.clients.set(clientList)
+  }
+
+  /** TODO: CHANGE THE FUNCTION OF SELECTING CLIENTS
+   *  MAKE IT SO THAT THE SELECTION IS BASED ON
+   *  THE FETCHED DATA FROM THE DATABASE **/
+
   removeClient(client: string) {
-    this.clientList.update(clients => {
+    this.clients.update(clients => {
       const index = clients.indexOf(client)
       if(index < 0) { return clients }
 
@@ -61,7 +76,7 @@ export class UserCreate {
     const value = (event.value || '').trim()
 
     if(value) {
-      this.clientList.update(clients => [...clients, value])
+      this.clients.update(clients => [...clients, value])
     }
 
     event.chipInput!.clear()
@@ -78,7 +93,6 @@ export class UserCreate {
       await this.router.navigate(['/admin/user/list'])
       toast.success('User created successfully')
 
-      //log creation function here
       const log: LogDTO = {
         user: this.authService.fetchUser() ?? '',
         operation: 'Created User'

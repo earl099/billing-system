@@ -9,7 +9,7 @@
       type="text"
       [value]="searchInput()"
       (input)="searchInput.set($any($event.target).value)"
-      placeholder="Search users..."
+      placeholder="Search users"
       class="border rounded px-3 py-2 w-full md:w-1/3 motion-smooth"
     />
   </div>
@@ -31,7 +31,7 @@
         <td mat-cell *matCellDef="let u">
           <button mat-icon-button (click)="view(u)" title="View" matTooltip="View User"><mat-icon>visibility</mat-icon></button>
           <button mat-icon-button (click)="edit(u)" title="Edit" matTooltip="Edit User"><mat-icon>edit</mat-icon></button>
-          <button mat-icon-button color="warn" (click)="deleteUser(u)" title="Delete" matTooltip="Delete User"><mat-icon>delete</mat-icon></button>
+          <button mat-icon-button color="warn" (click)="delete(u)" title="Delete" matTooltip="Delete User"><mat-icon>delete</mat-icon></button>
         </td>
       </ng-container>
 
