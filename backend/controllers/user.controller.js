@@ -1,20 +1,10 @@
 import userModel from "../models/user.model.js";
 import bcrypt from 'bcrypt';
 
-export async function getUsers(req, res) {
-    const search = req.query.search || ''
-
-    const filter = search ? {
-        $or: [
-            { name: new RegExp(search, 'i') },
-            { username: new RegExp(search, 'i') },
-            { email: new RegExp(search, 'i') },
-        ]
-    }: {}
-
+export async function getUsers(_req, res) {
     try {
-        const users = await userModel.find(filter).select('-password')
-        const total = await userModel.countDocuments(filter)
+        const users = await userModel.find().select('-password')
+        const total = await userModel.countDocuments()
         
         res.json({ users, total })
     } catch (error) {

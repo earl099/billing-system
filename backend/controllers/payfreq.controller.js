@@ -1,15 +1,14 @@
 import payFreqModel from '../models/payfreq.model.js'
 
-export async function getPayFreqs(req, res) {
-    const search  = req.query.search || ''
-
-    const filter = search ? { 
-        $or: [ { payType: new RegExp(search, 'i') } ] 
-    } : {}
-
+export async function getPayFreqs(_req, res) {
     try {
-        const payFreqs = await payFreqModel.find(filter)
-        const total = await payFreqModel.countDocuments(filter)
+        const payFreqs = await payFreqModel.find()
+        const total = await payFreqModel.countDocuments()
+
+        if(payFreqs.length < 1) {
+            const payFreqObj = { payType: 'ALL' }
+            await payFreqModel.create(payFreqObj)
+        }
 
         res.json({ payFreqs, total })
     } catch (error) {

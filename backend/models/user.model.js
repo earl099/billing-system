@@ -6,7 +6,7 @@ const userSchema = Schema({
     email: { type: String, required: true, unique: true, lowercase: true },
     password: { type: String, required: true },
     role: { type: String, enum: [ 'Admin', 'User' ], default: 'User' },
-    handledClients: { type: [String], default: [''] }
+    handledClients: { type: [Schema.Types.ObjectId | null], ref: 'Client', default: '' }
 }, { timestamps: true })
 
 const userModel = model('User', userSchema)

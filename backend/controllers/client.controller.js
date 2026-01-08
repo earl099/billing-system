@@ -1,18 +1,21 @@
 import clientModel from '../models/client.model.js';
+import payFreqModel from '../models/payfreq.model.js';
 
-export async function getClients(req, res) {
-    const search = req.query.search || ''
-
-    const filter = search ? {
-        $or: [
-            { code: new RegExp(search, 'i') },
-            { name: new RegExp(search, 'i') }
-        ]
-    }: {}
-
+export async function getClients(_req, res) {
     try {
-        const clients = await clientModel.find(filter)
-        const total = await clientModel.countDocuments(filter)
+        const clients = await clientModel.find()
+        const total = await clientModel.countDocuments()
+
+        if(clients.length < 1) {
+            const payFreq = await payFreqModel.findOne({ payType: 'ALL' })
+            const clientObj = {
+                code: 'ALL',
+                name: 'All Clients',
+                payFreq: payFreq._id
+            }
+
+            await clientModel.create(clientObj)
+        }
 
         res.json({ clients, total })
     } catch (error) {

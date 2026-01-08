@@ -1,6 +1,8 @@
 import userModel from "../models/user.model.js";
+import clientModel from "../models/client.model.js";
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import payFreqModel from "../models/payfreq.model.js";
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecret'
 
@@ -21,25 +23,55 @@ export async function signup(req, res) {
         
         let user
         if(users.length < 1) {
+            const payFreqObj = { payType: 'ALL' }
+            await payFreqModel.create(payFreqObj)
+
+            const payFreq = await payFreqModel.findOne({ payType: 'ALL' })
+            const clientObj = {
+                code: 'ALL',
+                name: 'All Clients',
+                payFreq: payFreq._id
+            }
+
+            await clientModel.create(clientObj)
+
+            const client = await clientModel.findOne({ code: 'ALL' })
+
             user = await userModel.create({
                 name,
                 username,
                 email,
                 password: hash,
                 role: 'Admin',
-                handledClients: ['all']
+                handledClients: client._id
             })
         }
         else {
+            if(users.length === 1) {
+                const payFreqObj = { payType: 'NONE' }
+                await payFreqModel.create(payFreqObj)
+
+                const payFreq = await payFreqModel.findOne({ payType: 'NONE' })
+                const clientObj = {
+                    code: 'NONE',
+                    name: 'No Clients',
+                    payFreq: payFreq._id
+                }
+
+                await clientModel.create(clientObj)
+            }
+
+            const client = await clientModel.findOne({ code: 'NONE' })
             user = await userModel.create({
                 name,
                 username,
                 email,
-                password: hash
+                password: hash,
+                handledClients: client._id
             })
         }
 
-        const token = jwt.sign({ id: user._id, username: user.username }, JWT_SECRET, { expiresIn: '1d' })
+        const token = jwt.sign({ id: user._id, name: user.name }, JWT_SECRET, { expiresIn: '1d' })
         res.status(200).json({
             token,
             user: {
@@ -117,5 +149,17 @@ export async function me(req, res) {
         res.status(200).json({ user })
     } catch (error) {
         res.status(500).json({ message: `Server error: ${error}` })
+    }
+}
+
+export async function clearAll(_req, res) {
+    try {
+        const user = await userModel.deleteMany({})
+        const payFreq = await payFreqModel.deleteMany({})
+        const client = await clientModel.deleteMany({})
+
+        res.json({ user, payFreq, client })
+    } catch (error) {
+        res.json({ error })
     }
 }

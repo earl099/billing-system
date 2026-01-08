@@ -1,0 +1,37 @@
+<div class="max-w-2xl mx-auto p-6 fade-in">
+  <mat-card class="p-6 card-animate">
+    <h3 class="text-xl font-semibold mb-4">Create Client</h3>
+
+    <form [formGroup]="form" class="grid gap-4">
+      <mat-form-field appearance="fill">
+        <mat-label>Code</mat-label>
+        <input matInput formControlName="code" />
+        @if (form.get('code')?.invalid) {
+          <mat-error>Please input a valid client code.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Name</mat-label>
+        <input matInput formControlName="name" />
+        @if (form.get('name')?.invalid) {
+          <mat-error>Please input a valid client name.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Pay Frequency</mat-label>
+        <mat-select formControlName="payFreq">
+          @for (payFreq of payFreqs(); track payFreq) {
+            <mat-option [value]="payFreq._id">{{ payFreq.payType }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <div class="flex gap-3">
+        <button mat-raised-button color="primary" [disabled]="loading" (click)="submit()">Create Client</button>
+        <button mat-stroked-button routerLink="/admin/client/list">Cancel</button>
+      </div>
+    </form>
+  </mat-card>
+</div>
