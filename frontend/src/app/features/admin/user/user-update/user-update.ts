@@ -5,8 +5,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
+import { LogDTO } from '@models/log';
 import { UserDTO } from '@models/user';
+import { Auth } from '@services/auth';
 import { Client } from '@services/client';
+import { Log } from '@services/log';
 import { User } from '@services/user';
 import { toast } from 'ngx-sonner';
 
@@ -29,6 +32,8 @@ export class UserUpdate implements OnInit {
   fb = inject(FormBuilder)
   userService = inject(User)
   clientService = inject(Client)
+  authService = inject(Auth)
+  logService = inject(Log)
   route = inject(ActivatedRoute)
   router = inject(Router)
 
@@ -90,6 +95,7 @@ export class UserUpdate implements OnInit {
   async submit() {
     if(!this.userId) return
     if(this.form.invalid) return
+    if(!confirm('Are you sure you want to update this User?')) return
     this.loading = true
 
     try {
@@ -103,6 +109,12 @@ export class UserUpdate implements OnInit {
       toast.success('User updated successfully')
 
       //log function here
+      const log: LogDTO = {
+        user: this.authService.fetchUser() ?? '',
+        operation: 'Created User'
+      }
+
+      await this.logService.create(log)
     } catch (err: any) {
       this.error = err?.message ?? 'Update User failed'
       toast.error('Error: ' + (this.error ?? err?.message))

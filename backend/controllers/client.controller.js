@@ -1,5 +1,5 @@
-import clientModel from '../models/client.model.js';
-import payFreqModel from '../models/payfreq.model.js';
+import clientModel from '#models/client.model.js';
+import payFreqModel from '#models/payfreq.model.js';
 
 export async function getClients(_req, res) {
     try {

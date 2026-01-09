@@ -9,7 +9,13 @@
       <p><strong>Role:</strong> {{ user().role }}</p>
       <p>
         <strong>Handled Clients:</strong>
-        <!-- TODO: DISPLAY HANDLED CLIENT CODES -->
+        @for (client of user().handledClients; track client) {
+          @for (c of clients(); track c) {
+            @if(c._id === client) {
+              {{ c.code }}
+            }
+          }
+        }
       </p>
     }
 

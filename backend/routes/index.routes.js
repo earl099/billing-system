@@ -1,9 +1,10 @@
-import authRouter from "./auth.routes.js";
-import clientRouter from "./client.routes.js";
-import logRouter from "./log.routes.js";
-import payFreqRouter from "./payfreq.routes.js";
-import signupRouter from "./signup.routes.js";
-import userRouter from "./user.routes.js";
+import authRouter from "#routes/auth.routes.js";
+import clientRouter from "#routes/client.routes.js";
+import logRouter from "#routes/log.routes.js";
+import payFreqRouter from "#routes/payfreq.routes.js";
+import signupRouter from "#routes/signup.routes.js";
+import userRouter from "#routes/user.routes.js";
+import acidRouter from "#routes/acid.routes.js";
 
 const ALL_ROUTES = [
     signupRouter,
@@ -11,7 +12,8 @@ const ALL_ROUTES = [
     authRouter,
     userRouter,
     payFreqRouter,
-    clientRouter
+    clientRouter,
+    acidRouter
 ]
 
 export default ALL_ROUTES

@@ -22,6 +22,7 @@
       "@interceptors/*": ["src/app/core/interceptors/*"],
       "@services/*": ["src/app/core/services/*"],
       "@models/*": ["src/app/core/models/*"],
+      "@billing/*": ["src/app/features/billing/*"],
       "@env/*": ["src/environments/*"],
       "@material": ["src/app/material.ts"],
       "@styles/*": ["src/styles/*"]

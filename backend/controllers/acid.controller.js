@@ -1,29 +1,59 @@
-import acidBillingModel from "../models/acid.model"
-import { generateBillingLetter } from "../services/billing-letter.service"
-import { convertDocxToPdf } from "../services/pdf.service"
+import 'module-alias/register.js'
+import acidBillingModel from '#models/acid.model.js'
+import { docxToPdf, mergePdfs } from '#utils/pdf.util.js'
 
-export async function generate(req, res) {
+export async function previewBilling(req, res) {
+    const billingLetter = req.files.billingLetter[0]
+    const attachments = req.files.attachments || []
+
+    const previewFiles = []
+
+    async function toPdf(file) {
+        if(file.mimetype.includes('word')) {
+            const pdfPath = `${file.path}.pdf`
+            await docxToPdf(file.path, pdfPath)
+            return pdfPath
+        }
+        return file.path
+    }
+}
+
+export async function generateAcidBilling(req, res) {
     try {
-        const data = JSON.parse(req.body.data)
-        const ref = Date.now()
+        const billingLetter = req.files.billingLetter[0]
+        const attachments = req.files.attachments || []
 
-        const docxPath = `uploads/billing-${ref}.docx`
-        const pdfPath = `uploads/billing-${ref}.pdf`
+        const tempPdfs = []
 
-        await generateBillingLetter(data, docxPath)
-        await convertDocxToPdf(docxPath, pdfPath)
+        let billingPdf = billingLetter.path
+        if(billingLetter.mimetype.includes('word')) {
+            billingPdf = `${billingLetter.path}.pdf`
+            await docxToPdf(billingLetter.path, billingPdf)
+        }
+
+        for(const f of attachments) {
+            if(f.mimetype.includes('word')) {
+                const pdfPath = `${f.path}.pdf`
+                await docxToPdf(f.path, pdfPath)
+                tempPdfs.push(pdfPath)
+            }
+            else {
+                tempPdfs.push(f.path)
+            }
+        }
+
+        const finalPdf = `uploads/final-${Date.now()}.pdf`
+        await mergePdfs(tempPdfs, finalPdf)
 
         const record = await acidBillingModel.create({
-            referenceNo: ref,
-            ...data,
-            billingLetterDocx: docxPath,
-            uploadedFiles: req.files.map(f => f.path),
-            finalPdf: pdfPath,
-            createdBy: req.user.name
+            billingLetter: billingLetter.filename,
+            attachments: attachments.map(a => a.filename),
+            finalPdf,
+            createdBy: req.user.id
         })
 
-        res.json({ record, downloadUrl: pdfPath })
+        res.json({ record, downloadUrl: `/${finalPdf}` })
     } catch (error) {
-        res.status(500).json({ message: 'Server error: ', error })
+        res.json({ error })
     }
 }

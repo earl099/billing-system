@@ -1,4 +1,4 @@
-import userModel from "../models/user.model.js";
+import userModel from "#models/user.model.js";
 import bcrypt from 'bcrypt';
 
 export async function getUsers(_req, res) {

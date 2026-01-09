@@ -1,4 +1,4 @@
-import logModel from '../models/log.model.js'
+import logModel from '#models/log.model.js'
 
 export async function getLogs(_req, res) {
     try {

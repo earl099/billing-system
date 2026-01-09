@@ -1,4 +1,4 @@
-import payFreqModel from '../models/payfreq.model.js'
+import payFreqModel from '#models/payfreq.model.js'
 
 export async function getPayFreqs(_req, res) {
     try {

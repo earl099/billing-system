@@ -1,0 +1,26 @@
+<mat-card class="p-6 card-animate max-w-3xl mx-auto">
+  <h2 class="text-2xl font-semibold mb-4">Generate ACID Billing</h2>
+
+  <input type="file" #fileInput accept=".pdf, .docx" hidden (change)="selectBillingLetter($event)" />
+  <button mat-raised-button (click)="fileInput.click()" class="mb-4">Upload Billing Letter</button>
+
+  <input type="file" #fileInput1 accept=".pdf, .docx" hidden (change)="selectAttachments($event)" />
+  <button mat-raised-button (click)="fileInput1.click()" class="mb-4">Upload Supporting Files</button>
+
+
+  <button mat-raised-button color="primary"
+          class="motion-smooth mb-4"
+          [disabled]="loading()"
+          (click)="submit()">
+    Generate PDF
+  </button>
+
+  <div class="flex mt-4 justify-evenly">
+    @if(downloadUrl() !== null) {
+      <a [href]="downloadUrl()" download class="block mt-4 text-blue-600">Download Final Billing PDF</a>
+    }
+
+    <button mat-stroked-button (click)="router.navigate(['/dashboard'])">Back to Dashboard</button>
+  </div>
+
+</mat-card>

@@ -87,7 +87,7 @@ export class UserList implements OnInit {
     //log creation function here
     const log: LogDTO = {
       user: this.authService.fetchUser() ?? '',
-      operation: 'Deleted Pay Frequency'
+      operation: 'Deleted User'
     }
 
     await this.logService.create(log)

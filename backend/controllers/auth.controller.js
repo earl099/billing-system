@@ -1,8 +1,8 @@
-import userModel from "../models/user.model.js";
-import clientModel from "../models/client.model.js";
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import payFreqModel from "../models/payfreq.model.js";
+import userModel from "#models/user.model.js";
+import clientModel from "#models/client.model.js";
+import payFreqModel from "#models/payfreq.model.js";
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecret'
 

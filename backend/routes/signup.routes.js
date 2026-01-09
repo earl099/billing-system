@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { getPayFreqs } from "../controllers/payfreq.controller.js";
-import { getClients } from '../controllers/client.controller.js';
-import { getUsers } from '../controllers/user.controller.js';
+import { getPayFreqs } from "#controllers/payfreq.controller.js";
+import { getClients } from '#controllers/client.controller.js';
+import { getUsers } from '#controllers/user.controller.js';
 
 const signupRouter = Router()
 

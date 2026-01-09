@@ -23,10 +23,7 @@ export class UserView implements OnInit {
   async ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id')!
     this.user.set(await this.userService.get(id))
-
-    //TODO: FIX THE BUG WHERE THE HANDLED CLIENTS ARE NOT DISPLAYING
-    const clientList = await this.clientService.list()
-    
+    this.clients.set(await this.clientService.list())
   }
 
   edit() {

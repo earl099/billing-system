@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { authMiddleware } from "../middleware/auth.middleware.js";
-import { adminMiddleware } from "../middleware/admin.middleware.js";
-import { createClient, deleteClient, getClient, getClients, updateClient } from "../controllers/client.controller.js";
+import { authMiddleware } from "#middleware/auth.middleware.js";
+import { adminMiddleware } from "#middleware/admin.middleware.js";
+import { createClient, deleteClient, getClient, getClients, updateClient } from "#controllers/client.controller.js";
 
 const clientRouter = Router()
 
