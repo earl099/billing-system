@@ -10,12 +10,20 @@ export class Billing {
   private apiUrl = environment.apiUrl
   private http = inject(HttpClient)
 
-  async acidBilling(letter: File, attachments: File[]) {
+  private form(letter: File, attachments: File[]) {
     const fd = new FormData()
     fd.append('billingLetter', letter)
-    attachments.forEach(f => fd.append('attachments', f))
+    attachments.forEach(a => fd.append('attachments', a))
+    return fd
+  }
 
-    const res: any = await firstValueFrom(this.http.post(`${this.apiUrl}/acid/generate`, fd))
+  async acidBillingGenerate(letter: File, attachments: File[]) {
+    const res: any = await firstValueFrom(this.http.post<any>(`${this.apiUrl}/acid/generate`, this.form(letter, attachments)))
+    return res
+  }
+
+  async acidBillingPreview(letter: File, attachments: File[]) {
+    const res: any = await firstValueFrom(this.http.post<any>(`${this.apiUrl}/acid/preview`, this.form(letter, attachments)))
     return res
   }
 }

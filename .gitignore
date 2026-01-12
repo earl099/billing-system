@@ -42,6 +42,7 @@ frontend/libpeerconnection.log
 frontend/testem.log
 frontend/typings
 frontend/__screenshots__/
+backend/.env
 
 # System files
 .DS_Store

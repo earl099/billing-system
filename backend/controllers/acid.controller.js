@@ -1,59 +1,76 @@
-import 'module-alias/register.js'
+import path from 'path'
+import fs from 'fs'
+
 import acidBillingModel from '#models/acid.model.js'
-import { docxToPdf, mergePdfs } from '#utils/pdf.util.js'
+import { docxToPdf, makePdfPath, mergePdfs } from '#utils/pdf.util.js'
+import { uploadPdf } from '#utils/cloudinary.util.js'
+
+async function ensurePdf(file) {
+    const isPdf = file.originalname.toLowerCase().endsWith('.pdf')
+    
+    if(isPdf) {
+        return file.path
+    }
+
+    const pdfPath = makePdfPath(file.path)
+    await docxToPdf(file.path, pdfPath)
+    return pdfPath
+}
 
 export async function previewBilling(req, res) {
-    const billingLetter = req.files.billingLetter[0]
-    const attachments = req.files.attachments || []
+    try {
+        const billingLetter = req.files.billingLetter[0];
+        const attachments = req.files.attachments || [];
 
-    const previewFiles = []
+        const previewFiles = []
 
-    async function toPdf(file) {
-        if(file.mimetype.includes('word')) {
-            const pdfPath = `${file.path}.pdf`
-            await docxToPdf(file.path, pdfPath)
-            return pdfPath
+        const billingPdf = await ensurePdf(billingLetter)
+        const uploadedBilling = await uploadPdf(billingPdf)
+
+        previewFiles.push({ label: 'Billing Letter', ...uploadedBilling })
+
+        for(const file of attachments) {
+            const pdf = await ensurePdf(file)
+            const uploaded = await uploadPdf(pdf)
+            previewFiles.push({ label: file.originalname, ...uploaded })
         }
-        return file.path
+
+        res.json({ previewFiles })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ message: 'Preview generation failed' })
     }
 }
 
 export async function generateAcidBilling(req, res) {
     try {
-        const billingLetter = req.files.billingLetter[0]
-        const attachments = req.files.attachments || []
+        const billingLetter = req.files.billingLetter[0];
+        const attachments = req.files.attachments || [];
 
-        const tempPdfs = []
+        const files = [];
 
-        let billingPdf = billingLetter.path
-        if(billingLetter.mimetype.includes('word')) {
-            billingPdf = `${billingLetter.path}.pdf`
-            await docxToPdf(billingLetter.path, billingPdf)
+        const billingPdf = await ensurePdf(billingLetter)
+        files.push(billingPdf)
+
+        for(const file of attachments) {
+            const pdf = await ensurePdf(file)
+            files.push(pdf)
         }
 
-        for(const f of attachments) {
-            if(f.mimetype.includes('word')) {
-                const pdfPath = `${f.path}.pdf`
-                await docxToPdf(f.path, pdfPath)
-                tempPdfs.push(pdfPath)
-            }
-            else {
-                tempPdfs.push(f.path)
-            }
-        }
+        const finalPath = path.join(
+            'uploads',
+            `billing-final-${Date.now()}.pdf`
+        )
 
-        const finalPdf = `uploads/final-${Date.now()}.pdf`
-        await mergePdfs(tempPdfs, finalPdf)
+        await mergePdfs(files, finalPath)
 
-        const record = await acidBillingModel.create({
-            billingLetter: billingLetter.filename,
-            attachments: attachments.map(a => a.filename),
-            finalPdf,
-            createdBy: req.user.id
-        })
+        const uploadedFinal = await uploadPdf(finalPath)
 
-        res.json({ record, downloadUrl: `/${finalPdf}` })
+        const record = await acidBillingModel.create({ finalPdf:uploadedFinal, createdBy: req.user.id })
+
+        res.json({ success: true, record, downloadUrl: uploadedFinal.url })
     } catch (error) {
-        res.json({ error })
+        console.log(error)
+        res.status(500).json({ message: 'Billing generation failed' })
     }
 }
