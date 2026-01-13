@@ -1,13 +1,10 @@
-import 'module-alias/register.js'
+import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
-import dotenv from 'dotenv'
 import mongoose from 'mongoose'
 import ALL_ROUTES from '#routes/index.routes.js'
 import path from 'path'
 import { fileURLToPath } from 'url'
-
-dotenv.config()
 
 const app = express()
 

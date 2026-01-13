@@ -25,6 +25,7 @@ export class App implements OnInit {
 
   ngOnInit(): void {
     this.user.set(this.authService.getProfile())
+    if(this.authService.isAuthenticated()) this.router.navigate(['dashboard'])
   }
 
   home() {

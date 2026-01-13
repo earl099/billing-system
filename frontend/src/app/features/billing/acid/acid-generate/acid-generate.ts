@@ -2,9 +2,11 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
+import { LogDTO } from '@models/log';
 import { Auth } from '@services/auth';
 import { Billing } from '@services/billing';
 import { Log } from '@services/log';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-generate',
@@ -39,7 +41,8 @@ export class AcidGenerate {
     )
     this.previews.set(res.previewFiles.map((p: any) => ({
       label: p.label,
-      url: this.sanitizer.bypassSecurityTrustResourceUrl(p.url)
+      url: this.sanitizer.bypassSecurityTrustResourceUrl(p.url),
+      public_id: p.public_id
     })))
     this.loading.set(false)
   }
@@ -50,18 +53,29 @@ export class AcidGenerate {
 
     try {
       this.loading.set(true)
-      const billing = await this.billingService.acidBillingGenerate(
-        this.billingLetter()!,
-        this.attachments()
-      )
+
+      const formData = new FormData
+      formData.append('billingLetter', this.billingLetter()!)
+      this.attachments().forEach(f => formData.append('attachments', f))
+      formData.append('previewPublicIds', JSON.stringify(this.previews().map((p: any) => p.public_id)))
+
+      const billing = await this.billingService.acidBillingGenerate(formData)
 
       this.downloadUrl.set(billing.downloadUrl)
       this.loading.set(false)
-    } catch (error) {
+
+      const user = signal(await this.authService.getProfile())
+      const logObject: LogDTO = {
+        user: user().name,
+        operation: 'Generated Billing for ACID'
+      }
+
+      await this.logService.create(logObject)
+    } catch (error: any) {
+      toast.error('Error: ' + error)
       console.log(error)
     }
 
 
-    //TODO: INPUT LOG FUNCTION HERE
   }
 }

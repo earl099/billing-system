@@ -17,8 +17,8 @@ export class Billing {
     return fd
   }
 
-  async acidBillingGenerate(letter: File, attachments: File[]) {
-    const res: any = await firstValueFrom(this.http.post<any>(`${this.apiUrl}/acid/generate`, this.form(letter, attachments)))
+  async acidBillingGenerate(fd: FormData) {
+    const res: any = await firstValueFrom(this.http.post<any>(`${this.apiUrl}/acid/generate`, fd))
     return res
   }
 
@@ -26,4 +26,6 @@ export class Billing {
     const res: any = await firstValueFrom(this.http.post<any>(`${this.apiUrl}/acid/preview`, this.form(letter, attachments)))
     return res
   }
+
+  
 }

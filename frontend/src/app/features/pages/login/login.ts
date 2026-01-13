@@ -46,7 +46,6 @@ export class Login {
       const user = await this.authService.login(userAuth)
       console.log(user.user.name)
 
-      //log function to be put here
       const logObject: LogDTO = {
         user: user.user.name,
         operation: 'Logged In'
