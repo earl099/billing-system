@@ -1,19 +1,19 @@
 import fs from 'fs'
 import mammoth from 'mammoth'
-import puppeteer from 'puppeteer'
+import puppeteer from 'puppeteer-core'
 import { PDFDocument } from 'pdf-lib'
 
 export async function docxToPdf(docxPath, outputPath) {
     try {
         const { value } = await mammoth.convertToHtml({ path: docxPath })
-
         const browser = await puppeteer.launch({ 
-            headless: true,
+            executablePath: 'usr/bin/chromium',
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox'
             ]
         })
+
         const page = await browser.newPage()
         await page.setContent(value)
         await page.pdf({ path: outputPath, format: 'A4' })

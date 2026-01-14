@@ -3,7 +3,6 @@ import fs from 'fs'
 
 import acidBillingModel from '#models/acid.model.js'
 import { docxToPdf, mergePdfs } from '#utils/pdf.util.js'
-import { makePdfPath } from '#utils/file.util.js'
 import { deletePreviews, uploadPreviewPdf, uploadFinalPdf } from '#utils/cloudinary.util.js'
 
 async function ensurePdf(file) {
@@ -13,11 +12,12 @@ async function ensurePdf(file) {
         return file.path
     }
 
-    const pdfPath = makePdfPath(file.path)
+    const pdfPath = file.path.replace(path.extname(file.path), '.pdf')
+
     await docxToPdf(file.path, pdfPath)
 
     file._generatedPdf = pdfPath
-    fs.unlinkSync(file.path)
+    fs.unlink(file.path)
     return pdfPath
 }
 
@@ -34,6 +34,12 @@ export async function previewBilling(req, res) {
         previewFiles.push(uploadedBilling)
 
         for(const file of attachments) {
+            try {
+                fs.access(file)
+            } catch {
+                throw new Error(`PDF missing: ${file}`)
+            }
+            
             const pdf = await ensurePdf(file)
             const uploaded = await uploadPreviewPdf(pdf, file.originalname)
             previewFiles.push(uploaded)
@@ -56,6 +62,12 @@ export async function generateAcidBilling(req, res) {
         files.push(await ensurePdf(billingLetter))
 
         for(const file of req.files.attachments || []) {
+            try {
+                fs.access(file)
+            } catch {
+                throw new Error(`PDF missing: ${file}`)
+            }
+
             const pdf = await ensurePdf(file)
             files.push(pdf)
         }
@@ -86,6 +98,6 @@ export async function generateAcidBilling(req, res) {
 
 export async function cleanupPreviews(req, res) {
     const { previewPublicIds } = req.body
-    await deletePreviews(previewPublicIds  || [])
-    res/status(200)
+    await deletePreviews(previewPublicIds || [])
+    res.status(200)
 }
