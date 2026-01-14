@@ -1,5 +1,5 @@
 import path from 'path'
-import fs from 'fs'
+import fs from 'fs/promises'
 
 import acidBillingModel from '#models/acid.model.js'
 import { docxToPdf, mergePdfs } from '#utils/pdf.util.js'
@@ -35,7 +35,7 @@ export async function previewBilling(req, res) {
 
         for(const file of attachments) {
             try {
-                fs.access(file)
+                await fs.access(file)
             } catch {
                 throw new Error(`PDF missing: ${file}`)
             }
@@ -63,7 +63,7 @@ export async function generateAcidBilling(req, res) {
 
         for(const file of req.files.attachments || []) {
             try {
-                fs.access(file)
+                await fs.access(file)
             } catch {
                 throw new Error(`PDF missing: ${file}`)
             }
