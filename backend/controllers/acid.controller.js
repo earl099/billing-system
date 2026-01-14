@@ -32,13 +32,14 @@ export async function previewBilling(req, res) {
         previewFiles.push(uploadedBilling)
 
         for(const file of attachments) {
+            const pdf = await ensurePdf(file)
+
             try {
                 await fs.access(file)
             } catch {
                 throw new Error(`PDF missing: ${file}`)
             }
             
-            const pdf = await ensurePdf(file)
             const uploaded = await uploadPreviewPdf(pdf, file.originalname)
             previewFiles.push(uploaded)
         }
@@ -60,13 +61,14 @@ export async function generateAcidBilling(req, res) {
         files.push(await ensurePdf(billingLetter))
 
         for(const file of req.files.attachments || []) {
+            const pdf = await ensurePdf(file)
+            
             try {
                 await fs.access(file)
             } catch {
                 throw new Error(`PDF missing: ${file}`)
             }
 
-            const pdf = await ensurePdf(file)
             files.push(pdf)
         }
 
