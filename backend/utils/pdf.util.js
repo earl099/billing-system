@@ -4,13 +4,24 @@ import puppeteer from 'puppeteer'
 import { PDFDocument } from 'pdf-lib'
 
 export async function docxToPdf(docxPath, outputPath) {
-    const { value } = await mammoth.convertToHtml({ path: docxPath })
+    try {
+        const { value } = await mammoth.convertToHtml({ path: docxPath })
 
-    const browser = await puppeteer.launch({ headless: 'new' })
-    const page = await browser.newPage()
-    await page.setContent(value)
-    await page.pdf({ path: outputPath, format: 'A4' })
-    await browser.close()
+        const browser = await puppeteer.launch({ 
+            headless: true,
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox'
+            ]
+        })
+        const page = await browser.newPage()
+        await page.setContent(value)
+        await page.pdf({ path: outputPath, format: 'A4' })
+        await browser.close()
+    } catch (error) {
+        console.log('Could not create browser instance: ', error)
+    }
+    
 }
 
 export async function mergePdfs(pdfPaths, outputPath) {

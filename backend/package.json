@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node index.js",
     "test": "nodemon index.js",
-    "postinstall": "npx puppeteer browsers install"
+    "postinstall": "npx puppeteer browsers install chrome"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.966.0",
