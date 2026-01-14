@@ -23,7 +23,13 @@ export class Billing {
   }
 
   async acidBillingPreview(formData: FormData) {
-    const res: any = await firstValueFrom(this.http.post<any>(`${this.apiUrl}/acid/preview`, formData))
+    const res: any = await firstValueFrom(
+      this.http.post<any>(
+        `${this.apiUrl}/acid/preview`,
+        formData,
+        { withCredentials: true }
+      )
+    )
     return res
   }
 
