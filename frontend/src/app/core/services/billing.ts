@@ -22,10 +22,13 @@ export class Billing {
     return res
   }
 
-  async acidBillingPreview(letter: File, attachments: File[]) {
-    const res: any = await firstValueFrom(this.http.post<any>(`${this.apiUrl}/acid/preview`, this.form(letter, attachments)))
+  async acidBillingPreview(formData: FormData) {
+    const res: any = await firstValueFrom(this.http.post<any>(`${this.apiUrl}/acid/preview`, formData))
     return res
   }
 
-
+  async cleanup(previewPublicIds: string[]) {
+    const res: any = await firstValueFrom(this.http.post(`${this.apiUrl}/acid/cleanup`, { previewPublicIds }))
+    return res
+  }
 }

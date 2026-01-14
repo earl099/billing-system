@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnDestroy, signal } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
@@ -15,11 +15,11 @@ import { toast } from 'ngx-sonner';
   styleUrl: './acid-generate.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AcidGenerate {
+export class AcidGenerate implements OnDestroy {
   //** SIGNALS TO BE USED **/
   billingLetter = signal<File | null>(null);
   attachments = signal<File[]>([]);
-  previews = signal<{ label: string, url: SafeResourceUrl }[]>([])
+  previews = signal<{ label: string, url: SafeResourceUrl, public_id: string }[]>([])
   loading = signal(false);
   downloadUrl = signal<string | null>(null);
 
@@ -38,11 +38,14 @@ export class AcidGenerate {
   async preview() {
     if(!this.billingLetter()) return alert('Billing Letter required');
 
+    const fd = new FormData
+    fd.append('billingLetter', this.billingLetter()!)
+    this.attachments().forEach(f => fd.append('attachments', f))
+    fd.append('previewPublicIds', JSON.stringify(this.previews().map((p: any) => p.public_id)))
+
     this.loading.set(true)
-    const res = await this.billingService.acidBillingPreview(
-      this.billingLetter()!,
-      this.attachments()
-    )
+    const res = await this.billingService.acidBillingPreview(fd)
+
     this.previews.set(res.previewFiles.map((p: any) => ({
       label: p.label,
       url: this.sanitizer.bypassSecurityTrustResourceUrl(p.url),
@@ -51,7 +54,7 @@ export class AcidGenerate {
     this.loading.set(false)
   }
 
-  
+  //** GENERATE FUNCTION **/
   async generate() {
     if(!this.billingLetter()) return alert('Billing Letter required')
     if(!confirm('Are you sure you want to generate this Billing?')) return
@@ -80,7 +83,13 @@ export class AcidGenerate {
       toast.error('Error: ' + error)
       console.log(error)
     }
+  }
 
-
+  async ngOnDestroy() {
+    if(this.previews().length) {
+      await this.billingService.cleanup(
+        this.previews().map(p => p.public_id)
+      )
+    }
   }
 }

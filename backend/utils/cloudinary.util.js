@@ -2,29 +2,40 @@ import cloudinary from "#config/cloudinary.js";
 import path from 'path'
 import fs from 'fs'
 
-export async function uploadPdf(filePath, originalName = 'document.pdf') {
-    const base = path.parse(originalName).name
-    const safeName = base.replace(/[^a-z0-9_-]/gi, '_').toLowerCase()
-
-    const res = await cloudinary.uploader.upload(filePath, {
-        resource_type: 'raw',
-        folder: 'billing',
-        public_id: safeName + '-' + Date.now(),
-        use_filename: true,
-        unique_filename: true,
-        format: 'pdf'
-    })
-
-    fs.unlinkSync(filePath)
-
-    return {
-        url: res.secure_url,
-        public_id: res.public_id,
-        originalName
-    }
+function safeName(originalName = 'document.pdf') {
+    return path
+        .parse(originalName)
+        .name.replace(/[^a-z0-9_-]/gi, '_')
+        .toLowerCase()
 }
 
-export async function deleteFiles(publicIds = []) {
+export async function uploadPreviewPdf(filePath, originalName) {
+    const res = await cloudinary.uploader.upload(filePath, {
+        resource_type: 'raw',
+        folder: 'billing/previews',
+        public_id: `${safeName(originalName)}-${Date.now()}`,
+        format: 'pdf',
+        unique_filename: false
+    })
+
+    fs.existsSync(filePath) && fs.unlinkSync(filePath)
+    return res
+}
+
+export async function uploadFinalPdf(filePath, name) {
+    const res = await cloudinary.uploader.upload(filePath, {
+        resource_type: 'raw',
+        folder: 'billing/final',
+        public_id: `${safeName(name)}-${Date.now()}`,
+        format: 'pdf',
+        unique_filename: false
+    })
+
+    fs.existsSync(filePath) && fs.unlinkSync(filePath)
+    return res
+}
+
+export async function deletePreviews(publicIds = []) {
     if(!publicIds.length) return
 
     await cloudinary.api.delete_resources(publicIds, {
