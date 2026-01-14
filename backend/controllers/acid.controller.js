@@ -6,9 +6,7 @@ import { docxToPdf, mergePdfs } from '#utils/pdf.util.js'
 import { deletePreviews, uploadPreviewPdf, uploadFinalPdf } from '#utils/cloudinary.util.js'
 
 async function ensurePdf(file) {
-    const isPdf = file.originalname.toLowerCase().endsWith('.pdf')
-    
-    if(isPdf) {
+    if(file.originalname.toLowerCase().endsWith('.pdf')) {
         return file.path
     }
 
@@ -76,6 +74,10 @@ export async function generateAcidBilling(req, res) {
             'uploads',
             `billing-final-${Date.now()}.pdf`
         )
+
+        for(const file of files) {
+            await fs.access(file)
+        }
         await mergePdfs(files, finalPath)
 
         const uploadedFinal = await uploadFinalPdf(finalPath, billingName)

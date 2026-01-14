@@ -15,11 +15,12 @@ export async function docxToPdf(docxPath, outputPath) {
         })
 
         const page = await browser.newPage()
-        await page.setContent(value)
+        await page.setContent(value, { waitUntil: 'networkidle0' })
         await page.pdf({ path: outputPath, format: 'A4' })
-        await browser.close()
     } catch (error) {
         console.log('Could not create browser instance: ', error)
+    } finally {
+        await browser.close()
     }
     
 }
