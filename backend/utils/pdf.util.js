@@ -1,6 +1,6 @@
 import fs from 'fs'
 import mammoth from 'mammoth'
-import puppeteer from 'puppeteer-core'
+import puppeteer from 'puppeteer'
 import { PDFDocument } from 'pdf-lib'
 
 export async function docxToPdf(docxPath, outputPath) {
