@@ -16,8 +16,8 @@ npx puppeteer browsers install chrome
 if [[ ! -d $PUPPETEER_CACHE_DIR ]]; then
     echo "...Copying Puppeteer Cache from Build Cache"
     #copying from the actual path where Puppeteer stores its chrome binary
-    cp -R /opt/render/backend/.cache/puppeteer/chrome $PUPPETEER_CACHE_DIR
+    cp -R /opt/render/.cache/puppeteer/chrome $PUPPETEER_CACHE_DIR
 else
     echo "...Storing Puppeteer Cache in Build Cache"
-    cp -R $PUPPETEER_CACHE_DIR /opt/render/backend/.cache/puppeteer/chrome
+    cp -R $PUPPETEER_CACHE_DIR /opt/render/.cache/puppeteer/chrome
 fi
