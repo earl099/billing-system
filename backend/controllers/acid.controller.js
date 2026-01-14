@@ -42,7 +42,7 @@ export async function previewBilling(req, res) {
         res.json({ previewFiles })
     } catch (error) {
         console.log(error)
-        res.status(500).json({ message: 'Preview generation failed' })
+        res.status(500).json({ message: 'Preview generation failed', error })
     }
 }
 

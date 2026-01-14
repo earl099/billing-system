@@ -16,21 +16,25 @@ import { toast } from 'ngx-sonner';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AcidGenerate {
+  //** SIGNALS TO BE USED **/
   billingLetter = signal<File | null>(null);
   attachments = signal<File[]>([]);
   previews = signal<{ label: string, url: SafeResourceUrl }[]>([])
   loading = signal(false);
   downloadUrl = signal<string | null>(null);
 
+  //** SERVICES NEEDED **/
   billingService = inject(Billing)
   authService = inject(Auth)
   logService = inject(Log)
   router = inject(Router)
   sanitizer = inject(DomSanitizer)
 
+  //** FILE SELECTION **/
   selectBillingLetter(e: any) { this.billingLetter.set(e.target.files[0]) }
   selectAttachments(e: any) { this.attachments.set([...e.target.files]) }
 
+  //** PREVIEW FUNCTION **/
   async preview() {
     if(!this.billingLetter()) return alert('Billing Letter required');
 
@@ -47,7 +51,8 @@ export class AcidGenerate {
     this.loading.set(false)
   }
 
-  async submit() {
+  
+  async generate() {
     if(!this.billingLetter()) return alert('Billing Letter required')
     if(!confirm('Are you sure you want to generate this Billing?')) return
 
