@@ -15,7 +15,7 @@ async function ensurePdf(file) {
     await docxToPdf(file.path, pdfPath)
 
     file._generatedPdf = pdfPath
-    fs.unlink(file.path)
+    await fs.unlink(file.path)
     return pdfPath
 }
 

@@ -5,9 +5,8 @@ import { PDFDocument } from 'pdf-lib'
 
 export async function docxToPdf(docxPath, outputPath) {
     try {
-        const { value } = await mammoth.convertToHtml({ path: docxPath })
+        const content = await fs.readFile(docxPath, 'utf-8')
         const browser = await puppeteer.launch({ 
-            executablePath: 'usr/bin/chromium',
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox'
@@ -15,7 +14,7 @@ export async function docxToPdf(docxPath, outputPath) {
         })
 
         const page = await browser.newPage()
-        await page.setContent(value, { waitUntil: 'networkidle0' })
+        await page.setContent(`<pre>${content}</pre>`, { waitUntil: 'networkidle0' })
         await page.pdf({ path: outputPath, format: 'A4' })
     } catch (error) {
         console.log('Could not create browser instance: ', error)
