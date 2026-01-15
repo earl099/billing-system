@@ -27,4 +27,6 @@ export async function mergePdfs(pdfPaths, outputPath) {
     }
 
     await fs.writeFile(outputPath, await mergedPdf.save())
+
+    return outputPath
 }
