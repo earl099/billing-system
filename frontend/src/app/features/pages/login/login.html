@@ -1,0 +1,28 @@
+<div class="flex justify-center items-center h-screen fade-in">
+  <mat-card class="w-96 p-8 card-animate">
+    <h2 class="text-2xl font-semibold mb-6 text-center">Login</h2>
+
+    <form [formGroup]="form" class="flex flex-col gap-4">
+      <mat-form-field class="w-full">
+        <input matInput placeholder="Email/Username" formControlName="identifier" />
+        @if (form.get('identifier')?.invalid) { <mat-error>Enter a username/email</mat-error> }
+      </mat-form-field>
+
+      <mat-form-field class="w-full mt-3">
+        <input matInput type="password" placeholder="Password" formControlName="password" />
+        @if (form.get('password')?.invalid) { <mat-error>Enter a valid password</mat-error> }
+      </mat-form-field>
+
+      <div class="mt-3 flex justify-between items-center">
+        <button mat-raised-button color="primary" [disabled]="loading || form.invalid" (click)="submit()" class="w-full motion-smooth">Login</button>
+      </div>
+
+      @if (error) { <p class="text-red-600 mt-3">{{ error }}</p> }
+    </form>
+
+    <p class="mt-4 text-center text-sm">
+      No account?
+      <a routerLink="/signup" class="text-blue-600">Sign up</a>
+    </p>
+  </mat-card>
+</div>

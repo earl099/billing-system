@@ -1,0 +1,25 @@
+<div class="max-w-6xl mx-auto p-6 fade-in">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-semibold">Pay Frequency Management</h2>
+    <button mat-raised-button color="primary" routerLink="/admin/payfreq/create" class="motion-smooth">Add Pay Frequency</button>
+  </div>
+
+  <mat-card class="p-4 card-animate">
+    <table mat-table [dataSource]="paginatedPayFreqs()" class="w-full">
+      <ng-container matColumnDef="payType">
+        <th mat-header-cell *matHeaderCellDef>Pay Type</th>
+        <td mat-cell *matCellDef="let p">{{ p.payType }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="delete">
+        <th mat-header-cell *matHeaderCellDef>Delete</th>
+        <td mat-cell *matCellDef="let p">
+          <button mat-icon-button color="warn" (click)="deletePayFreq(p)" title="Delete" matTooltip="Delete Pay Frequency" [disabled]="isUsed(p)"><mat-icon>delete</mat-icon></button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns;"></tr>
+    </table>
+  </mat-card>
+</div>

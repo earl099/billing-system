@@ -1,0 +1,40 @@
+<div class="max-w-5xl mx-auto p-6 fade-in">
+  <h2 class="text-3xl font-semibold mb-6">Dashboard</h2>
+  <mat-card class="p-6 mb-6 motion-smooth scale-in">
+    <h3 class="text-xl font-semibold mb-2">Welcome, {{ user().name }}</h3>
+    <p class="text-gray-600">Email: {{ user().email }}</p>
+    <p class="text-gray-600">Role: {{ user().role }}</p>
+  </mat-card>
+
+  @if (user().role === 'Admin') {
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <mat-card class="p-6 card-animate motion-smooth">
+        <h4 class="text-lg font-semibold mb-2">Admin</h4>
+        <button mat-button routerLink="/admin/user/list">Manage Users</button>
+        <button mat-button routerLink="/admin/payfreq/list">Manage Pay Frequencies</button>
+        <button mat-button routerLink="/admin/client/list">Manage Clients</button>
+        <button mat-button routerLink="/admin/log/list">View Logs</button>
+      </mat-card>
+
+      <mat-card class="p-6 card-animate motion-smooth delay-200">
+        <h4 class="text-lg font-semibold mb-2">Billing</h4>
+        <button mat-button routerLink="/billing/acid/generate">ACID Billing</button>
+      </mat-card>
+
+      <mat-card class="p-6 card-animate motion-smooth delay-300">
+        <h4 class="text-lg font-semibold mb-2">Reports</h4>
+      </mat-card>
+    </div>
+  }
+  @else {
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <mat-card class="p-6 card-animate motion-smooth delay-200">
+        <h4 class="text-lg font-semibold mb-2">Billing</h4>
+      </mat-card>
+
+      <mat-card class="p-6 card-animate motion-smooth delay-300">
+        <h4 class="text-lg font-semibold mb-2">Reports</h4>
+      </mat-card>
+    </div>
+  }
+</div>

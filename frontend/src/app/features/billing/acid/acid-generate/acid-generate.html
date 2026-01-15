@@ -1,0 +1,49 @@
+<mat-card class="p-6 card-animate max-w-3xl mx-auto">
+  <h2 class="text-2xl font-semibold mb-4">Generate ACID Billing</h2>
+
+  <div class="space-y-3 mb-6">
+    <input type="file" #fileInput accept=".pdf, .docx" hidden (change)="selectBillingLetter($event)" />
+    <button mat-raised-button (click)="fileInput.click()" class="mb-4">Upload Billing Letter</button>
+
+    <input type="file" #fileInput1 multiple accept=".pdf, .docx" hidden (change)="selectAttachments($event)" />
+    <button mat-raised-button (click)="fileInput1.click()" class="mb-4">Upload Supporting Files</button>
+  </div>
+
+  <button mat-raised-button color="primary"
+          class="motion-smooth mb-4"
+          [disabled]="loading()"
+          (click)="preview()">
+    Preview Files
+  </button>
+  @if (loading()) {
+    <mat-spinner></mat-spinner>
+  }
+  @else {
+    @if (previews().length > 0) {
+      <div class="mt-8 space-y-6 fade-in">
+        <h3 class="text-xl font-semibold">Preview (Order Included)</h3>
+        @for (p of previews(); track p) {
+          <h4 class="font-medium mb-2">{{ p.label }}</h4>
+          <iframe [src]="p.secure_url" title="test" [attr.aria-label]="p.label" class="w-full h-96 border rounded"></iframe>
+        }
+      </div>
+    }
+  }
+
+  <button mat-raised-button color="primary"
+          class="motion-smooth mb-4 mt-6"
+          [disabled]="loading()"
+          (click)="generate()">
+    Generate PDF
+  </button>
+
+  <div class="flex mt-4 justify-evenly">
+    @if(downloadUrl()) {
+      <a [href]="downloadUrl()" download #downloadFile class="block mt-4 text-blue-600" hidden></a>
+      <button mat-raised-button (click)="downloadFile.click()" class="mb-4">Download PDF File</button>
+    }
+
+    <button mat-stroked-button (click)="router.navigate(['/dashboard'])">Back to Dashboard</button>
+  </div>
+
+</mat-card>

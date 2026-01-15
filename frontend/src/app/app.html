@@ -1,0 +1,24 @@
+<header class="bg-white shadow">
+  <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+    <h1 class="text-2xl font-semibold">  <a [routerLink]="home()">{{ title() }}</a></h1>
+    <nav class="space-x-4">
+
+      @if (authService.token() !== null) {
+        <a routerLink="/dashboard" class="hover:underline">Dashboard</a>
+        <a class="hover:underline" (click)="logout()" routerLink="/home">Logout</a>
+      }
+      @else {
+        <a [routerLink]="home()" class="hover:underline">Home</a>
+        <a routerLink="/login" class="hover:underline">Login</a>
+        <a routerLink="/signup" class="hover:underline">Signup</a>
+      }
+
+    </nav>
+  </div>
+</header>
+
+<main class="container mx-auto px-6 py-8">
+  <ngx-sonner-toaster />
+  <router-outlet />
+</main>
+

@@ -1,0 +1,52 @@
+/* Fade In */
+.fade-in {
+  animation: fadeIn 0.6s ease forwards;
+}
+@keyframes fadeIn {
+  from { opacity: 0 }
+  to { opacity: 1 }
+}
+
+/* Slide Up */
+.slide-up {
+  animation: slideUp 0.6s ease forwards;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Scale In */
+.scale-in {
+  animation: scaleIn 0.5s cubic-bezier(.17,.67,.48,1.49) forwards;
+}
+@keyframes scaleIn {
+  from { transform: scale(.85); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Motion-Based Smooth Movement */
+.motion-smooth {
+  transition: transform 0.4s cubic-bezier(.2, .8, .2, 1), opacity 0.3s ease;
+}
+.motion-smooth:hover {
+  transform: translateY(-4px) scale(1.02);
+}
+
+/* Hero Animation */
+.hero-animate {
+  animation: heroIn 1s ease forwards;
+}
+@keyframes heroIn {
+  from { opacity: 0; transform: translateY(-40px) scale(.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Animated Card */
+.card-animate {
+  animation: cardIn .8s ease forwards;
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(20px) scale(.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
