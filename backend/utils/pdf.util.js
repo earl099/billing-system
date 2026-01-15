@@ -1,5 +1,4 @@
-import fs from 'fs'
-import mammoth from 'mammoth'
+import fs from 'fs/promises'
 import puppeteer from 'puppeteer'
 import { PDFDocument } from 'pdf-lib'
 
