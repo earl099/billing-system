@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 import { environment } from '@env/environment.prod';
 import { firstValueFrom } from 'rxjs';
 
@@ -9,6 +10,8 @@ import { firstValueFrom } from 'rxjs';
 export class Billing {
   private apiUrl = environment.apiUrl
   private http = inject(HttpClient)
+  private sanitizer = inject(DomSanitizer)
+
 
   private form(letter: File, attachments: File[]) {
     const fd = new FormData()
@@ -30,7 +33,11 @@ export class Billing {
         { withCredentials: true }
       )
     )
-    return res
+    return res.previewFiles.map((p: any) => ({
+      public_id: p.public_id,
+      secure_url: this.sanitizer.bypassSecurityTrustResourceUrl(p.secure_url),
+      label: p.label
+    }))
   }
 
   async cleanup(previewPublicIds: string[]) {

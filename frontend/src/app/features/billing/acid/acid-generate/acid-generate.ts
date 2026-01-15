@@ -44,13 +44,8 @@ export class AcidGenerate implements OnDestroy {
     fd.append('previewPublicIds', JSON.stringify(this.previews().map((p: any) => p.public_id)))
 
     this.loading.set(true)
-    const res = await this.billingService.acidBillingPreview(fd)
 
-    this.previews.set(res.previewFiles.map((p: any) => ({
-      label: p.label,
-      url: this.sanitizer.bypassSecurityTrustResourceUrl(p.secure_url),
-      public_id: p.public_id
-    })))
+    this.previews.set(await this.billingService.acidBillingPreview(fd))
     this.loading.set(false)
   }
 

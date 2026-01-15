@@ -54,13 +54,6 @@ export async function generateAcidBilling(req, res) {
 
         for(const file of req.files.attachments || []) {
             const pdf = await ensurePdf(file)
-            
-            try {
-                await fs.access(file)
-            } catch {
-                throw new Error(`PDF missing: ${file}`)
-            }
-
             files.push(pdf)
         }
 
