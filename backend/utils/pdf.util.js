@@ -24,15 +24,15 @@ export async function mergePdfs(pdfPaths, outputPath) {
     for(const p of pdfPaths) {
         let pdfBytes
 
-        if(typeof source === 'string' && source.startsWith('https://')) {
+        if(typeof p === 'string' && p.startsWith('https://')) {
             const res = await fetch(source)
             pdfBytes = await res.arrayBuffer()
         }
-        else if(typeof source === 'string') {
-            pdfBytes = await fs.readFile(source)
+        else if(typeof p === 'string') {
+            pdfBytes = await fs.readFile(p)
         }
         else {
-            throw new Error(`Invalid PDF source: ${source}`)
+            throw new Error(`Invalid PDF source: ${p}`)
         }
 
         const pdf = await PDFDocument.load(pdfBytes)
