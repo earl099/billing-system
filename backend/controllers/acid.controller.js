@@ -6,13 +6,11 @@ import { docxToPdf, mergePdfs } from '#utils/pdf.util.js'
 import { deletePreviews, uploadPreviewPdf, uploadFinalPdf } from '#utils/cloudinary.util.js'
 
 async function ensurePdf(file) {
-    if(file.originalname.toLowerCase().endsWith('.pdf')) {
+    if(file.mimetype === 'application/pdf') {
         return file.path
     }
 
-    const pdfPath = file.path.replace(path.extname(file.path), '.pdf')
-
-    await docxToPdf(file.path, pdfPath)
+    const pdfPath = await docxToPdf(file.path)
 
     file._generatedPdf = pdfPath
     await fs.unlink(file.path)

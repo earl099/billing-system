@@ -12,6 +12,7 @@
         "openxmlformats",
         "payfreq",
         "Pdfs",
+        "soffice",
         "spreadsheetml",
         "wordprocessingml"
     ]

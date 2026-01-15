@@ -1,36 +1,30 @@
+import { exec } from 'child_process'
+import { promisify } from 'util'
+import path from 'path'
 import fs from 'fs/promises'
 import puppeteer from 'puppeteer'
 import { PDFDocument } from 'pdf-lib'
 
-export async function docxToPdf(docxPath, outputPath) {
-    try {
-        const content = await fs.readFile(docxPath, 'utf-8')
-        const browser = await puppeteer.launch({ 
-            args: [
-                '--no-sandbox',
-                '--disable-setuid-sandbox'
-            ]
-        })
+const execAsync = promisify(exec)
 
-        const page = await browser.newPage()
-        await page.setContent(`<pre>${content}</pre>`, { waitUntil: 'networkidle0' })
-        await page.pdf({ path: outputPath, format: 'A4' })
-    } catch (error) {
-        console.log('Could not create browser instance: ', error)
-    } finally {
-        await browser.close()
-    }
-    
+export async function docxToPdf(inputPath) {
+    const outputDir = path.dirname(inputPath)
+
+    await execAsync(
+        `soffice --headless --convert-to pdf --outdir "${outputDir}" "${inputPath}"`
+    )
+
+    return inputPath.replace(/\.docx$/i, '.pdf')
 }
 
 export async function mergePdfs(pdfPaths, outputPath) {
     const mergedPdf = await PDFDocument.create()
     
     for(const p of pdfPaths) {
-        const pdf = await PDFDocument.load(fs.readFileSync(p))
+        const pdf = await PDFDocument.load(fs.readFile(p))
         const pages = await mergedPdf.copyPages(pdf, pdf.getPageIndices())
         pages.forEach(page => mergedPdf.addPage(page))
     }
 
-    fs.writeFileSync(outputPath, await mergedPdf.save())
+    await fs.writeFile(outputPath, await mergedPdf.save())
 }

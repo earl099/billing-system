@@ -10,6 +10,7 @@ const app = express()
 
 app.use(cors({
     origin: [
+        'http://localhost:4200',
         'https://lbrdc-billing-system.netlify.app'
     ],
     credentials: true,
