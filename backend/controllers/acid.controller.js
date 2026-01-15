@@ -63,8 +63,6 @@ export async function generateAcidBilling(req, res) {
 
         const billingName = `billing-final-${Date.now()}.pdf`
         const uploadedFinal = await uploadFinalPdf(finalPath, billingName)
-        
-        await deleteFiles(previewPublicIds)
 
         const record = await acidBillingModel.create({ finalPdf:uploadedFinal, createdBy: req.user.id })
 
