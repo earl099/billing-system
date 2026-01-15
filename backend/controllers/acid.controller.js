@@ -61,6 +61,7 @@ export async function generateAcidBilling(req, res) {
         
         await mergePdfs(files, finalPath)
 
+        const billingName = `billing-final-${Date.now()}.pdf`
         const uploadedFinal = await uploadFinalPdf(finalPath, billingName)
         
         await deleteFiles(previewPublicIds)
