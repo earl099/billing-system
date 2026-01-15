@@ -32,12 +32,6 @@ export async function previewBilling(req, res) {
         for(const file of attachments) {
             const pdf = await ensurePdf(file)
 
-            try {
-                await fs.access(file)
-            } catch {
-                throw new Error(`PDF missing: ${file}`)
-            }
-            
             const uploaded = await uploadPreviewPdf(pdf, file.originalname)
             previewFiles.push(uploaded)
         }
