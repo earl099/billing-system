@@ -57,14 +57,8 @@ export async function generateAcidBilling(req, res) {
             files.push(pdf)
         }
 
-        const finalPath = path.join(
-            'uploads',
-            `billing-final-${Date.now()}.pdf`
-        )
-
-        for(const file of files) {
-            await fs.access(file)
-        }
+        const finalPath = `uploads/billing-final-${Date.now()}.pdf`
+        
         await mergePdfs(files, finalPath)
 
         const uploadedFinal = await uploadFinalPdf(finalPath, billingName)
@@ -75,13 +69,13 @@ export async function generateAcidBilling(req, res) {
 
         await deletePreviews(previewIds)
 
-        res.json({ 
+        res.json({
             downloadUrl: uploadedFinal.secure_url,
             record
          })
     } catch (error) {
         console.log(error)
-        res.status(500).json({ message: 'Billing generation failed' })
+        res.status(500).json({ message: 'Billing generation failed', error })
     }
 }
 

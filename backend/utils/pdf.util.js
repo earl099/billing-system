@@ -2,6 +2,7 @@ import { exec } from 'child_process'
 import { promisify } from 'util'
 import path from 'path'
 import fs from 'fs/promises'
+import fetch from 'node-fetch'
 
 import { PDFDocument } from 'pdf-lib'
 
@@ -21,12 +22,26 @@ export async function mergePdfs(pdfPaths, outputPath) {
     const mergedPdf = await PDFDocument.create()
     
     for(const p of pdfPaths) {
-        const pdf = await PDFDocument.load(fs.readFile(p))
+        let pdfBytes
+
+        if(typeof source === 'string' && source.startsWith('https://')) {
+            const res = await fetch(source)
+            pdfBytes = await res.arrayBuffer()
+        }
+        else if(typeof source === 'string') {
+            pdfBytes = await fs.readFile(source)
+        }
+        else {
+            throw new Error(`Invalid PDF source: ${source}`)
+        }
+
+        const pdf = await PDFDocument.load(pdfBytes)
         const pages = await mergedPdf.copyPages(pdf, pdf.getPageIndices())
         pages.forEach(page => mergedPdf.addPage(page))
     }
 
-    await fs.writeFile(outputPath, await mergedPdf.save())
+    const mergedBytes = await mergedPdf.save()
+    await fs.writeFile(outputPath, mergedBytes)
 
     return outputPath
 }
