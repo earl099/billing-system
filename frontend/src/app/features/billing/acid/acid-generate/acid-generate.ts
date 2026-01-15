@@ -19,7 +19,7 @@ export class AcidGenerate implements OnDestroy {
   //** SIGNALS TO BE USED **/
   billingLetter = signal<File | null>(null);
   attachments = signal<File[]>([]);
-  previews = signal<{ label: string, url: string, public_id: string }[]>([])
+  previews = signal<{ label: string, secure_url: SafeResourceUrl, public_id: string }[]>([])
   loading = signal(false);
   downloadUrl = signal<string | null>(null);
 
@@ -48,7 +48,7 @@ export class AcidGenerate implements OnDestroy {
 
     this.previews.set(res.previewFiles.map((p: any) => ({
       label: p.label,
-      url: p.url.replace('http://', 'https://'),
+      url: this.sanitizer.bypassSecurityTrustResourceUrl(p.secure_url),
       public_id: p.public_id
     })))
     this.loading.set(false)
