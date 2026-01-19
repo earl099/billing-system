@@ -23,9 +23,10 @@ export async function uploadPreviewPdf(filePath, originalName) {
 }
 
 export async function uploadFinalPdf(filePath, name) {
+    const filepath = filePath.split('/')
     const res = await cloudinary.uploader.upload(filePath, {
         resource_type: 'raw',
-        folder: 'billing/final',
+        folder: `billing/${filepath[1]}/final`,
         public_id: `${safeName(name)}-${Date.now()}`,
         format: 'pdf',
         unique_filename: false
