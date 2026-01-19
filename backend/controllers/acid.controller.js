@@ -57,7 +57,7 @@ export async function generateAcidBilling(req, res) {
             files.push(pdf)
         }
 
-        const finalPath = `uploads/billing-final-${Date.now()}.pdf`
+        const finalPath = `uploads/acid/billing-final-${Date.now()}.pdf`
         
         await mergePdfs(files, finalPath)
 
@@ -82,4 +82,26 @@ export async function cleanupPreviews(req, res) {
     const { previewPublicIds } = req.body
     await deletePreviews(previewPublicIds || [])
     res.status(200)
+}
+
+export async function acidBillingList(_req, res) {
+    try {
+        const list = await acidBillingModel.find()
+        const total = await acidBillingModel.countDocuments()
+
+        res.json({ list, total })
+    } catch (error) {
+        res.status(500).json({ message: `Server error: ${error}` })
+    }
+}
+
+export async function getAcidBilling(req, res) {
+    try {
+        const acidBilling = await acidBillingModel.findById(req.params._id)
+        if(!client) return res.status(404).json({ message: 'ACID Billing not found' })
+
+        res.json({ acidBilling })
+    } catch (error) {
+        res.status(500).json({ message: `Server error: ${error}` })
+    }
 }
