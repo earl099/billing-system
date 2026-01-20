@@ -1,42 +1,76 @@
-import path from 'path'
 import fs from 'fs/promises'
-
+import path from 'path'
 import acidBillingModel from '#models/acid.model.js'
-import { docxToPdf, mergePdfs } from '#utils/pdf.util.js'
-import { deletePreviews, uploadPreviewPdf, uploadFinalPdf } from '#utils/cloudinary.util.js'
+import { docxToPdfBuffer, mergePdfBuffers,  } from '#utils/pdf.util.js'
+import { deleteResources, uploadPdfBuffer } from '#utils/cloudinary.util.js'
+import { promisify } from 'util'
+import { exec } from 'child_process'
 
-async function ensurePdf(file) {
+const execAsync = promisify(exec)
+
+async function ensurePdfBuffer(file) {
     if(file.mimetype === 'application/pdf') {
-        return file.path
+        const buffer = await fs.readFile(file.path)
+        await fs.unlink(file.path)
+        return buffer
     }
 
-    const pdfPath = await docxToPdf(file.path)
+    const outputDir = path.dirname(file.path)
 
-    file._generatedPdf = pdfPath
+    await execAsync(
+        `soffice --headless --convert-to pdf --outdir "${outputDir}" "${file.path}"`
+    )
+
+    const pdfPath = file.path.replace(/\.[^/.]+$/, '.pdf')
+
+    const buffer = await fs.readFile(pdfPath)
+
     await fs.unlink(file.path)
-    return pdfPath
+    await fs.unlink(pdfPath)
+
+    return buffer
 }
 
 export async function previewBilling(req, res) {
     try {
-        const billingLetter = req.files.billingLetter[0];
-        const attachments = req.files.attachments || [];
+        const previews = [];
 
-        const previewFiles = []
+        const billingLetter = req.files.billingLetter[0]
+        const attachments = req.files.attachments || []
 
-        const billingPdf = await ensurePdf(billingLetter)
-        const uploadedBilling = await uploadPreviewPdf(billingPdf, billingLetter.originalname)
-
-        previewFiles.push(uploadedBilling)
-
-        for(const file of attachments) {
-            const pdf = await ensurePdf(file)
-
-            const uploaded = await uploadPreviewPdf(pdf, file.originalname)
-            previewFiles.push(uploaded)
+        if(!billingLetter) {
+            return res.status(400).json({ error: 'Billing letter is required' })
         }
 
-        res.json({ previewFiles })
+        const billingBuffer = await ensurePdfBuffer(billingLetter)
+        const billingUpload = await uploadPdfBuffer(
+            billingBuffer,
+            'billing/acid/previews',
+            `billing-letter-acid-${Date.now()}`
+        )
+
+        previews.push({
+            public_id: billingUpload.public_id,
+            url: billingUpload.secure_url,
+            label: 'billingLetter'
+        })
+
+        for(const file of attachments) {
+            const pdfBuffer = await ensurePdfBuffer(file)
+            const upload = await uploadPdfBuffer(
+                pdfBuffer,
+                'billing/acid/previews',
+                pdfBuffer.public_id
+            )
+
+            previews.push({
+                public_id: upload.public_id,
+                url: upload.secure_url,
+                label: file.originalname
+            })
+        }
+
+        return res.json({ previews })
     } catch (error) {
         console.log(error)
         res.status(500).json({ message: 'Preview generation failed', error })
@@ -45,44 +79,107 @@ export async function previewBilling(req, res) {
 
 export async function generateAcidBilling(req, res) {
     try {
-        const  previewIds = (JSON.parse(req.body.previewPublicIds || '[]'))
+        let {
+        previewPublicIds = '[]',
+        previewUrls = '[]',
+        mode = 'preview'
+        } = req.body;
 
-        const files = [];
-        
-        const billingLetter = req.files.billingLetter[0];
-        files.push(await ensurePdf(billingLetter))
+        // 🔥 Parse JSON safely
+        previewPublicIds = JSON.parse(previewPublicIds);
+        previewUrls = JSON.parse(previewUrls);
 
-        for(const file of req.files.attachments || []) {
-            const pdf = await ensurePdf(file)
-            files.push(pdf)
+        const billingLetter = req.files?.billingLetter?.[0];
+        const attachments = req.files?.attachments || [];
+
+        if (!billingLetter && mode === 'direct') {
+            return res.status(400).json({ error: 'Billing letter is required' });
         }
 
-        const finalPath = `uploads/acid/billing-final-${Date.now()}.pdf`
-        
-        await mergePdfs(files, finalPath)
+        const sources = [];
 
-        const billingName = `billing-final-${Date.now()}.pdf`
-        const uploadedFinal = await uploadFinalPdf(finalPath, billingName)
+        // 🔹 MODE A — WITH PREVIEW
+        if (mode === 'preview' && previewUrls.length) {
+        for (const url of previewUrls) {
+            if (typeof url !== 'string' || !url.startsWith('https://')) {
+                throw new Error(`Invalid preview URL: ${url}`);
+            }
+            sources.push(url);
+        }
+        }
 
-        const record = await acidBillingModel.create({ finalPdf:uploadedFinal, createdBy: req.user.id })
+        // 🔹 MODE B — DIRECT
+        else {
+        if (billingLetter.mimetype.includes('word')) {
+            const buffer = await docxToPdfBuffer(billingLetter.path);
+            sources.push(buffer);
+        } else {
+            const buffer = await fs.readFile(billingLetter.path);
+            await fs.unlink(billingLetter.path);
+            sources.push(buffer);
+        }
 
-        await deletePreviews(previewIds)
+        for (const file of attachments) {
+            if (file.mimetype.includes('word')) {
+            const buffer = await docxToPdfBuffer(file.path);
+            sources.push(buffer);
+            } else {
+            const buffer = await fs.readFile(file.path);
+            await fs.unlink(file.path);
+            sources.push(buffer);
+            }
+        }
+        }
 
-        res.json({
-            downloadUrl: uploadedFinal.secure_url,
-            record
-         })
+        const finalBuffer = await mergePdfBuffers(sources);
+
+        const publicId = `billing-acid-${Date.now()}`;
+        const upload = await uploadPdfBuffer(
+        finalBuffer,
+        'billing/acid/final',
+        publicId
+        );
+
+        await deleteResources(previewPublicIds);
+
+        return res.json({
+        success: true,
+        final: {
+            public_id: upload.public_id,
+            url: upload.secure_url
+        }
+        });
     } catch (error) {
-        console.log(error)
-        res.status(500).json({ message: 'Billing generation failed', error })
+        console.error(error);
+        return res.status(500).json({
+        message: 'Billing generation failed',
+        error: error.message
+        });
     }
 }
 
-export async function cleanupPreviews(req, res) {
-    const { previewPublicIds } = req.body
-    await deletePreviews(previewPublicIds || [])
-    res.status(200)
+export async function deletePreviews(req, res) {
+    try {
+    const { previewPublicIds = [] } = req.body;
+
+    if (!Array.isArray(previewPublicIds) || !previewPublicIds.length) {
+        return res.json({ success: true, deleted: 0 });
+    }
+
+    const result = await cloudinary.api.delete_resources(previewPublicIds, {
+        resource_type: 'raw'
+    });
+
+    return res.json({
+        success: true,
+        deleted: Object.keys(result.deleted || {}).length
+    });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Failed to delete previews', error });
+    }
 }
+
 
 export async function acidBillingList(_req, res) {
     try {

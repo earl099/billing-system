@@ -25,7 +25,7 @@ app.use('/api', ALL_ROUTES)
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-app.use('/uploads', express.static(path.join(__dirname, '../frontend/src/uploads')))
+app.use('/uploads', express.static(path.join(__dirname, './uploads')))
 
 const PORT = process.env.PORT || 3000
 const MONGO = process.env.MONGO_URI || 'mongodb+srv://earlsaturay09:Lbrdc2021.@billing-system.j1yrr.mongodb.net/'

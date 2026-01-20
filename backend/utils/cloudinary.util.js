@@ -22,21 +22,26 @@ export async function uploadPreviewPdf(filePath, originalName) {
     return res
 }
 
-export async function uploadFinalPdf(filePath, name) {
-    const filepath = filePath.split('/')
-    const res = await cloudinary.uploader.upload(filePath, {
-        resource_type: 'raw',
-        folder: `billing/${filepath[1]}/final`,
-        public_id: `${safeName(name)}-${Date.now()}`,
-        format: 'pdf',
-        unique_filename: false
+export async function uploadPdfBuffer(buffer, folder, publicId) {
+    return new Promise((resolve, reject) => {
+        cloudinary.uploader.upload_stream(
+            {
+                resource_type: 'image',
+                folder,
+                public_id: publicId,
+                use_filename: true,
+                unique_filename: false,
+                format: 'pdf'
+            },
+            (error, result) => {
+                if(error) reject(error)
+                else resolve(result)
+            }
+        ).end(buffer)
     })
-
-    fs.existsSync(filePath) && fs.unlinkSync(filePath)
-    return res
 }
 
-export async function deletePreviews(publicIds = []) {
+export async function deleteResources(publicIds = []) {
     if(!publicIds.length) return
 
     await cloudinary.api.delete_resources(publicIds, {

@@ -13,16 +13,16 @@ export class Billing {
   private sanitizer = inject(DomSanitizer)
 
 
-  private form(letter: File, attachments: File[]) {
-    const fd = new FormData()
-    fd.append('billingLetter', letter)
-    attachments.forEach(a => fd.append('attachments', a))
-    return fd
-  }
-
-  async acidBillingGenerate(fd: FormData) {
-    const res: any = await firstValueFrom(this.http.post<any>(`${this.apiUrl}/acid/generate`, fd))
-    return res
+  async acidBillingGenerate(
+    fd: FormData,
+    previewPublicIds: string[],
+    previewUrls: string[],
+    mode: 'preview' | 'direct'
+  ) {
+      fd.append('mode', mode)
+      const res: any = await firstValueFrom(
+        this.http.post<any>(`${this.apiUrl}/acid/generate`, fd, { withCredentials: true }))
+      return res
   }
 
   async acidBillingPreview(formData: FormData) {
@@ -33,15 +33,23 @@ export class Billing {
         { withCredentials: true }
       )
     )
-    return res.previewFiles.map((p: any) => ({
+    return res.previews.map((p: any) => ({
       public_id: p.public_id,
-      secure_url: this.sanitizer.bypassSecurityTrustResourceUrl(p.secure_url),
+      safeUrl: this.sanitizer.bypassSecurityTrustResourceUrl(p.url),
+      rawUrl: p.url,
       label: p.label
     }))
   }
 
   async cleanup(previewPublicIds: string[]) {
-    const res: any = await firstValueFrom(this.http.post(`${this.apiUrl}/acid/cleanup`, { previewPublicIds }))
-    return res
+    if(!previewPublicIds.length) return
+
+    await firstValueFrom(
+      this.http.post(
+        `${this.apiUrl}/acid/cleanup`,
+        { previewPublicIds },
+        { withCredentials: true }
+      )
+    )
   }
 }
