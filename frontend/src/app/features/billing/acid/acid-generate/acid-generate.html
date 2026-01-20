@@ -9,26 +9,27 @@
     <button mat-raised-button (click)="fileInput1.click()" class="mb-4">Upload Supporting Files</button>
   </div>
 
-  <button mat-raised-button color="primary"
-          class="motion-smooth mb-4"
-          [disabled]="loading()"
-          (click)="preview()">
-    Preview Files
-  </button>
   @if (loading()) {
     <mat-spinner></mat-spinner>
   }
   @else {
-    @if (previews().length > 0) {
+    @if (isPreviewClicked()) {
       <div class="mt-8 space-y-6 fade-in">
         <h3 class="text-xl font-semibold">Preview (Order Included)</h3>
         @for (p of previews(); track p) {
           <h4 class="font-medium mb-2">{{ p.label }}</h4>
-          <iframe [src]="p.secure_url" title="test" [attr.aria-label]="p.label" class="w-full h-96 border rounded"></iframe>
+          <iframe [src]="p.safeUrl" title="test" [attr.aria-label]="p.label" class="w-full h-96 border rounded"></iframe>
         }
       </div>
     }
   }
+
+  <button mat-raised-button color="primary"
+          class="motion-smooth mt-4"
+          [disabled]="loading()"
+          (click)="preview()">
+    Preview Files
+  </button>
 
   <button mat-raised-button color="primary"
           class="motion-smooth mb-4 mt-6"

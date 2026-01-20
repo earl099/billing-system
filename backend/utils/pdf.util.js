@@ -8,40 +8,45 @@ import { PDFDocument } from 'pdf-lib'
 
 const execAsync = promisify(exec)
 
-export async function docxToPdf(inputPath) {
-    const outputDir = path.dirname(inputPath)
+export async function docxToPdfBuffer(docxPath) {
+    const outputDir = path.dirname(docxPath)
 
     await execAsync(
-        `soffice --headless --convert-to pdf --outdir "${outputDir}" "${inputPath}"`
+        `soffice --headless --convert-to pdf --outdir "${outputDir}" "${docxPath}"`
     )
 
-    return inputPath.replace(/\.docx$/i, '.pdf')
+    const pdfPath = docxPath.replace(/\.docx$/i, '.pdf')
+    const buffer = await fs.readFile(pdfPath)
+
+    // cleanup local temp files
+    await fs.unlink(docxPath);
+    await fs.unlink(pdfPath);
+
+    return buffer;
 }
 
-export async function mergePdfs(pdfPaths, outputPath) {
-    const mergedPdf = await PDFDocument.create()
-    
-    for(const p of pdfPaths) {
-        let pdfBytes
+export async function mergePdfBuffers(sources) {
+  const merged = await PDFDocument.create();
 
-        if(typeof p === 'string' && p.startsWith('https://')) {
-            const res = await fetch(source)
-            pdfBytes = await res.arrayBuffer()
-        }
-        else if(typeof p === 'string') {
-            pdfBytes = await fs.readFile(p)
-        }
-        else {
-            throw new Error(`Invalid PDF source: ${p}`)
-        }
+  for (const src of sources) {
+    let bytes;
 
-        const pdf = await PDFDocument.load(pdfBytes)
-        const pages = await mergedPdf.copyPages(pdf, pdf.getPageIndices())
-        pages.forEach(page => mergedPdf.addPage(page))
+    if (Buffer.isBuffer(src)) {
+      bytes = src;
+    }
+    else if (typeof src === 'string' && src.startsWith('https://')) {
+      const res = await fetch(src);
+      bytes = Buffer.from(await res.arrayBuffer());
+    }
+    else {
+      console.error('Invalid PDF source:', src);
+      throw new Error(`Invalid PDF source: ${JSON.stringify(src)}`);
     }
 
-    const mergedBytes = await mergedPdf.save()
-    await fs.writeFile(outputPath, mergedBytes)
+    const pdf = await PDFDocument.load(bytes);
+    const pages = await merged.copyPages(pdf, pdf.getPageIndices());
+    pages.forEach(p => merged.addPage(p));
+  }
 
-    return outputPath
+  return Buffer.from(await merged.save());
 }

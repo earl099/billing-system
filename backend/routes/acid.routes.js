@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { upload } from '#middleware/upload.middleware.js'
-import { acidBillingList, cleanupPreviews, generateAcidBilling, getAcidBilling, previewBilling } from '#controllers/acid.controller.js'
+import { acidBillingList, deletePreviews, generateAcidBilling, getAcidBilling, previewBilling } from '#controllers/acid.controller.js'
 import { authMiddleware } from '#middleware/auth.middleware.js'
 
 const acidRouter = Router()
@@ -27,8 +27,7 @@ acidRouter.post(
 
 acidRouter.post(
     '/acid/cleanup',
-    authMiddleware,
-    cleanupPreviews
+    deletePreviews
 )
 
 acidRouter.get(

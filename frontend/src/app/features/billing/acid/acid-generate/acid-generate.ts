@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, inject, OnDestroy, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, inject, OnDestroy, signal } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
+import { environment } from '@env/environment.prod';
 import { MATERIAL_MODULES } from '@material';
 import { LogDTO } from '@models/log';
 import { Auth } from '@services/auth';
@@ -19,9 +20,24 @@ export class AcidGenerate implements OnDestroy {
   //** SIGNALS TO BE USED **/
   billingLetter = signal<File | null>(null);
   attachments = signal<File[]>([]);
-  previews = signal<{ label: string, secure_url: SafeResourceUrl, public_id: string }[]>([])
+  previews = signal<{ label: string, safeUrl: SafeResourceUrl, public_id: string }[]>([])
+  mode = signal<'preview' | 'direct' | null>(null)
+  isPreviewClicked = signal(false)
   loading = signal(false);
   downloadUrl = signal<string | null>(null);
+  private cleanedUp = false
+
+  @HostListener('window:beforeunload', ['$event'])
+  handleBeforeUnload(event: Event) {
+    const ids = this.previews().map((p: any) => p.public_id)
+
+    if(!ids.length) return
+
+    navigator.sendBeacon(
+      `${environment.apiUrl}/acid/cleanup`,
+      JSON.stringify({ previewPublicIds: ids })
+    )
+  }
 
   //** SERVICES NEEDED **/
   billingService = inject(Billing)
@@ -43,8 +59,9 @@ export class AcidGenerate implements OnDestroy {
     this.attachments().forEach(f => fd.append('attachments', f))
     fd.append('previewPublicIds', JSON.stringify(this.previews().map((p: any) => p.public_id)))
 
+    this.isPreviewClicked.set(true)
     this.loading.set(true)
-
+    this.mode.set('preview')
     this.previews.set(await this.billingService.acidBillingPreview(fd))
     this.loading.set(false)
   }
@@ -55,16 +72,32 @@ export class AcidGenerate implements OnDestroy {
     if(!confirm('Are you sure you want to generate this Billing?')) return
 
     try {
+      this.isPreviewClicked.set(false)
       this.loading.set(true)
 
       const formData = new FormData
       formData.append('billingLetter', this.billingLetter()!)
       this.attachments().forEach(f => formData.append('attachments', f))
-      formData.append('previewPublicIds', JSON.stringify(this.previews().map((p: any) => p.public_id)))
 
-      const billing = await this.billingService.acidBillingGenerate(formData)
+      const previewPublicIds = this.previews().map((p: any) => p.public_id);
+      const previewUrls = this.previews().map((p: any) => p.rawUrl);
 
-      this.downloadUrl.set(billing.downloadUrl)
+      formData.append('previewPublicIds', JSON.stringify(previewPublicIds))
+      formData.append('previewUrls', JSON.stringify(previewUrls));
+
+
+      if(this.mode() === null) {
+        this.mode.set('direct')
+      }
+
+      const billing = await this.billingService.acidBillingGenerate(
+        formData,
+        previewPublicIds,
+        previewUrls,
+        this.mode() ?? 'direct'
+      )
+
+      this.downloadUrl.set(billing.final.url)
       this.loading.set(false)
 
       const user = signal(await this.authService.getProfile())
@@ -81,10 +114,22 @@ export class AcidGenerate implements OnDestroy {
   }
 
   async ngOnDestroy() {
-    if(this.previews().length) {
-      await this.billingService.cleanup(
-        this.previews().map(p => p.public_id)
-      )
+    await this.cleanupPreviews()
+  }
+
+  private async cleanupPreviews() {
+    if (this.cleanedUp) return;
+
+    const ids = this.previews().map((p: any) => p.public_id);
+
+    if (!ids.length) return;
+
+    try {
+      await this.billingService.cleanup(ids);
+      this.cleanedUp = true;
+      console.log('Preview files deleted');
+    } catch (error) {
+      console.log('Failed to delete preview files', error);
     }
   }
 }
