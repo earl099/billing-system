@@ -1,26 +1,4 @@
 import cloudinary from "#config/cloudinary.js";
-import path from 'path'
-import fs from 'fs'
-
-function safeName(originalName = 'document.pdf') {
-    return path
-        .parse(originalName)
-        .name.replace(/[^a-z0-9_-]/gi, '_')
-        .toLowerCase()
-}
-
-export async function uploadPreviewPdf(filePath, originalName) {
-    const res = await cloudinary.uploader.upload(filePath, {
-        resource_type: 'raw',
-        folder: 'billing/previews',
-        public_id: `${safeName(originalName)}-${Date.now()}`,
-        format: 'pdf',
-        unique_filename: false
-    })
-
-    fs.existsSync(filePath) && fs.unlinkSync(filePath)
-    return res
-}
 
 export async function uploadPdfBuffer(buffer, folder, publicId) {
     return new Promise((resolve, reject) => {
@@ -47,4 +25,20 @@ export async function deleteResources(publicIds = []) {
     await cloudinary.api.delete_resources(publicIds, {
         resource_type: 'raw'
     })
+}
+
+export async function cleanupOldPreviews(client) {
+    const { resources } = await cloudinary.search.expression(`folder:billing/${client}/previews AND resource_type:raw`)
+    .max_results(100)
+    .execute()
+
+    const cutoff = Date.now() - 60 * 60 * 1000
+
+    const stale = resources
+        .filter(r => new Date(r.created_at).getTime() < cutoff)
+        .map(r => r.public_id);
+    
+    if(stale.length) {
+        await cloudinary.api.delete_resources(stale, { resource_type: 'raw' })
+    }
 }

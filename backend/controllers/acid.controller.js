@@ -79,81 +79,113 @@ export async function previewBilling(req, res) {
 
 export async function generateAcidBilling(req, res) {
     try {
-        let {
-        previewPublicIds = '[]',
-        previewUrls = '[]',
-        mode = 'preview'
+        const {
+            previewPublicIds = [],
+            mode = 'direct'
         } = req.body;
-
-        // 🔥 Parse JSON safely
-        previewPublicIds = JSON.parse(previewPublicIds);
-        previewUrls = JSON.parse(previewUrls);
 
         const billingLetter = req.files?.billingLetter?.[0];
         const attachments = req.files?.attachments || [];
 
-        if (!billingLetter && mode === 'direct') {
+        if (!billingLetter) {
             return res.status(400).json({ error: 'Billing letter is required' });
         }
 
         const sources = [];
 
-        // 🔹 MODE A — WITH PREVIEW
-        if (mode === 'preview' && previewUrls.length) {
-        for (const url of previewUrls) {
-            if (typeof url !== 'string' || !url.startsWith('https://')) {
-                throw new Error(`Invalid preview URL: ${url}`);
+        // ============================
+        // 1️⃣ Use preview PDFs (optional)
+        // ============================
+        if (mode === 'preview' && Array.isArray(previewPublicIds) && previewPublicIds.length) {
+        for (const publicId of previewPublicIds) {
+            const resource = await cloudinary.api.resource(
+                publicId, 
+                {
+                    resource_type: 'raw'
+                }
+            );
+
+            if (!resource?.secure_url) {
+                throw new Error(`Invalid preview resource: ${publicId}`);
             }
-            sources.push(url);
+
+            const buffer = await fetch(resource.secure_url).then(r => r.arrayBuffer());
+            sources.push(Buffer.from(buffer));
         }
         }
 
-        // 🔹 MODE B — DIRECT
+        // ============================
+        // 2️⃣ Or generate PDFs directly
+        // ============================
         else {
         if (billingLetter.mimetype.includes('word')) {
             const buffer = await docxToPdfBuffer(billingLetter.path);
             sources.push(buffer);
         } else {
             const buffer = await fs.readFile(billingLetter.path);
-            await fs.unlink(billingLetter.path);
             sources.push(buffer);
         }
 
         for (const file of attachments) {
             if (file.mimetype.includes('word')) {
-            const buffer = await docxToPdfBuffer(file.path);
-            sources.push(buffer);
+                const buffer = await docxToPdfBuffer(file.path);
+                sources.push(buffer);
             } else {
-            const buffer = await fs.readFile(file.path);
-            await fs.unlink(file.path);
-            sources.push(buffer);
+                const buffer = await fs.readFile(file.path);
+                sources.push(buffer);
             }
         }
         }
 
+        // ============================
+        // 3️⃣ Merge PDFs
+        // ============================
         const finalBuffer = await mergePdfBuffers(sources);
 
-        const publicId = `billing-acid-${Date.now()}`;
+        // ============================
+        // 4️⃣ Upload final PDF to Cloudinary (diskless)
+        // ============================
+        const publicId = `billing-acid-${Date.now()}.pdf`;
+
         const upload = await uploadPdfBuffer(
-        finalBuffer,
-        'billing/acid/final',
-        publicId
+            finalBuffer,
+            'billing/acid/final',
+            publicId
         );
 
-        await deleteResources(previewPublicIds);
+        // ============================
+        // 5️⃣ Persist billing record
+        // ============================
+        const record = await acidBillingModel.create({
+        billingLetter: billingLetter.originalname,
+        attachments: attachments.map(f => f.originalname),
+        finalPdf: {
+            secure_url: upload.secure_url,
+            public_id: upload.public_id
+        },
+        createdBy: req.user?._id
+        });
+
+        // ============================
+        // 6️⃣ Cleanup preview files
+        // ============================
+        if (Array.isArray(previewPublicIds) && previewPublicIds.length) {
+            await deleteResources(previewPublicIds);
+        }
 
         return res.json({
-        success: true,
-        final: {
-            public_id: upload.public_id,
-            url: upload.secure_url
-        }
+            success: true,
+            record,
+            final: {
+                public_id: upload.public_id,
+                url: upload.secure_url
+            }
         });
     } catch (error) {
         console.error(error);
         return res.status(500).json({
-        message: 'Billing generation failed',
-        error: error.message
+            message: 'Billing generation failed',
+            error: error.message
         });
     }
 }

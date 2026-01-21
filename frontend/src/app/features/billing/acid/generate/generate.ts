@@ -12,8 +12,8 @@ import { toast } from 'ngx-sonner';
 @Component({
   selector: 'app-generate',
   imports: [...MATERIAL_MODULES],
-  templateUrl: './acid-generate.html',
-  styleUrl: './acid-generate.css',
+  templateUrl: './generate.html',
+  styleUrl: './generate.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AcidGenerate implements OnDestroy {
@@ -114,10 +114,10 @@ export class AcidGenerate implements OnDestroy {
   }
 
   async ngOnDestroy() {
-    await this.cleanupPreviews()
+    await this.cleanupPreviews('acid')
   }
 
-  private async cleanupPreviews() {
+  private async cleanupPreviews(client: string) {
     if (this.cleanedUp) return;
 
     const ids = this.previews().map((p: any) => p.public_id);
@@ -125,7 +125,7 @@ export class AcidGenerate implements OnDestroy {
     if (!ids.length) return;
 
     try {
-      await this.billingService.cleanup(ids);
+      await this.billingService.cleanup(ids, client);
       this.cleanedUp = true;
       console.log('Preview files deleted');
     } catch (error) {

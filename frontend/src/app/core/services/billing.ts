@@ -12,7 +12,7 @@ export class Billing {
   private http = inject(HttpClient)
   private sanitizer = inject(DomSanitizer)
 
-
+  //** ACID BILLING STARTS HERE **//
   async acidBillingGenerate(
     fd: FormData,
     previewPublicIds: string[],
@@ -41,12 +41,14 @@ export class Billing {
     }))
   }
 
-  async cleanup(previewPublicIds: string[]) {
+  //** ACID BILLING ENDS HERE **//
+
+  async cleanup(previewPublicIds: string[], client: string) {
     if(!previewPublicIds.length) return
 
     await firstValueFrom(
       this.http.post(
-        `${this.apiUrl}/acid/cleanup`,
+        `${this.apiUrl}/${client}/cleanup`,
         { previewPublicIds },
         { withCredentials: true }
       )
