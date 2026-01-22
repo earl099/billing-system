@@ -36,7 +36,7 @@ export class Client {
     return res
   }
 
-  async signupList() {
+  async allList() {
     const res: any = await firstValueFrom(this.http.get(`${this.apiUrl}/client/list`))
     return res.clients
   }

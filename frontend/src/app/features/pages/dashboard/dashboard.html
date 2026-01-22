@@ -18,6 +18,7 @@
 
       <mat-card class="p-6 card-animate motion-smooth delay-200">
         <h4 class="text-lg font-semibold mb-2">Billing</h4>
+
         <mat-accordion multi>
           <mat-expansion-panel>
             <mat-expansion-panel-header>
@@ -26,7 +27,6 @@
             <button mat-button routerLink="/billing/acid/generate">Generate Billing</button>
           </mat-expansion-panel>
         </mat-accordion>
-
       </mat-card>
 
       <mat-card class="p-6 card-animate motion-smooth delay-300">
@@ -38,6 +38,20 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <mat-card class="p-6 card-animate motion-smooth delay-200">
         <h4 class="text-lg font-semibold mb-2">Billing</h4>
+        @for (client of clients(); track client) {
+          @for (handledClient of user().handledClients; track handledClient) {
+            @if (handledClient === client._id) {
+              <mat-accordion multi>
+                <mat-expansion-panel>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>ACID</mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <button mat-button routerLink="/billing/acid/generate">Generate Billing</button>
+                </mat-expansion-panel>
+              </mat-accordion>
+            }
+          }
+        }
       </mat-card>
 
       <mat-card class="p-6 card-animate motion-smooth delay-300">
