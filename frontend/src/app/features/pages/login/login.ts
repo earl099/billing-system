@@ -44,7 +44,6 @@ export class Login {
 
     try {
       const user = await this.authService.login(userAuth)
-      console.log(user.user.name)
 
       const logObject: LogDTO = {
         user: user.user.name,
