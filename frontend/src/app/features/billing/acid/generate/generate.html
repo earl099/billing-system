@@ -40,8 +40,12 @@
 
   <div class="flex mt-4 justify-evenly">
     @if(downloadUrl()) {
-      <a [href]="downloadUrl()" download #downloadFile class="block mt-4 text-blue-600" hidden></a>
-      <button mat-raised-button (click)="downloadFile.click()" class="mb-4">Download PDF File</button>
+      <button
+        mat-raised-button
+        (click)="downloadFinalPdf()"
+        class="motion-smooth mb-4">
+        Download PDF File
+      </button>
     }
 
     <button mat-stroked-button (click)="router.navigate(['/dashboard'])">Back to Dashboard</button>

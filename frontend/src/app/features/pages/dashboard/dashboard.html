@@ -18,7 +18,15 @@
 
       <mat-card class="p-6 card-animate motion-smooth delay-200">
         <h4 class="text-lg font-semibold mb-2">Billing</h4>
-        <button mat-button routerLink="/billing/acid/generate">ACID Billing</button>
+        <mat-accordion multi>
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>ACID</mat-panel-title>
+            </mat-expansion-panel-header>
+            <button mat-button routerLink="/billing/acid/generate">Generate Billing</button>
+          </mat-expansion-panel>
+        </mat-accordion>
+
       </mat-card>
 
       <mat-card class="p-6 card-animate motion-smooth delay-300">

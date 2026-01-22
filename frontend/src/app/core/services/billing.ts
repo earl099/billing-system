@@ -15,8 +15,8 @@ export class Billing {
   //** ACID BILLING STARTS HERE **//
   async acidBillingGenerate(
     fd: FormData,
-    previewPublicIds: string[],
-    previewUrls: string[],
+    _previewPublicIds: string[],
+    _previewUrls: string[],
     mode: 'preview' | 'direct'
   ) {
       fd.append('mode', mode)
@@ -39,6 +39,22 @@ export class Billing {
       rawUrl: p.url,
       label: p.label
     }))
+  }
+
+  async download(publicId: string) {
+    const blob = await firstValueFrom(
+      this.http.get(
+        `${this.apiUrl}/billing/download/${encodeURIComponent(publicId)}`,
+        { responseType: 'blob', withCredentials: true }
+      )
+    );
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = publicId.split('/').pop() + '.pdf';
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   //** ACID BILLING ENDS HERE **//
