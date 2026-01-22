@@ -12,8 +12,8 @@ import { toast } from 'ngx-sonner';
 @Component({
   selector: 'app-generate',
   imports: [...MATERIAL_MODULES],
-  templateUrl: './acid-generate.html',
-  styleUrl: './acid-generate.css',
+  templateUrl: './generate.html',
+  styleUrl: './generate.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AcidGenerate implements OnDestroy {
@@ -25,6 +25,7 @@ export class AcidGenerate implements OnDestroy {
   isPreviewClicked = signal(false)
   loading = signal(false);
   downloadUrl = signal<string | null>(null);
+  finalFileName = signal<string>('ACID-Billing.pdf')
   private cleanedUp = false
 
   @HostListener('window:beforeunload', ['$event'])
@@ -85,11 +86,6 @@ export class AcidGenerate implements OnDestroy {
       formData.append('previewPublicIds', JSON.stringify(previewPublicIds))
       formData.append('previewUrls', JSON.stringify(previewUrls));
 
-
-      if(this.mode() === null) {
-        this.mode.set('direct')
-      }
-
       const billing = await this.billingService.acidBillingGenerate(
         formData,
         previewPublicIds,
@@ -97,7 +93,7 @@ export class AcidGenerate implements OnDestroy {
         this.mode() ?? 'direct'
       )
 
-      this.downloadUrl.set(billing.final.url)
+      this.downloadUrl.set(billing.downloadUrl)
       this.loading.set(false)
 
       const user = signal(await this.authService.getProfile())
@@ -107,17 +103,42 @@ export class AcidGenerate implements OnDestroy {
       }
 
       await this.logService.create(logObject)
+
+      this.finalFileName.set(
+        `ACID-Billing-${new Date().toISOString().slice(0,10)}.pdf`
+      )
+
+      
     } catch (error: any) {
       toast.error('Error: ' + error)
       console.log(error)
     }
   }
 
-  async ngOnDestroy() {
-    await this.cleanupPreviews()
+  async downloadFinalPdf() {
+    const url = this.downloadUrl()
+    if(!url) return
+
+    const res = await fetch(url)
+    const blob = await res.blob()
+
+    const a = document.createElement('a')
+    const objectUrl = URL.createObjectURL(blob)
+
+    a.href = objectUrl
+    a.download = this.finalFileName()
+    a.click()
+
+    URL.revokeObjectURL(objectUrl)
+
+
   }
 
-  private async cleanupPreviews() {
+  async ngOnDestroy() {
+    await this.cleanupPreviews('acid')
+  }
+
+  private async cleanupPreviews(client: string) {
     if (this.cleanedUp) return;
 
     const ids = this.previews().map((p: any) => p.public_id);
@@ -125,7 +146,7 @@ export class AcidGenerate implements OnDestroy {
     if (!ids.length) return;
 
     try {
-      await this.billingService.cleanup(ids);
+      await this.billingService.cleanup(ids, client);
       this.cleanedUp = true;
       console.log('Preview files deleted');
     } catch (error) {

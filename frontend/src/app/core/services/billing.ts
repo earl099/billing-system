@@ -12,11 +12,11 @@ export class Billing {
   private http = inject(HttpClient)
   private sanitizer = inject(DomSanitizer)
 
-
+  //** ACID BILLING STARTS HERE **//
   async acidBillingGenerate(
     fd: FormData,
-    previewPublicIds: string[],
-    previewUrls: string[],
+    _previewPublicIds: string[],
+    _previewUrls: string[],
     mode: 'preview' | 'direct'
   ) {
       fd.append('mode', mode)
@@ -41,12 +41,30 @@ export class Billing {
     }))
   }
 
-  async cleanup(previewPublicIds: string[]) {
+  async download(publicId: string) {
+    const blob = await firstValueFrom(
+      this.http.get(
+        `${this.apiUrl}/billing/download/${encodeURIComponent(publicId)}`,
+        { responseType: 'blob', withCredentials: true }
+      )
+    );
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = publicId.split('/').pop() + '.pdf';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  //** ACID BILLING ENDS HERE **//
+
+  async cleanup(previewPublicIds: string[], client: string) {
     if(!previewPublicIds.length) return
 
     await firstValueFrom(
       this.http.post(
-        `${this.apiUrl}/acid/cleanup`,
+        `${this.apiUrl}/${client}/cleanup`,
         { previewPublicIds },
         { withCredentials: true }
       )

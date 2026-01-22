@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { RouterLink } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
 import { Auth } from '@services/auth';
@@ -8,6 +9,7 @@ import { Log } from '@services/log';
   selector: 'app-dashboard',
   imports: [
     ...MATERIAL_MODULES,
+    MatExpansionModule,
     RouterLink
   ],
   templateUrl: './dashboard.html',
