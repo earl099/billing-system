@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
-import { environment } from '@env/environment.prod';
+import { environment } from '@env/environment';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable({
@@ -13,49 +13,55 @@ export class Billing {
   private sanitizer = inject(DomSanitizer)
 
   //** ACID BILLING STARTS HERE **//
-  async acidBillingGenerate(
-    fd: FormData,
-    _previewPublicIds: string[],
-    _previewUrls: string[],
-    mode: 'preview' | 'direct'
-  ) {
-      fd.append('mode', mode)
-      const res: any = await firstValueFrom(
-        this.http.post<any>(`${this.apiUrl}/acid/generate`, fd, { withCredentials: true }))
-      return res
-  }
-
-  async acidBillingPreview(formData: FormData) {
+async acidBillingGenerate(
+  fd: FormData,
+  _previewPublicIds: string[],
+  _previewUrls: string[],
+  mode: 'preview' | 'direct'
+) {
+    fd.append('mode', mode)
     const res: any = await firstValueFrom(
-      this.http.post<any>(
-        `${this.apiUrl}/acid/preview`,
-        formData,
-        { withCredentials: true }
-      )
+      this.http.post<any>(`${this.apiUrl}/acid/generate`, fd, { withCredentials: true }))
+    return res
+}
+
+async acidBillingPreview(formData: FormData) {
+  const res: any = await firstValueFrom(
+    this.http.post<any>(
+      `${this.apiUrl}/acid/preview`,
+      formData,
+      { withCredentials: true }
     )
-    return res.previews.map((p: any) => ({
-      public_id: p.public_id,
-      safeUrl: this.sanitizer.bypassSecurityTrustResourceUrl(p.url),
-      rawUrl: p.url,
-      label: p.label
-    }))
-  }
+  )
 
-  async download(publicId: string) {
-    const blob = await firstValueFrom(
-      this.http.get(
-        `${this.apiUrl}/billing/download/${encodeURIComponent(publicId)}`,
-        { responseType: 'blob', withCredentials: true }
-      )
-    );
+  console.log(res.previews)
 
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = publicId.split('/').pop() + '.pdf';
-    a.click();
-    URL.revokeObjectURL(url);
-  }
+  return res.previews.map((p: any) => ({
+    public_id: p.public_id,
+    rawUrl: p.url,   // ✅ FIXED
+    safeUrl: this.sanitizer.bypassSecurityTrustResourceUrl(p.url),
+    label: p.label
+  }))
+}
+
+
+
+
+async download(publicId: string) {
+  const blob = await firstValueFrom(
+    this.http.get(
+      `${this.apiUrl}/billing/download/${encodeURIComponent(publicId)}`,
+      { responseType: 'blob', withCredentials: true }
+    )
+  );
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = publicId.split('/').pop() + '.pdf';
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
   //** ACID BILLING ENDS HERE **//
 

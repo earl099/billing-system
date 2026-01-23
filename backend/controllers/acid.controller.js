@@ -32,49 +32,53 @@ async function ensurePdfBuffer(file) {
 }
 
 export async function previewBilling(req, res) {
-    try {
-        const previews = [];
+  try {
+    const previews = [];
 
-        const billingLetter = req.files.billingLetter[0]
-        const attachments = req.files.attachments || []
+    const billingLetter = req.files.billingLetter?.[0];
+    const attachments = req.files.attachments || [];
 
-        if(!billingLetter) {
-            return res.status(400).json({ error: 'Billing letter is required' })
-        }
-
-        const billingBuffer = await ensurePdfBuffer(billingLetter)
-        const billingUpload = await uploadPdfBuffer(
-            billingBuffer,
-            'billing/acid/previews',
-            `billing-letter-acid-${Date.now()}`
-        )
-
-        previews.push({
-            public_id: billingUpload.public_id,
-            url: billingUpload.secure_url,
-            label: 'billingLetter'
-        })
-
-        for(const file of attachments) {
-            const pdfBuffer = await ensurePdfBuffer(file)
-            const upload = await uploadPdfBuffer(
-                pdfBuffer,
-                'billing/acid/previews',
-                pdfBuffer.public_id
-            )
-
-            previews.push({
-                public_id: upload.public_id,
-                url: upload.secure_url,
-                label: file.originalname
-            })
-        }
-
-        return res.json({ previews })
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({ message: 'Preview generation failed', error })
+    if (!billingLetter) {
+      return res.status(400).json({ error: 'Billing letter is required' });
     }
+
+    // --- Billing Letter ---
+    const billingBuffer = await ensurePdfBuffer(billingLetter);
+    const billingUpload = await uploadPdfBuffer(
+      billingBuffer,
+      'billing/acid/previews',
+      billingLetter.originalname
+    );
+
+    previews.push({
+      public_id: billingUpload.public_id,
+      url: billingUpload.secure_url,
+      label: 'Billing Letter'
+    });
+
+    // --- Attachments ---
+    for (const file of attachments) {
+      const pdfBuffer = await ensurePdfBuffer(file);
+
+      const upload = await uploadPdfBuffer(
+        pdfBuffer,
+        'billing/acid/previews',
+        file.originalname
+      );
+
+      previews.push({
+        public_id: upload.public_id,
+        url: upload.secure_url,
+        label: file.originalname
+      });
+    }
+
+    return res.json({ previews });
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Preview generation failed', error });
+  }
 }
 
 export async function generateAcidBilling(req, res) {
@@ -90,8 +94,6 @@ export async function generateAcidBilling(req, res) {
       previewUrls = JSON.parse(previewUrls);
     }
 
-    const mode = req.body.mode || 'preview';
-
     const billingLetter = req.files?.billingLetter?.[0];
     const attachments = req.files?.attachments || [];
 
@@ -101,12 +103,17 @@ export async function generateAcidBilling(req, res) {
 
     const sources = [];
 
-    if (mode === 'preview' && Array.isArray(previewUrls) && previewUrls.length) {
-      for (const url of previewUrls) {
-        if (typeof url !== 'string' || !url.startsWith('https://')) {
-          throw new Error(`Invalid preview URL: ${url}`);
-        }
+    const hasPreviews = Array.isArray(previewUrls) && previewUrls.length;
+    if (hasPreviews) {
+      previewUrls = previewUrls.filter(
+        u => typeof u === 'string' && u.startsWith('https://')
+      );
 
+      if (!previewUrls.length) {
+        throw new Error('No valid preview URLs provided');
+      }
+
+      for (const url of previewUrls) {
         const resPdf = await fetch(url);
 
         if (!resPdf.ok) {

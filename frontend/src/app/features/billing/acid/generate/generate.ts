@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, HostListener, inject, OnDestroy, signal } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
-import { environment } from '@env/environment.prod';
+import { environment } from '@env/environment';
 import { MATERIAL_MODULES } from '@material';
 import { LogDTO } from '@models/log';
 import { Auth } from '@services/auth';
@@ -80,8 +80,12 @@ export class AcidGenerate implements OnDestroy {
       formData.append('billingLetter', this.billingLetter()!)
       this.attachments().forEach(f => formData.append('attachments', f))
 
-      const previewPublicIds = this.previews().map((p: any) => p.public_id);
-      const previewUrls = this.previews().map((p: any) => p.url);
+      const previewPublicIds = this.previews()
+      .map((p: any) => p.public_id)
+      .filter((id: any) => typeof id === 'string' && id.length);
+      const previewUrls = this.previews()
+      .map((p: any) => p.url)
+      .filter((url: any) => typeof url === 'string' && url.startsWith('https://'));
 
       formData.append('previewPublicIds', JSON.stringify(previewPublicIds))
       formData.append('previewUrls', JSON.stringify(previewUrls));

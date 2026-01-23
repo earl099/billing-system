@@ -1,23 +1,29 @@
 import cloudinary from "#config/cloudinary.js";
+import path from 'path'
 
-export async function uploadPdfBuffer(buffer, folder, publicId) {
-    return new Promise((resolve, reject) => {
-        cloudinary.uploader.upload_stream(
-            {
-                resource_type: 'image',
-                folder,
-                public_id: publicId,
-                use_filename: true,
-                unique_filename: false,
-                format: 'pdf'
-            },
-            (error, result) => {
-                if(error) reject(error)
-                else resolve(result)
-            }
-        ).end(buffer)
-    })
+export async function uploadPdfBuffer(buffer, folder, originalName) {
+  const base = path.parse(originalName).name
+    .replace(/[^\w\d-_]+/g, '_'); // sanitize
+
+  const publicId = `${base}-${Date.now()}`;
+
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader.upload_stream(
+      {
+        resource_type: 'raw',         // ← important for PDFs
+        folder,
+        public_id: publicId,
+        format: 'pdf'
+      },
+      (error, result) => {
+        if (error) reject(error);
+        else resolve(result);
+      }
+    ).end(buffer);
+  });
 }
+
+
 
 export async function deleteResources(publicIds = []) {
     if(!publicIds.length) return
