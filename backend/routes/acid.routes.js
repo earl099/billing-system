@@ -7,17 +7,16 @@ const acidRouter = Router()
 
 acidRouter.post(
     '/acid/generate',
-    authMiddleware,
     upload.fields([
         { name: 'billingLetter', maxCount: 1 },
         { name: 'attachments', maxCount: 50 }
-    ]), generateAcidBilling
+    ]), 
+    generateAcidBilling
 )
 
 
 acidRouter.post(
     '/acid/preview',
-    authMiddleware,
     upload.fields([
         { name: 'billingLetter', maxCount: 1 },
         { name: 'attachments', maxCount: 50 }
