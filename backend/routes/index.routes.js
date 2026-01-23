@@ -10,10 +10,12 @@ const ALL_ROUTES = [
     signupRouter,
     logRouter,
     authRouter,
+    acidRouter,
+    
+    //ADMIN ONLY ROUTES
     userRouter,
     payFreqRouter,
     clientRouter,
-    acidRouter
 ]
 
 export default ALL_ROUTES

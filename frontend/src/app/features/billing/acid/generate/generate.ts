@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, HostListener, inject, OnDestroy, signal } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
-import { environment } from '@env/environment.prod';
+import { environment } from '@env/environment';
 import { MATERIAL_MODULES } from '@material';
 import { LogDTO } from '@models/log';
 import { Auth } from '@services/auth';
@@ -81,7 +81,7 @@ export class AcidGenerate implements OnDestroy {
       this.attachments().forEach(f => formData.append('attachments', f))
 
       const previewPublicIds = this.previews().map((p: any) => p.public_id);
-      const previewUrls = this.previews().map((p: any) => p.rawUrl);
+      const previewUrls = this.previews().map((p: any) => p.url);
 
       formData.append('previewPublicIds', JSON.stringify(previewPublicIds))
       formData.append('previewUrls', JSON.stringify(previewUrls));
@@ -108,7 +108,7 @@ export class AcidGenerate implements OnDestroy {
         `ACID-Billing-${new Date().toISOString().slice(0,10)}.pdf`
       )
 
-      
+
     } catch (error: any) {
       toast.error('Error: ' + error)
       console.log(error)

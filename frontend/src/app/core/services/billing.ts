@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
-import { environment } from '@env/environment.prod';
+import { environment } from '@env/environment';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable({

@@ -79,10 +79,18 @@ export async function previewBilling(req, res) {
 
 export async function generateAcidBilling(req, res) {
   try {
-    const {
-      previewPublicIds = [],
-      mode = 'preview' // 'preview' | 'direct'
-    } = req.body;
+    let previewPublicIds = req.body.previewPublicIds || [];
+    let previewUrls = req.body.previewUrls || [];
+
+    if (typeof previewPublicIds === 'string') {
+      previewPublicIds = JSON.parse(previewPublicIds);
+    }
+
+    if (typeof previewUrls === 'string') {
+      previewUrls = JSON.parse(previewUrls);
+    }
+
+    const mode = req.body.mode || 'preview';
 
     const billingLetter = req.files?.billingLetter?.[0];
     const attachments = req.files?.attachments || [];
@@ -93,22 +101,23 @@ export async function generateAcidBilling(req, res) {
 
     const sources = [];
 
-    // --- PREVIEW MODE (use preview PDFs) ---
-    if (mode === 'preview' && Array.isArray(previewPublicIds) && previewPublicIds.length) {
-      const previewUrls = req.body.previewUrls || [];
-
+    if (mode === 'preview' && Array.isArray(previewUrls) && previewUrls.length) {
       for (const url of previewUrls) {
         if (typeof url !== 'string' || !url.startsWith('https://')) {
           throw new Error(`Invalid preview URL: ${url}`);
         }
 
         const resPdf = await fetch(url);
+
+        if (!resPdf.ok) {
+          throw new Error(`Cloudinary blocked preview fetch (${resPdf.status}): ${url}`);
+        }
+
         const buffer = Buffer.from(await resPdf.arrayBuffer());
         sources.push(buffer);
       }
     }
 
-    // --- DIRECT MODE (convert local uploads) ---
     else {
       if (billingLetter.mimetype.includes('word')) {
         const buffer = await docxToPdfBuffer(billingLetter.path);
@@ -135,18 +144,11 @@ export async function generateAcidBilling(req, res) {
       throw new Error('No PDF sources provided');
     }
 
-    // --- MERGE PDF BUFFERS ---
     const finalBuffer = await mergePdfBuffers(sources);
 
-    // --- UPLOAD FINAL PDF (diskless) ---
     const publicId = `billing-acid-${Date.now()}`;
-    const upload = await uploadPdfBuffer(
-      finalBuffer,
-      'billing/acid/final',
-      publicId
-    );
+    const upload = await uploadPdfBuffer(finalBuffer, 'billing/acid/final', publicId);
 
-    // --- SAVE BILLING RECORD ---
     const record = await acidBillingModel.create({
       billingLetter: billingLetter.originalname,
       attachments: attachments.map(a => a.originalname),
@@ -154,10 +156,9 @@ export async function generateAcidBilling(req, res) {
         secure_url: upload.secure_url,
         public_id: upload.public_id
       },
-      createdBy: req.user._id // assuming auth middleware
+      createdBy: req.user?._id || null
     });
 
-    // --- DELETE PREVIEW FILES ---
     if (Array.isArray(previewPublicIds) && previewPublicIds.length) {
       await deleteResources(previewPublicIds);
     }
@@ -165,21 +166,18 @@ export async function generateAcidBilling(req, res) {
     return res.json({
       success: true,
       billingId: record._id,
-      downloadUrl: upload.secure_url,
-      final: {
-        public_id: upload.public_id,
-        url: upload.secure_url
-      }
+      downloadUrl: upload.secure_url
     });
 
   } catch (error) {
-    console.log(error);
+    console.log('Generate error:', error);
     res.status(500).json({
       message: 'Billing generation failed',
       error: error.message || error
     });
   }
 }
+
 
 export async function deletePreviews(req, res) {
     try {
