@@ -26,8 +26,8 @@ export class Dashboard implements OnInit {
 
   async ngOnInit() {
     this.user.set(await this.authService.getProfile())
-    console.log(this.user())
     this.clients.set(await this.clientService.allList())
-    console.log(this.clients())
   }
+
+
 }
