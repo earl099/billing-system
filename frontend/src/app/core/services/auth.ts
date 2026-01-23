@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { UserAuthDTO, UserDTO } from '@models/user';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { environment } from '@env/environment.prod';
+import { environment } from '@env/environment';
 import { Router } from '@angular/router';
 
 @Injectable({

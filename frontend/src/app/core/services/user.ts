@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { environment } from '@env/environment.prod';
+import { environment } from '@env/environment';
 import { UserDTO } from '@models/user';
 import { firstValueFrom } from 'rxjs';
 

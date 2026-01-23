@@ -11,6 +11,7 @@ acidRouter.post(
         { name: 'billingLetter', maxCount: 1 },
         { name: 'attachments', maxCount: 50 }
     ]), 
+    authMiddleware,
     generateAcidBilling
 )
 
@@ -21,6 +22,7 @@ acidRouter.post(
         { name: 'billingLetter', maxCount: 1 },
         { name: 'attachments', maxCount: 50 }
     ]),
+    authMiddleware,
     previewBilling
 )
 
