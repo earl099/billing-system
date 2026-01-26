@@ -1,16 +1,27 @@
 <mat-card class="p-6 card-animate max-w-3xl mx-auto">
   <h2 class="text-2xl font-semibold mb-4">Generate ACID Billing</h2>
 
-  <div class="space-y-3 mb-6">
-    <input type="file" #fileInput accept=".pdf, .docx" hidden (change)="selectBillingLetter($event)" />
-    <button mat-raised-button (click)="fileInput.click()" class="mb-4">Upload Billing Letter</button>
+  <div class="space-y-3 mb-6 space-x-3.5 flex">
+    <div class="flex flex-col">
+      <input type="file" #fileInput accept=".pdf, .docx" hidden (change)="selectBillingLetter($event)" />
+      <button mat-raised-button (click)="fileInput.click()" class="mb-4">Upload Billing Letter</button>
+      <span>{{ billingLetter()?.name }}</span>
+    </div>
 
-    <input type="file" #fileInput1 multiple accept=".pdf, .docx" hidden (change)="selectAttachments($event)" />
-    <button mat-raised-button (click)="fileInput1.click()" class="mb-4">Upload Supporting Files</button>
+    <div class="flex flex-col">
+      <input type="file" #fileInput1 multiple accept=".pdf, .docx" hidden (change)="selectAttachments($event)" />
+      <button mat-raised-button (click)="fileInput1.click()" class="mb-4">Upload Supporting Files</button>
+      @for (file of attachments(); track file) {
+        <span>{{ file.name }}</span>
+      }
+    </div>
+
   </div>
 
   @if (loading()) {
-    <mat-spinner></mat-spinner>
+    <div class="text-center py-10">
+      <mat-spinner></mat-spinner>
+    </div>
   }
   @else {
     @if (isPreviewClicked()) {

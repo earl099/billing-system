@@ -24,7 +24,11 @@
             <mat-expansion-panel-header>
               <mat-panel-title>ACID</mat-panel-title>
             </mat-expansion-panel-header>
-            <button mat-button routerLink="/billing/acid/generate">Generate Billing</button>
+            <div class="flex flex-col">
+              <button mat-button routerLink="/billing/acid/generate">Generate Billing</button>
+              <button mat-button routerLink="/billing/acid/list">Billing List</button>
+            </div>
+
           </mat-expansion-panel>
         </mat-accordion>
       </mat-card>
@@ -46,7 +50,11 @@
                   <mat-expansion-panel-header>
                     <mat-panel-title>{{ client.code }}</mat-panel-title>
                   </mat-expansion-panel-header>
-                  <button mat-button routerLink="/billing/acid/generate">Generate Billing</button>
+                  <div class="flex flex-col">
+                    <button mat-button [routerLink]="['/billing', client.code.toLowerCase(), 'generate']">Generate Billing</button>
+                    <button mat-button [routerLink]="['/billing', client.code.toLowerCase(),'list']">Billing List</button>
+                  </div>
+
                 </mat-expansion-panel>
               </mat-accordion>
             }

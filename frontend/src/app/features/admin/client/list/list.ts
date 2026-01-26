@@ -96,6 +96,5 @@ export class List implements OnInit {
   gotoPage(page:number) {
     if(this.totalPages() < 1) { this.currentPage.set(0) }
     else { this.currentPage.set(Math.min(Math.max(page, 1), this.totalPages())) }
-
   }
 }

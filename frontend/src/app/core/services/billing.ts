@@ -63,7 +63,22 @@ async download(publicId: string) {
   URL.revokeObjectURL(url);
 }
 
-  //** ACID BILLING ENDS HERE **//
+async acidBillingList() {
+  const res: any = await firstValueFrom(this.http.get(`${this.apiUrl}/acid/list`, { withCredentials: true }))
+  return res.list
+}
+
+async acidBillingDetails(id: string) {
+  const res: any = await firstValueFrom(this.http.get(`${this.apiUrl}/acid/${id}`, { withCredentials: true }))
+  return res.acidBilling
+}
+
+async deleteAcidBilling(_id: string) {
+  const res: any = await firstValueFrom(this.http.delete(`${this.apiUrl}/acid/${_id}`, { withCredentials: true }))
+  return res
+}
+
+//** ACID BILLING ENDS HERE **//
 
   async cleanup(previewPublicIds: string[], client: string) {
     if(!previewPublicIds.length) return

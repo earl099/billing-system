@@ -5,6 +5,7 @@ import { docxToPdfBuffer, mergePdfBuffers,  } from '#utils/pdf.util.js'
 import { deleteResources, uploadPdfBuffer } from '#utils/cloudinary.util.js'
 import { promisify } from 'util'
 import { exec } from 'child_process'
+import cloudinary from '#config/cloudinary.js'
 
 const execAsync = promisify(exec)
 
@@ -85,13 +86,17 @@ export async function generateAcidBilling(req, res) {
   try {
     let previewPublicIds = req.body.previewPublicIds || [];
     let previewUrls = req.body.previewUrls || [];
-
+    let user = req.body.user
     if (typeof previewPublicIds === 'string') {
       previewPublicIds = JSON.parse(previewPublicIds);
     }
 
     if (typeof previewUrls === 'string') {
       previewUrls = JSON.parse(previewUrls);
+    }
+
+    if(typeof user === 'string') {
+      user = JSON.parse(user)
     }
 
     const billingLetter = req.files?.billingLetter?.[0];
@@ -163,7 +168,7 @@ export async function generateAcidBilling(req, res) {
         secure_url: upload.secure_url,
         public_id: upload.public_id
       },
-      createdBy: req.user?._id || null
+      createdBy: user._id || null
     });
 
     if (Array.isArray(previewPublicIds) && previewPublicIds.length) {
@@ -249,11 +254,32 @@ export async function acidBillingList(_req, res) {
 
 export async function getAcidBilling(req, res) {
     try {
-        const acidBilling = await acidBillingModel.findById(req.params._id)
-        if(!client) return res.status(404).json({ message: 'ACID Billing not found' })
+        const acidBilling = await acidBillingModel.findById(req.params._id).populate('createdBy')
+
+        if(!acidBilling) return res.status(404).json({ message: 'ACID Billing not found' })
 
         res.json({ acidBilling })
     } catch (error) {
         res.status(500).json({ message: `Server error: ${error}` })
     }
+}
+
+export async function deleteAcidBilling(req, res) {
+  try {
+    const acidBilling = await acidBillingModel.findByIdAndDelete({ _id: req.params._id })
+    if(!acidBilling) return res.status(404).json({ message: 'Billing not found' });
+    res.json({ message: 'ACID Billing deleted successfully' })
+  } catch (error) {
+    res.status(500).json({ message: `Server error: ${error}` })
+  }
+}
+
+export async function clearBilling(req, res) {
+  try {
+    const acidBilling = await acidBillingModel.deleteMany({})
+
+    res.json({ acidBilling })
+  } catch (error) {
+    res.json({ error })
+  }
 }
