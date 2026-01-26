@@ -1,1 +1,54 @@
-<p>list works!</p>,
+<div class="max-w-6xl mx-auto p-6 fade-in">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-semibold">Billing List</h2>
+    <button mat-raised-button color="primary" routerLink="/acid/generate" class="motion-smooth">Generate Billing</button>
+  </div>
+
+  <div class="mb-4">
+    <input
+      type="text"
+      [value]="searchInput()"
+      (input)="searchInput.set($any($event.target).value)"
+      placeholder="Search ACID Billing"
+      class="border rounded px-3 py-2 w-full md:w-1/3 motion-smooth"
+    />
+  </div>
+
+  <mat-card class="p-4 card-animate">
+    <table mat-table [dataSource]="paginatedBillings()" class="w-full">
+      <ng-container matColumnDef="billingLetter">
+        <th mat-header-cell *matHeaderCellDef>Billing Letter</th>
+        <td mat-cell *matCellDef="let b">{{ b.billingLetter }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="createdBy">
+        <th mat-header-cell *matHeaderCellDef>Created By</th>
+        <td mat-cell *matCellDef="let b">{{ b.createdBy.name }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="createdAt">
+        <th mat-header-cell *matHeaderCellDef>Created At</th>
+        <td mat-cell *matCellDef="let b">{{ b.createdAt }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let b">
+          <button mat-icon-button (click)="view(b)" title="View" matTooltip="View Billing Details"><mat-icon>visibility</mat-icon></button>
+          @if (user().role === 'Admin') {
+            <button mat-icon-button color="warn" (click)="delete(b)" title="Delete" matTooltip="Delete Billing"><mat-icon>delete</mat-icon></button>
+          }
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns;"></tr>
+    </table>
+
+    <div class="flex justify-end mt-4 space-x-2">
+      <button mat-stroked-button (click)="gotoPage(currentPage()-1)" [disabled]="currentPage()===1 || currentPage()===0">Prev</button>
+      <span class="px-2 py-1 bg-gray-100 rounded self-center">{{currentPage()}} / {{totalPages()}}</span>
+      <button mat-stroked-button (click)="gotoPage(currentPage()+1)" [disabled]="currentPage()===totalPages() || totalPages()===0">Next</button>
+    </div>
+  </mat-card>
+</div>

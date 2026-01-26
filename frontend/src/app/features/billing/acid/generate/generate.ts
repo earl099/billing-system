@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, HostListener, inject, OnDestroy, signal } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
-import { environment } from '@env/environment';
+import { environment } from '@env/environment.prod';
 import { MATERIAL_MODULES } from '@material';
 import { LogDTO } from '@models/log';
 import { Auth } from '@services/auth';
@@ -10,13 +10,13 @@ import { Log } from '@services/log';
 import { toast } from 'ngx-sonner';
 
 @Component({
-  selector: 'app-generate',
+  selector: 'acid-generate',
   imports: [...MATERIAL_MODULES],
   templateUrl: './generate.html',
   styleUrl: './generate.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AcidGenerate implements OnDestroy {
+export class Generate implements OnDestroy {
   //** SIGNALS TO BE USED **/
   billingLetter = signal<File | null>(null);
   attachments = signal<File[]>([]);
@@ -75,6 +75,7 @@ export class AcidGenerate implements OnDestroy {
     try {
       this.isPreviewClicked.set(false)
       this.loading.set(true)
+      const user = signal(await this.authService.getProfile())
 
       const formData = new FormData
       formData.append('billingLetter', this.billingLetter()!)
@@ -89,6 +90,7 @@ export class AcidGenerate implements OnDestroy {
 
       formData.append('previewPublicIds', JSON.stringify(previewPublicIds))
       formData.append('previewUrls', JSON.stringify(previewUrls));
+      formData.append('user', JSON.stringify(user()))
 
       const billing = await this.billingService.acidBillingGenerate(
         formData,
@@ -100,7 +102,7 @@ export class AcidGenerate implements OnDestroy {
       this.downloadUrl.set(billing.downloadUrl)
       this.loading.set(false)
 
-      const user = signal(await this.authService.getProfile())
+
       const logObject: LogDTO = {
         user: user().name,
         operation: 'Generated Billing for ACID'

@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { upload } from '#middleware/upload.middleware.js'
-import { acidBillingList, deletePreviews, downloadBilling, generateAcidBilling, getAcidBilling, previewBilling } from '#controllers/acid.controller.js'
+import { acidBillingList, clearBilling, deleteAcidBilling, deletePreviews, downloadBilling, generateAcidBilling, getAcidBilling, previewBilling } from '#controllers/acid.controller.js'
 import { authMiddleware } from '#middleware/auth.middleware.js'
 
 const acidRouter = Router()
@@ -47,6 +47,19 @@ acidRouter.get(
     '/acid/:_id',
     authMiddleware,
     getAcidBilling
+)
+
+acidRouter.delete(
+    '/acid/:_id',
+    authMiddleware,
+    deleteAcidBilling
+)
+
+//FOR TRUNCATING THE DB ONLY, IT WILL ONLY USE THIS
+acidRouter.delete(
+    '/acid',
+    authMiddleware,
+    clearBilling
 )
 
 export default acidRouter
