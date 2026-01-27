@@ -21,8 +21,8 @@ import { toast } from 'ngx-sonner';
     MatIconModule,
     RouterLink
   ],
-  templateUrl: './user-create.html',
-  styleUrl: './user-create.css',
+  templateUrl: './create.html',
+  styleUrl: './create.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserCreate implements OnInit{

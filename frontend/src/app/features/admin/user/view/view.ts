@@ -7,8 +7,8 @@ import { User } from '@services/user';
 @Component({
   selector: 'app-user-view',
   imports: [...MATERIAL_MODULES],
-  templateUrl: './user-view.html',
-  styleUrl: './user-view.css',
+  templateUrl: './view.html',
+  styleUrl: './view.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserView implements OnInit {
@@ -27,6 +27,6 @@ export class UserView implements OnInit {
   }
 
   edit() {
-    this.router.navigate([`admin/user/${this.user()._id}/edit`])
+    this.router.navigate(['admin/user', this.user()._id, 'edit'])
   }
 }

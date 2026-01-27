@@ -53,7 +53,7 @@
       </mat-form-field>
 
       <div class="flex gap-3">
-        <button mat-raised-button color="primary" [disabled]="loading" (click)="submit()">Save</button>
+        <button mat-raised-button color="primary" [disabled]="loading()" (click)="submit()">Save</button>
         <button mat-stroked-button type="button" (click)="router.navigate(['/admin/user/list'])">Cancel</button>
       </div>
 

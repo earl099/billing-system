@@ -1,1 +1,25 @@
-<p>client-view works!</p>,
+<div class="max-w-2xl mx-auto p-6 fade-in">
+  <mat-card class="p-6 card-animate">
+    <h3 class="text-xl font-semibold mb-4">Client Details</h3>
+
+    @if(client()) {
+      <p><strong>Code:</strong> {{ client().code }}</p>
+      <p><strong>Name:</strong> {{ client().name }}</p>
+      <p>
+        <strong>Pay Frequency:</strong>
+        @for (payFreq of client().payFreq; track payFreq) {
+          @for (p of payFreqs(); track p) {
+            @if(p._id === payFreq) {
+              {{ p.payType }}
+            }
+          }
+        }
+      </p>
+    }
+
+    <div class="flex mt-4 justify-evenly">
+      <button mat-raised-button color="primary" (click)="edit()">Edit</button>
+      <button mat-stroked-button (click)="router.navigate(['/admin/client/list'])">Back</button>
+    </div>
+  </mat-card>
+</div>
