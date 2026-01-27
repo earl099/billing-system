@@ -136,8 +136,6 @@ export class Generate implements OnDestroy {
     a.click()
 
     URL.revokeObjectURL(objectUrl)
-
-
   }
 
   async ngOnDestroy() {

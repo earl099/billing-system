@@ -19,16 +19,13 @@ import { toast } from 'ngx-sonner';
     ...MATERIAL_MODULES,
     ReactiveFormsModule,
     MatSelectModule,
-    MatChipsModule,
     MatIconModule
   ],
-  templateUrl: './user-update.html',
-  styleUrl: './user-update.css',
+  templateUrl: './update.html',
+  styleUrl: './update.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserUpdate implements OnInit {
-  clients = signal<any[]>([])
-
   fb = inject(FormBuilder)
   userService = inject(User)
   clientService = inject(Client)
@@ -48,18 +45,18 @@ export class UserUpdate implements OnInit {
 
   clientList = signal<any[]>([])
 
-  loading = false
-  error: string | null = null
-  userId: string | null = null
+  loading = signal(false)
+  error = signal<string | null>(null)
+  userId = signal<string | null>(null)
 
   constructor() {
 
   }
 
   async ngOnInit() {
-    this.userId = this.route.snapshot.paramMap.get('id')
-    if(!this.userId) return
-    const user = signal(await this.userService.get(this.userId))
+    this.userId.set(this.route.snapshot.paramMap.get('id')!)
+    if(!this.userId()) return
+    const user = signal(await this.userService.get(this.userId() ?? ''))
 
     const clients = await this.clientService.list()
     this.clientList.set(clients)
@@ -93,10 +90,10 @@ export class UserUpdate implements OnInit {
   }
 
   async submit() {
-    if(!this.userId) return
+    if(!this.userId()) return
     if(this.form.invalid) return
     if(!confirm('Are you sure you want to update this User?')) return
-    this.loading = true
+    this.loading.set(true)
 
     try {
       const formValue = this.form.value
@@ -104,14 +101,14 @@ export class UserUpdate implements OnInit {
         Object.entries(formValue).filter(([_, value]) => value !== null)
       ) as UserDTO
       if(!payload.password) delete payload.password
-      await this.userService.update(this.userId, payload)
+      await this.userService.update(this.userId() ?? '', payload)
       await this.router.navigate(['/admin/user/list'])
       toast.success('User updated successfully')
 
       //log function here
       const log: LogDTO = {
         user: this.authService.fetchUser() ?? '',
-        operation: 'Created User'
+        operation: 'Updated User'
       }
 
       await this.logService.create(log)
@@ -119,7 +116,7 @@ export class UserUpdate implements OnInit {
       this.error = err?.message ?? 'Update User failed'
       toast.error('Error: ' + (this.error ?? err?.message))
     } finally {
-      this.loading = false
+      this.loading.set(false)
     }
   }
 }

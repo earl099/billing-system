@@ -19,8 +19,8 @@ import { toast } from 'ngx-sonner';
     MatTooltipModule,
     RouterLink
   ],
-  templateUrl: './user-list.html',
-  styleUrl: './user-list.css',
+  templateUrl: './list.html',
+  styleUrl: './list.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserList implements OnInit {

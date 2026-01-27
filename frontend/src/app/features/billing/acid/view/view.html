@@ -1,1 +1,30 @@
-<p>view works!</p>,
+<div class="max-w-2xl mx-auto p-6 fade-in">
+  <mat-card class="p-6 card-animate">
+    <h3 class="text-xl font-semibold mb-4">ACID Billing Details</h3>
+
+    @if(billing()) {
+      <div>
+        <p class="mb-1.5"><strong>Billing Letter:</strong> {{ billing().billingLetter }}</p>
+        <p class="mb-1.5">
+          <strong>Supporting Documents:</strong>
+          @for (attachment of billing().attachments; track attachment) {
+            @if($index === billing().attachments.length - 1) {
+              {{ attachment }}
+            }
+            @else {
+              {{ attachment }},
+            }
+          }
+        </p>
+        <p class="mb-1.5"><strong>Created By:</strong> {{ billing().createdBy.name }}</p>
+        <p class="mb-1.5"><strong>Created At:</strong> {{ createdDate }}</p>
+        <p><strong>Final PDF: </strong> <button mat-raised-button (click)="downloadFinalPdf()" ><mat-icon>download</mat-icon> Download</button></p>
+      </div>
+
+    }
+
+    <div class="flex mt-4 justify-evenly">
+      <button mat-stroked-button (click)="router.navigate(['/billing/acid/list'])">Back</button>
+    </div>
+  </mat-card>
+</div>

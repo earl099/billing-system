@@ -1,10 +1,10 @@
 import { Route } from "@angular/router";
-import { UserList } from "./user-list/user-list";
-import { UserCreate } from "./user-create/user-create";
-import { UserView } from "./user-view/user-view";
+import { UserList } from "./list/list";
+import { UserCreate } from "./create/create";
+import { UserView } from "./view/view";
 import { authGuard } from "@guards/auth-guard";
 import { roleGuard } from "@guards/role-guard";
-import { UserUpdate } from "./user-update/user-update";
+import { UserUpdate } from "./update/update";
 
 export const USER_ROUTES: Route[] = [
   { path: 'user/list', component: UserList, canActivate: [authGuard, roleGuard] },
