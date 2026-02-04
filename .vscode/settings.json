@@ -9,10 +9,12 @@
         "earlsaturay",
         "Freqs",
         "Lbrdc",
+        "msal",
         "officedocument",
         "openxmlformats",
         "payfreq",
         "Pdfs",
+        "SITEPATH",
         "soffice",
         "spreadsheetml",
         "wordprocessingml"

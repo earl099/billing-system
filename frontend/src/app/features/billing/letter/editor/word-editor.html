@@ -1,0 +1,24 @@
+<div class="p-6 fade-in max-w-5xl mx-auto">
+  <mat-card class="shadow-xl rounded-2xl">
+    <mat-card-header>
+      <mat-card-title class="text-xl font-semibold mb-4">
+        <h1>Billing Letter Editor</h1>
+      </mat-card-title>
+    </mat-card-header>
+
+
+    <mat-card-content>
+      @for (t of templates(); track t.id) {
+        <button mat-raised-button (click)="selectedTemplate.set(t.id)">
+          {{ t.name }}
+        </button>
+      }
+
+      @if (selectedTemplate()) {
+        <button mat-raised-button (click)="createBillingLetter()">Create Billing Letter</button>
+      }
+
+      
+    </mat-card-content>
+  </mat-card>
+</div>
