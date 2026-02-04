@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
 import { Word } from '@services/word';
 
@@ -16,6 +17,8 @@ export class WordEditor implements OnInit {
   _url = signal<string | null>(null)
   wordService = inject(Word)
   sanitizer = inject(DomSanitizer)
+  router = inject(Router)
+  route = inject(ActivatedRoute)
 
   safeUrl = computed<SafeResourceUrl | null>(() =>
     this._url()
@@ -35,6 +38,6 @@ export class WordEditor implements OnInit {
   async createBillingLetter() {
     const bLetter = await this.wordService.createDocument(this.selectedTemplate()!)
     window.open(bLetter.editUrl, '_blank')
-
+    this.router.navigate([ 'billing', this.route.snapshot.paramMap.get('code')!, 'generate'])
   }
 }
