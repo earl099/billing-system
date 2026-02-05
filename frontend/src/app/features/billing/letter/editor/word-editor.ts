@@ -38,6 +38,6 @@ export class WordEditor implements OnInit {
   async createBillingLetter() {
     const bLetter = await this.wordService.createDocument(this.selectedTemplate()!)
     window.open(bLetter.editUrl, '_blank')
-    this.router.navigate([ 'billing', this.route.snapshot.paramMap.get('code')!, 'generate'])
+    this.router.navigate([ 'billing', this.route.snapshot.paramMap.get('code')!.toLowerCase(), 'generate'])
   }
 }

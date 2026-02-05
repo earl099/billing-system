@@ -30,7 +30,6 @@ export class List implements OnInit {
   authService = inject(Auth)
   logService = inject(Log)
 
-  //TODO: MAKE THE PAY FREQUENCY UNDELETABLE WHEN IT IS CONNECTED TO A CLIENT
   router = inject(Router)
 
   clients = signal<any[]>([])
