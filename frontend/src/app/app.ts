@@ -23,9 +23,11 @@ export class App implements OnInit {
   router = inject(Router)
   user = signal<any>({})
 
+  constructor() { this.authService.startTokenWatcher() }
+
   ngOnInit(): void {
     this.user.set(this.authService.getProfile())
-    if(this.authService.isAuthenticated()) this.router.navigate(['dashboard'])
+    if(this.authService.hasValidToken()) this.router.navigate(['dashboard'])
   }
 
   home() {
@@ -48,10 +50,6 @@ export class App implements OnInit {
 
       await this.authService.logout()
       toast.success('Logged out successfully')
-
-      if(!this.authService.isAuthenticated()) {
-        this.authService.removeUser()
-      }
     } catch (error) {
       console.log(error)
     }
