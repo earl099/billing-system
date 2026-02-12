@@ -8,17 +8,23 @@
 
 
     <mat-card-content>
-      @for (t of templates(); track t.id) {
-        <button mat-raised-button (click)="selectedTemplate.set(t.id)">
-          {{ t.name }}
-        </button>
-      }
+      <div class="mt-4">
+        <h2 class="text-md">Choose your template:</h2>
+        <br>
+        @for (t of templates(); track t.id) {
+          <button mat-raised-button class="mb-6" (click)="selectedTemplate.set(t.id)">
+            {{ t.name }}
+          </button>
+        }
+      </div>
 
-      @if (selectedTemplate()) {
-        <button mat-raised-button (click)="createBillingLetter()">Create Billing Letter</button>
-      }
-
-      
+      <div class="mt-4">
+        @if (selectedTemplate()) {
+          <h2 class="text-md">Generate Billing Letter File:</h2>
+          <br>
+          <button mat-raised-button class="mb-6" (click)="createBillingLetter()">Create Billing Letter</button>
+        }
+      </div>
     </mat-card-content>
   </mat-card>
 </div>
