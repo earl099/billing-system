@@ -6,7 +6,7 @@ const graphRouter = Router()
 
 graphRouter.use(authMiddleware)
 
-graphRouter.get('/word/templates', listTemplates)
+graphRouter.get('/word/templates/:code', listTemplates)
 graphRouter.post('/word/create', createBillingLetter)
 graphRouter.get('/word/export/:id', exportToPdf)
 
