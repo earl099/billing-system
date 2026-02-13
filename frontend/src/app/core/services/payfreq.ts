@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { environment } from '@env/environment.prod';
+import { environment } from '@env/environment';
 import { PayFreqDTO } from '@models/payfreq';
 import { firstValueFrom } from 'rxjs';
 

@@ -8,23 +8,80 @@
 
 
     <mat-card-content>
-      <div class="mt-4">
+      <div>
         <h2 class="text-md">Choose your template:</h2>
         <br>
         @for (t of templates(); track t.id) {
-          <button mat-raised-button class="mb-6" (click)="selectedTemplate.set(t.id)">
-            {{ t.name }}
-          </button>
+          <div class="grid grid-cols-2 gap-3 mt-4">
+            <button mat-raised-button color="primary" (click)="selectTemplate(t)">
+              {{ t.name }}
+            </button>
+          </div>
         }
       </div>
 
-      <div class="mt-4">
-        @if (selectedTemplate()) {
+      @if (isBlankSelected()) {
+        <div class="mt-4">
           <h2 class="text-md">Generate Billing Letter File:</h2>
           <br>
-          <button mat-raised-button class="mb-6" (click)="createBillingLetter()">Create Billing Letter</button>
-        }
-      </div>
+          <button mat-raised-button class="mb-6" (click)="createBlank()">Create Billing Letter</button>
+        </div>
+      }
+
+      @if (step() === 2) {
+        <h3>Enter Billing Information</h3>
+
+        <form [formGroup]="form" class="grid grid-cols-2 gap-4 mt-4">
+          <mat-form-field>
+            <mat-label>SOA Number</mat-label>
+            <input matInput formControlName="soaNo">
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Billing Date</mat-label>
+            <input matInput [matDatepicker]="dp" formControlName="billingDate">
+            <mat-hint>DD MMMM, YYYYY</mat-hint>
+            <mat-datepicker-toggle matIconSuffix [for]="dp"></mat-datepicker-toggle>
+            <mat-datepicker #dp></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Addressed To</mat-label>
+            <textarea matInput formControlName="addressedTo"></textarea>
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Addressed To (Introduction)</mat-label>
+            <input matInput formControlName="addressee">
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Client Name</mat-label>
+            <input matInput formControlName="clientName">
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Particulars</mat-label>
+            <input matInput formControlName="particulars">
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>COD, Billing & Collection Unit</mat-label>
+            <input matInput formControlName="bcuChiefName">
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>OIC, ACID</mat-label>
+            <input matInput formControlName="acidOicName">
+          </mat-form-field>
+        </form>
+
+        <div class="flex justify-end gap-3 mt-6">
+          <button mat-stroked-button (click)="step.set(1)">Back</button>
+
+          <button mat-raised-button color="primary" (click)="createBillingLetter()" [disabled]="form.invalid">Generate Document</button>
+        </div>
+      }
     </mat-card-content>
   </mat-card>
 </div>

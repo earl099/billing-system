@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { environment } from '@env/environment.prod';
+import { environment } from '@env/environment';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable({
@@ -10,13 +10,21 @@ export class Word {
   private apiUrl = environment.apiUrl
   http = inject(HttpClient)
 
-  async getTemplates() {
-    const res: any = await firstValueFrom(this.http.get(`${this.apiUrl}/word/templates`))
+  async getTemplates(code: string) {
+    const res: any = await firstValueFrom(this.http.get(`${this.apiUrl}/word/templates/${code.toLowerCase()}`))
     return res
   }
 
-  async createDocument(templateId: string) {
-    const res: any = await firstValueFrom(this.http.post<any>(`${this.apiUrl}/word/create`, { templateId }))
+  async createDocument(templateId: string, data: any, isBlank: boolean) {
+    const res: any = await firstValueFrom(
+      this.http.post<any>(`${this.apiUrl}/word/create`,
+        {
+          templateId,
+          data,
+          isBlank
+        }
+      )
+    )
     return res
   }
 

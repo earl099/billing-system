@@ -1,32 +1,50 @@
+import PizZip from 'pizzip'
+import Docxtemplater from 'docxtemplater'
 import axios from 'axios'
 import { getGraphToken } from '#config/graphAuth.js'
 
 export async function graphRequest(method, url, data = null, config = {}) {
     const token = await getGraphToken()
     
+    if(!token) {
+        throw new Error('Microsoft Graph is missing')
+    }
+
+    let graphPath = url
+    
+    if(!graphPath.startsWith('/')) {
+        graphPath = '/' + graphPath
+    }
+
     const finalUrl = url.startsWith('https://')
-        ? url
+        ? graphPath
         : `https://graph.microsoft.com/v1.0${url}`
+
+    console.log(token.length)
+    
+    const headers = {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        ...(config.headers || {})
+    }
 
     return axios({
         method,
         url: finalUrl,
-        headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-        },
         data,
-        ...config
+        ...config,
+        headers
     })
 }
 
-export async function listTemplates(_req, res) {
+export async function listTemplates(req, res) {
     try {
         const SITE_ID = process.env.SHAREPOINT_SITE_ID
+        const { code } = req.params
 
         const response = await graphRequest(
             "GET",
-            `/sites/${SITE_ID}/drive/root:/Templates:/children`
+            `/sites/${SITE_ID}/drive/root:/Templates/${code}:/children`
         )
 
         const templates = response.data.value.map(file => ({
@@ -43,16 +61,16 @@ export async function listTemplates(_req, res) {
 
 export async function createBillingLetter(req, res) {
   try {
-    const { templateId } = req.body;
+    const { templateId, data, isBlank } = req.body;
     const SITE_ID = process.env.SHAREPOINT_SITE_ID;
+
+    const fileName = `Billing-Letter-${Date.now()}.docx`;
 
     // 1️⃣ Resolve destination folder
     const folder = await graphRequest(
       'GET',
       `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts`
     );
-
-    const fileName = `Billing-Letter-${Date.now()}.docx`;
 
     // 2️⃣ Start copy
     await graphRequest(
@@ -65,10 +83,9 @@ export async function createBillingLetter(req, res) {
       { validateStatus: s => s === 202 }
     );
 
-    // 3️⃣ Give SharePoint time
     await new Promise(r => setTimeout(r, 1500));
 
-    // 4️⃣ Find copied file
+    // 3️⃣ Find copied File
     const children = await graphRequest(
       'GET',
       `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts:/children`
@@ -78,11 +95,54 @@ export async function createBillingLetter(req, res) {
 
     if (!doc) throw new Error('Copied document not found');
 
-    // 5️⃣ Done
+    // 4️⃣ if Blank -> Done
+    if(isBlank) {
+        return res.json({
+            documentId: doc.id,
+            editUrl: doc.webUrl
+        });
+    }
+
+    // 5️⃣ Download File
+    const fileRes = await graphRequest(
+      'GET',
+      `/sites/${SITE_ID}/drive/items/${doc.id}/content`,
+      null,
+      { responseType: 'arraybuffer' }
+    )
+
+    const zip = new PizZip(fileRes.data)
+
+    const docx = new Docxtemplater(zip, {
+      paragraphLoop: true,
+      linebreaks: true
+    })
+
+    // 6. Replace Placeholders
+    docx.render(data)
+
+    const buffer = docx.getZip().generate({
+        type: 'nodebuffer'
+    })
+
+    // 7. Upload Modified File
+    await graphRequest(
+        'PUT',
+        `/sites/${SITE_ID}/drive/items/${doc.id}/content`,
+        buffer,
+        {
+            headers: {
+                'Content-Type': 
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            }
+        }
+    )
+
+    // 8. Done
     res.json({
-      documentId: doc.id,
-      editUrl: doc.webUrl
-    });
+        documentId: doc.id,
+        editUrl: doc.webUrl
+    })
 
   } catch (err) {
     console.error(err?.response?.data || err);
