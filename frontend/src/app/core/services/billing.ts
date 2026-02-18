@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
-import { environment } from '@env/environment';
+import { environment } from '@env/environment.prod';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable({
@@ -33,8 +33,6 @@ async acidBillingPreview(formData: FormData) {
       { withCredentials: true }
     )
   )
-
-  console.log(res.previews)
 
   return res.previews.map((p: any) => ({
     public_id: p.public_id,

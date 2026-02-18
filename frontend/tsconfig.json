@@ -21,6 +21,7 @@
       "@guards/*": ["src/app/core/guards/*"],
       "@interceptors/*": ["src/app/core/interceptors/*"],
       "@services/*": ["src/app/core/services/*"],
+      //"@directives/*": ["src/app/core/directives/*"],
       "@models/*": ["src/app/core/models/*"],
       "@billing/*": ["src/app/features/billing/*"],
       "@env/*": ["src/environments/*"],
