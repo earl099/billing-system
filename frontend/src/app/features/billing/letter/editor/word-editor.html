@@ -29,12 +29,15 @@
       }
 
       @if (step() === 2) {
-        <h3>Enter Billing Information</h3>
+        <h3 class="mt-4">Enter Billing Information</h3>
 
         <form [formGroup]="form" class="grid grid-cols-2 gap-4 mt-4">
           <mat-form-field>
             <mat-label>SOA Number</mat-label>
             <input matInput formControlName="soaNo">
+            @if(form.get('soaNo')?.invalid) {
+              <mat-error>Please input a SOA Number</mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field>
@@ -43,36 +46,89 @@
             <mat-hint>DD MMMM, YYYYY</mat-hint>
             <mat-datepicker-toggle matIconSuffix [for]="dp"></mat-datepicker-toggle>
             <mat-datepicker #dp></mat-datepicker>
+            @if(form.get('billingDate')?.invalid) {
+              <mat-error>Please input a Billing Date</mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field>
             <mat-label>Addressed To</mat-label>
             <textarea matInput formControlName="addressedTo"></textarea>
+            @if(form.get('addressedTo')?.invalid) {
+              <mat-error>Please input a valid Addressed Person</mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field>
             <mat-label>Addressed To (Introduction)</mat-label>
             <input matInput formControlName="addressee">
+            @if(form.get('addressee')?.invalid) {
+              <mat-error>Please input a proper introduction to the Addressed Person</mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field>
             <mat-label>Client Name</mat-label>
             <input matInput formControlName="clientName">
+            @if(form.get('clientName')?.invalid) {
+              <mat-error>Please input a Client Name</mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field>
             <mat-label>Particulars</mat-label>
             <input matInput formControlName="particulars">
+            @if(form.get('particulars')?.invalid) {
+              <mat-error>Please input a valid Particulars</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Project Name</mat-label>
+            <input matInput formControlName="client">
+            @if(form.get('client')?.invalid) {
+              <mat-error>Please input a Project Name</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Location</mat-label>
+            <input matInput formControlName="clientAddress">
+            @if(form.get('clientAddress')?.invalid) {
+              <mat-error>Please input a Location</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Appraisal Amount</mat-label>
+            <input type="number" step="0.01" matInput formControlName="appraisalAmt" (keypress)="decimalFilter($event)">
+            @if(form.get('appraisalAmt')?.invalid) {
+              <mat-error>Please input the Appraisal Amount</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Total Amount Due</mat-label>
+            <input type="number" step="0.01" matInput formControlName="totalAmt" (keypress)="decimalFilter($event)">
+            @if(form.get('totalAmt')?.invalid) {
+              <mat-error>Please input the Total Amount</mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field>
             <mat-label>COD, Billing & Collection Unit</mat-label>
             <input matInput formControlName="bcuChiefName">
+            @if(form.get('bcuChiefName')?.invalid) {
+              <mat-error>Please input Billing & Collections Unit COD Name</mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field>
             <mat-label>OIC, ACID</mat-label>
             <input matInput formControlName="acidOicName">
+            @if(form.get('acidOicName')?.invalid) {
+              <mat-error>Please input ACID OIC Name</mat-error>
+            }
           </mat-form-field>
         </form>
 

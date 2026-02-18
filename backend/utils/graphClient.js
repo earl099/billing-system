@@ -19,8 +19,6 @@ export async function graphRequest(method, url, data = null, config = {}) {
     const finalUrl = url.startsWith('https://')
         ? graphPath
         : `https://graph.microsoft.com/v1.0${url}`
-
-    console.log(token.length)
     
     const headers = {
         Authorization: `Bearer ${token}`,
