@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, s
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
 import { LogDTO } from '@models/log';
 import { Auth } from '@services/auth';
@@ -28,7 +28,9 @@ export class List implements OnInit{
   authService = inject(Auth)
   logService = inject(Log)
   router = inject(Router)
+  route = inject(ActivatedRoute)
 
+  code = signal(this.route.snapshot.paramMap.get('code')!)
   billingList = signal<any[]>([])
   searchInput = signal('')
   searchQuery = signal('')
@@ -73,7 +75,7 @@ export class List implements OnInit{
   }
 
   async load() {
-    const acidBillingList = await this.billingService.acidBillingList()
+    const acidBillingList = await this.billingService.billingList(this.code())
     this.billingList.set(acidBillingList)
     for (let i = 0; i < this.billingList().length; i++) {
       const newDate = new Date(this.billingList()[i].createdAt).toDateString();
@@ -88,7 +90,7 @@ export class List implements OnInit{
 
   async delete(b: any) {
     if(!confirm('Are you sure you want to delete this billing? This is action is permanent.')) return;
-    await this.billingService.deleteAcidBilling(b._id)
+    await this.billingService.deleteBilling(b._id, this.code())
     toast.success('Deleted ACID Billing successfully')
     await this.load()
 

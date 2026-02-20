@@ -13,7 +13,8 @@ export class Billing {
   private sanitizer = inject(DomSanitizer)
 
   //** ACID BILLING STARTS HERE **//
-async acidBillingGenerate(
+async billingGenerate(
+  code: string,
   fd: FormData,
   _previewPublicIds: string[],
   _previewUrls: string[],
@@ -21,14 +22,14 @@ async acidBillingGenerate(
 ) {
     fd.append('mode', mode)
     const res: any = await firstValueFrom(
-      this.http.post<any>(`${this.apiUrl}/acid/generate`, fd, { withCredentials: true }))
+      this.http.post<any>(`${this.apiUrl}/${code}/generate`, fd, { withCredentials: true }))
     return res
 }
 
-async acidBillingPreview(formData: FormData) {
+async billingPreview(code: string, formData: FormData) {
   const res: any = await firstValueFrom(
     this.http.post<any>(
-      `${this.apiUrl}/acid/preview`,
+      `${this.apiUrl}/${code}/preview`,
       formData,
       { withCredentials: true }
     )
@@ -61,18 +62,18 @@ async download(publicId: string) {
   URL.revokeObjectURL(url);
 }
 
-async acidBillingList() {
-  const res: any = await firstValueFrom(this.http.get(`${this.apiUrl}/acid/list`, { withCredentials: true }))
+async billingList(code: string) {
+  const res: any = await firstValueFrom(this.http.get(`${this.apiUrl}/${code}/list`, { withCredentials: true }))
   return res.list
 }
 
-async acidBillingDetails(id: string) {
-  const res: any = await firstValueFrom(this.http.get(`${this.apiUrl}/acid/${id}`, { withCredentials: true }))
+async billingDetails(id: string, code: string) {
+  const res: any = await firstValueFrom(this.http.get(`${this.apiUrl}/${code}/${id}`, { withCredentials: true }))
   return res.acidBilling
 }
 
-async deleteAcidBilling(_id: string) {
-  const res: any = await firstValueFrom(this.http.delete(`${this.apiUrl}/acid/${_id}`, { withCredentials: true }))
+async deleteBilling(_id: string, code: string) {
+  const res: any = await firstValueFrom(this.http.delete(`${this.apiUrl}/${code}/${_id}`, { withCredentials: true }))
   return res
 }
 

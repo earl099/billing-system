@@ -4,14 +4,14 @@ import logRouter from "#routes/log.routes.js";
 import payFreqRouter from "#routes/payfreq.routes.js";
 import signupRouter from "#routes/signup.routes.js";
 import userRouter from "#routes/user.routes.js";
-import acidRouter from "#routes/acid.routes.js";
+import billingRouter from "#routes/billing.routes.js";
 import graphRouter from "#routes/graph.routes.js";
 
 const ALL_ROUTES = [
     signupRouter,
     logRouter,
     authRouter,
-    acidRouter,
+    billingRouter,
     graphRouter,
 
     //ADMIN ONLY ROUTES

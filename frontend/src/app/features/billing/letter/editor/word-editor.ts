@@ -1,5 +1,6 @@
+import { formatDate } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -9,7 +10,17 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
 import { Word } from '@services/word';
 import { A11yModule } from "@angular/cdk/a11y";
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
+type FieldType = 'text' | 'textarea' | 'number' | 'date'
+interface FieldConfig {
+  key: string
+  label: string
+  type: FieldType
+  required?: boolean
+  colSpan?: number
+  dateFormat?: string
+}
 
 export const MY_FORMATS = {
   parse: {
@@ -31,6 +42,8 @@ export const MY_FORMATS = {
     MatFormFieldModule,
     MatInputModule,
     MatDatepickerModule,
+    FormsModule,
+    MatProgressSpinnerModule,
     A11yModule,
 ],
   templateUrl: './word-editor.html',
@@ -42,29 +55,59 @@ export class WordEditor implements OnInit {
   templates = signal<any[]>([])
   selectedTemplate = signal<any>(null)
   isBlankSelected = signal(false)
+  isGenerating = signal(false)
   _url = signal<string | null>(null)
   step = signal(1)
+  formConfig = signal<FieldConfig[]>([])
+
+  private billingSchemas: Record<string, FieldConfig[]> = {
+    acid: [
+      { key: 'soaNo', label: 'SOA Number', type: 'text', required: true },
+      { key: 'billingDate', label: 'Billing Date', type: 'date', required: true, dateFormat:'d MMMM yyyy' },
+      { key: 'addressedTo', label: 'Addressed To', type: 'textarea', required: true, colSpan: 2 },
+      { key: 'addressee', label: 'Addressed To (Introduction)', type: 'text', required: true, colSpan: 2 },
+      { key: 'clientName', label: 'Client Name', type: 'text', required: true },
+      { key: 'particulars', label: 'Particulars', type: 'text', required: true },
+      { key: 'client', label: 'Project Name', type: 'text', required: true },
+      { key: 'clientAddress', label: 'Location', type: 'text', required: true },
+      { key: 'appraisalAmt', label: 'Appraisal Amount', type: 'number', required: true },
+      { key: 'totalAmt', label: 'Total Amount Due', type: 'number', required: true },
+      { key: 'bcuChiefName', label: 'COD, Billing & Collection Unit', type: 'text', required: true },
+      { key: 'acidOicName', label: 'OIC, ACID', type: 'text', required: true },
+    ],
+
+    jss: [
+      { key: 'soaNo', label: 'SOA Number', type: 'text', required: true },
+      { key: 'billingDate', label: 'Billing Date', type: 'date', required: true, dateFormat:'MMMM dd, yyyy' },
+      { key: 'monthAndYear', label: 'Month and Year', type: 'date', required: true, dateFormat: 'MMMM yyyy' },
+      { key: 'amt', label: 'Amount', type: 'number', required: true },
+      { key: 'bAsstName', label: 'Billing Assistant', type: 'text', required: true },
+      { key: 'bcuChiefName', label: 'Chief of Division, Billing & Collection Unit', type: 'text', required: true },
+    ]
+  }
 
   wordService = inject(Word)
   sanitizer = inject(DomSanitizer)
   router = inject(Router)
   route = inject(ActivatedRoute)
-  fb = inject(FormBuilder)
+  fb = inject(UntypedFormBuilder)
 
-  form = this.fb.group({
-    soaNo: ['', Validators.required],
-    billingDate: ['', Validators.required],
-    addressedTo: ['', Validators.required],
-    addressee: ['', Validators.required],
-    clientName: ['', Validators.required],
-    particulars: ['', Validators.required],
-    client: ['', Validators.required],
-    clientAddress: ['', Validators.required],
-    appraisalAmt: ['', Validators.required],
-    totalAmt: ['', Validators.required],
-    bcuChiefName: ['', Validators.required],
-    acidOicName: ['', Validators.required],
-  })
+  readonly code = signal(this.route.snapshot.paramMap.get('code'))
+
+  form: UntypedFormGroup = this.fb.group({})
+
+  private buildDynamicForm(schema: FieldConfig[]) {
+    const group: any = {}
+
+    for(const field of schema) {
+      group[field.key] = [
+        '',
+        field.required ? Validators.required : []
+      ]
+    }
+
+    this.form = this.fb.group(group)
+  }
 
   safeUrl = computed<SafeResourceUrl | null>(() =>
     this._url()
@@ -88,67 +131,65 @@ export class WordEditor implements OnInit {
     if(t.name.toLowerCase().includes('blank')) {
       this.isBlankSelected.set(true)
       this.step.set(1)
-      this.form.markAsUntouched()
+      this.formConfig.set([])
+      this.form.reset()
       return
     }
-    else {
-      this.isBlankSelected.set(false)
-    }
 
-    this.step.set(2)
+    this.isBlankSelected.set(false)
+
+    const currentCode = this.code()!
+    const schema = this.billingSchemas[currentCode]
+
+    if(schema) {
+      this.formConfig.set(schema)
+      this.buildDynamicForm(schema)
+      this.step.set(2)
+    }
   }
 
   async createBlank() {
-    const doc = await this.wordService.createDocument(this.selectedTemplate().id, {}, true)
+    try {
+      this.isGenerating.set(true)
+      const doc = await this.wordService.createDocument(this.selectedTemplate().id, this.code()!, {}, true)
 
-    window.open(doc.editUrl, '_blank')
-
-    this.router.navigate([
-      'billing',
-      this.route.snapshot.paramMap.get('code')!.toLowerCase(),
-      'generate'
-    ])
+      window.open(doc.editUrl, '_blank')
+    } finally {
+      this.isGenerating.set(false)
+      this.router.navigate([
+        'billing',
+        this.route.snapshot.paramMap.get('code')!.toLowerCase(),
+        'generate'
+      ])
+    }
   }
 
   async createBillingLetter() {
-    const dateObj = new Date(this.form.get('billingDate')?.value!)
-    const options: Intl.DateTimeFormatOptions = {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric'
+    if(this.form.invalid) return
+
+    try {
+      this.isGenerating.set(true)
+
+      const formValue = this.transformFormValues()
+
+      const bLetter = await this.wordService.createDocument(
+        this.selectedTemplate().id,
+        this.code()!,
+        formValue,
+        false
+      )
+
+      window.open(bLetter.editUrl, '_blank')
+    } finally {
+      this.isGenerating.set(false)
+
+      this.router.navigate([
+        'billing',
+        this.route.snapshot.paramMap.get('code')!.toLowerCase(),
+        'generate'
+      ])
     }
 
-    this.form.get('billingDate')?.setValue(dateObj.toLocaleDateString('en-GB', options))
-
-    let appAmt = String(this.form.get('appraisalAmt')?.value)
-    let appArr = appAmt.split('.')
-
-    if(appAmt?.includes('.00') || !appAmt?.includes('.')) {
-      this.form.get('appraisalAmt')?.setValue(appAmt + '.00')
-    }
-    else if(appArr.length === 2 && appArr[1].length === 1) {
-      this.form.get('appraisalAmt')?.setValue(appAmt + '0')
-    }
-
-    let totalAppAmt = String(this.form.get('totalAmt')?.value)
-    let totalAppArr = totalAppAmt.split('.')
-
-    if(totalAppAmt?.includes('.00') || !totalAppAmt?.includes('.')) {
-      this.form.get('totalAmt')?.setValue(totalAppAmt + '.00')
-    }
-    else if(totalAppAmt.length === 2 && totalAppAmt[1].length === 1) {
-      this.form.get('totalAmt')?.setValue(totalAppAmt + '0')
-    }
-
-    const bLetter = await this.wordService.createDocument(this.selectedTemplate().id, this.form.value, false)
-
-    window.open(bLetter.editUrl, '_blank')
-
-    this.router.navigate([
-      'billing',
-      this.route.snapshot.paramMap.get('code')!.toLowerCase(),
-      'generate'
-    ])
   }
 
   decimalFilter(event: any) {
@@ -158,5 +199,22 @@ export class WordEditor implements OnInit {
     if (!reg.test(input)) {
         event.preventDefault();
     }
+  }
+
+  private transformFormValues() {
+    const values = { ...this.form.value }
+    const schema = this.formConfig()
+
+    for(const field of schema) {
+      if(field.type === 'date' && field.dateFormat && values[field.key]) {
+        values[field.key] = formatDate(values[field.key], field.dateFormat, 'en-US')
+      }
+
+      if(field.type === 'number' && values[field.key] != null) {
+        values[field.key] = Number(values[field.key]).toFixed(2)
+      }
+    }
+
+    return values
   }
 }

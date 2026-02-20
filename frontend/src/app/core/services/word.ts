@@ -15,9 +15,9 @@ export class Word {
     return res
   }
 
-  async createDocument(templateId: string, data: any, isBlank: boolean) {
+  async createDocument(templateId: string, code: string, data: any, isBlank: boolean) {
     const res: any = await firstValueFrom(
-      this.http.post<any>(`${this.apiUrl}/word/create`,
+      this.http.post<any>(`${this.apiUrl}/word/create/${code}`,
         {
           templateId,
           data,

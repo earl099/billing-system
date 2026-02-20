@@ -17,11 +17,12 @@ export class View implements OnInit {
   billingService = inject(Billing)
   billing = signal<any>({})
   finalFileName = signal<string>('ACID-Billing.pdf')
+  code = signal(this.route.snapshot.paramMap.get('code')!)
   createdDate!: Date
 
   async ngOnInit() {
     const id = this.route.snapshot.paramMap.get('_id')!
-    this.billing.set(await this.billingService.acidBillingDetails(id))
+    this.billing.set(await this.billingService.billingDetails(id, this.code()))
     console.log(this.billing())
     this.createdDate = new Date(this.billing().createdAt)
   }
