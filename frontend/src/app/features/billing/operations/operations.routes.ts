@@ -4,7 +4,7 @@ import { Generate } from "./generate/generate";
 import { List } from "./list/list";
 import { View } from "./view/view";
 
-export const ACID_ROUTES: Route[] = [
+export const BILLING_OPERATIONS_ROUTES: Route[] = [
   { path: 'generate', component: Generate, canActivate: [authGuard] },
   { path: 'list', component: List, canActivate: [authGuard] },
   { path: 'view/:_id', component: View, canActivate: [authGuard] }

@@ -1,23 +1,32 @@
 import { Router } from 'express'
 import { upload } from '#middleware/upload.middleware.js'
-import { acidBillingList, clearBilling, deleteAcidBilling, deletePreviews, downloadBilling, generateAcidBilling, getAcidBilling, previewBilling } from '#controllers/acid.controller.js'
+import {
+    billingList,
+    clearBilling,
+    deleteBilling,
+    deletePreviews,
+    downloadBilling,
+    generateBilling,
+    getBilling,
+    previewBilling
+} from '#controllers/billing.controller.js'
 import { authMiddleware } from '#middleware/auth.middleware.js'
 
-const acidRouter = Router()
+const billingRouter = Router()
 
-acidRouter.post(
-    '/acid/generate',
+billingRouter.post(
+    '/:code/generate',
     upload.fields([
         { name: 'billingLetter', maxCount: 1 },
         { name: 'attachments', maxCount: 50 }
     ]), 
     authMiddleware,
-    generateAcidBilling
+    generateBilling
 )
 
 
-acidRouter.post(
-    '/acid/preview',
+billingRouter.post(
+    '/:code/preview',
     upload.fields([
         { name: 'billingLetter', maxCount: 1 },
         { name: 'attachments', maxCount: 50 }
@@ -26,40 +35,40 @@ acidRouter.post(
     previewBilling
 )
 
-acidRouter.post(
-    '/acid/cleanup',
+billingRouter.post(
+    '/:code/cleanup',
     deletePreviews
 )
 
-acidRouter.get(
-    '/acid/download/:publicId',
+billingRouter.get(
+    '/:code/download/:publicId',
     authMiddleware,
     downloadBilling
 )
 
-acidRouter.get(
-    '/acid/list',
+billingRouter.get(
+    '/:code/list',
     authMiddleware,
-    acidBillingList
+    billingList
 )
 
-acidRouter.get(
-    '/acid/:_id',
+billingRouter.get(
+    '/:code/:_id',
     authMiddleware,
-    getAcidBilling
+    getBilling
 )
 
-acidRouter.delete(
-    '/acid/:_id',
+billingRouter.delete(
+    '/:code/:_id',
     authMiddleware,
-    deleteAcidBilling
+    deleteBilling
 )
 
 //FOR TRUNCATING THE DB ONLY, IT WILL ONLY USE THIS
-acidRouter.delete(
-    '/acid',
+billingRouter.delete(
+    '/:code',
     authMiddleware,
     clearBilling
 )
 
-export default acidRouter
+export default billingRouter

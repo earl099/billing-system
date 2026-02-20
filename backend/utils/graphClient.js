@@ -59,15 +59,19 @@ export async function listTemplates(req, res) {
 
 export async function createBillingLetter(req, res) {
   try {
+    const { code } = req.params
     const { templateId, data, isBlank } = req.body;
     const SITE_ID = process.env.SHAREPOINT_SITE_ID;
 
-    const fileName = `Billing-Letter-${Date.now()}.docx`;
+    const currentDate = new Date()
+    const fileName = `Billing-Letter-${code.toUpperCase()}` + 
+                     `-${currentDate.getMonth() + 1}-${currentDate.getDate()}-${currentDate.getFullYear()}` + 
+                     ` ${currentDate.getHours()}${currentDate.getMinutes()}${currentDate.getSeconds()}.docx`;
 
     // 1️⃣ Resolve destination folder
     const folder = await graphRequest(
       'GET',
-      `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts`
+      `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts/${code}`
     );
 
     // 2️⃣ Start copy
@@ -86,7 +90,7 @@ export async function createBillingLetter(req, res) {
     // 3️⃣ Find copied File
     const children = await graphRequest(
       'GET',
-      `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts:/children`
+      `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts/${code}:/children`
     );
 
     const doc = children.data.value.find(f => f.name === fileName);

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, HostListener, inject, OnDestroy, signal } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from '@env/environment.prod';
 import { MATERIAL_MODULES } from '@material';
 import { LogDTO } from '@models/log';
@@ -17,7 +17,10 @@ import { toast } from 'ngx-sonner';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Generate implements OnDestroy {
+  route = inject(ActivatedRoute)
+
   //** SIGNALS TO BE USED **/
+  private code = signal(this.route.snapshot.paramMap.get('code')!)
   billingLetter = signal<File | null>(null);
   attachments = signal<File[]>([]);
   previews = signal<{ label: string, safeUrl: SafeResourceUrl, public_id: string }[]>([])
@@ -63,7 +66,7 @@ export class Generate implements OnDestroy {
     this.isPreviewClicked.set(true)
     this.loading.set(true)
     this.mode.set('preview')
-    this.previews.set(await this.billingService.acidBillingPreview(fd))
+    this.previews.set(await this.billingService.billingPreview(this.code(), fd))
     this.loading.set(false)
   }
 
@@ -92,7 +95,8 @@ export class Generate implements OnDestroy {
       formData.append('previewUrls', JSON.stringify(previewUrls));
       formData.append('user', JSON.stringify(user()))
 
-      const billing = await this.billingService.acidBillingGenerate(
+      const billing = await this.billingService.billingGenerate(
+        this.code(),
         formData,
         previewPublicIds,
         previewUrls,

@@ -1,6 +1,7 @@
 import { Schema, model } from 'mongoose'
 
-const acidBillingSchema = new Schema({
+const billingSchema = new Schema({
+    client: String,
     billingLetter: String,
     attachments: [String],
     finalPdf: { secure_url: String, public_id: String },
@@ -8,6 +9,6 @@ const acidBillingSchema = new Schema({
     createdAt: { type: Date, default: Date.now }
 })
 
-const acidBillingModel = model('AcidBilling', acidBillingSchema)
+const billingModel = model('Billing', billingSchema)
 
-export default acidBillingModel
+export default billingModel

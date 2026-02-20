@@ -6,3 +6,16 @@
 .animate-fade-in {
   animation: fade-in 250ms ease-out;
 }
+
+.mat-mdc-form-field {
+  height: auto !important;
+  width: auto !important;
+}
+
+.mat-mdc-form-field {
+  margin: 0;
+}
+
+.mdc-text-field__input {
+  width: 86%;
+}

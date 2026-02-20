@@ -2,7 +2,7 @@
   <mat-card class="shadow-xl rounded-2xl">
     <mat-card-header>
       <mat-card-title class="text-xl font-semibold mb-4">
-        <h1>Billing Letter Editor</h1>
+        Billing Letter Editor
       </mat-card-title>
     </mat-card-header>
 
@@ -11,133 +11,96 @@
       <div>
         <h2 class="text-md">Choose your template:</h2>
         <br>
-        @for (t of templates(); track t.id) {
-          <div class="grid grid-cols-2 gap-3 mt-4">
+        <div class="grid grid-cols-2 gap-3 mt-4">
+          @for (t of templates(); track t.id) {
             <button mat-raised-button color="primary" (click)="selectTemplate(t)">
               {{ t.name }}
             </button>
-          </div>
-        }
+          }
+        </div>
+
       </div>
 
       @if (isBlankSelected()) {
         <div class="mt-4">
           <h2 class="text-md">Generate Billing Letter File:</h2>
           <br>
-          <button mat-raised-button class="mb-6" (click)="createBlank()">Create Billing Letter</button>
+          <button mat-raised-button class="mb-6" (click)="createBlank()" [disabled]="isGenerating()">Create Billing Letter</button>
         </div>
       }
 
+      <!-- TEMPLATED BILLING STARTS HERE -->
       @if (step() === 2) {
         <h3 class="mt-4">Enter Billing Information</h3>
 
-        <form [formGroup]="form" class="grid grid-cols-2 gap-4 mt-4">
-          <mat-form-field>
-            <mat-label>SOA Number</mat-label>
-            <input matInput formControlName="soaNo">
-            @if(form.get('soaNo')?.invalid) {
-              <mat-error>Please input a SOA Number</mat-error>
-            }
-          </mat-form-field>
+        <form [formGroup]="form" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          @for (field of formConfig(); track field.key) {
+            <mat-form-field
+              class="w-full"
+              [class.col-span-2]="field.colSpan === 2">
+              <mat-label>{{field.label}}</mat-label>
 
-          <mat-form-field>
-            <mat-label>Billing Date</mat-label>
-            <input matInput [matDatepicker]="dp" formControlName="billingDate">
-            <mat-hint>DD MMMM, YYYYY</mat-hint>
-            <mat-datepicker-toggle matIconSuffix [for]="dp"></mat-datepicker-toggle>
-            <mat-datepicker #dp></mat-datepicker>
-            @if(form.get('billingDate')?.invalid) {
-              <mat-error>Please input a Billing Date</mat-error>
-            }
-          </mat-form-field>
+              @switch (field.type) {
+                @case ('text') {
+                  <input matInput [formControlName]="field.key">
+                }
 
-          <mat-form-field>
-            <mat-label>Addressed To</mat-label>
-            <textarea matInput formControlName="addressedTo"></textarea>
-            @if(form.get('addressedTo')?.invalid) {
-              <mat-error>Please input a valid Addressed Person</mat-error>
-            }
-          </mat-form-field>
+                @case ('textarea') {
+                  <textarea
+                    matInput
+                    rows="3"
+                    [formControlName]="field.key"></textarea>
+                }
 
-          <mat-form-field>
-            <mat-label>Addressed To (Introduction)</mat-label>
-            <input matInput formControlName="addressee">
-            @if(form.get('addressee')?.invalid) {
-              <mat-error>Please input a proper introduction to the Addressed Person</mat-error>
-            }
-          </mat-form-field>
+                @case ('number') {
+                  <input
+                    type="number"
+                    matInput
+                    (keypress)="decimalFilter($event)"
+                    [formControlName]="field.key">
+                }
 
-          <mat-form-field>
-            <mat-label>Client Name</mat-label>
-            <input matInput formControlName="clientName">
-            @if(form.get('clientName')?.invalid) {
-              <mat-error>Please input a Client Name</mat-error>
-            }
-          </mat-form-field>
+                @case ('date') {
+                  <ng-container>
+                    <input
+                      matInput
+                      [matDatepicker]="dp"
+                      matIconSuffix
+                      [formControlName]="field.key">
+                    <mat-datepicker-toggle [for]="dp"></mat-datepicker-toggle>
+                    <mat-datepicker #dp></mat-datepicker>
+                  </ng-container>
+                }
+              }
 
-          <mat-form-field>
-            <mat-label>Particulars</mat-label>
-            <input matInput formControlName="particulars">
-            @if(form.get('particulars')?.invalid) {
-              <mat-error>Please input a valid Particulars</mat-error>
-            }
-          </mat-form-field>
+              @if(form.get(field.key)?.invalid && form.get(field.key)?.touched) {
+                <mat-error>{{field.label}} is required</mat-error>
+              }
 
-          <mat-form-field>
-            <mat-label>Project Name</mat-label>
-            <input matInput formControlName="client">
-            @if(form.get('client')?.invalid) {
-              <mat-error>Please input a Project Name</mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field>
-            <mat-label>Location</mat-label>
-            <input matInput formControlName="clientAddress">
-            @if(form.get('clientAddress')?.invalid) {
-              <mat-error>Please input a Location</mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field>
-            <mat-label>Appraisal Amount</mat-label>
-            <input type="number" step="0.01" matInput formControlName="appraisalAmt" (keypress)="decimalFilter($event)">
-            @if(form.get('appraisalAmt')?.invalid) {
-              <mat-error>Please input the Appraisal Amount</mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field>
-            <mat-label>Total Amount Due</mat-label>
-            <input type="number" step="0.01" matInput formControlName="totalAmt" (keypress)="decimalFilter($event)">
-            @if(form.get('totalAmt')?.invalid) {
-              <mat-error>Please input the Total Amount</mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field>
-            <mat-label>COD, Billing & Collection Unit</mat-label>
-            <input matInput formControlName="bcuChiefName">
-            @if(form.get('bcuChiefName')?.invalid) {
-              <mat-error>Please input Billing & Collections Unit COD Name</mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field>
-            <mat-label>OIC, ACID</mat-label>
-            <input matInput formControlName="acidOicName">
-            @if(form.get('acidOicName')?.invalid) {
-              <mat-error>Please input ACID OIC Name</mat-error>
-            }
-          </mat-form-field>
+            </mat-form-field>
+          }
         </form>
 
         <div class="flex justify-end gap-3 mt-6">
           <button mat-stroked-button (click)="step.set(1)">Back</button>
 
-          <button mat-raised-button color="primary" (click)="createBillingLetter()" [disabled]="form.invalid">Generate Document</button>
+          <button mat-raised-button color="primary"
+            (click)="createBillingLetter()"
+            [disabled]="form.invalid || isGenerating()">
+              @if (isGenerating()) {
+                <mat-progress-spinner
+                  diameter="20"
+                  mode="indeterminate">
+                </mat-progress-spinner>
+              }
+              @else {
+                Generate Document
+              }
+
+          </button>
         </div>
       }
+      <!-- TEMPLATED BILLING ENDS HERE -->
     </mat-card-content>
   </mat-card>
 </div>

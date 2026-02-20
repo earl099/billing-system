@@ -1,6 +1,6 @@
 import fs from 'fs/promises'
 import path from 'path'
-import acidBillingModel from '#models/acid.model.js'
+import billingModel from '#models/billing.model.js'
 import { docxToPdfBuffer, mergePdfBuffers,  } from '#utils/pdf.util.js'
 import { deleteResources, uploadPdfBuffer } from '#utils/cloudinary.util.js'
 import { promisify } from 'util'
@@ -34,6 +34,7 @@ async function ensurePdfBuffer(file) {
 
 export async function previewBilling(req, res) {
   try {
+    const { code } = req.params
     const previews = [];
 
     const billingLetter = req.files.billingLetter?.[0];
@@ -47,7 +48,7 @@ export async function previewBilling(req, res) {
     const billingBuffer = await ensurePdfBuffer(billingLetter);
     const billingUpload = await uploadPdfBuffer(
       billingBuffer,
-      'billing/acid/previews',
+      `billing/${code}/previews`,
       billingLetter.originalname
     );
 
@@ -63,7 +64,7 @@ export async function previewBilling(req, res) {
 
       const upload = await uploadPdfBuffer(
         pdfBuffer,
-        'billing/acid/previews',
+        `billing/${code}/previews`,
         file.originalname
       );
 
@@ -82,8 +83,9 @@ export async function previewBilling(req, res) {
   }
 }
 
-export async function generateAcidBilling(req, res) {
+export async function generateBilling(req, res) {
   try {
+    const { code } = req.params
     let previewPublicIds = req.body.previewPublicIds || [];
     let previewUrls = req.body.previewUrls || [];
     let user = req.body.user
@@ -157,11 +159,12 @@ export async function generateAcidBilling(req, res) {
     }
 
     const finalBuffer = await mergePdfBuffers(sources);
+    const curDate = new Date()
+    const publicId = `billing-${code.toUpperCase()}-${curDate.getMonth() + 1}-${curDate.getDate()}-${curDate.getFullYear()}`;
+    const upload = await uploadPdfBuffer(finalBuffer, `billing/${code}/final`, publicId);
 
-    const publicId = `billing-acid-${Date.now()}`;
-    const upload = await uploadPdfBuffer(finalBuffer, 'billing/acid/final', publicId);
-
-    const record = await acidBillingModel.create({
+    const record = await billingModel.create({
+      client: code.toUpperCase(),
       billingLetter: billingLetter.originalname,
       attachments: attachments.map(a => a.originalname),
       finalPdf: {
@@ -193,20 +196,21 @@ export async function generateAcidBilling(req, res) {
 
 export async function deletePreviews(req, res) {
     try {
-    const { previewPublicIds = [] } = req.body;
+      const { code } = req.params
+      const { previewPublicIds = [] } = req.body;
 
-    if (!Array.isArray(previewPublicIds) || !previewPublicIds.length) {
-        return res.json({ success: true, deleted: 0 });
-    }
+      if (!Array.isArray(previewPublicIds) || !previewPublicIds.length) {
+          return res.json({ success: true, deleted: 0 });
+      }
 
-    const result = await cloudinary.api.delete_resources(previewPublicIds, {
-        resource_type: 'raw'
-    });
+      const result = await cloudinary.api.delete_resources(previewPublicIds, {
+          resource_type: 'raw'
+      });
 
-    return res.json({
-        success: true,
-        deleted: Object.keys(result.deleted || {}).length
-    });
+      return res.json({
+          success: true,
+          deleted: Object.keys(result.deleted || {}).length
+      });
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: 'Failed to delete previews', error });
@@ -240,11 +244,11 @@ export async function downloadBilling(req, res) {
 }
 
 
-export async function acidBillingList(_req, res) {
+export async function billingList(_req, res) {
     try {
-        const list = await acidBillingModel
+        const list = await billingModel
         .find().populate('createdBy').sort({ createdAt: -1 })
-        const total = await acidBillingModel.countDocuments()
+        const total = await billingModel.countDocuments()
 
         res.json({ list, total })
     } catch (error) {
@@ -252,22 +256,22 @@ export async function acidBillingList(_req, res) {
     }
 }
 
-export async function getAcidBilling(req, res) {
+export async function getBilling(req, res) {
     try {
-        const acidBilling = await acidBillingModel.findById(req.params._id).populate('createdBy')
+        const billing = await billingModel.findById(req.params._id).populate('createdBy')
 
-        if(!acidBilling) return res.status(404).json({ message: 'ACID Billing not found' })
+        if(!billing) return res.status(404).json({ message: 'ACID Billing not found' })
 
-        res.json({ acidBilling })
+        res.json({ billing })
     } catch (error) {
         res.status(500).json({ message: `Server error: ${error}` })
     }
 }
 
-export async function deleteAcidBilling(req, res) {
+export async function deleteBilling(req, res) {
   try {
-    const acidBilling = await acidBillingModel.findByIdAndDelete({ _id: req.params._id })
-    if(!acidBilling) return res.status(404).json({ message: 'Billing not found' });
+    const billing = await billingModel.findByIdAndDelete({ _id: req.params._id })
+    if(!billing) return res.status(404).json({ message: 'Billing not found' });
     res.json({ message: 'ACID Billing deleted successfully' })
   } catch (error) {
     res.status(500).json({ message: `Server error: ${error}` })
@@ -276,9 +280,9 @@ export async function deleteAcidBilling(req, res) {
 
 export async function clearBilling(req, res) {
   try {
-    const acidBilling = await acidBillingModel.deleteMany({})
+    const billing = await billingModel.deleteMany({})
 
-    res.json({ acidBilling })
+    res.json({ billing })
   } catch (error) {
     res.json({ error })
   }
