@@ -258,21 +258,23 @@ export async function billingList(_req, res) {
 
 export async function getBilling(req, res) {
     try {
-        const billing = await billingModel.findById(req.params._id).populate('createdBy')
+      const { code } = req.params
+      const billing = await billingModel.findById(req.params._id).populate('createdBy')
 
-        if(!billing) return res.status(404).json({ message: 'ACID Billing not found' })
+      if(!billing) return res.status(404).json({ message: `${code.toUpperCase()} Billing not found` })
 
-        res.json({ billing })
+      res.json({ billing })
     } catch (error) {
-        res.status(500).json({ message: `Server error: ${error}` })
+      res.status(500).json({ message: `Server error: ${error}` })
     }
 }
 
 export async function deleteBilling(req, res) {
   try {
+    const { code } = req.params
     const billing = await billingModel.findByIdAndDelete({ _id: req.params._id })
-    if(!billing) return res.status(404).json({ message: 'Billing not found' });
-    res.json({ message: 'ACID Billing deleted successfully' })
+    if(!billing) return res.status(404).json({ message: `${code.toUpperCase()} Billing not found` });
+    res.json({ message: `${code.toUpperCase()} Billing deleted successfully` })
   } catch (error) {
     res.status(500).json({ message: `Server error: ${error}` })
   }

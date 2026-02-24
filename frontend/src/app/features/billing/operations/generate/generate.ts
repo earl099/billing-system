@@ -109,13 +109,13 @@ export class Generate implements OnDestroy {
 
       const logObject: LogDTO = {
         user: user().name,
-        operation: 'Generated Billing for ACID'
+        operation: `Generated Billing for ${this.code().toUpperCase()}`
       }
 
       await this.logService.create(logObject)
 
       this.finalFileName.set(
-        `ACID-Billing-${new Date().toISOString().slice(0,10)}.pdf`
+        `${this.code().toUpperCase()}-Billing-${new Date().toISOString().slice(0,10)}.pdf`
       )
 
 

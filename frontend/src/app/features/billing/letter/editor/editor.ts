@@ -2,17 +2,20 @@ import { formatDate } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatDatepicker, MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { provideLuxonDateAdapter } from '@angular/material-luxon-adapter';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
 import { Word } from '@services/word';
-import { A11yModule } from "@angular/cdk/a11y";
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { DateTime } from 'luxon';
+import { MonthYearPickerComponent } from './datepickers/month-year-picker';
+import { MonthDateYearPickerComponent } from './datepickers/month-date-year-picker';
+import { DateMonthYearPickerComponent } from './datepickers/date-month-year-picker';
 
-type FieldType = 'text' | 'textarea' | 'number' | 'date'
+type FieldType = 'text' | 'textarea' | 'number' | 'date' | 'monthYear' | 'dateMonthYear'
 interface FieldConfig {
   key: string
   label: string
@@ -22,17 +25,6 @@ interface FieldConfig {
   dateFormat?: string
 }
 
-export const MY_FORMATS = {
-  parse: {
-    dateInput: 'd MMMM yyyy'
-  },
-  display: {
-    dateInput: 'd MMMM yyyy',
-    monthYearLabel: 'MMM yyyy',
-    dateA11yLabel: 'DDD',
-    monthYearA11yLabel: 'MMM yyyy'
-  }
-}
 
 @Component({
   selector: 'app-editor',
@@ -44,14 +36,16 @@ export const MY_FORMATS = {
     MatDatepickerModule,
     FormsModule,
     MatProgressSpinnerModule,
-    A11yModule,
+    MonthYearPickerComponent,
+    MonthDateYearPickerComponent,
+    DateMonthYearPickerComponent
 ],
-  templateUrl: './word-editor.html',
-  styleUrl: './word-editor.css',
-  providers: [provideLuxonDateAdapter(MY_FORMATS)],
+  templateUrl: './editor.html',
+  styleUrl: './editor.css',
+  providers: [provideLuxonDateAdapter()],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class WordEditor implements OnInit {
+export class Editor implements OnInit {
   templates = signal<any[]>([])
   selectedTemplate = signal<any>(null)
   isBlankSelected = signal(false)
@@ -63,7 +57,7 @@ export class WordEditor implements OnInit {
   private billingSchemas: Record<string, FieldConfig[]> = {
     acid: [
       { key: 'soaNo', label: 'SOA Number', type: 'text', required: true },
-      { key: 'billingDate', label: 'Billing Date', type: 'date', required: true, dateFormat:'d MMMM yyyy' },
+      { key: 'billingDate', label: 'Billing Date', type: 'dateMonthYear', required: true, dateFormat:'d MMMM yyyy' },
       { key: 'addressedTo', label: 'Addressed To', type: 'textarea', required: true, colSpan: 2 },
       { key: 'addressee', label: 'Addressed To (Introduction)', type: 'text', required: true, colSpan: 2 },
       { key: 'clientName', label: 'Client Name', type: 'text', required: true },
@@ -79,7 +73,7 @@ export class WordEditor implements OnInit {
     jss: [
       { key: 'soaNo', label: 'SOA Number', type: 'text', required: true },
       { key: 'billingDate', label: 'Billing Date', type: 'date', required: true, dateFormat:'MMMM dd, yyyy' },
-      { key: 'monthAndYear', label: 'Month and Year', type: 'date', required: true, dateFormat: 'MMMM yyyy' },
+      { key: 'monthAndYear', label: 'Month and Year', type: 'monthYear', required: true, dateFormat: 'MMMM yyyy' },
       { key: 'amt', label: 'Amount', type: 'number', required: true },
       { key: 'bAsstName', label: 'Billing Assistant', type: 'text', required: true },
       { key: 'bcuChiefName', label: 'Chief of Division, Billing & Collection Unit', type: 'text', required: true },
@@ -213,8 +207,27 @@ export class WordEditor implements OnInit {
       if(field.type === 'number' && values[field.key] != null) {
         values[field.key] = Number(values[field.key]).toFixed(2)
       }
+
+      if (field.type === 'monthYear' && field.dateFormat && values[field.key]) {
+        values[field.key] = values[field.key].toFormat(field.dateFormat)
+      }
     }
 
     return values
+  }
+
+  setMonthAndYear(
+    normalizedMonthAndYear: DateTime,
+    datepicker: MatDatepicker<DateTime>,
+    controlName: string
+  ) {
+    const ctrlValue = DateTime.fromObject({
+      month: normalizedMonthAndYear.month,
+      year: normalizedMonthAndYear.year,
+      day: 1
+    })
+
+    this.form.get(controlName)?.setValue(ctrlValue)
+    datepicker.close()
   }
 }
