@@ -35,49 +35,66 @@
 
         <form [formGroup]="form" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           @for (field of formConfig(); track field.key) {
-            <mat-form-field
-              class="w-full"
-              [class.col-span-2]="field.colSpan === 2">
-              <mat-label>{{field.label}}</mat-label>
+            @if (field.type !== 'monthYear' && field.type !== 'date' && field.type !== 'dateMonthYear') {
+              <mat-form-field
+                class="w-full">
+                <mat-label>{{field.label}}</mat-label>
 
-              @switch (field.type) {
-                @case ('text') {
-                  <input matInput [formControlName]="field.key">
-                }
+                @switch (field.type) {
+                  @case ('text') {
+                    <input matInput [formControlName]="field.key">
+                  }
 
-                @case ('textarea') {
-                  <textarea
-                    matInput
-                    rows="3"
-                    [formControlName]="field.key"></textarea>
-                }
-
-                @case ('number') {
-                  <input
-                    type="number"
-                    matInput
-                    (keypress)="decimalFilter($event)"
-                    [formControlName]="field.key">
-                }
-
-                @case ('date') {
-                  <ng-container>
-                    <input
+                  @case ('textarea') {
+                    <textarea
                       matInput
-                      [matDatepicker]="dp"
-                      matIconSuffix
+                      rows="3"
+                      [formControlName]="field.key"></textarea>
+                  }
+
+                  @case ('number') {
+                    <input
+                      type="number"
+                      matInput
+                      (keypress)="decimalFilter($event)"
                       [formControlName]="field.key">
-                    <mat-datepicker-toggle [for]="dp"></mat-datepicker-toggle>
-                    <mat-datepicker #dp></mat-datepicker>
-                  </ng-container>
+                  }
+
+
                 }
-              }
 
-              @if(form.get(field.key)?.invalid && form.get(field.key)?.touched) {
-                <mat-error>{{field.label}} is required</mat-error>
-              }
+                @if(form.get(field.key)?.invalid && form.get(field.key)?.touched) {
+                  <mat-error>{{field.label}} is required</mat-error>
+                }
 
-            </mat-form-field>
+              </mat-form-field>
+            }
+
+            @if(field.type === 'monthYear') {
+              <div>
+                <app-month-year-picker
+                  [control]="form.get(field.key)!"
+                  [label]="field.label">
+                </app-month-year-picker>
+              </div>
+            }
+
+            @else if (field.type === 'date') {
+              <div>
+                <app-month-date-year-picker
+                  [control]="form.get(field.key)!"
+                  [label]="field.label"
+                ></app-month-date-year-picker>
+              </div>
+            }
+
+            @else if (field.type === 'dateMonthYear') {
+              <div>
+                <app-date-month-year-picker
+                  [control]="form.get(field.key)!"
+                  [label]="field.label"></app-date-month-year-picker>
+              </div>
+            }
           }
         </form>
 

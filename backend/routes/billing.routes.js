@@ -15,7 +15,7 @@ import { authMiddleware } from '#middleware/auth.middleware.js'
 const billingRouter = Router()
 
 billingRouter.post(
-    '/:code/generate',
+    '/billing/:code/generate',
     upload.fields([
         { name: 'billingLetter', maxCount: 1 },
         { name: 'attachments', maxCount: 50 }
@@ -26,7 +26,7 @@ billingRouter.post(
 
 
 billingRouter.post(
-    '/:code/preview',
+    '/billing/:code/preview',
     upload.fields([
         { name: 'billingLetter', maxCount: 1 },
         { name: 'attachments', maxCount: 50 }
@@ -36,37 +36,37 @@ billingRouter.post(
 )
 
 billingRouter.post(
-    '/:code/cleanup',
+    '/billing/:code/cleanup',
     deletePreviews
 )
 
 billingRouter.get(
-    '/:code/download/:publicId',
+    '/billing/:code/download/:publicId',
     authMiddleware,
     downloadBilling
 )
 
 billingRouter.get(
-    '/:code/list',
+    '/billing/:code/list',
     authMiddleware,
     billingList
 )
 
 billingRouter.get(
-    '/:code/:_id',
+    '/billing/:code/:_id',
     authMiddleware,
     getBilling
 )
 
 billingRouter.delete(
-    '/:code/:_id',
+    '/billing/:code/:_id',
     authMiddleware,
     deleteBilling
 )
 
 //FOR TRUNCATING THE DB ONLY, IT WILL ONLY USE THIS
 billingRouter.delete(
-    '/:code',
+    '/billing/:code',
     authMiddleware,
     clearBilling
 )
