@@ -1,21 +1,21 @@
-import { formatDate } from '@angular/common';
+import { DecimalPipe, formatDate } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepicker, MatDatepickerModule } from '@angular/material/datepicker';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { provideLuxonDateAdapter } from '@angular/material-luxon-adapter';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
-import { Word } from '@services/word';
+import { Word } from '@services/file-editor';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { DateTime } from 'luxon';
 import { MonthYearPickerComponent } from './datepickers/month-year-picker';
 import { MonthDateYearPickerComponent } from './datepickers/month-date-year-picker';
 import { DateMonthYearPickerComponent } from './datepickers/date-month-year-picker';
+import { MonthPickerComponent } from './datepickers/month-picker';
 
-type FieldType = 'text' | 'textarea' | 'number' | 'date' | 'monthYear' | 'dateMonthYear'
+type FieldType = 'text' | 'textarea' | 'number' | 'date' | 'monthYear' | 'dateMonthYear' | 'month'
 interface FieldConfig {
   key: string
   label: string
@@ -38,7 +38,9 @@ interface FieldConfig {
     MatProgressSpinnerModule,
     MonthYearPickerComponent,
     MonthDateYearPickerComponent,
-    DateMonthYearPickerComponent
+    DateMonthYearPickerComponent,
+    MonthPickerComponent,
+    DecimalPipe
 ],
   templateUrl: './editor.html',
   styleUrl: './editor.css',
@@ -53,6 +55,7 @@ export class Editor implements OnInit {
   _url = signal<string | null>(null)
   step = signal(1)
   formConfig = signal<FieldConfig[]>([])
+  fileType = signal<'word' | 'excel' | null>(null)
 
   private billingSchemas: Record<string, FieldConfig[]> = {
     acid: [
@@ -77,6 +80,16 @@ export class Editor implements OnInit {
       { key: 'amt', label: 'Amount', type: 'number', required: true },
       { key: 'bAsstName', label: 'Billing Assistant', type: 'text', required: true },
       { key: 'bcuChiefName', label: 'Chief of Division, Billing & Collection Unit', type: 'text', required: true },
+    ],
+    spad: [
+      { key: 'billingYear', label: 'Billing Year', type: 'number', required: true },
+      { key: 'billingMonth', label: 'Billing Month', type: 'month', required: true, dateFormat: 'MMMM' },
+      { key: 'billingDate', label: 'Billing Date', type: 'dateMonthYear', required: true, dateFormat: 'd MMMM, yyyy' },
+      { key: 'clientName', label: 'Client Name', type: 'text', required: true },
+      { key: 'amount', label: 'Amount', type: 'number', required: true },
+      { key: 'pmcNo', label: 'PMC Number', type: 'text', required: true },
+      { key: 'billingAssistant', label: 'Billing Assistant', type: 'text', required: true },
+      { key: 'divisionChief', label: 'Billing & Collection Chief of Division', type: 'text', required: true },
     ]
   }
 
@@ -89,6 +102,7 @@ export class Editor implements OnInit {
   readonly code = signal(this.route.snapshot.paramMap.get('code'))
 
   form: UntypedFormGroup = this.fb.group({})
+  transmittalItems: UntypedFormArray = this.fb.array([])
 
   private buildDynamicForm(schema: FieldConfig[]) {
     const group: any = {}
@@ -122,6 +136,13 @@ export class Editor implements OnInit {
   selectTemplate(t: any) {
     this.selectedTemplate.set(t)
 
+    if(t.name.toLowerCase().includes('.xlsx')) {
+      this.fileType.set('excel')
+    }
+    else {
+      this.fileType.set('word')
+    }
+
     if(t.name.toLowerCase().includes('blank')) {
       this.isBlankSelected.set(true)
       this.step.set(1)
@@ -135,17 +156,26 @@ export class Editor implements OnInit {
     const currentCode = this.code()!
     const schema = this.billingSchemas[currentCode]
 
-    if(schema) {
+    if(schema && this.fileType() !== 'excel') {
       this.formConfig.set(schema)
       this.buildDynamicForm(schema)
       this.step.set(2)
+    }
+    else {
+      this.formConfig.set(schema)
+      this.buildDynamicForm(schema)
+
+      this.transmittalItems.clear()
+      this.form.addControl('transmittalItems', this.transmittalItems)
+      this.createTransmittalRow()
+      this.step.set(3)
     }
   }
 
   async createBlank() {
     try {
       this.isGenerating.set(true)
-      const doc = await this.wordService.createDocument(this.selectedTemplate().id, this.code()!, {}, true)
+      const doc = await this.wordService.createBillingDocument(this.selectedTemplate().id, this.code()!, {}, true, this.fileType()!)
 
       window.open(doc.editUrl, '_blank')
     } finally {
@@ -166,11 +196,12 @@ export class Editor implements OnInit {
 
       const formValue = this.transformFormValues()
 
-      const bLetter = await this.wordService.createDocument(
+      const bLetter = await this.wordService.createBillingDocument(
         this.selectedTemplate().id,
         this.code()!,
         formValue,
-        false
+        false,
+        this.fileType()!
       )
 
       window.open(bLetter.editUrl, '_blank')
@@ -216,18 +247,33 @@ export class Editor implements OnInit {
     return values
   }
 
-  setMonthAndYear(
-    normalizedMonthAndYear: DateTime,
-    datepicker: MatDatepicker<DateTime>,
-    controlName: string
-  ) {
-    const ctrlValue = DateTime.fromObject({
-      month: normalizedMonthAndYear.month,
-      year: normalizedMonthAndYear.year,
-      day: 1
-    })
+  createTransmittalRow() {
+    const group: any = {}
+    const transmittalFieldConfig: FieldConfig[] = [
+      { key: 'property', label: 'Property', type: 'text', required: true },
+      { key: 'monthYear', label: 'Month and Year', type: 'monthYear', required: true, dateFormat: 'MMMM yyyy' },
+      { key: 'amount', label: 'Amount', type: 'number', required: true },
+      { key: 'pmcNo', label: 'PMC Number', type: 'text', required: true },
+    ]
 
-    this.form.get(controlName)?.setValue(ctrlValue)
-    datepicker.close()
+
+    for(const field of transmittalFieldConfig) {
+      group[field.key] = [
+        '',
+        field.required ? Validators.required : []
+      ]
+    }
+
+    this.transmittalItems.push(this.fb.group(group))
+  }
+
+  get transmittalControls() {
+    return this.transmittalItems.controls as UntypedFormGroup[]
+  }
+
+  get transmittalTotal(): number {
+    return this.transmittalItems.controls
+    .map(ctrl => Number(ctrl.get('amount')?.value || 0))
+    .reduce((a,b) => a + b, 0)
   }
 }
