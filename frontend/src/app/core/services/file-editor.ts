@@ -11,13 +11,14 @@ export class Word {
   http = inject(HttpClient)
 
   async getTemplates(code: string) {
-    const res: any = await firstValueFrom(this.http.get(`${this.apiUrl}/word/templates/${code.toLowerCase()}`))
+    const res: any = await firstValueFrom(this.http.get(`${this.apiUrl}/editor/templates/${code.toLowerCase()}`))
     return res
   }
 
-  async createDocument(templateId: string, code: string, data: any, isBlank: boolean) {
+  async createBillingDocument(templateId: string, code: string, data: any, isBlank: boolean, type: 'word' | 'excel') {
+
     const res: any = await firstValueFrom(
-      this.http.post<any>(`${this.apiUrl}/word/create/${code}`,
+      this.http.post<any>(`${this.apiUrl}/editor/create/${code}/${type}`,
         {
           templateId,
           data,

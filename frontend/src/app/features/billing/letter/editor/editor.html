@@ -25,17 +25,28 @@
         <div class="mt-4">
           <h2 class="text-md">Generate Billing Letter File:</h2>
           <br>
-          <button mat-raised-button class="mb-6" (click)="createBlank()" [disabled]="isGenerating()">Create Billing Letter</button>
+          <button mat-raised-button class="mb-6" (click)="createBlank()" [disabled]="isGenerating()">
+            @if(isGenerating()) {
+              <mat-progress-spinner
+                diameter="20"
+                mode="indeterminate">
+              </mat-progress-spinner>
+            }
+            @else {
+              Create Billing Letter
+            }
+
+          </button>
         </div>
       }
 
-      <!-- TEMPLATED BILLING STARTS HERE -->
+      <!-- TEMPLATED WORD BILLING STARTS HERE -->
       @if (step() === 2) {
         <h3 class="mt-4">Enter Billing Information</h3>
 
         <form [formGroup]="form" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           @for (field of formConfig(); track field.key) {
-            @if (field.type !== 'monthYear' && field.type !== 'date' && field.type !== 'dateMonthYear') {
+            @if (field.type !== 'monthYear' && field.type !== 'date' && field.type !== 'dateMonthYear' && field.type !== 'month') {
               <mat-form-field
                 class="w-full">
                 <mat-label>{{field.label}}</mat-label>
@@ -49,7 +60,8 @@
                     <textarea
                       matInput
                       rows="3"
-                      [formControlName]="field.key"></textarea>
+                      [formControlName]="field.key">
+                    </textarea>
                   }
 
                   @case ('number') {
@@ -70,7 +82,7 @@
               </mat-form-field>
             }
 
-            @if(field.type === 'monthYear') {
+            @else if(field.type === 'monthYear') {
               <div>
                 <app-month-year-picker
                   [control]="form.get(field.key)!"
@@ -117,7 +129,149 @@
           </button>
         </div>
       }
-      <!-- TEMPLATED BILLING ENDS HERE -->
+      <!-- TEMPLATED WORD BILLING ENDS HERE -->
+
+      <!-- TEMPLATED EXCEL BILLING STARTS HERE -->
+      @if(step() === 3) {
+        <h3 class="mt-4">{{code()?.toUpperCase()}} Billing Information</h3>
+
+        <form [formGroup]="form" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <!-- MAIN BILLING FIELDS -->
+          @for (field of formConfig(); track field.key) {
+            @if (field.type !== 'monthYear' && field.type !== 'date' && field.type !== 'dateMonthYear' && field.type !== 'month') {
+              <mat-form-field class="w-full">
+                <mat-label>{{field.label}}</mat-label>
+
+                @switch (field.type) {
+                  @case ('text') {
+                    <input matInput [formControlName]="field.key">
+                  }
+
+                  @case ('textarea') {
+                    <textarea
+                      matInput
+                      rows="3"
+                      [formControlName]="field.key">
+                    </textarea>
+                  }
+
+                  @case ('number') {
+                    <input
+                    type="number"
+                    matInput
+                    (keypress)="decimalFilter($event)"
+                    [formControlName]="field.key">
+                  }
+                }
+
+                @if(form.get(field.key)?.invalid && form.get(field.key)?.touched) {
+                  <mat-error>{{field.label}} is required</mat-error>
+                }
+              </mat-form-field>
+            }
+            @else if (field.type === 'monthYear') {
+              <div>
+                <app-month-year-picker
+                  [control]="form.get(field.key)!"
+                  [label]="field.label">
+                </app-month-year-picker>
+
+                @if(form.get(field.key)?.invalid && form.get(field.key)?.touched) {
+                  <mat-error>{{field.label}} is required</mat-error>
+                }
+              </div>
+            }
+            @else if (field.type === 'date') {
+              <div>
+                <app-month-date-year-picker
+                  [control]="form.get(field.key)!"
+                  [label]="field.label">
+                </app-month-date-year-picker>
+
+                @if(form.get(field.key)?.invalid && form.get(field.key)?.touched) {
+                  <mat-error>{{field.label}} is required</mat-error>
+                }
+              </div>
+            }
+            @else if (field.type === 'dateMonthYear') {
+              <div>
+                <app-date-month-year-picker
+                  [control]="form.get(field.key)!"
+                  [label]="field.label">
+                </app-date-month-year-picker>
+
+                @if(form.get(field.key)?.invalid && form.get(field.key)?.touched) {
+                  <mat-error>{{field.label}} is required</mat-error>
+                }
+              </div>
+            }
+            @else if (field.type === 'month') {
+              <div>
+                <app-month-picker
+                  [control]="form.get(field.key)!"
+                  [label]="field.label">
+                </app-month-picker>
+
+                @if(form.get(field.key)?.invalid && form.get(field.key)?.touched) {
+                  <mat-error>{{field.label}} is required</mat-error>
+                }
+              </div>
+            }
+          }
+
+          <!-- TRANSMITTAL TABLE -->
+          <div class="mt-6 col-span-2">
+            <h3 class="text-lg font-semibold mb-3">Transmittal Items</h3>
+
+            <div formArrayName="transmittalItems">
+              @for (row of transmittalControls; track $index; let i = $index) {
+                <div
+                    [formGroupName]="i"
+                    class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 border p-4 rounded-xl">
+                  <mat-form-field>
+                    <mat-label>Property</mat-label>
+                    <input matInput formControlName="property">
+                  </mat-form-field>
+
+                  <app-month-year-picker
+                    [control]="row.get('monthYear')!"
+                    label="Month and Year">
+                  </app-month-year-picker>
+
+                  <mat-form-field>
+                    <mat-label>Amount</mat-label>
+                    <input matInput type="number" formControlName="amount">
+
+                  </mat-form-field>
+
+                  <mat-form-field>
+                    <mat-label>PMC Number</mat-label>
+                    <input matInput formControlName="pmcNo">
+                  </mat-form-field>
+                </div>
+              }
+            </div>
+
+            <button mat-stroked-button (click)="createTransmittalRow()">
+              Add Row
+            </button>
+          </div>
+        </form>
+
+
+
+        <div class="mt-6 text-right font-semibold text-lg">
+          Total: {{ transmittalTotal | number:'1.2-2' }}
+        </div>
+
+        <div class="flex justify-end gap-3 mt-6">
+          <button mat-raised-button color="primary"
+              (click)="createBillingLetter()"
+              [disabled]="form.invalid || isGenerating()">
+            Generate Excel File
+          </button>
+        </div>
+      }
     </mat-card-content>
   </mat-card>
 </div>

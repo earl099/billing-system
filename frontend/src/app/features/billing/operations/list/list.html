@@ -1,7 +1,7 @@
 <div class="max-w-6xl mx-auto p-6 fade-in">
   <div class="flex justify-between items-center mb-6">
     <h2 class="text-2xl font-semibold">{{code().toUpperCase()}} Billing List</h2>
-    <button mat-raised-button color="primary" routerLink="/acid/generate" class="motion-smooth">Generate Billing</button>
+    <button mat-raised-button color="primary" (click)="generate()" class="motion-smooth">Generate Billing</button>
   </div>
 
   <div class="mb-4">

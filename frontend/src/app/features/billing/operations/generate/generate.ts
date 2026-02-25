@@ -20,7 +20,7 @@ export class Generate implements OnDestroy {
   route = inject(ActivatedRoute)
 
   //** SIGNALS TO BE USED **/
-  private code = signal(this.route.snapshot.paramMap.get('code')!)
+  code = signal(this.route.snapshot.paramMap.get('code')!)
   billingLetter = signal<File | null>(null);
   attachments = signal<File[]>([]);
   previews = signal<{ label: string, safeUrl: SafeResourceUrl, public_id: string }[]>([])
@@ -28,7 +28,7 @@ export class Generate implements OnDestroy {
   isPreviewClicked = signal(false)
   loading = signal(false);
   downloadUrl = signal<string | null>(null);
-  finalFileName = signal<string>('ACID-Billing.pdf')
+  finalFileName = signal<string>(`${this.code().toUpperCase()}-Billing.pdf`)
   private cleanedUp = false
 
   @HostListener('window:beforeunload', ['$event'])
@@ -38,7 +38,7 @@ export class Generate implements OnDestroy {
     if(!ids.length) return
 
     navigator.sendBeacon(
-      `${environment.apiUrl}/acid/cleanup`,
+      `${environment.apiUrl}/${this.code().toLowerCase()}/cleanup`,
       JSON.stringify({ previewPublicIds: ids })
     )
   }
@@ -143,7 +143,7 @@ export class Generate implements OnDestroy {
   }
 
   async ngOnDestroy() {
-    await this.cleanupPreviews('acid')
+    await this.cleanupPreviews(this.code())
   }
 
   private async cleanupPreviews(client: string) {

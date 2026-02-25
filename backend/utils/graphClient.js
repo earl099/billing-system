@@ -47,7 +47,8 @@ export async function listTemplates(req, res) {
 
         const templates = response.data.value.map(file => ({
             id: file.id,
-            name: file.name
+            name: file.name,
+            type: file.name.endsWith('.xlsx') ? 'excel' : 'word'
         }))
 
         res.json(templates)
@@ -57,7 +58,7 @@ export async function listTemplates(req, res) {
     }
 }
 
-export async function createBillingLetter(req, res) {
+export async function createWordBillingLetter(req, res) {
   try {
     const { code } = req.params
     const { templateId, data, isBlank } = req.body;
@@ -152,7 +153,122 @@ export async function createBillingLetter(req, res) {
   }
 }
 
+export async function createExcelBillingLetter(req, res) {
+    try {
+        const { code } = req.params
+        const { templateId, data, isBlank } = req.body
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
 
+        const currentDate = new Date()
+        const fileName =
+            `Billing-Letter-${code.toUpperCase()}-` +
+            `${currentDate.getMonth() + 1}-${currentDate.getDate()}-${currentDate.getFullYear()}-` +
+            `${currentDate.getHours()}${currentDate.getMinutes()}${currentDate.getSeconds()}.xlsx`
+
+        const folder = await graphRequest(
+            'GET',
+            `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts/${code}`
+        )
+
+        await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/${templateId}/copy`,
+            {
+                name: fileName,
+                parentReference: { id: folder.data.id }
+            },
+            { validateStatus: s => s === 202 }
+        )
+
+        await new Promise(r => setTimeout(r, 2000))
+
+        const excelFile = children.data.value.find(f => f.name === fileName)
+
+        if(!excelFile) throw new Error('Copied Excel file not found')
+        
+        if(isBlank) {
+            return res.json({
+                documentId: excelFile.id,
+                editUrl: excelFile.webUrl
+            })
+        }
+
+        const fileId = excelFile.id
+
+        const billingSheet = 'Billing Letter'
+
+        const billingUpdates = [
+            ['I4', 'SOA NO: PMS ' + data.billingYear],
+            ['I5', data.billingMonth],
+            ['I6', data.billingDate],
+            [
+                'A20',
+                'Property security and upkeep services rendered by LBRDC as of ' +
+                data.monthAndYear
+            ],
+            ['A21', 'for ' + data.clientName],
+            ['B25', data.monthAndYear],
+            ['K25', data.amount],
+            ['K29', '=SUM(K22:K28)'],
+            ['A44', data.bAsstName],
+            ['E44', data.bcuChiefName]
+        ]
+
+        for(const [cell, value] of billingUpdates) {
+            await graphRequest(
+                'PATCH',
+                `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('${billingSheet}')/range(address='${cell}')`,
+                {
+                    values: [[value]]
+                }
+            )
+        }
+
+        const transmittalSheet = 'Transmittal'
+
+        await graphRequest(
+            'PATCH',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook.worksheets('${transmittalSheet}')/range(address='B11')`,
+            { values: [[data.billingDate]] }
+        )
+
+        await graphRequest(
+            'PATCH',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook.worksheets('${transmittalSheet}')/range(address='E11')`,
+            { values: [[data.bAsstName]] }
+        )
+
+        if(Array.isArray(data.transmittalItems) && data.transmittalItems.length > 0) {
+            const rows = data.transmittalItems.map(item => [
+                    item.property,
+                    item.monthAndYear,
+                    Number(item.amount,
+                    item.pmcNo
+                )
+            ])
+
+            await graphRequest(
+                'POST',
+                `/sites/${SITE_ID}/drive/items/${fileId}/workbook/tables('Transmittal')/rows/add`,
+                { values: rows }
+            )
+        }
+
+        await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/application/calculate`,
+            { calculationType: 'Full' }
+        )
+
+        res.json({
+            documentId: excelFile.id,
+            editUrl: excelFile.webUrl
+        })
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to create Excel document' })
+    }
+}
 
 export async function exportToPdf(req, res) {
     const { id } = req.body
