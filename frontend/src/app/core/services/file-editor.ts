@@ -6,7 +6,7 @@ import { firstValueFrom } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
-export class Word {
+export class FileEditor {
   private apiUrl = environment.apiUrl
   http = inject(HttpClient)
 

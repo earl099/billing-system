@@ -8,18 +8,18 @@ import { DateTime } from 'luxon';
 
 export const MONTH_YEAR_FORMATS = {
   parse: {
-    dateInput: 'MMMM',
+    dateInput: 'yyyy',
   },
   display: {
-    dateInput: 'MMMM',
-    monthYearLabel: 'MMMM',
-    dateA11yLabel: 'MMMM',
-    monthYearA11yLabel: 'MMMM',
+    dateInput: 'yyyy',
+    monthYearLabel: 'yyyy',
+    dateA11yLabel: 'yyyy',
+    monthYearA11yLabel: 'yyyy',
   },
 };
 
 @Component({
-  selector: 'app-month-picker',
+  selector: 'app-year-picker',
   standalone: true,
   imports: [
     ReactiveFormsModule,
@@ -42,22 +42,22 @@ export const MONTH_YEAR_FORMATS = {
       <mat-datepicker
         #picker
         startView="year"
-        (monthSelected)="setMonthAndYear($event, picker)">
+        (monthSelected)="setYear($event, picker)">
       </mat-datepicker>
     </mat-form-field>
 
   `,
   providers: [provideLuxonDateAdapter(MONTH_YEAR_FORMATS)]
 })
-export class MonthPickerComponent {
+export class YearPickerComponent {
   @Input({ required: true }) control!: any;
   @Input({ required: true }) label!: string
 
-  setMonthAndYear(
+  setYear(
     normalizedMonthAndYear: DateTime,
     datepicker: MatDatepicker<DateTime>
   ) {
-    const dt = DateTime.fromObject({ month: normalizedMonthAndYear.month });
+    const dt = DateTime.fromObject({ year: normalizedMonthAndYear.year });
 
     this.control.setValue(dt);
     datepicker.close();
