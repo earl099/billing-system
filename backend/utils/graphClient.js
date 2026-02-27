@@ -35,6 +35,31 @@ export async function graphRequest(method, url, data = null, config = {}) {
     })
 }
 
+export async function graphBatchRequest(requests, sessionId) {
+    const token = await getGraphToken()
+
+    const res = await axios.post(
+        'https://graph.microsoft.com/v1.0/$batch',
+        { requests },
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                'workbook-session-id': sessionId
+            }
+        }
+    )
+
+    const failed = res.data.responses.filter(r => r.status >= 400)
+
+    if(failed.length > 0) {
+        console.error('Batch failures: ', failed)
+        throw new Error('Some batch operations failed')
+    }
+
+    return res.data
+}
+
 export async function listTemplates(req, res) {
     try {
         const SITE_ID = process.env.SHAREPOINT_SITE_ID
@@ -86,7 +111,7 @@ export async function createWordBillingLetter(req, res) {
       { validateStatus: s => s === 202 }
     );
 
-    await new Promise(r => setTimeout(r, 1500));
+    await new Promise(r => setTimeout(r, 5000));
 
     // 3️⃣ Find copied File
     const children = await graphRequest(
@@ -159,20 +184,22 @@ export async function createExcelBillingLetter(req, res) {
         const { templateId, data, isBlank } = req.body
         const SITE_ID = process.env.SHAREPOINT_SITE_ID
 
-        const currentDate = new Date()
+        const now = new Date()
         const fileName =
             `Billing-Letter-${code.toUpperCase()}-` +
-            `${currentDate.getMonth() + 1}-${currentDate.getDate()}-${currentDate.getFullYear()}-` +
-            `${currentDate.getHours()}${currentDate.getMinutes()}${currentDate.getSeconds()}.xlsx`
+            `${now.getMonth() + 1}-${now.getDate()}-${now.getFullYear()}-` +
+            `${now.getHours()}${now.getMinutes()}${now.getSeconds()}.xlsx`
 
+        // 1️⃣ Resolve destination folder
         const folder = await graphRequest(
             'GET',
             `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts/${code}`
         )
 
+        // 2️⃣ Copy template (FIXED ENDPOINT)
         await graphRequest(
             'POST',
-            `/sites/${SITE_ID}/drive/${templateId}/copy`,
+            `/sites/${SITE_ID}/drive/items/${templateId}/copy`,
             {
                 name: fileName,
                 parentReference: { id: folder.data.id }
@@ -182,11 +209,17 @@ export async function createExcelBillingLetter(req, res) {
 
         await new Promise(r => setTimeout(r, 2000))
 
+        // 3️⃣ Get copied file
+        const children = await graphRequest(
+            'GET',
+            `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts/${code}:/children`
+        )
+
         const excelFile = children.data.value.find(f => f.name === fileName)
 
-        if(!excelFile) throw new Error('Copied Excel file not found')
-        
-        if(isBlank) {
+        if (!excelFile) throw new Error('Copied Excel file not found')
+
+        if (isBlank) {
             return res.json({
                 documentId: excelFile.id,
                 editUrl: excelFile.webUrl
@@ -195,65 +228,81 @@ export async function createExcelBillingLetter(req, res) {
 
         const fileId = excelFile.id
 
-        const billingSheet = 'Billing Letter'
+        const session = await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/createSession`,
+            { persistChanges: true }
+        )
+
+        const sessionId = session.data.id
+
+        // ===============================
+        // BILLING LETTER SHEET
+        // ===============================
+        const billingSheet = 'BILLING LETTER'
 
         const billingUpdates = [
-            ['I4', 'SOA NO: PMS ' + data.billingYear],
-            ['I5', data.billingMonth],
-            ['I6', data.billingDate],
-            [
-                'A20',
-                'Property security and upkeep services rendered by LBRDC as of ' +
-                data.monthAndYear
-            ],
-            ['A21', 'for ' + data.clientName],
-            ['B25', data.monthAndYear],
+            ['I4', `=CONCAT("SOA NO: PMS ", TEXT("${new Date(data.monthAndYear).getMonth()}/${new Date(data.billingYear).getFullYear()}", "yyyy"))`],
+            ['I5', `=UPPER(TEXT("${new Date(data.billingMonth).getMonth() + 1}/${new Date(data.monthAndYear).getFullYear()}", "mmmm"))`],
+            ['I6', `=UPPER(TEXT("${new Date(data.monthAndYear).getDate()}/${new Date(data.billingDate).getMonth() + 1}/${new Date(data.monthAndYear).getFullYear()}", "mmmm dd, yyyy"))`],
+            ['A20', `=CONCAT("Property security and upkeep services rendered by LBRDC as of ", TEXT("${new Date(data.monthAndYear).getMonth() + 1}/${new Date(data.monthAndYear).getFullYear()}", "mmmm yyyy"))`],
+            ['A21', `for ${data.clientName}`],
+            ['B25', `=UPPER(TEXT("${new Date(data.monthAndYear).getMonth() + 1}/${new Date(data.monthAndYear).getFullYear()}", "mmmm yyyy"))`],
             ['K25', data.amount],
             ['K29', '=SUM(K22:K28)'],
+            ['I35', `PMC NO. ${data.pmcNo}`],
+            ['B37', `=UPPER(TEXT("${new Date(data.monthAndYear).getMonth() + 1}/${new Date(data.monthAndYear).getFullYear()}", "mmmm yyyy"))`],
             ['A44', data.bAsstName],
             ['E44', data.bcuChiefName]
         ]
 
-        for(const [cell, value] of billingUpdates) {
-            await graphRequest(
-                'PATCH',
-                `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('${billingSheet}')/range(address='${cell}')`,
-                {
-                    values: [[value]]
-                }
-            )
-        }
+        const batchRequests = billingUpdates.map(([cell, value], index) => ({
+            id: `billing-${index + 1}`,
+            method: 'PATCH',
+            url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('${billingSheet}')/range(address='${cell}')`,
+            headers: { 'Content-Type': 'application/json' },
+            body: { values: [[value]] }
+        }))
 
-        const transmittalSheet = 'Transmittal'
+        await graphBatchRequest(batchRequests)
 
-        await graphRequest(
-            'PATCH',
-            `/sites/${SITE_ID}/drive/items/${fileId}/workbook.worksheets('${transmittalSheet}')/range(address='B11')`,
-            { values: [[data.billingDate]] }
-        )
+        // ===============================
+        // TRANSMITTAL SHEET
+        // ===============================
+        const transmittalSheet = 'TRANSMITTAL'
 
-        await graphRequest(
-            'PATCH',
-            `/sites/${SITE_ID}/drive/items/${fileId}/workbook.worksheets('${transmittalSheet}')/range(address='E11')`,
-            { values: [[data.bAsstName]] }
-        )
+        const transmittalBatch = [
+            ['B11', `=UPPER(TEXT("${new Date(data.billingDate).getDate()}/${new Date(data.billingDate).getMonth() + 1}/${new Date(data.billingDate).getFullYear()}", "mmmm dd, yyyy"))`],
+            ['E11', data.bAsstName],
+            ['B30', data.bAsstName]
+        ].map(([cell, value], index) => ({
+            id: `${index + 1}`,
+            method: 'PATCH',
+            url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('${transmittalSheet}')/range(address='${cell}')`,
+            headers: { 'Content-Type': 'application/json' },
+            body: { values: [[value]] }
+        }))
 
-        if(Array.isArray(data.transmittalItems) && data.transmittalItems.length > 0) {
+        await graphBatchRequest(transmittalBatch)
+
+        if (Array.isArray(data.transmittalItems) && data.transmittalItems.length > 0) {
             const rows = data.transmittalItems.map(item => [
-                    item.property,
-                    item.monthAndYear,
-                    Number(item.amount,
-                    item.pmcNo
-                )
+                '=ROW()-ROW(TransmittalTable[#Headers])',
+                item.property,
+                `=UPPER(TEXT("${new Date(item.monthYear).getMonth() + 1}/${new Date(item.monthYear).getFullYear()}", "mmmm yyyy"))`,
+                item.amount,
+                item.pmcNo,
+                '="x"'
             ])
 
             await graphRequest(
                 'POST',
-                `/sites/${SITE_ID}/drive/items/${fileId}/workbook/tables('Transmittal')/rows/add`,
+                `/sites/${SITE_ID}/drive/items/${fileId}/workbook/tables('TransmittalTable')/rows/add`,
                 { values: rows }
             )
         }
 
+        // Recalculate formulas
         await graphRequest(
             'POST',
             `/sites/${SITE_ID}/drive/items/${fileId}/workbook/application/calculate`,
@@ -264,6 +313,7 @@ export async function createExcelBillingLetter(req, res) {
             documentId: excelFile.id,
             editUrl: excelFile.webUrl
         })
+
     } catch (err) {
         console.error(err?.response?.data || err)
         res.status(500).json({ message: 'Failed to create Excel document' })

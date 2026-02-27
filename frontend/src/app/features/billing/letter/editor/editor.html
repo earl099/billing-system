@@ -138,7 +138,7 @@
         <form [formGroup]="form" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <!-- MAIN BILLING FIELDS -->
           @for (field of formConfig(); track field.key) {
-            @if (field.type !== 'monthYear' && field.type !== 'date' && field.type !== 'dateMonthYear' && field.type !== 'month') {
+            @if (field.type !== 'monthYear' && field.type !== 'date' && field.type !== 'dateMonthYear' && field.type !== 'month' && field.type !== 'year') {
               <mat-form-field class="w-full">
                 <mat-label>{{field.label}}</mat-label>
 
@@ -217,6 +217,18 @@
                 }
               </div>
             }
+            @else if (field.type === 'year') {
+              <div>
+                <app-year-picker
+                  [control]="form.get(field.key)!"
+                  [label]="field.label">
+                </app-year-picker>
+
+                @if(form.get(field.key)?.invalid && form.get(field.key)?.touched) {
+                  <mat-error>{{field.label}} is required</mat-error>
+                }
+              </div>
+            }
           }
 
           <!-- TRANSMITTAL TABLE -->
@@ -252,9 +264,16 @@
               }
             </div>
 
-            <button mat-stroked-button (click)="createTransmittalRow()">
-              Add Row
-            </button>
+            <div class="grid grid-cols-2 gap-4 mt-4">
+              <button mat-stroked-button (click)="createTransmittalRow()">
+                Add Row
+              </button>
+
+              <button mat-stroked-button (click)="removeTransmittalRow()" [disabled]="transmittalItems.length === 1">
+                Remove Row
+              </button>
+            </div>
+
           </div>
         </form>
 
@@ -268,7 +287,16 @@
           <button mat-raised-button color="primary"
               (click)="createBillingLetter()"
               [disabled]="form.invalid || isGenerating()">
-            Generate Excel File
+            @if(isGenerating()) {
+              <mat-progress-spinner
+                diameter="20"
+                mode="indeterminate">
+              </mat-progress-spinner>
+            }
+            @else {
+              Generate Excel File
+            }
+
           </button>
         </div>
       }

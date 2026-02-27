@@ -8,14 +8,15 @@ import { provideLuxonDateAdapter } from '@angular/material-luxon-adapter';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
-import { Word } from '@services/file-editor';
+import { FileEditor } from '@services/file-editor';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MonthYearPickerComponent } from './datepickers/month-year-picker';
 import { MonthDateYearPickerComponent } from './datepickers/month-date-year-picker';
 import { DateMonthYearPickerComponent } from './datepickers/date-month-year-picker';
 import { MonthPickerComponent } from './datepickers/month-picker';
+import { YearPickerComponent } from './datepickers/year-picker';
 
-type FieldType = 'text' | 'textarea' | 'number' | 'date' | 'monthYear' | 'dateMonthYear' | 'month'
+type FieldType = 'text' | 'textarea' | 'number' | 'date' | 'monthYear' | 'dateMonthYear' | 'month' | 'year'
 interface FieldConfig {
   key: string
   label: string
@@ -40,6 +41,7 @@ interface FieldConfig {
     MonthDateYearPickerComponent,
     DateMonthYearPickerComponent,
     MonthPickerComponent,
+    YearPickerComponent,
     DecimalPipe
 ],
   templateUrl: './editor.html',
@@ -82,18 +84,19 @@ export class Editor implements OnInit {
       { key: 'bcuChiefName', label: 'Chief of Division, Billing & Collection Unit', type: 'text', required: true },
     ],
     spad: [
-      { key: 'billingYear', label: 'Billing Year', type: 'number', required: true },
+      { key: 'billingYear', label: 'Billing Year', type: 'year', required: true, dateFormat: 'yyyy' },
       { key: 'billingMonth', label: 'Billing Month', type: 'month', required: true, dateFormat: 'MMMM' },
-      { key: 'billingDate', label: 'Billing Date', type: 'dateMonthYear', required: true, dateFormat: 'd MMMM, yyyy' },
+      { key: 'billingDate', label: 'Billing Date', type: 'date', required: true, dateFormat: 'MMMM dd, yyyy' },
       { key: 'clientName', label: 'Client Name', type: 'text', required: true },
+      { key: 'monthAndYear', label: 'Month and Year', type: 'monthYear', required: true, dateFormat: 'MMMM yyyy' },
       { key: 'amount', label: 'Amount', type: 'number', required: true },
       { key: 'pmcNo', label: 'PMC Number', type: 'text', required: true },
-      { key: 'billingAssistant', label: 'Billing Assistant', type: 'text', required: true },
-      { key: 'divisionChief', label: 'Billing & Collection Chief of Division', type: 'text', required: true },
+      { key: 'bAsstName', label: 'Billing Assistant', type: 'text', required: true },
+      { key: 'bcuChiefName', label: 'Billing & Collection Chief of Division', type: 'text', required: true },
     ]
   }
 
-  wordService = inject(Word)
+  fileEditorService = inject(FileEditor)
   sanitizer = inject(DomSanitizer)
   router = inject(Router)
   route = inject(ActivatedRoute)
@@ -129,7 +132,7 @@ export class Editor implements OnInit {
 
   async loadTemplates() {
     const code = this.route.snapshot.paramMap.get('code')!
-    const templateList = await this.wordService.getTemplates(code)
+    const templateList = await this.fileEditorService.getTemplates(code)
     this.templates.set(templateList)
   }
 
@@ -175,7 +178,7 @@ export class Editor implements OnInit {
   async createBlank() {
     try {
       this.isGenerating.set(true)
-      const doc = await this.wordService.createBillingDocument(this.selectedTemplate().id, this.code()!, {}, true, this.fileType()!)
+      const doc = await this.fileEditorService.createBillingDocument(this.selectedTemplate().id, this.code()!, {}, true, this.fileType()!)
 
       window.open(doc.editUrl, '_blank')
     } finally {
@@ -194,9 +197,9 @@ export class Editor implements OnInit {
     try {
       this.isGenerating.set(true)
 
-      const formValue = this.transformFormValues()
+      const formValue = this.transformFormValues(this.fileType()!)
 
-      const bLetter = await this.wordService.createBillingDocument(
+      const bLetter = await this.fileEditorService.createBillingDocument(
         this.selectedTemplate().id,
         this.code()!,
         formValue,
@@ -226,11 +229,12 @@ export class Editor implements OnInit {
     }
   }
 
-  private transformFormValues() {
+  private transformFormValues(type: 'word' | 'excel') {
     const values = { ...this.form.value }
     const schema = this.formConfig()
 
     for(const field of schema) {
+
       if(field.type === 'date' && field.dateFormat && values[field.key]) {
         values[field.key] = formatDate(values[field.key], field.dateFormat, 'en-US')
       }
@@ -242,6 +246,17 @@ export class Editor implements OnInit {
       if (field.type === 'monthYear' && field.dateFormat && values[field.key]) {
         values[field.key] = values[field.key].toFormat(field.dateFormat)
       }
+
+      if(type === 'excel') {
+        if(field.type === 'date' && values[field.key]) {
+          values[field.key] = new Date(values[field.key]).toISOString()
+        }
+        else if(field.type === 'monthYear' && values[field.key]) {
+          values[field.key] = new Date(values[field.key]).toISOString()
+        }
+
+      }
+
     }
 
     return values
@@ -266,6 +281,8 @@ export class Editor implements OnInit {
 
     this.transmittalItems.push(this.fb.group(group))
   }
+
+  removeTransmittalRow() { this.transmittalItems.removeAt(this.transmittalItems.length - 1) }
 
   get transmittalControls() {
     return this.transmittalItems.controls as UntypedFormGroup[]
