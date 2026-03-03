@@ -23,7 +23,6 @@ export class View implements OnInit {
   async ngOnInit() {
     const id = this.route.snapshot.paramMap.get('_id')!
     this.billing.set(await this.billingService.billingDetails(id, this.code()))
-    console.log(this.billing())
     this.createdDate = new Date(this.billing().createdAt)
   }
 
