@@ -69,7 +69,7 @@ export class Billing {
 
   async billingDetails(id: string, code: string) {
     const res: any = await firstValueFrom(this.http.get(`${this.apiUrl}/billing/${code}/${id}`, { withCredentials: true }))
-    return res.acidBilling
+    return res.billing
   }
 
   async deleteBilling(_id: string, code: string) {
