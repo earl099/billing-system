@@ -234,17 +234,24 @@ export class Editor implements OnInit {
     const schema = this.formConfig()
 
     for(const field of schema) {
-
-      if(field.type === 'date' && field.dateFormat && values[field.key]) {
-        values[field.key] = formatDate(values[field.key], field.dateFormat, 'en-US')
-      }
-
-      if(field.type === 'number' && values[field.key] != null) {
-        values[field.key] = Number(values[field.key]).toFixed(2)
-      }
-
-      if (field.type === 'monthYear' && field.dateFormat && values[field.key]) {
-        values[field.key] = values[field.key].toFormat(field.dateFormat)
+      switch(field.type) {
+        case 'date':
+        case 'dateMonthYear':
+        case 'monthYear':
+          if(field.dateFormat && values[field.key]) {
+            if(field.type === 'date') {
+              values[field.key] = formatDate(values[field.key], field.dateFormat, 'en-US')
+            }
+            else {
+              values[field.key] = values[field.key].toFormat(field.dateFormat)
+            }
+          }
+          break
+        case 'number':
+          if(values[field.key] != null) {
+            values[field.key] = Number(values[field.key]).toFixed(2)
+          }
+          break
       }
 
       if(type === 'excel') {
