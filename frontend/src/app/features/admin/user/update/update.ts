@@ -25,7 +25,7 @@ import { toast } from 'ngx-sonner';
   styleUrl: './update.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UserUpdate implements OnInit {
+export class Update implements OnInit {
   fb = inject(FormBuilder)
   userService = inject(User)
   clientService = inject(Client)

@@ -7,5 +7,6 @@ export const routes: Routes = [
   { path: 'admin', loadChildren: () => import('@admin/payfreq/payfreq.routes').then(mod => mod.PAYFREQ_ROUTES) },
   { path: 'admin', loadChildren: () => import('@admin/client/client.routes').then(mod => mod.CLIENT_ROUTES) },
   { path: 'billing', loadChildren: () => import('@billing/billing.routes').then(mod => mod.BILLING_ROUTES) },
+  { path: 'manpower', loadChildren: () => import('@manpower/manpower.routes').then(mod => mod.MANPOWER_ROUTES) },
   { path: '**', redirectTo: 'home', pathMatch: 'full' },
 ];

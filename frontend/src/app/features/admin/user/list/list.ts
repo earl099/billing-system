@@ -23,7 +23,7 @@ import { toast } from 'ngx-sonner';
   styleUrl: './list.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UserList implements OnInit {
+export class List implements OnInit {
   userService = inject(User)
   authService = inject(Auth)
   logService = inject(Log)

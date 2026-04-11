@@ -16,6 +16,33 @@
         <button mat-button routerLink="/admin/log/list">View Logs</button>
       </mat-card>
 
+      <mat-card class="p-6 card-animate motion-smooth">
+        <h4 class="text-lg font-semibold mb-2">Manpower Management</h4>
+        <mat-accordion multi>
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>BTR</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="flex flex-col">
+              <button mat-button routerLink="/manpower/btr/add">Add Employee</button>
+              <button mat-button routerLink="/manpower/btr/list">Manage Manpower Details</button>
+              <button mat-button routerLink="/rates/btr/list">Manage Billing Rates</button>
+            </div>
+          </mat-expansion-panel>
+
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>OFBANK</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="flex flex-col">
+              <button mat-button routerLink="/manpower/ofbank/add">Add Employee</button>
+              <button mat-button routerLink="/manpower/ofbank/list">Manage Manpower Details</button>
+              <button mat-button routerLink="/rates/ofbank/list">Manage Billing Rates</button>
+            </div>
+          </mat-expansion-panel>
+        </mat-accordion>
+      </mat-card>
+
       <mat-card class="p-6 card-animate motion-smooth delay-200">
         <h4 class="text-lg font-semibold mb-2">Billing</h4>
 
@@ -52,16 +79,53 @@
               <button mat-button routerLink="/billing/spad/list">Billing List</button>
             </div>
           </mat-expansion-panel>
-        </mat-accordion>
-      </mat-card>
 
-      <mat-card class="p-6 card-animate motion-smooth delay-300">
-        <h4 class="text-lg font-semibold mb-2">Reports</h4>
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>BTR (WIP)</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="flex flex-col">
+              <button mat-button routerLink="/billing/soa/btr">Create SOA</button>
+              <button mat-button routerLink="/billing/letter/editor/btr">Create Billing Letter</button>
+              <button mat-button routerLink="/billing/btr/generate">Generate Billing</button>
+              <button mat-button routerLink="/billing/btr/list">Billing List</button>
+            </div>
+          </mat-expansion-panel>
+
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>OFBANK (WIP)</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="flex flex-col">
+              <button mat-button routerLink="/billing/soa/ofbank">Create SOA</button>
+              <button mat-button routerLink="/billing/letter/editor/ofbank">Create Billing Letter</button>
+              <button mat-button routerLink="/billing/ofbank/generate">Generate Billing</button>
+              <button mat-button routerLink="/billing/ofbank/list">Billing List</button>
+            </div>
+          </mat-expansion-panel>
+        </mat-accordion>
       </mat-card>
     </div>
   }
   @else {
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <mat-card class="p-6 card-animate motion-smooth delay-200">
+        <h4 class="text-lg font-semibold mb-2">Manpower Management</h4>
+        @for (client of clients(); track client) {
+          @for (handledClient of user().handleClients; track handledClient) {
+            <!-- CREATE A CONDITION WHERE IF HANDLED CLIENT IS A MANPOWER TYPE OF BILLING, THEN CREATE THIS -->
+            @if (handledClient === client._id) {
+              <mat-accordion multi>
+                <mat-expansion-panel>
+
+                </mat-expansion-panel>
+              </mat-accordion>
+            }
+          }
+        }
+      </mat-card>
+
+
       <mat-card class="p-6 card-animate motion-smooth delay-200">
         <h4 class="text-lg font-semibold mb-2">Billing</h4>
         @for (client of clients(); track client) {
@@ -83,10 +147,6 @@
             }
           }
         }
-      </mat-card>
-
-      <mat-card class="p-6 card-animate motion-smooth delay-300">
-        <h4 class="text-lg font-semibold mb-2">Reports</h4>
       </mat-card>
     </div>
   }

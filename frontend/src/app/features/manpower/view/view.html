@@ -1,0 +1,15 @@
+<div class="max-w-2xl mx-auto p-6 fade-in">
+  <mat-card class="p-6 card-animate">
+    <h3 class="text-xl font-semibold mb-4">Employee Details</h3>
+
+    @for (field of fields; track $index) {
+      <p><strong>{{field}}:</strong> {{employee().at($index)}}</p>
+    }
+
+    <div class="flex mt-4 justify-evenly">
+      <button mat-raised-button color="primary" (click)="edit()">Edit</button>
+      <button mat-stroked-button (click)="router.navigate([`/manpower/${code}/list`])">Back</button>
+    </div>
+  </mat-card>
+</div>
+
