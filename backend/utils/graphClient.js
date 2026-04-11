@@ -178,7 +178,8 @@ export async function createWordBillingLetter(req, res) {
   }
 }
 
-export async function createExcelBillingLetter(req, res) {
+//SPAD BILLING LETTER
+export async function createSpadBillingLetter(req, res) {
     try {
         const { code } = req.params
         const { templateId, data, isBlank } = req.body
@@ -318,6 +319,58 @@ export async function createExcelBillingLetter(req, res) {
         console.error(err?.response?.data || err)
         res.status(500).json({ message: 'Failed to create Excel document' })
     }
+}
+
+export async function createOfbankBilling(req, res) {
+    
+}
+
+// MANPOWER FUNCTIONS
+export async function listManpower(req, res) {
+    try {
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+        const { code } = req.params
+        const { fileName, tableName } = req.query
+
+        const response = await graphRequest(
+            'GET',
+            `/sites/${SITE_ID}/drive/root:/Templates/${code}/${fileName}:/workbook/tables/${tableName}/rows`
+        )
+
+        const rows = response.data.value
+        
+        res.json({
+            list: rows.map(r => [
+                    { index: r.index, values: r.values[0] }
+                ]
+            )
+        })
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export async function getManpower(req, res) {
+    try {
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+        const { code, index } = req.params
+        const { fileName, tableName } = req.query
+
+        const response = await graphRequest(
+            'GET',
+            `/sites/${SITE_ID}/drive/root:/Templates/${code}/${fileName}:/workbook/tables/${tableName}/rows/itemAt(index=${index})?$select=index,values`
+        )
+
+        const data = response.data
+
+        res.json({ 
+            index: data.index,
+            employee: data.values[0]
+         })
+    } catch (error) {
+        console.log(error)
+    }
+    
 }
 
 export async function exportToPdf(req, res) {

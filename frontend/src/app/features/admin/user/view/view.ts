@@ -11,7 +11,7 @@ import { User } from '@services/user';
   styleUrl: './view.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UserView implements OnInit {
+export class View implements OnInit {
   clients = signal<any[]>([])
 
   route = inject(ActivatedRoute)

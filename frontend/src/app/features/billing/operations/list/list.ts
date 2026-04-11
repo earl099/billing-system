@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
 import { LogDTO } from '@models/log';
 import { Auth } from '@services/auth';
@@ -16,14 +17,14 @@ import { toast } from 'ngx-sonner';
     ...MATERIAL_MODULES,
     MatTableModule,
     MatIconModule,
-    MatTooltipModule,
-
+    MatProgressSpinnerModule,
+    MatTooltipModule
   ],
   templateUrl: './list.html',
   styleUrl: './list.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class List implements OnInit{
+export class List implements OnInit {
   billingService = inject(Billing)
   authService = inject(Auth)
   logService = inject(Log)
@@ -75,8 +76,8 @@ export class List implements OnInit{
   }
 
   async load() {
-    const acidBillingList = await this.billingService.billingList(this.code())
-    this.billingList.set(acidBillingList)
+    const billingListData = await this.billingService.billingList(this.code())
+    this.billingList.set(billingListData)
     for (let i = 0; i < this.billingList().length; i++) {
       const newDate = new Date(this.billingList()[i].createdAt).toDateString();
       this.billingList()[i].createdAt = newDate
@@ -86,7 +87,7 @@ export class List implements OnInit{
     this.loading.set(false)
   }
 
-  view(b: any) { this.router.navigate(['billing/acid/view', b._id]) }
+  view(b: any) { this.router.navigate(['billing', this.code(), 'view', b._id]) }
 
   async delete(b: any) {
     if(!confirm('Are you sure you want to delete this billing? This is action is permanent.')) return;

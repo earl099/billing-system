@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@ang
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
 import { LogDTO } from '@models/log';
 import { UserDTO } from '@models/user';
@@ -19,13 +19,13 @@ import { toast } from 'ngx-sonner';
     ReactiveFormsModule,
     MatSelectModule,
     MatIconModule,
-    RouterLink
+    RouterModule
   ],
   templateUrl: './create.html',
   styleUrl: './create.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UserCreate implements OnInit{
+export class Create implements OnInit{
   clients = signal<any[]>([])
 
   fb = inject(FormBuilder)

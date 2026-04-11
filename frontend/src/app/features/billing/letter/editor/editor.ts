@@ -4,12 +4,13 @@ import { FormsModule, ReactiveFormsModule, UntypedFormArray, UntypedFormBuilder,
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatStepperModule } from '@angular/material/stepper';
 import { provideLuxonDateAdapter } from '@angular/material-luxon-adapter';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
 import { FileEditor } from '@services/file-editor';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MonthYearPickerComponent } from './datepickers/month-year-picker';
 import { MonthDateYearPickerComponent } from './datepickers/month-date-year-picker';
 import { DateMonthYearPickerComponent } from './datepickers/date-month-year-picker';
@@ -37,6 +38,7 @@ interface FieldConfig {
     MatDatepickerModule,
     FormsModule,
     MatProgressSpinnerModule,
+    MatStepperModule,
     MonthYearPickerComponent,
     MonthDateYearPickerComponent,
     DateMonthYearPickerComponent,
@@ -64,7 +66,7 @@ export class Editor implements OnInit {
       { key: 'soaNo', label: 'SOA Number', type: 'text', required: true },
       { key: 'billingDate', label: 'Billing Date', type: 'dateMonthYear', required: true, dateFormat:'d MMMM yyyy' },
       { key: 'addressedTo', label: 'Addressed To', type: 'textarea', required: true, colSpan: 2 },
-      { key: 'addressee', label: 'Addressed To (Introduction)', type: 'text', required: true, colSpan: 2 },
+      { key: 'addressee', label: 'Recipient', type: 'text', required: true, colSpan: 2 },
       { key: 'clientName', label: 'Client Name', type: 'text', required: true },
       { key: 'particulars', label: 'Particulars', type: 'text', required: true },
       { key: 'client', label: 'Project Name', type: 'text', required: true },
@@ -93,6 +95,18 @@ export class Editor implements OnInit {
       { key: 'pmcNo', label: 'PMC Number', type: 'text', required: true },
       { key: 'bAsstName', label: 'Billing Assistant', type: 'text', required: true },
       { key: 'bcuChiefName', label: 'Billing & Collection Chief of Division', type: 'text', required: true },
+    ],
+    ofbank: [
+      { key: 'soaNo', label: 'SOA Number', type: 'text', required: true },
+      { key: 'billingDate', label: 'Billing Date', type: 'date', required: true, dateFormat:'MMMM dd, yyyy' },
+      { key: 'addressedTo', label: 'Addressed to', type: 'textarea', required: true },
+      { key: 'recipient', label: 'Recipient', type: 'text', required: true },
+      { key: 'particulars', label: 'Particulars', type: 'text', required: true },
+      { key: 'billingPeriod', label: 'Billing Period', type: 'text', required: true },
+      { key: 'amount', label: 'Amount', type: 'number', required: true },
+      { key: 'peso', label: 'Peso', type: 'text', required: true },
+      { key: 'cent', label: 'Cent', type: 'text', required: true },
+      { key: 'bcuChiefName', label: 'Billing & Collection Chief of Division', type: 'text', required: true },
     ]
   }
 
@@ -105,6 +119,7 @@ export class Editor implements OnInit {
   readonly code = signal(this.route.snapshot.paramMap.get('code'))
 
   form: UntypedFormGroup = this.fb.group({})
+  form1: UntypedFormGroup = this.fb.group({})
   transmittalItems: UntypedFormArray = this.fb.array([])
 
   private buildDynamicForm(schema: FieldConfig[]) {
@@ -134,6 +149,7 @@ export class Editor implements OnInit {
     const code = this.route.snapshot.paramMap.get('code')!
     const templateList = await this.fileEditorService.getTemplates(code)
     this.templates.set(templateList)
+
   }
 
   selectTemplate(t: any) {
