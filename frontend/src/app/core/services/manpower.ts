@@ -15,8 +15,43 @@ export class Manpower {
     return res.list
   }
 
-  async getManpower(code: string, index: number, fileName: string, tableName: string) {
+  async getManpower(
+    code: string,
+    index: number,
+    fileName: string,
+    tableName: string
+  ) {
     const res: any = await firstValueFrom(this.http.get(`${this.apiUrl}/manpower/${code}/${index}?fileName=${fileName}&tableName=${tableName}`))
+    return res
+  }
+
+  async addToTable(
+    code: string,
+    fileName: string,
+    tableName: string,
+    data: any
+  ) {
+    const res: any = await firstValueFrom(
+      this.http.post(
+        `${this.apiUrl}/manpower/${code}/add?fileName=${fileName}&tableName=${tableName}`,
+        data
+      )
+    )
+    return res
+  }
+
+  async updateRow(
+    code: string,
+    index: number,
+    fileName: string,
+    tableName: string,
+    payload: any
+  ) {
+    const res: any = await firstValueFrom(this.http.patch(
+        `${this.apiUrl}/manpower/${code}/${index}/edit?fileName=${fileName}&tableName=${tableName}`,
+        payload
+      )
+    )
     return res
   }
 }

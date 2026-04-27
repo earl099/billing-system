@@ -370,7 +370,81 @@ export async function getManpower(req, res) {
     } catch (error) {
         console.log(error)
     }
-    
+}
+
+export async function addToTable(req, res) {
+    try {
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+        const { code } = req.params
+        const { fileName, tableName } = req.query
+        const { form, columnMap } = req.body
+
+        let singleData = mapToRow(columnMap, form)
+
+        const addedData = await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/root:/Templates/${code}/${fileName}:/workbook/tables/${tableName}/rows/add`,
+            { values: [singleData] }
+        )
+
+        const finalData = addedData.data
+
+        res.json({
+            message: 'Added Employee',
+            data: finalData.values[0]
+        })
+    } catch (error) {
+        console.log(error.response.data)
+    }
+}
+
+export async function updateRow(req, res) {
+    try {
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+        const { code, index } = req.params
+        const { fileName, tableName } = req.query
+        const { form, columnMap } = req.body
+
+        const updatedRow = mapToRow(columnMap, form)
+
+        await graphRequest(
+            'PATCH',
+            `/sites/${SITE_ID}/drive/root:/Templates/${code}/${fileName}:/workbook/tables/${tableName}/rows/itemAt(index=${index})`,
+            { values: [updatedRow] }
+        )
+
+        //force recalculation
+        await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/root:/Templates/${code}/${fileName}:/workbook/application/calculate`,
+            { calculationType: 'Full' }
+        )
+
+        res.json({
+            message: 'Row updated successfully!',
+            data: updatedRow
+        })
+    } catch (error) {
+        console.log(error.response.data || error)
+        res.status(500).json({ message: 'Update manpower failed' })
+    }
+}
+
+const MANPOWER_FORMULA_COLUMNS = [
+    'posName',
+    'endorsed',
+    'difference',
+    'dBillingRate',
+    'mBillingRate'
+]
+
+function mapToRow(columnMap, data) {
+    return columnMap.map(col => {
+        if(MANPOWER_FORMULA_COLUMNS.includes(col)) {
+            return null
+        }
+        return col in data ? data[col] : null
+    })
 }
 
 export async function exportToPdf(req, res) {
