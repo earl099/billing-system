@@ -1,11 +1,13 @@
 import { authMiddleware } from "#middleware/auth.middleware.js";
 import {
+    addToTable,
     createSpadBillingLetter,
     createWordBillingLetter,
     exportToPdf,
     getManpower,
     listManpower,
-    listTemplates
+    listTemplates,
+    updateRow
 } from "#utils/graphClient.js";
 import { Router } from "express";
 
@@ -22,5 +24,7 @@ graphRouter.get('/editor/export/:id', exportToPdf)
 //MANPOWER FUNCTIONS
 graphRouter.get('/manpower/:code/list', listManpower)
 graphRouter.get('/manpower/:code/:index', getManpower)
+graphRouter.post('/manpower/:code/add', addToTable)
+graphRouter.patch('/manpower/:code/:index/edit', updateRow)
 
 export default graphRouter

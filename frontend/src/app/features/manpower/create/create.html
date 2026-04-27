@@ -1,1 +1,42 @@
-<p>create works!</p>,
+<div class="p-6 fade-in max-w-5xl mx-auto">
+  <mat-card class="shadow-xl rounded-2xl">
+    <mat-card-header>
+      <mat-card-title class="text-xl font-semibold mb-4">
+        Add Employee
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <h3 class="mt-4">Enter Employee Information</h3>
+      <form [formGroup]="form" class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+
+        @for (field of formConfig(); track field.key) {
+          <mat-form-field class="w-full">
+            <mat-label>{{field.label}}</mat-label>
+            @switch (field.type) {
+              @case ('text') {
+                <input matInput [formControlName]="field.key">
+              }
+              @case ('number') {
+                <input type="number" matInput (keypress)="decimalFilter($event)">
+              }
+            }
+
+            @if(form.get(field.key)?.invalid && form.get(field.key)?.touched) {
+              <mat-error>{{field.label}} is required</mat-error>
+            }
+          </mat-form-field>
+        }
+      </form>
+
+      <div class="grid grid-cols-2 gap-4 mt-4">
+        <button mat-stroked-button (click)="addData()">
+          Add Employee
+        </button>
+        <button mat-stroked-button (click)="backToList()">
+          Back to List
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
