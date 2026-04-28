@@ -139,7 +139,7 @@ export class Update implements OnInit {
       'EmployeeTable'
     )
 
-    const values = data.employee
+    const values = data.data
 
     const mapped: any = {}
 
