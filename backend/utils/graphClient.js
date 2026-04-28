@@ -365,7 +365,7 @@ export async function getManpower(req, res) {
 
         res.json({ 
             index: data.index,
-            employee: data.values[0]
+            data: data.values[0]
          })
     } catch (error) {
         console.log(error)
@@ -390,7 +390,7 @@ export async function addToTable(req, res) {
         const finalData = addedData.data
 
         res.json({
-            message: 'Added Employee',
+            message: tableName === 'EmployeeTable' ? 'Added Employee' : 'Added Billing Rate',
             data: finalData.values[0]
         })
     } catch (error) {

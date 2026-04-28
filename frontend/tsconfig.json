@@ -26,6 +26,7 @@
       "@billing/*": ["src/app/features/billing/*"],
       "@env/*": ["src/environments/*"],
       "@manpower/*": ["src/app/features/manpower/*"],
+      "@rates/*": ["src/app/features/rates/*"],
       "@material": ["src/app/material.ts"],
       "@styles/*": ["src/styles/*"]
     }

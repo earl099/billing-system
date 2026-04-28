@@ -1,11 +1,11 @@
 import { Route } from "@angular/router";
-import { List } from "@manpower/list/list";
-import { Update } from "@manpower/update/update";
-import { Create } from "@manpower/create/create";
-import { View } from "@manpower/view/view";
+import { List } from "@rates/list/list";
+import { Update } from "@rates/update/update";
+import { Create } from "@rates/create/create";
+import { View } from "@rates/view/view";
 import { authGuard } from "@guards/auth-guard";
 
-export const MANPOWER_ROUTES: Route[] = [
+export const RATES_ROUTES: Route[] = [
   { path: ':code/list', component: List, canActivate: [authGuard] },
   { path: ':code/:index/edit', component: Update, canActivate: [authGuard] },
   { path: ':code/add', component: Create, canActivate: [authGuard] },
