@@ -326,7 +326,7 @@ export async function createOfbankBilling(req, res) {
 }
 
 // MANPOWER FUNCTIONS
-export async function listManpower(req, res) {
+export async function listData(req, res) {
     try {
         const SITE_ID = process.env.SHAREPOINT_SITE_ID
         const { code } = req.params
@@ -346,7 +346,7 @@ export async function listManpower(req, res) {
             )
         })
     } catch (error) {
-        console.log(error)
+        console.log(error?.response?.data)
     }
 }
 
