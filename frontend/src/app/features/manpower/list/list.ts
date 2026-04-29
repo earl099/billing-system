@@ -3,7 +3,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
 import { Manpower } from '@services/manpower';
 
@@ -78,7 +78,7 @@ export class List implements OnInit {
   }
 
   async loadData() {
-    const dataSource = await this.manpowerService.listManpower(this.code() ?? '', 'BILLING-TEMPLATE.xlsm', 'EmployeeTable')
+    const dataSource = await this.manpowerService.listData(this.code() ?? '', 'BILLING-TEMPLATE.xlsm', 'EmployeeTable')
     const formattedData = []
 
     //for creating array of objects

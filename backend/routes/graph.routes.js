@@ -5,7 +5,7 @@ import {
     createWordBillingLetter,
     exportToPdf,
     getManpower,
-    listManpower,
+    listData,
     listTemplates,
     updateRow
 } from "#utils/graphClient.js";
@@ -22,7 +22,7 @@ graphRouter.post('/editor/create/:code/excel', createSpadBillingLetter)
 graphRouter.get('/editor/export/:id', exportToPdf)
 
 //MANPOWER FUNCTIONS
-graphRouter.get('/manpower/:code/list', listManpower)
+graphRouter.get('/manpower/:code/list', listData)
 graphRouter.get('/manpower/:code/:index', getManpower)
 graphRouter.post('/manpower/:code/add', addToTable)
 graphRouter.patch('/manpower/:code/:index/edit', updateRow)

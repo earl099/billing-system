@@ -10,7 +10,7 @@ export class Manpower {
   private http = inject(HttpClient)
   private apiUrl = environment.apiUrl
 
-  async listManpower(code: string, fileName: string, tableName: string) {
+  async listData(code: string, fileName: string, tableName: string) {
     const res: any = await firstValueFrom(this.http.get(`${this.apiUrl}/manpower/${code}/list?fileName=${fileName}&tableName=${tableName}`))
     return res.list
   }
