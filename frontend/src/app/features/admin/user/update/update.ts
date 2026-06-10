@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -19,7 +19,8 @@ import { toast } from 'ngx-sonner';
     ...MATERIAL_MODULES,
     ReactiveFormsModule,
     MatSelectModule,
-    MatIconModule
+    MatIconModule,
+    MatChipsModule
   ],
   templateUrl: './update.html',
   styleUrl: './update.css',
@@ -49,43 +50,59 @@ export class Update implements OnInit {
   error = signal<string | null>(null)
   userId = signal<string | null>(null)
 
-  constructor() {
-
-  }
-
   async ngOnInit() {
-    this.userId.set(this.route.snapshot.paramMap.get('id')!)
-    if(!this.userId()) return
-    const user = signal(await this.userService.get(this.userId() ?? ''))
+    const id = this.route.snapshot.paramMap.get('id')
+    if (!id) {
+      toast.error('Invalid user ID')
+      this.router.navigate(['/admin/user/list'])
+      return
+    }
 
-    const clients = await this.clientService.list()
-    this.clientList.set(clients)
+    this.userId.set(id)
 
-    this.form.patchValue({
-      name: user().name,
-      username: user().username,
-      email: user().email,
-      role: user().role,
-      handledClients: user().handledClients
-    })
+    try {
+      const user = await this.userService.get(id)
+      if (!user) {
+        toast.error('User not found')
+        this.router.navigate(['/admin/user/list'])
+        return
+      }
 
-    if(this.form.get('role')?.value === 'Admin') {
-      this.form.get('handledClients')?.disable()
+      const clients = await this.clientService.list()
+      this.clientList.set(clients)
+
+      this.form.patchValue({
+        name: user.name ?? '',
+        username: user.username ?? '',
+        email: user.email ?? '',
+        role: user.role ?? 'User',
+        handledClients: user.handledClients ?? []
+      })
+
+      if(this.form.get('role')?.value === 'Admin') {
+        this.form.get('handledClients')?.disable()
+      }
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : 'Failed to load user'
+      toast.error(errorMessage)
+      this.router.navigate(['/admin/user/list'])
     }
   }
 
   isAdmin() {
-    if(this.form.get('role')?.value !== 'Admin') {
-      for (let i = 0; i < this.clientList().length; i++) {
-        if(this.clientList()[i].code === 'ALL') {
-          this.form.get('handledClients')?.setValue([this.clientList()[i]._id])
-          this.form.get('handledClients')?.disable()
-        }
+    const role = this.form.get('role')?.value
+    const handledClientsControl = this.form.get('handledClients')
+
+    if(role !== 'Admin') {
+      const allClient = this.clientList().find(c => c.code === 'ALL')
+      if(allClient) {
+        handledClientsControl?.setValue([allClient._id])
+        handledClientsControl?.disable()
       }
     }
     else {
-      this.form.get('handledClients')?.enable()
-      this.form.get('handledClients')?.setValue([''])
+      handledClientsControl?.enable()
+      handledClientsControl?.setValue([])
     }
   }
 
@@ -96,25 +113,33 @@ export class Update implements OnInit {
     this.loading.set(true)
 
     try {
-      const formValue = this.form.value
-      const payload: UserDTO = Object.fromEntries(
-        Object.entries(formValue).filter(([_, value]) => value !== null)
-      ) as UserDTO
-      if(!payload.password) delete payload.password
-      await this.userService.update(this.userId() ?? '', payload)
-      await this.router.navigate(['/admin/user/list'])
-      toast.success('User updated successfully')
+      const formValue = this.form.getRawValue()
+      const payload: Partial<UserDTO> = {
+        name: formValue.name ?? undefined,
+        username: formValue.username ?? undefined,
+        email: formValue.email ?? undefined,
+        role: formValue.role ?? undefined,
+        handledClients: formValue.handledClients ?? undefined
+      }
 
-      //log function here
+      if (formValue.password) {
+        payload.password = formValue.password
+      }
+
+      await this.userService.update(this.userId() ?? '', payload)
+
       const log: LogDTO = {
         user: this.authService.fetchUser() ?? '',
         operation: 'Updated User'
       }
 
       await this.logService.create(log)
-    } catch (err: any) {
-      this.error = err?.message ?? 'Update User failed'
-      toast.error('Error: ' + (this.error ?? err?.message))
+      await this.router.navigate(['/admin/user/list'])
+      toast.success('User updated successfully')
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Update failed'
+      this.error.set(errorMessage)
+      toast.error(`Error: ${errorMessage}`)
     } finally {
       this.loading.set(false)
     }

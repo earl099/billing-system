@@ -3,8 +3,9 @@ import {
     addToTable,
     createSpadBillingLetter,
     createWordBillingLetter,
+    deleteFromTable,
     exportToPdf,
-    getManpower,
+    getFromTable,
     listData,
     listTemplates,
     updateRow
@@ -23,8 +24,9 @@ graphRouter.get('/editor/export/:id', exportToPdf)
 
 //MANPOWER FUNCTIONS
 graphRouter.get('/manpower/:code/list', listData)
-graphRouter.get('/manpower/:code/:index', getManpower)
+graphRouter.get('/manpower/:code/:index', getFromTable)
 graphRouter.post('/manpower/:code/add', addToTable)
 graphRouter.patch('/manpower/:code/:index/edit', updateRow)
+graphRouter.delete('/manpower/:code/:index/delete', deleteFromTable)
 
 export default graphRouter

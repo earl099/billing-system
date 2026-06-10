@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { environment } from '@env/environment.prod';
+import { environment } from '@env/environment';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable({
@@ -30,7 +30,7 @@ export class FileEditor {
   }
 
   async exportPdf(id: string) {
-    const res: any = await firstValueFrom(this.http.get(`${this.apiUrl}/word/export/${id}`, { responseType: 'blob' }))
+    const res: any = await firstValueFrom(this.http.get(`${this.apiUrl}/editor/export/${id}`, { responseType: 'blob' }))
     return res
   }
 }

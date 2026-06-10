@@ -19,7 +19,7 @@ export async function getClients(_req, res) {
 
         res.json({ clients, total })
     } catch (error) {
-        res.status(500).json({ message: `Server error: ${error}` })
+        res.status(500).json({ message: 'Server error' })
     }
 }
 
@@ -30,7 +30,7 @@ export async function getClient(req, res) {
 
         res.json({ client, message: 'Client found' })
     } catch (error) {
-        res.status(500).json({ message: `Server error: ${error}` })
+        res.status(500).json({ message: 'Server error' })
     }
 }
 
@@ -40,7 +40,7 @@ export async function createClient(req, res) {
         const client = await clientModel.create({ code, name, payFreq })
         res.json({ client })
     } catch (error) {
-        res.status(500).json({ message: `Server error: ${error}` })
+        res.status(500).json({ message: 'Server error' })
     }
 }
 
@@ -53,16 +53,16 @@ export async function updateClient(req, res) {
         if(!client) return res.status(404).json({ message: 'Client not found' })
         res.json({ client })
     } catch (error) {
-        res.status(500).json({ message: `Server error: ${error}` })
+        res.status(500).json({ message: 'Server error' })
     }
 }
 
 export async function deleteClient(req, res) {
     try {
-        const client = await clientModel.findByIdAndDelete({ _id: req.params._id })
+        const client = await clientModel.findByIdAndDelete(req.params._id)
         if(!client) return res.status(404).json({ message: 'Client not found' })
         res.json({ message: 'Client deleted successfully' })
     } catch (error) {
-        res.status(500).json({ message: `Server error: ${error}` })
+        res.status(500).json({ message: 'Server error' })
     }
 }

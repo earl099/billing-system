@@ -4,7 +4,10 @@ import userModel from "#models/user.model.js";
 import clientModel from "#models/client.model.js";
 import payFreqModel from "#models/payfreq.model.js";
 
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecret'
+const JWT_SECRET = process.env.JWT_SECRET
+if (!JWT_SECRET) {
+    throw new Error('CRITICAL: JWT_SECRET environment variable is required')
+}
 
 export async function signup(req, res) {
     const { name, username, email, password } = req.body
@@ -71,7 +74,7 @@ export async function signup(req, res) {
             })
         }
 
-        const token = jwt.sign({ id: user._id, name: user.name }, JWT_SECRET, { expiresIn: '1d' })
+        const token = jwt.sign({ id: user._id, username: user.username, name: user.name }, JWT_SECRET, { expiresIn: '1d' })
         res.status(200).json({
             token,
             user: {
@@ -137,8 +140,7 @@ export async function login(req, res) {
         }
         
     } catch (error) {
-        console.log(error)
-        res.status(500).json({ message: 'Server error' + error })
+        res.status(500).json({ message: 'Server error' })
     }
 }
 

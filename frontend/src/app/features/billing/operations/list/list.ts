@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
@@ -24,14 +24,14 @@ import { toast } from 'ngx-sonner';
   styleUrl: './list.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class List implements OnInit {
+export class List implements OnInit, OnDestroy {
   billingService = inject(Billing)
   authService = inject(Auth)
   logService = inject(Log)
   router = inject(Router)
   route = inject(ActivatedRoute)
 
-  code = signal(this.route.snapshot.paramMap.get('code')!)
+  code = signal(this.route.snapshot.paramMap.get('code') ?? '')
   billingList = signal<any[]>([])
   searchInput = signal('')
   searchQuery = signal('')
@@ -40,14 +40,14 @@ export class List implements OnInit {
   loading = signal(true)
   user = signal<any>({})
 
-  private debounceTimer: any
+  private debounceTimer: ReturnType<typeof setTimeout> | null = null
   columns = ['billingLetter', 'createdBy', 'createdAt', 'actions']
 
   constructor() {
     effect(() => {
       const value = this.searchInput()
 
-      clearTimeout(this.debounceTimer)
+      if (this.debounceTimer) clearTimeout(this.debounceTimer)
       this.debounceTimer = setTimeout(() => {
         this.searchQuery.set(value)
         this.currentPage.set(1)
@@ -60,9 +60,9 @@ export class List implements OnInit {
     if(!q) return this.billingList();
 
     return this.billingList().filter(b =>
-      b.createdAt.toLowerCase().includes(q) ||
-      b.createdBy.name.toLowerCase().includes(q) ||
-      b.billingLetter.toLowerCase().includes(q)
+      b.createdAt?.toLowerCase().includes(q) ||
+      b.createdBy?.name?.toLowerCase().includes(q) ||
+      b.billingLetter?.toLowerCase().includes(q)
     )
   })
 
@@ -72,40 +72,72 @@ export class List implements OnInit {
   })
 
   async ngOnInit() {
+    if (!this.code()) {
+      toast.error('Invalid client code')
+      this.router.navigate(['/'])
+      return
+    }
     await this.load()
+  }
+
+  ngOnDestroy() {
+    if (this.debounceTimer) clearTimeout(this.debounceTimer)
   }
 
   async load() {
-    const billingListData = await this.billingService.billingList(this.code())
-    this.billingList.set(billingListData)
-    for (let i = 0; i < this.billingList().length; i++) {
-      const newDate = new Date(this.billingList()[i].createdAt).toDateString();
-      this.billingList()[i].createdAt = newDate
+    try {
+      this.loading.set(true)
+      const billingListData = await this.billingService.billingList(this.code())
+      
+      const processedList = billingListData.map((item: any) => ({
+        ...item,
+        createdAt: item.createdAt ? new Date(item.createdAt).toDateString() : 'N/A'
+      }))
+      
+      this.billingList.set(processedList)
+      const userDetails = await this.authService.getProfile()
+      this.user.set(userDetails)
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : 'Failed to load billings'
+      toast.error(errorMessage)
+    } finally {
+      this.loading.set(false)
     }
-    const userDetails = this.authService.getProfile()
-    this.user.set(userDetails)
-    this.loading.set(false)
   }
 
-  view(b: any) { this.router.navigate(['billing', this.code(), 'view', b._id]) }
+  view(b: any) {
+    if (!b?._id) {
+      toast.error('Invalid billing record')
+      return
+    }
+    this.router.navigate(['billing', this.code(), 'view', b._id])
+  }
 
   async delete(b: any) {
-    if(!confirm('Are you sure you want to delete this billing? This is action is permanent.')) return;
-    await this.billingService.deleteBilling(b._id, this.code())
-    toast.success('Deleted ACID Billing successfully')
-    await this.load()
-
-    const log: LogDTO = {
-      user: this.authService.fetchUser() ?? '',
-      operation: 'Deleted Client'
+    if (!b?._id) {
+      toast.error('Invalid billing record')
+      return
     }
-
-    await this.logService.create(log)
+    if(!confirm('Are you sure you want to delete this billing? This action is permanent.')) return;
+    
+    try {
+      await this.billingService.deleteBilling(b._id, this.code())
+      toast.success('Deleted billing successfully')
+      
+      const log: LogDTO = {
+        operation: 'Deleted Billing'
+      }
+      await this.logService.create(log)
+      await this.load()
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : 'Failed to delete billing'
+      toast.error(errorMessage)
+    }
   }
 
   totalPages() { return Math.ceil(this.filteredBillings().length / this.pageSize()) }
 
-  gotoPage(page:number) {
+  gotoPage(page: number) {
     if(this.totalPages() < 1) { this.currentPage.set(0) }
     else { this.currentPage.set(Math.min(Math.max(page, 1), this.totalPages())) }
   }

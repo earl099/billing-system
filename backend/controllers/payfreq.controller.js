@@ -12,7 +12,7 @@ export async function getPayFreqs(_req, res) {
 
         res.json({ payFreqs, total })
     } catch (error) {
-        res.status(500).json({ message: `Server error: ${error}` })
+        res.status(500).json({ message: 'Server error' })
     }
 }
 
@@ -23,7 +23,7 @@ export async function createPayFreq(req, res) {
 
         res.status(200).json({ payFreq })
     } catch (error) {
-        res.status(500).json({ message: `Server error: ${error}` })
+        res.status(500).json({ message: 'Server error' })
     }
 }
 
@@ -34,6 +34,6 @@ export async function deletePayFreq(req, res) {
 
         res.json({ message: 'Pay Frequency deleted successfully' })
     } catch (error) {
-        res.status(500).json({ message: `Server error: ${error}` })
+        res.status(500).json({ message: 'Server error' })
     }
 }

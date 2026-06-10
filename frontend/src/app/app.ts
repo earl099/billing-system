@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { RouterOutlet, RouterLink, Router } from '@angular/router';
 import { LogDTO } from '@models/log';
 import { Auth } from '@services/auth';
@@ -15,19 +15,34 @@ import { NgxSonnerToaster, toast } from 'ngx-sonner';
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App implements OnInit {
+export class App implements OnInit, OnDestroy {
   protected readonly title = signal('LBRDC Billing System');
   protected readonly toast = toast
   authService = inject(Auth)
   logService = inject(Log)
   router = inject(Router)
-  user = signal<any>({})
-
-  constructor() { this.authService.startTokenWatcher() }
+  user = signal<any>(null)
 
   ngOnInit(): void {
-    this.user.set(this.authService.getProfile())
-    if(this.authService.hasValidToken()) this.router.navigate(['dashboard'])
+    // Start token watcher only if user has valid token
+    if (this.authService.hasValidToken()) {
+      this.authService.startTokenWatcher()
+      this.loadProfile()
+    }
+  }
+
+  ngOnDestroy(): void {
+    // Clean up token watcher to prevent memory leaks
+    this.authService.clearTokenWatcher()
+  }
+
+  private async loadProfile() {
+    try {
+      const profile = await this.authService.getProfile()
+      this.user.set(profile)
+    } catch (error) {
+      console.error('Failed to load profile:', error)
+    }
   }
 
   home() {
@@ -41,9 +56,7 @@ export class App implements OnInit {
 
   async logout() {
     try {
-      const user = this.authService.fetchUser() ?? ''
       const logObject: LogDTO = {
-        user,
         operation: 'Logged Out'
       }
       await this.logService.create(logObject)

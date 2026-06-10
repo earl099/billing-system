@@ -8,9 +8,10 @@ const cca = new ConfidentialClientApplication({
     }
 })
 
+let cachedToken = null
+let tokenExpiry = 0
+
 export async function getGraphToken() {
-    let cachedToken = null
-    let tokenExpiry = 0
     const now = Date.now()
 
     if(cachedToken && now < tokenExpiry - 300000) {

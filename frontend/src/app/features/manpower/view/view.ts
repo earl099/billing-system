@@ -45,7 +45,7 @@ export class View implements OnInit {
     this.index = this.route.snapshot.paramMap.get('index')
     this.code = this.route.snapshot.paramMap.get('code')
     const data = await this.manpowerService.getManpower(this.code ?? '', Number(this.index), 'BILLING-TEMPLATE.xlsm', 'EmployeeTable')
-    this.employee.set(data.employee)
+    this.employee.set(data.data)
     console.log(this.employee())
   }
 

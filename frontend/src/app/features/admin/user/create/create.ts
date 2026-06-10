@@ -25,7 +25,7 @@ import { toast } from 'ngx-sonner';
   styleUrl: './create.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Create implements OnInit{
+export class Create implements OnInit {
   clients = signal<any[]>([])
 
   fb = inject(FormBuilder)
@@ -41,47 +41,51 @@ export class Create implements OnInit{
     email: ['', [Validators.required, Validators.email]],
     password: ['', Validators.required],
     role: [<'Admin' | 'User'>'', Validators.required],
-    handledClients: [<string[] | null>[]]
+    handledClients: [<string[]>[]]
   })
 
-  loading = false
-  error: string | null = null
+  loading = signal(false)
+  error = signal<string | null>(null)
 
   async ngOnInit() {
     await this.loadClient()
   }
 
   async loadClient() {
-    const clientList = await this.clientService.list()
-    this.clients.set(clientList)
+    try {
+      const clientList = await this.clientService.list()
+      this.clients.set(clientList)
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : 'Failed to load clients'
+      toast.error(errorMessage)
+    }
   }
 
   isAdmin() {
-    if(this.form.get('role')?.value !== 'Admin') {
-      for (let i = 0; i < this.clients().length; i++) {
-        if(this.clients()[i].code === 'ALL') {
-          this.form.get('handledClients')?.setValue([this.clients()[i]._id])
-          this.form.get('handledClients')?.disable()
-          break
-        }
+    const role = this.form.get('role')?.value
+    const handledClientsControl = this.form.get('handledClients')
+
+    if(role !== 'Admin') {
+      const allClient = this.clients().find(c => c.code === 'ALL')
+      if(allClient) {
+        handledClientsControl?.setValue([allClient._id])
+        handledClientsControl?.disable()
       }
     }
     else {
-      this.form.get('handledClients')?.setValue([])
-      this.form.get('handledClients')?.enable()
+      handledClientsControl?.setValue([])
+      handledClientsControl?.enable()
     }
   }
 
   async submit() {
     if(this.form.invalid) return
-    this.loading = true
-
     if(!confirm('Are you sure you want to create this User?')) return
+    this.loading.set(true)
+
     try {
       const userObject = this.form.getRawValue() as UserDTO
       await this.userService.create(userObject)
-      await this.router.navigate(['/admin/user/list'])
-      toast.success('User created successfully')
 
       const log: LogDTO = {
         user: this.authService.fetchUser() ?? '',
@@ -89,11 +93,14 @@ export class Create implements OnInit{
       }
 
       await this.logService.create(log)
-    } catch (err: any) {
-      this.error = err?.message ?? 'User creation failed'
-      toast.error(this.error ?? err?.message)
+      await this.router.navigate(['/admin/user/list'])
+      toast.success('User created successfully')
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'User creation failed'
+      this.error.set(errorMessage)
+      toast.error(`Error: ${errorMessage}`)
     } finally {
-      this.loading = false
+      this.loading.set(false)
     }
   }
 }

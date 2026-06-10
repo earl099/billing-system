@@ -1,0 +1,267 @@
+2026-05-28 15:11:44 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.mongodb-test.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.mongodb-test.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-05-28 15:33:42 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.mongodb-test.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.mongodb-test.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-05-28 15:37:01 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.mongodb-test.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.mongodb-test.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-05-29 16:49:31 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-05-29 16:49:36 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-05-29 17:01:19 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-05-29 17:02:28 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-05-29 17:09:10 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-05-29 17:13:04 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-06-01 08:17:09 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-06-01 08:18:11 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-06-01 08:19:24 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-06-01 08:20:12 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-06-01 08:22:03 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-06-01 08:22:10 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-06-01 08:22:12 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-06-01 08:22:24 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-06-01 08:22:33 [info]: Connected to MongoDB 
+2026-06-01 08:22:33 [info]: Server running on port 3000 
+2026-06-01 08:22:36 [info]: Connected to MongoDB 
+2026-06-01 08:22:36 [info]: Server running on port 3000 
+2026-06-01 08:22:51 [info]: Connected to MongoDB 
+2026-06-01 08:22:51 [info]: Server running on port 3000 
+2026-06-01 08:23:57 [info]: Connected to MongoDB 
+2026-06-01 08:23:57 [info]: Server running on port 3000 
+2026-06-01 08:23:59 [info]: Connected to MongoDB 
+2026-06-01 08:23:59 [info]: Server running on port 3000 
+2026-06-01 08:28:43 [info]: Connected to MongoDB 
+2026-06-01 08:28:43 [info]: Server running on port 3000 
+2026-06-01 08:28:51 [info]: Connected to MongoDB 
+2026-06-01 08:28:51 [info]: Server running on port 3000 
+2026-06-01 08:29:17 [info]: Connected to MongoDB 
+2026-06-01 08:29:17 [info]: Server running on port 3000 
+2026-06-01 08:29:40 [info]: Connected to MongoDB 
+2026-06-01 08:29:40 [info]: Server running on port 3000 
+2026-06-01 08:29:58 [info]: Connected to MongoDB 
+2026-06-01 08:29:58 [info]: Server running on port 3000 
+2026-06-01 08:30:06 [info]: Connected to MongoDB 
+2026-06-01 08:30:06 [info]: Server running on port 3000 
+2026-06-01 08:30:32 [info]: Connected to MongoDB 
+2026-06-01 08:30:32 [info]: Server running on port 3000 
+2026-06-01 08:31:08 [info]: Connected to MongoDB 
+2026-06-01 08:31:08 [info]: Server running on port 3000 
+2026-06-01 08:31:26 [info]: Connected to MongoDB 
+2026-06-01 08:31:26 [info]: Server running on port 3000 
+2026-06-01 08:31:53 [info]: Connected to MongoDB 
+2026-06-01 08:31:53 [info]: Server running on port 3000 
+2026-06-01 08:32:14 [info]: Connected to MongoDB 
+2026-06-01 08:32:14 [info]: Server running on port 3000 
+2026-06-01 08:32:44 [info]: Connected to MongoDB 
+2026-06-01 08:32:44 [info]: Server running on port 3000 
+2026-06-01 08:39:38 [info]: Connected to MongoDB 
+2026-06-01 08:39:38 [info]: Server running on port 3000 
+2026-06-01 09:10:43 [info]: Connected to MongoDB 
+2026-06-01 09:10:43 [info]: Server running on port 3000 
+2026-06-01 16:05:48 [info]: Connected to MongoDB 
+2026-06-01 16:05:48 [info]: Server running on port 3000 
+2026-06-02 11:56:13 [error]: DB connection error: Could not connect to any servers in your MongoDB Atlas cluster. One common reason is that you're trying to access the database from an IP that isn't whitelisted. Make sure your current IP address is on your Atlas cluster's IP whitelist: https://www.mongodb.com/docs/atlas/security-whitelist/ - MongooseServerSelectionError: Could not connect to any servers in your MongoDB Atlas cluster. One common reason is that you're trying to access the database from an IP that isn't whitelisted. Make sure your current IP address is on your Atlas cluster's IP whitelist: https://www.mongodb.com/docs/atlas/security-whitelist/
+    at _handleConnectionErrors (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\lib\connection.js:1180:11)
+    at NativeConnection.openUri (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\lib\connection.js:1111:11)
+2026-06-02 11:58:53 [info]: Connected to MongoDB 
+2026-06-02 11:58:53 [info]: Server running on port 3000 
+2026-06-02 11:59:30 [error]: Unhandled Error Cannot read properties of undefined (reading 'data') - TypeError: Cannot read properties of undefined (reading 'data')
+    at addToTable (file:///C:/Users/lbrdc/OneDrive/Desktop/billing-system/backend/utils/graphClient.js:399:36)
+    at Layer.handleRequest (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\route.js:117:3)
+    at handle (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\layer.js:152:17)
+    at C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\index.js:295:15
+    at param (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\index.js:600:14)
+    at param (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\index.js:610:14)
+    at processParams (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\index.js:664:3)
+2026-06-02 11:59:30 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/api/manpower/btr/add",
+  "status": 500,
+  "duration": "2ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-02 11:59:37 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/btr/list",
+  "status": 500,
+  "duration": "1017ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-03 08:24:18 [info]: Connected to MongoDB 
+2026-06-03 08:24:18 [info]: Server running on port 3000 
+2026-06-03 11:49:35 [info]: Connected to MongoDB 
+2026-06-03 11:49:35 [info]: Server running on port 3000 
+2026-06-04 08:44:47 [info]: Connected to MongoDB 
+2026-06-04 08:44:47 [info]: Server running on port 3000 
+2026-06-05 09:11:20 [info]: Connected to MongoDB 
+2026-06-05 09:11:20 [info]: Server running on port 3000 
+2026-06-05 10:04:42 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/manpower/ofbank/add",
+  "status": 500,
+  "duration": "1450ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-05 13:14:49 [info]: Connected to MongoDB 
+2026-06-05 13:14:49 [info]: Server running on port 3000 
+2026-06-05 13:33:13 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/manpower/ofbank/add",
+  "status": 500,
+  "duration": "2086ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-05 13:42:04 [info]: Connected to MongoDB 
+2026-06-05 13:42:04 [info]: Server running on port 3000 
+2026-06-05 13:42:11 [info]: Connected to MongoDB 
+2026-06-05 13:42:11 [info]: Server running on port 3000 
+2026-06-05 13:43:06 [info]: Connected to MongoDB 
+2026-06-05 13:43:06 [info]: Server running on port 3000 
+2026-06-05 13:44:27 [info]: Connected to MongoDB 
+2026-06-05 13:44:27 [info]: Server running on port 3000 
+2026-06-05 14:09:23 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/ofbank/list",
+  "status": 401,
+  "duration": "3ms",
+  "ip": "::1",
+  "userAgent": "PostmanRuntime/7.54.0",
+  "userId": "anonymous"
+}
+2026-06-08 08:21:45 [info]: Connected to MongoDB 
+2026-06-08 08:21:45 [info]: Server running on port 3000 
+2026-06-08 18:57:00 [info]: Connected to MongoDB 
+2026-06-08 18:57:00 [info]: Server running on port 3000 
+2026-06-09 10:04:34 [info]: Connected to MongoDB 
+2026-06-09 10:04:34 [info]: Server running on port 3000 
+2026-06-09 19:39:05 [info]: Connected to MongoDB 
+2026-06-09 19:39:05 [info]: Server running on port 3000 
+2026-06-09 19:39:18 [warn]: HTTP Request {
+  "method": "PATCH",
+  "path": "/manpower/ofbank/0/edit",
+  "status": 500,
+  "duration": "1423ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-10 07:42:35 [info]: Connected to MongoDB 
+2026-06-10 07:42:35 [info]: Server running on port 3000 
+2026-06-10 08:41:21 [info]: Connected to MongoDB 
+2026-06-10 08:41:21 [info]: Server running on port 3000 
+2026-06-10 09:28:14 [info]: Connected to MongoDB 
+2026-06-10 09:28:14 [info]: Server running on port 3000 
+2026-06-10 09:28:46 [info]: Connected to MongoDB 
+2026-06-10 09:28:46 [info]: Server running on port 3000 
+2026-06-10 09:29:00 [info]: Connected to MongoDB 
+2026-06-10 09:29:00 [info]: Server running on port 3000 
+2026-06-10 09:29:05 [info]: Connected to MongoDB 
+2026-06-10 09:29:05 [info]: Server running on port 3000 
+2026-06-10 09:29:09 [info]: Connected to MongoDB 
+2026-06-10 09:29:09 [info]: Server running on port 3000 
+2026-06-10 09:29:32 [info]: Connected to MongoDB 
+2026-06-10 09:29:32 [info]: Server running on port 3000 
+2026-06-10 09:29:36 [info]: Connected to MongoDB 
+2026-06-10 09:29:36 [info]: Server running on port 3000 
+2026-06-10 09:29:40 [info]: Connected to MongoDB 
+2026-06-10 09:29:40 [info]: Server running on port 3000 
+2026-06-10 09:29:42 [info]: Connected to MongoDB 
+2026-06-10 09:29:42 [info]: Server running on port 3000 
+2026-06-10 09:29:46 [info]: Connected to MongoDB 
+2026-06-10 09:29:46 [info]: Server running on port 3000 
+2026-06-10 10:54:23 [info]: Connected to MongoDB 
+2026-06-10 10:54:23 [info]: Server running on port 3000 
+2026-06-10 11:26:03 [info]: Connected to MongoDB 
+2026-06-10 11:26:03 [info]: Server running on port 3000 
+2026-06-10 15:57:37 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/manpower/ofbank/add",
+  "status": 500,
+  "duration": "3606ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-10 17:21:55 [info]: Connected to MongoDB 
+2026-06-10 17:21:55 [info]: Server running on port 3000 
+2026-06-10 17:21:58 [info]: Connected to MongoDB 
+2026-06-10 17:21:58 [info]: Server running on port 3000 
+2026-06-10 17:22:25 [info]: Connected to MongoDB 
+2026-06-10 17:22:25 [info]: Server running on port 3000 
+2026-06-10 17:22:32 [info]: Connected to MongoDB 
+2026-06-10 17:22:32 [info]: Server running on port 3000 
+2026-06-10 17:22:41 [info]: Connected to MongoDB 
+2026-06-10 17:22:41 [info]: Server running on port 3000 
+2026-06-10 17:23:21 [info]: Connected to MongoDB 
+2026-06-10 17:23:21 [info]: Server running on port 3000 
+2026-06-10 17:23:26 [info]: Connected to MongoDB 
+2026-06-10 17:23:26 [info]: Server running on port 3000 
+2026-06-10 17:23:33 [info]: Connected to MongoDB 
+2026-06-10 17:23:33 [info]: Server running on port 3000 
+2026-06-10 17:23:49 [info]: Connected to MongoDB 
+2026-06-10 17:23:49 [info]: Server running on port 3000 
+2026-06-10 17:23:53 [info]: Connected to MongoDB 
+2026-06-10 17:23:53 [info]: Server running on port 3000 
+2026-06-10 17:23:56 [info]: Connected to MongoDB 
+2026-06-10 17:23:56 [info]: Server running on port 3000 
+2026-06-10 17:24:05 [info]: Connected to MongoDB 
+2026-06-10 17:24:05 [info]: Server running on port 3000 
+2026-06-10 18:08:10 [info]: Connected to MongoDB 
+2026-06-10 18:08:10 [info]: Server running on port 3000 
+2026-06-10 18:08:24 [info]: Connected to MongoDB 
+2026-06-10 18:08:24 [info]: Server running on port 3000 
+2026-06-10 18:08:28 [info]: Connected to MongoDB 
+2026-06-10 18:08:28 [info]: Server running on port 3000 
+2026-06-10 18:15:45 [info]: Connected to MongoDB 
+2026-06-10 18:15:45 [info]: Server running on port 3000 
+2026-06-10 18:15:47 [info]: Connected to MongoDB 
+2026-06-10 18:15:47 [info]: Server running on port 3000 
+2026-06-10 18:15:50 [info]: Connected to MongoDB 
+2026-06-10 18:15:50 [info]: Server running on port 3000 
+2026-06-10 18:15:58 [info]: Connected to MongoDB 
+2026-06-10 18:15:58 [info]: Server running on port 3000 
+2026-06-10 18:16:01 [info]: Connected to MongoDB 
+2026-06-10 18:16:01 [info]: Server running on port 3000 
+2026-06-10 18:16:16 [info]: Connected to MongoDB 
+2026-06-10 18:16:16 [info]: Server running on port 3000 
+2026-06-10 18:16:25 [info]: Connected to MongoDB 
+2026-06-10 18:16:25 [info]: Server running on port 3000 
+2026-06-10 18:16:40 [info]: Connected to MongoDB 
+2026-06-10 18:16:40 [info]: Server running on port 3000 
+2026-06-10 18:19:08 [info]: Connected to MongoDB 
+2026-06-10 18:19:08 [info]: Server running on port 3000 
+2026-06-10 18:19:10 [info]: Connected to MongoDB 
+2026-06-10 18:19:10 [info]: Server running on port 3000 
+2026-06-10 18:19:15 [info]: Connected to MongoDB 
+2026-06-10 18:19:15 [info]: Server running on port 3000 
+2026-06-10 18:19:18 [info]: Connected to MongoDB 
+2026-06-10 18:19:18 [info]: Server running on port 3000 
+2026-06-10 18:19:44 [info]: Connected to MongoDB 
+2026-06-10 18:19:44 [info]: Server running on port 3000 
+2026-06-10 18:48:04 [info]: Connected to MongoDB 
+2026-06-10 18:48:04 [info]: Server running on port 3000 
+2026-06-10 18:49:00 [info]: Connected to MongoDB 
+2026-06-10 18:49:00 [info]: Server running on port 3000 

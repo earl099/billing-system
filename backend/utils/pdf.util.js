@@ -1,4 +1,4 @@
-import { exec } from 'child_process'
+import { execFile } from 'child_process'
 import { promisify } from 'util'
 import path from 'path'
 import fs from 'fs/promises'
@@ -6,14 +6,17 @@ import fetch from 'node-fetch'
 
 import { PDFDocument } from 'pdf-lib'
 
-const execAsync = promisify(exec)
+const execFileAsync = promisify(execFile)
 
 export async function docxToPdfBuffer(docxPath) {
     const outputDir = path.dirname(docxPath)
 
-    await execAsync(
-        `soffice --headless --convert-to pdf --outdir "${outputDir}" "${docxPath}"`
-    )
+    await execFileAsync('soffice', [
+        '--headless',
+        '--convert-to', 'pdf',
+        '--outdir', outputDir,
+        docxPath
+    ])
 
     const pdfPath = docxPath.replace(/\.docx$/i, '.pdf')
     const buffer = await fs.readFile(pdfPath)

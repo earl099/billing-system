@@ -86,19 +86,30 @@ export async function previewBilling(req, res) {
 export async function generateBilling(req, res) {
   try {
     const { code } = req.params
+    
+    // SECURITY: Use verified user from JWT token, not from request body
+    const userId = req.user?.id
+    if (!userId) {
+      return res.status(401).json({ error: 'User authentication required' })
+    }
+    
     let previewPublicIds = req.body.previewPublicIds || [];
     let previewUrls = req.body.previewUrls || [];
-    let user = req.body.user
+
     if (typeof previewPublicIds === 'string') {
-      previewPublicIds = JSON.parse(previewPublicIds);
+      try {
+        previewPublicIds = JSON.parse(previewPublicIds);
+      } catch {
+        return res.status(400).json({ error: 'Invalid previewPublicIds format' });
+      }
     }
 
     if (typeof previewUrls === 'string') {
-      previewUrls = JSON.parse(previewUrls);
-    }
-
-    if(typeof user === 'string') {
-      user = JSON.parse(user)
+      try {
+        previewUrls = JSON.parse(previewUrls);
+      } catch {
+        return res.status(400).json({ error: 'Invalid previewUrls format' });
+      }
     }
 
     const billingLetter = req.files?.billingLetter?.[0];
@@ -171,7 +182,7 @@ export async function generateBilling(req, res) {
         secure_url: upload.secure_url,
         public_id: upload.public_id
       },
-      createdBy: user._id || null
+      createdBy: userId  // Use verified userId from JWT
     });
 
     if (Array.isArray(previewPublicIds) && previewPublicIds.length) {
@@ -244,15 +255,36 @@ export async function downloadBilling(req, res) {
 }
 
 
-export async function billingList(_req, res) {
+export async function billingList(req, res) {
     try {
-        const list = await billingModel
-        .find().populate('createdBy').sort({ createdAt: -1 })
-        const total = await billingModel.countDocuments()
+        const { page = 1, limit = 10 } = req.query
+        const pageNum = Math.max(1, parseInt(page) || 1)
+        const limitNum = Math.min(100, Math.max(1, parseInt(limit) || 10))
+        const skip = (pageNum - 1) * limitNum
 
-        res.json({ list, total })
+        const list = await billingModel
+            .find()
+            .populate('createdBy')
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limitNum)
+
+        const total = await billingModel.countDocuments()
+        const pages = Math.ceil(total / limitNum)
+
+        res.json({ 
+            list, 
+            pagination: {
+                total,
+                page: pageNum,
+                limit: limitNum,
+                pages,
+                hasNext: pageNum < pages,
+                hasPrev: pageNum > 1
+            }
+        })
     } catch (error) {
-        res.status(500).json({ message: `Server error: ${error}` })
+        res.status(500).json({ message: 'Server error' })
     }
 }
 
@@ -265,18 +297,18 @@ export async function getBilling(req, res) {
 
       res.json({ billing })
     } catch (error) {
-      res.status(500).json({ message: `Server error: ${error}` })
+      res.status(500).json({ message: 'Server error' })
     }
 }
 
 export async function deleteBilling(req, res) {
   try {
     const { code } = req.params
-    const billing = await billingModel.findByIdAndDelete({ _id: req.params._id })
+    const billing = await billingModel.findByIdAndDelete(req.params._id)
     if(!billing) return res.status(404).json({ message: `${code.toUpperCase()} Billing not found` });
     res.json({ message: `${code.toUpperCase()} Billing deleted successfully` })
   } catch (error) {
-    res.status(500).json({ message: `Server error: ${error}` })
+    res.status(500).json({ message: 'Server error' })
   }
 }
 

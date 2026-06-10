@@ -17,8 +17,8 @@ export async function graphRequest(method, url, data = null, config = {}) {
     }
 
     const finalUrl = url.startsWith('https://')
-        ? graphPath
-        : `https://graph.microsoft.com/v1.0${url}`
+        ? url
+        : `https://graph.microsoft.com/v1.0${graphPath}`
     
     const headers = {
         Authorization: `Bearer ${token}`,
@@ -242,17 +242,20 @@ export async function createSpadBillingLetter(req, res) {
         // ===============================
         const billingSheet = 'BILLING LETTER'
 
+        const billingDate = new Date(data.billingDate)
+        const monthAndYear = new Date(data.monthAndYear)
+
         const billingUpdates = [
-            ['I4', `=CONCAT("SOA NO: PMS ", TEXT("${new Date(data.monthAndYear).getMonth()}/${new Date(data.billingYear).getFullYear()}", "yyyy"))`],
-            ['I5', `=UPPER(TEXT("${new Date(data.billingMonth).getMonth() + 1}/${new Date(data.monthAndYear).getFullYear()}", "mmmm"))`],
-            ['I6', `=UPPER(TEXT("${new Date(data.monthAndYear).getDate()}/${new Date(data.billingDate).getMonth() + 1}/${new Date(data.monthAndYear).getFullYear()}", "mmmm dd, yyyy"))`],
-            ['A20', `=CONCAT("Property security and upkeep services rendered by LBRDC as of ", TEXT("${new Date(data.monthAndYear).getMonth() + 1}/${new Date(data.monthAndYear).getFullYear()}", "mmmm yyyy"))`],
+            ['I4', `=CONCAT("SOA NO: PMS ", TEXT("${monthAndYear.getMonth() + 1}/${monthAndYear.getFullYear()}", "yyyy"))`],
+            ['I5', `=UPPER(TEXT("${monthAndYear.getMonth() + 1}/${monthAndYear.getFullYear()}", "mmmm"))`],
+            ['I6', `=UPPER(TEXT("${billingDate.getDate()}/${monthAndYear.getMonth() + 1}/${monthAndYear.getFullYear()}", "mmmm dd, yyyy"))`],
+            ['A20', `=CONCAT("Property security and upkeep services rendered by LBRDC as of ", TEXT("${monthAndYear.getMonth() + 1}/${monthAndYear.getFullYear()}", "mmmm yyyy"))`],
             ['A21', `for ${data.clientName}`],
-            ['B25', `=UPPER(TEXT("${new Date(data.monthAndYear).getMonth() + 1}/${new Date(data.monthAndYear).getFullYear()}", "mmmm yyyy"))`],
+            ['B25', `=UPPER(TEXT("${monthAndYear.getMonth() + 1}/${monthAndYear.getFullYear()}", "mmmm yyyy"))`],
             ['K25', data.amount],
             ['K29', '=SUM(K22:K28)'],
             ['I35', `PMC NO. ${data.pmcNo}`],
-            ['B37', `=UPPER(TEXT("${new Date(data.monthAndYear).getMonth() + 1}/${new Date(data.monthAndYear).getFullYear()}", "mmmm yyyy"))`],
+            ['B37', `=UPPER(TEXT("${monthAndYear.getMonth() + 1}/${monthAndYear.getFullYear()}", "mmmm yyyy"))`],
             ['A44', data.bAsstName],
             ['E44', data.bcuChiefName]
         ]
@@ -265,7 +268,7 @@ export async function createSpadBillingLetter(req, res) {
             body: { values: [[value]] }
         }))
 
-        await graphBatchRequest(batchRequests)
+        await graphBatchRequest(batchRequests, sessionId)
 
         // ===============================
         // TRANSMITTAL SHEET
@@ -273,7 +276,7 @@ export async function createSpadBillingLetter(req, res) {
         const transmittalSheet = 'TRANSMITTAL'
 
         const transmittalBatch = [
-            ['B11', `=UPPER(TEXT("${new Date(data.billingDate).getDate()}/${new Date(data.billingDate).getMonth() + 1}/${new Date(data.billingDate).getFullYear()}", "mmmm dd, yyyy"))`],
+            ['B11', `=UPPER(TEXT("${billingDate.getDate()}/${billingDate.getMonth() + 1}/${billingDate.getFullYear()}", "mmmm dd, yyyy"))`],
             ['E11', data.bAsstName],
             ['B30', data.bAsstName]
         ].map(([cell, value], index) => ({
@@ -284,17 +287,20 @@ export async function createSpadBillingLetter(req, res) {
             body: { values: [[value]] }
         }))
 
-        await graphBatchRequest(transmittalBatch)
+        await graphBatchRequest(transmittalBatch, sessionId)
 
         if (Array.isArray(data.transmittalItems) && data.transmittalItems.length > 0) {
-            const rows = data.transmittalItems.map(item => [
-                '=ROW()-ROW(TransmittalTable[#Headers])',
-                item.property,
-                `=UPPER(TEXT("${new Date(item.monthYear).getMonth() + 1}/${new Date(item.monthYear).getFullYear()}", "mmmm yyyy"))`,
-                item.amount,
-                item.pmcNo,
-                '="x"'
-            ])
+            const rows = data.transmittalItems.map(item => {
+                const itemDate = new Date(item.monthYear)
+                return [
+                    '=ROW()-ROW(TransmittalTable[#Headers])',
+                    item.property,
+                    `=UPPER(TEXT("${itemDate.getMonth() + 1}/${itemDate.getFullYear()}", "mmmm yyyy"))`,
+                    item.amount,
+                    item.pmcNo,
+                    '="x"'
+                ]
+            })
 
             await graphRequest(
                 'POST',
@@ -308,6 +314,14 @@ export async function createSpadBillingLetter(req, res) {
             'POST',
             `/sites/${SITE_ID}/drive/items/${fileId}/workbook/application/calculate`,
             { calculationType: 'Full' }
+        )
+
+        // Close workbook session
+        await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/closeSession`,
+            null,
+            { headers: { 'workbook-session-id': sessionId } }
         )
 
         res.json({
@@ -340,17 +354,15 @@ export async function listData(req, res) {
         const rows = response.data.value
         
         res.json({
-            list: rows.map(r => [
-                    { index: r.index, values: r.values[0] }
-                ]
-            )
+            list: rows.map(r => ({ index: r.index, values: r.values[0] }))
         })
     } catch (error) {
         console.log(error?.response?.data)
+        res.status(500).json({ message: "Failed to list data" })
     }
 }
 
-export async function getManpower(req, res) {
+export async function getFromTable(req, res) {
     try {
         const SITE_ID = process.env.SHAREPOINT_SITE_ID
         const { code, index } = req.params
@@ -369,6 +381,7 @@ export async function getManpower(req, res) {
          })
     } catch (error) {
         console.log(error)
+        res.status(500).json({ message: "Failed to get manpower" })
     }
 }
 
@@ -379,7 +392,7 @@ export async function addToTable(req, res) {
         const { fileName, tableName } = req.query
         const { form, columnMap } = req.body
 
-        let singleData = mapToRow(columnMap, form)
+        let singleData = mapToRow(columnMap, form, tableName)
 
         const addedData = await graphRequest(
             'POST',
@@ -395,6 +408,7 @@ export async function addToTable(req, res) {
         })
     } catch (error) {
         console.log(error.response.data)
+        res.status(500).json({ message: "Failed to add to table" })
     }
 }
 
@@ -405,19 +419,38 @@ export async function updateRow(req, res) {
         const { fileName, tableName } = req.query
         const { form, columnMap } = req.body
 
-        const updatedRow = mapToRow(columnMap, form)
+        const updatedRow = mapToRow(columnMap, form, tableName)
+
+        // Create workbook session for consistent updates
+        const session = await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/root:/Templates/${code}/${fileName}:/workbook/createSession`,
+            { persistChanges: true }
+        )
+
+        const sessionId = session.data.id
 
         await graphRequest(
             'PATCH',
             `/sites/${SITE_ID}/drive/root:/Templates/${code}/${fileName}:/workbook/tables/${tableName}/rows/itemAt(index=${index})`,
-            { values: [updatedRow] }
+            { values: [updatedRow] },
+            { headers: { 'workbook-session-id': sessionId } }
         )
 
-        //force recalculation
+        // Force recalculation
         await graphRequest(
             'POST',
             `/sites/${SITE_ID}/drive/root:/Templates/${code}/${fileName}:/workbook/application/calculate`,
-            { calculationType: 'Full' }
+            { calculationType: 'Full' },
+            { headers: { 'workbook-session-id': sessionId } }
+        )
+
+        // Close workbook session
+        await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/root:/Templates/${code}/${fileName}:/workbook/closeSession`,
+            null,
+            { headers: { 'workbook-session-id': sessionId } }
         )
 
         res.json({
@@ -425,22 +458,77 @@ export async function updateRow(req, res) {
             data: updatedRow
         })
     } catch (error) {
-        console.log(error.response.data || error)
+        console.log(error.response?.data || error)
         res.status(500).json({ message: 'Update manpower failed' })
+    }
+}
+
+export async function deleteFromTable(req, res) {
+    try {
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+        const { code, index } = req.params
+        const { fileName, tableName } = req.query
+
+        // Create workbook session for consistent delete
+        const session = await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/root:/Templates/${code}/${fileName}:/workbook/createSession`,
+            { persistChanges: true }
+        )
+
+        const sessionId = session.data.id
+
+        await graphRequest(
+            'DELETE',
+            `/sites/${SITE_ID}/drive/root:/Templates/${code}/${fileName}:/workbook/tables/${tableName}/rows/itemAt(index=${index})`,
+            null,
+            { headers: { 'workbook-session-id': sessionId } }
+        )
+
+        // Force recalculation
+        await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/root:/Templates/${code}/${fileName}:/workbook/application/calculate`,
+            { calculationType: 'Full' },
+            { headers: { 'workbook-session-id': sessionId } }
+        )
+
+        // Close workbook session
+        await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/root:/Templates/${code}/${fileName}:/workbook/closeSession`,
+            null,
+            { headers: { 'workbook-session-id': sessionId } }
+        )
+
+        res.json({
+            message: tableName === 'EmployeeTable' ? 'Deleted Employee' : 'Deleted Billing Rate',
+            success: true
+        })
+    } catch (error) {
+        console.log(error.response?.data || error)
+        res.status(500).json({ message: 'Delete from table failed' })
     }
 }
 
 const MANPOWER_FORMULA_COLUMNS = [
     'posName',
+    'dept',
+    'semiMonthlyRate',
     'endorsed',
-    'difference',
-    'dBillingRate',
-    'mBillingRate'
+    'difference'
 ]
 
-function mapToRow(columnMap, data) {
+const RATES_FORMULA_COLUMNS = ['semiMonthlyRate']
+
+
+
+function mapToRow(columnMap, data, tableName) {
     return columnMap.map(col => {
-        if(MANPOWER_FORMULA_COLUMNS.includes(col)) {
+        if(tableName === 'EmployeeTable' && MANPOWER_FORMULA_COLUMNS.includes(col)) {
+            return null
+        }        
+        else if(tableName === 'PositionTable' && RATES_FORMULA_COLUMNS.includes(col)) {
             return null
         }
         return col in data ? data[col] : null
@@ -448,12 +536,13 @@ function mapToRow(columnMap, data) {
 }
 
 export async function exportToPdf(req, res) {
-    const { id } = req.body
+    const { id } = req.params
+    const SITE_ID = process.env.SHAREPOINT_SITE_ID
 
     try {
         const pdf = await graphRequest(
             "GET",
-            `/me/drive/items/${id}/content?format=pdf`
+            `/sites/${SITE_ID}/drive/items/${id}/content?format=pdf`
         )
 
         res.setHeader("Content-Type", "application/pdf")

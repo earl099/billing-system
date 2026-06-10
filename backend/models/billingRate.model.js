@@ -1,13 +1,12 @@
 import { Schema, model } from "mongoose";
 
 const billingRateSchema = Schema({
-    client: { type: [Schema.Types.ObjectId], ref: 'Client' },
     posCode: { type: String, required: true, unique: true },
-    posName: String,
-    dailyRate: Number,
-    monthlyRate: Number,
-    salaryType: String,
-    salaryWage: Number
+    posName: { type: String, required: true },
+    salaryWage: { type: Number, required: true },
+    dailyRate: { type: Number, required: true },
+    monthlyRate: { type: Number, required: true },
+    semiMonthlyRate: { type: Number, required: true }
 })
 
 const billingRateModel = model('BillingRate', billingRateSchema)

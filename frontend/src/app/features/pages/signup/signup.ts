@@ -9,6 +9,8 @@ import { Auth } from '@services/auth';
 import { Client } from '@services/client';
 import { Payfreq } from '@services/payfreq';
 import { User } from '@services/user';
+import { Log } from '@services/log';
+import { LogDTO } from '@models/log';
 import { toast } from 'ngx-sonner';
 
 @Component({
@@ -34,6 +36,7 @@ export class Signup implements OnInit {
   payFreqService = inject(Payfreq)
   clientService = inject(Client)
   authService = inject(Auth)
+  logService = inject(Log)
   router = inject(Router)
 
   form = this.fb.group({
@@ -47,24 +50,33 @@ export class Signup implements OnInit {
   error: string | null = null
 
   async ngOnInit() {
-    
+    if (this.authService.hasValidToken()) {
+      this.router.navigate(['/dashboard'])
+    }
   }
 
   async submit() {
     if(this.form.invalid) return
     this.loading = true
     this.error = null
-    let userObject!: UserDTO
-    userObject = this.form.getRawValue() as UserDTO
+
+    const userObject = this.form.getRawValue() as UserDTO
 
     try {
       await this.authService.signup(userObject)
+
+      const logObject: LogDTO = {
+        operation: 'Signed Up'
+      }
+
+      await this.logService.create(logObject)
+
       this.router.navigate(['/login'])
       toast.success('Signed up successfully')
-
-      //log function to be put here
-    } catch (e: any) {
-      this.error = 'Error: ' + e?.message || 'Sign up failed'
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : 'Sign up failed'
+      this.error = `Error: ${errorMessage}`
+      toast.error(this.error)
     } finally {
       this.loading = false
     }

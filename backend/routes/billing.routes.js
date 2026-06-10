@@ -2,7 +2,6 @@ import { Router } from 'express'
 import { upload } from '#middleware/upload.middleware.js'
 import {
     billingList,
-    clearBilling,
     deleteBilling,
     deletePreviews,
     downloadBilling,
@@ -37,6 +36,7 @@ billingRouter.post(
 
 billingRouter.post(
     '/billing/:code/cleanup',
+    authMiddleware,
     deletePreviews
 )
 
@@ -64,11 +64,9 @@ billingRouter.delete(
     deleteBilling
 )
 
-//FOR TRUNCATING THE DB ONLY, IT WILL ONLY USE THIS
-billingRouter.delete(
-    '/billing/:code',
-    authMiddleware,
-    clearBilling
-)
+// SECURITY: Destructive endpoint disabled
+// Truncating entire billing table is too dangerous
+// Enable only in isolated development/testing environments with admin confirmation
+// billingRouter.delete('/billing/:code', authMiddleware, adminMiddleware, clearBilling)
 
 export default billingRouter

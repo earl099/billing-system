@@ -16,6 +16,7 @@ import { MonthDateYearPickerComponent } from './datepickers/month-date-year-pick
 import { DateMonthYearPickerComponent } from './datepickers/date-month-year-picker';
 import { MonthPickerComponent } from './datepickers/month-picker';
 import { YearPickerComponent } from './datepickers/year-picker';
+import { toast } from 'ngx-sonner';
 
 type FieldType = 'text' | 'textarea' | 'number' | 'date' | 'monthYear' | 'dateMonthYear' | 'month' | 'year'
 interface FieldConfig {
@@ -110,17 +111,31 @@ export class Editor implements OnInit {
     ]
   }
 
+  private trustedDomains = ['lbpresources.sharepoint.com', 'cloudinary.com']
+
   fileEditorService = inject(FileEditor)
   sanitizer = inject(DomSanitizer)
   router = inject(Router)
   route = inject(ActivatedRoute)
   fb = inject(UntypedFormBuilder)
 
-  readonly code = signal(this.route.snapshot.paramMap.get('code'))
+  readonly code = signal(this.route.snapshot.paramMap.get('code') ?? '')
 
   form: UntypedFormGroup = this.fb.group({})
   form1: UntypedFormGroup = this.fb.group({})
   transmittalItems: UntypedFormArray = this.fb.array([])
+
+  private isUrlTrusted(url: string): boolean {
+    try {
+      const urlObj = new URL(url)
+      if (urlObj.protocol !== 'https:') {
+        return false
+      }
+      return this.trustedDomains.some(domain => urlObj.hostname === domain)
+    } catch {
+      return false
+    }
+  }
 
   private buildDynamicForm(schema: FieldConfig[]) {
     const group: any = {}
@@ -135,24 +150,44 @@ export class Editor implements OnInit {
     this.form = this.fb.group(group)
   }
 
-  safeUrl = computed<SafeResourceUrl | null>(() =>
-    this._url()
-      ? this.sanitizer.bypassSecurityTrustResourceUrl(this._url()!)
-      : null
-  )
+  safeUrl = computed<SafeResourceUrl | null>(() => {
+    const url = this._url()
+    if (!url || !this.isUrlTrusted(url)) {
+      return null
+    }
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url)
+  })
 
   async ngOnInit() {
-    this.loadTemplates()
+    if (!this.code()) {
+      toast.error('Invalid client code')
+      this.router.navigate(['/'])
+      return
+    }
+    await this.loadTemplates()
   }
 
   async loadTemplates() {
-    const code = this.route.snapshot.paramMap.get('code')!
-    const templateList = await this.fileEditorService.getTemplates(code)
-    this.templates.set(templateList)
-
+    try {
+      const code = this.code()
+      if (!code) {
+        toast.error('Invalid client code')
+        return
+      }
+      const templateList = await this.fileEditorService.getTemplates(code)
+      this.templates.set(templateList)
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : 'Failed to load templates'
+      toast.error(errorMessage)
+    }
   }
 
   selectTemplate(t: any) {
+    if (!t || !t.name) {
+      toast.error('Invalid template')
+      return
+    }
+
     this.selectedTemplate.set(t)
 
     if(t.name.toLowerCase().includes('.xlsx')) {
@@ -172,10 +207,19 @@ export class Editor implements OnInit {
 
     this.isBlankSelected.set(false)
 
-    const currentCode = this.code()!
-    const schema = this.billingSchemas[currentCode]
+    const currentCode = this.code()
+    if (!currentCode) {
+      toast.error('Invalid client code')
+      return
+    }
 
-    if(schema && this.fileType() !== 'excel') {
+    const schema = this.billingSchemas[currentCode]
+    if (!schema) {
+      toast.error('No schema found for this client')
+      return
+    }
+
+    if(this.fileType() !== 'excel') {
       this.formConfig.set(schema)
       this.buildDynamicForm(schema)
       this.step.set(2)
@@ -192,48 +236,78 @@ export class Editor implements OnInit {
   }
 
   async createBlank() {
+    if (!this.selectedTemplate()) {
+      toast.error('Please select a template')
+      return
+    }
+
     try {
       this.isGenerating.set(true)
-      const doc = await this.fileEditorService.createBillingDocument(this.selectedTemplate().id, this.code()!, {}, true, this.fileType()!)
+      const code = this.code()
+      if (!code) {
+        toast.error('Invalid client code')
+        return
+      }
+
+      const doc = await this.fileEditorService.createBillingDocument(
+        this.selectedTemplate().id,
+        code,
+        {},
+        true,
+        this.fileType()!
+      )
 
       window.open(doc.editUrl, '_blank')
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : 'Failed to create document'
+      toast.error(errorMessage)
     } finally {
       this.isGenerating.set(false)
       this.router.navigate([
         'billing',
-        this.route.snapshot.paramMap.get('code')!.toLowerCase(),
+        this.code().toLowerCase(),
         'generate'
       ])
     }
   }
 
   async createBillingLetter() {
-    if(this.form.invalid) return
+    if(this.form.invalid) {
+      toast.error('Please fill in all required fields')
+      return
+    }
 
     try {
       this.isGenerating.set(true)
 
       const formValue = this.transformFormValues(this.fileType()!)
+      const code = this.code()
+      if (!code) {
+        toast.error('Invalid client code')
+        return
+      }
 
       const bLetter = await this.fileEditorService.createBillingDocument(
         this.selectedTemplate().id,
-        this.code()!,
+        code,
         formValue,
         false,
         this.fileType()!
       )
 
       window.open(bLetter.editUrl, '_blank')
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : 'Failed to create billing letter'
+      toast.error(errorMessage)
     } finally {
       this.isGenerating.set(false)
 
       this.router.navigate([
         'billing',
-        this.route.snapshot.paramMap.get('code')!.toLowerCase(),
+        this.code().toLowerCase(),
         'generate'
       ])
     }
-
   }
 
   decimalFilter(event: any) {
@@ -277,9 +351,7 @@ export class Editor implements OnInit {
         else if(field.type === 'monthYear' && values[field.key]) {
           values[field.key] = new Date(values[field.key]).toISOString()
         }
-
       }
-
     }
 
     return values
@@ -294,7 +366,6 @@ export class Editor implements OnInit {
       { key: 'pmcNo', label: 'PMC Number', type: 'text', required: true },
     ]
 
-
     for(const field of transmittalFieldConfig) {
       group[field.key] = [
         '',
@@ -305,7 +376,11 @@ export class Editor implements OnInit {
     this.transmittalItems.push(this.fb.group(group))
   }
 
-  removeTransmittalRow() { this.transmittalItems.removeAt(this.transmittalItems.length - 1) }
+  removeTransmittalRow() {
+    if (this.transmittalItems.length > 0) {
+      this.transmittalItems.removeAt(this.transmittalItems.length - 1)
+    }
+  }
 
   get transmittalControls() {
     return this.transmittalItems.controls as UntypedFormGroup[]

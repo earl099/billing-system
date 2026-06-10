@@ -5,7 +5,7 @@ const storage = multer.diskStorage({
     destination: 'uploads/',
     filename: (_, file, cb) => {
         const ext = path.extname(file.originalname)
-        cb(null, `${Date.now()}-${file.originalname}${ext}`)
+        cb(null, `${Date.now()}${ext}`)
     }
 })
 
@@ -13,8 +13,14 @@ export const upload = multer({
     storage,
     fileFilter: (_, file, cb) => {
         const allowed = ['.pdf', '.docx']
-        allowed.includes(path.extname(file.originalname).toLowerCase())
-        ? cb(null, true)
-        : cb(new Error('Invalid file type'))
+        const ext = path.extname(file.originalname).toLowerCase()
+        if (allowed.includes(ext)) {
+            cb(null, true)
+        } else {
+            cb(new Error(`Invalid file type. Allowed: ${allowed.join(', ')}`))
+        }
+    },
+    limits: {
+        fileSize: 10 * 1024 * 1024  // 10MB limit
     }
 })
