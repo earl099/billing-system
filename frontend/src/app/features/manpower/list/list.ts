@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Manpower employee list component
+ * Displays a paginated, searchable table of employees from the SharePoint EmployeeTable
+ * with view, edit, and delete actions
+ */
+
 import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -34,6 +40,7 @@ export class List implements OnInit, OnDestroy {
   pageSize = signal(5)
   loading = signal(true)
 
+  /** Debounce timer for search input to avoid excessive filtering */
   private debounceTimer: ReturnType<typeof setTimeout> | null = null
   displayedColumns = [
     'empNo',
@@ -56,6 +63,7 @@ export class List implements OnInit, OnDestroy {
     })
   }
 
+  /** Computed filtered employee list based on search query across multiple fields */
   filteredManpower = computed(() => {
     const q = this.searchQuery().toLowerCase().trim()
     if(!q) return this.data();
@@ -69,6 +77,7 @@ export class List implements OnInit, OnDestroy {
     )
   })
 
+  /** Computed paginated subset of filtered employees */
   paginatedManpower = computed(() => {
     const start = (this.currentPage() - 1) * this.pageSize()
     return this.filteredManpower().slice(start, start + this.pageSize())
@@ -87,6 +96,7 @@ export class List implements OnInit, OnDestroy {
     if (this.debounceTimer) clearTimeout(this.debounceTimer)
   }
 
+  /** Fetches employee data from SharePoint and maps row values to display columns */
   async loadData() {
     try {
       this.loading.set(true)
@@ -110,6 +120,7 @@ export class List implements OnInit, OnDestroy {
     }
   }
 
+  /** Navigates to the employee detail view */
   view(d: any) {
     if (!d?.index && d?.index !== 0) {
       toast.error('Invalid record')
@@ -118,6 +129,7 @@ export class List implements OnInit, OnDestroy {
     this.router.navigate(['manpower', this.code(), d.index, 'view'])
   }
 
+  /** Navigates to the employee edit form */
   edit(d: any) {
     if (!d?.index && d?.index !== 0) {
       toast.error('Invalid record')
@@ -126,6 +138,7 @@ export class List implements OnInit, OnDestroy {
     this.router.navigate(['manpower', this.code(), d.index, 'edit'])
   }
 
+  /** Deletes an employee row from the SharePoint EmployeeTable with confirmation */
   async delete(d: any) {
     if (!d?.index && d?.index !== 0) {
       toast.error('Invalid record')
@@ -150,6 +163,7 @@ export class List implements OnInit, OnDestroy {
     else { this.currentPage.set(Math.min(Math.max(page, 1), this.totalPages())) }
   }
 
+  /** Navigates to the employee creation form */
   generate() {
     this.router.navigate(['manpower', this.code(), 'add'])
   }

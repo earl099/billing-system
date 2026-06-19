@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Admin client creation component
+ * Provides a form for creating new client organizations with pay frequency association
+ * Logs the operation on success
+ */
+
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatChipsModule } from '@angular/material/chips';
@@ -46,15 +52,18 @@ export class Create implements OnInit {
   loading = false
   error: string | null = null
 
+  /** Loads available pay frequencies for the dropdown on init */
   async ngOnInit() {
     await this.loadPayFreqs()
   }
 
+  /** Fetches pay frequency options from the API */
   async loadPayFreqs() {
     const payFreqList = await this.payFreqService.list()
     this.payFreqs.set(payFreqList)
   }
 
+  /** Submits the client creation form with confirmation and audit logging */
   async submit() {
     if(this.form.invalid) return
     this.loading = true

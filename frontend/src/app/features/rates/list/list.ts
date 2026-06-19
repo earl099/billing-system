@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Billing rate list component
+ * Displays a paginated, searchable table of billing rates from the SharePoint PositionTable
+ * with view, edit, and delete actions. Logs delete operations for audit trail.
+ */
+
 import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -41,6 +47,7 @@ export class List implements OnInit, OnDestroy {
   pageSize = signal(5)
   loading = signal(true)
 
+  /** Debounce timer for search input to avoid excessive filtering */
   private debounceTimer: ReturnType<typeof setTimeout> | null = null
   displayedColumns = [
     'posCode',
@@ -60,6 +67,7 @@ export class List implements OnInit, OnDestroy {
     })
   }
 
+  /** Computed filtered billing rate list based on search query */
   filteredBRate = computed(() => {
     const q = this.searchQuery().toLowerCase().trim()
     if(!q) return this.data();
@@ -70,6 +78,7 @@ export class List implements OnInit, OnDestroy {
     )
   })
 
+  /** Computed paginated subset of filtered billing rates */
   paginatedBRate = computed(() => {
     const start = (this.currentPage() - 1) * this.pageSize()
     return this.filteredBRate().slice(start, start + this.pageSize())
@@ -88,6 +97,7 @@ export class List implements OnInit, OnDestroy {
     if (this.debounceTimer) clearTimeout(this.debounceTimer)
   }
 
+  /** Fetches billing rate data from SharePoint and maps row values to display columns */
   async loadData() {
     try {
       this.loading.set(true)
@@ -112,6 +122,7 @@ export class List implements OnInit, OnDestroy {
     }
   }
 
+  /** Navigates to the billing rate detail view */
   view(d: any) {
     if (!d?.index && d?.index !== 0) {
       toast.error('Invalid record')
@@ -120,6 +131,7 @@ export class List implements OnInit, OnDestroy {
     this.router.navigate(['rates', this.code(), d.index, 'view'])
   }
 
+  /** Navigates to the billing rate edit form */
   edit(d: any) {
     if (!d?.index && d?.index !== 0) {
       toast.error('Invalid record')
@@ -128,6 +140,7 @@ export class List implements OnInit, OnDestroy {
     this.router.navigate(['rates', this.code(), d.index, 'edit'])
   }
 
+  /** Deletes a billing rate from the SharePoint PositionTable with confirmation and audit logging */
   async deleteRate(d: any) {
     if (!d?.index && d?.index !== 0) {
       toast.error('Invalid record')
@@ -157,6 +170,7 @@ export class List implements OnInit, OnDestroy {
     else { this.currentPage.set(Math.min(Math.max(page, 1), this.totalPages())) }
   }
 
+  /** Navigates to the billing rate creation form */
   generate() {
     this.router.navigate(['rates', this.code(), 'add'])
   }

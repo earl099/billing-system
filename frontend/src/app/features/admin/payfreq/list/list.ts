@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Admin pay frequency list component
+ * Displays a paginated, searchable table of pay frequency types
+ * with delete action that prevents deletion of frequencies in use by clients
+ */
+
 import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
@@ -39,6 +45,7 @@ export class List implements OnInit, OnDestroy {
   currentPage = signal(1)
   pageSize = signal(5)
 
+  /** Debounce timer for search input */
   private debounceTimer: ReturnType<typeof setTimeout> | null = null
   columns = ['payType', 'delete']
 
@@ -54,6 +61,7 @@ export class List implements OnInit, OnDestroy {
     })
   }
 
+  /** Computed filtered pay frequency list based on search query */
   filteredPayFreqs = computed(() => {
     const q = this.searchQuery().toLowerCase().trim()
     if(!q) return this.payFreqs();
@@ -63,6 +71,7 @@ export class List implements OnInit, OnDestroy {
     )
   })
 
+  /** Computed paginated subset of filtered pay frequencies */
   paginatedPayFreqs = computed(() => {
     const start = (this.currentPage() - 1) * this.pageSize()
     return this.filteredPayFreqs().slice(start, start + this.pageSize())
@@ -76,6 +85,7 @@ export class List implements OnInit, OnDestroy {
     if (this.debounceTimer) clearTimeout(this.debounceTimer)
   }
 
+  /** Fetches pay frequencies and clients (needed for usage check) */
   async load() {
     try {
       const payFreqList = await this.payFreqService.list()
@@ -88,6 +98,13 @@ export class List implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Checks if a pay frequency is currently used by any client
+   * Prevents deletion of pay frequencies that are still referenced
+   * 
+   * @param p - Pay frequency record to check
+   * @returns true if at least one client references this pay frequency
+   */
   isUsed(p: any): boolean {
     if (!p?._id) return false
     return this.clients().some(c => 
@@ -95,6 +112,7 @@ export class List implements OnInit, OnDestroy {
     )
   }
 
+  /** Deletes a pay frequency with usage check, confirmation, and audit logging */
   async deletePayFreq(p: any) {
     if (!p?._id) {
       toast.error('Invalid pay frequency record')

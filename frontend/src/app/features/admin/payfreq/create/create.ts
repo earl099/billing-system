@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Admin pay frequency creation component
+ * Provides a form for creating new pay frequency types with audit logging
+ */
+
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatChipsModule } from '@angular/material/chips';
@@ -38,6 +43,7 @@ export class Create {
   loading = false
   error: string | null = null
 
+  /** Submits the pay frequency creation form with confirmation and audit logging */
   async submit() {
     if(this.form.invalid) return
     this.loading = true

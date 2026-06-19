@@ -1,17 +1,22 @@
+/**
+ * @fileoverview Winston logger configuration
+ * Provides a centralized logging instance with multiple transports and severity levels
+ * Logs to console and rotating files with structured formatting
+ */
+
 import winston from 'winston'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-/**
- * Winston logger configuration
- * Logs to both console and files with different severity levels
- */
-
+/** @type {string} Directory path for log files */
 const logDir = path.join(__dirname, '../logs')
 
-// Define log levels and colors
+/**
+ * Log severity levels (lower number = higher priority)
+ * @type {Object<string, number>}
+ */
 const levels = {
     error: 0,
     warn: 1,
@@ -20,6 +25,10 @@ const levels = {
     debug: 4
 }
 
+/**
+ * Console color mappings for log levels
+ * @type {Object<string, string>}
+ */
 const colors = {
     error: 'red',
     warn: 'yellow',
@@ -30,7 +39,10 @@ const colors = {
 
 winston.addColors(colors)
 
-// Define format for logs
+/**
+ * Log format configuration
+ * Combines timestamp, error stack traces, and custom printf formatting
+ */
 const format = winston.format.combine(
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
     winston.format.errors({ stack: true }),
@@ -49,7 +61,13 @@ const format = winston.format.combine(
     )
 )
 
-// Define transports (where logs are stored)
+/**
+ * Logger transport configuration
+ * - Console: All log levels
+ * - error.log: Error-level logs only (5MB rotation, 5 files)
+ * - combined.log: All log levels (5MB rotation, 5 files)
+ * - audit.log: Security and audit events at warn level (5MB rotation, 10 files)
+ */
 const transports = [
     // Console transport
     new winston.transports.Console(),
@@ -78,7 +96,18 @@ const transports = [
     })
 ]
 
-// Create logger instance
+/**
+ * Winston logger instance
+ * Configured with custom levels, formatting, and transports.
+ * Includes handlers for uncaught exceptions and unhandled promise rejections.
+ * 
+ * @type {import('winston').Logger}
+ * 
+ * @example
+ * import logger from './logger.util.js'
+ * logger.info('User logged in', { userId: '123' })
+ * logger.error('Database error', { error: err.message })
+ */
 const logger = winston.createLogger({
     level: process.env.LOG_LEVEL || 'info',
     levels,

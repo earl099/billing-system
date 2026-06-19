@@ -1,6 +1,17 @@
+/**
+ * @fileoverview User controller
+ * Handles CRUD operations for user accounts (admin management)
+ */
+
 import userModel from "#models/user.model.js";
 import bcrypt from 'bcrypt';
 
+/**
+ * Gets all users (excludes password field)
+ * 
+ * @param {import('express').Request} _req - Express request (unused)
+ * @param {import('express').Response} res - Response with { users[], total }
+ */
 export async function getUsers(_req, res) {
     try {
         const users = await userModel.find().select('-password')
@@ -12,6 +23,12 @@ export async function getUsers(_req, res) {
     }
 }
 
+/**
+ * Gets a single user by ID (excludes password field)
+ * 
+ * @param {import('express').Request} req - Request with params: { _id }
+ * @param {import('express').Response} res - Response with { user, message }
+ */
 export async function getUser(req, res) {
     try {
         const user = await userModel.findById(req.params._id).select('-password')
@@ -23,6 +40,13 @@ export async function getUser(req, res) {
     }
 }
 
+/**
+ * Creates a new user account
+ * Validates email and username uniqueness, hashes password before storage
+ * 
+ * @param {import('express').Request} req - Request with body: { name, username, email, password, role, handledClients }
+ * @param {import('express').Response} res - Response with { user }
+ */
 export async function createUser(req, res) {
     try {
         const { name, username, email, password, role, handledClients } = req.body
@@ -49,6 +73,13 @@ export async function createUser(req, res) {
     }
 }
 
+/**
+ * Updates an existing user
+ * Hashes password if provided in update. Returns user without password field.
+ * 
+ * @param {import('express').Request} req - Request with params: { _id }, body: { name, username, email, password?, role, handledClients }
+ * @param {import('express').Response} res - Response with { user }
+ */
 export async function updateUser(req, res) {
     try {
         const { name, username, email, password, role, handledClients } = req.body
@@ -63,6 +94,12 @@ export async function updateUser(req, res) {
     }
 }
 
+/**
+ * Deletes a user by ID
+ * 
+ * @param {import('express').Request} req - Request with params: { _id }
+ * @param {import('express').Response} res - Response with success message
+ */
 export async function deleteUser(req, res) {
     try {
         const user = await userModel.findByIdAndDelete(req.params._id)

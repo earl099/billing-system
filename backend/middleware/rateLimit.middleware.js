@@ -1,11 +1,18 @@
+/**
+ * @fileoverview Rate limiting middleware configurations
+ * Provides pre-configured rate limiters for different endpoint categories
+ * to prevent brute force attacks and denial-of-service
+ */
+
 import rateLimit from 'express-rate-limit'
 
 /**
- * Rate limiters for different endpoints
- * Prevents brute force attacks and DoS
+ * Strict rate limiter for authentication endpoints (login/signup)
+ * Allows 5 requests per 15-minute window; skips counting successful requests
+ * so only failed attempts contribute to the limit
+ * 
+ * @type {import('express-rate-limit').RateLimitRequestHandler}
  */
-
-// Strict rate limit for auth endpoints
 export const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,  // 15 minutes
     max: 5,  // 5 requests per window
@@ -19,7 +26,12 @@ export const authLimiter = rateLimit({
     }
 })
 
-// Moderate rate limit for API endpoints
+/**
+ * Moderate rate limiter for general API endpoints
+ * Allows 100 requests per 15-minute window
+ * 
+ * @type {import('express-rate-limit').RateLimitRequestHandler}
+ */
 export const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,  // 15 minutes
     max: 100,  // 100 requests per window
@@ -28,7 +40,12 @@ export const apiLimiter = rateLimit({
     legacyHeaders: false
 })
 
-// Strict rate limit for file uploads
+/**
+ * Strict rate limiter for file upload endpoints
+ * Allows 20 uploads per hour; only applies to POST requests
+ * 
+ * @type {import('express-rate-limit').RateLimitRequestHandler}
+ */
 export const uploadLimiter = rateLimit({
     windowMs: 60 * 60 * 1000,  // 1 hour
     max: 20,  // 20 uploads per hour
@@ -41,7 +58,12 @@ export const uploadLimiter = rateLimit({
     }
 })
 
-// Strict rate limit for user/client list endpoints (data exposure risk)
+/**
+ * Rate limiter for data-heavy list endpoints (users, clients)
+ * Allows 30 requests per minute to limit data exposure risk
+ * 
+ * @type {import('express-rate-limit').RateLimitRequestHandler}
+ */
 export const dataLimiter = rateLimit({
     windowMs: 60 * 1000,  // 1 minute
     max: 30,  // 30 requests per minute

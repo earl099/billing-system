@@ -1,9 +1,22 @@
+/**
+ * @fileoverview Global error handling middleware
+ * Provides centralized error handling for the Express application including
+ * global error catching, validation error formatting, 404 handling, and async route wrappers
+ * 
+ * IMPORTANT: globalErrorHandler must be the LAST middleware registered in the app
+ */
+
 import logger from '#utils/logger.util.js'
 
 /**
  * Global error handler middleware
- * Catches all errors and provides consistent error responses
- * IMPORTANT: This must be the LAST middleware defined in the app
+ * Catches all unhandled errors, logs them with context, and returns
+ * consistent JSON error responses. Includes stack traces in development mode only.
+ * 
+ * @param {Error & { statusCode?: number, status?: number, errors?: Array<{ path: string[], message: string }> }} err - The error object
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {import('express').NextFunction} next - Express next middleware function
  */
 export function globalErrorHandler(err, req, res, next) {
     // Log the error
@@ -34,8 +47,11 @@ export function globalErrorHandler(err, req, res, next) {
 }
 
 /**
- * Validation error handler
- * Converts validation errors to proper HTTP responses
+ * Converts Zod validation errors into standardized HTTP 400 error objects
+ * Maps each validation error to a field/message pair for client consumption
+ * 
+ * @param {{ errors: Array<{ path: string[], message: string }> }} error - Zod validation error object
+ * @returns {Error & { statusCode: number, errors: Array<{ field: string, message: string }> }} Formatted error with 400 status
  */
 export function handleValidationError(error) {
     const err = new Error('Validation failed')
@@ -48,8 +64,11 @@ export function handleValidationError(error) {
 }
 
 /**
- * Not found handler
- * Returns 404 for undefined routes
+ * 404 handler for undefined routes
+ * Returns a JSON response with the requested path for debugging
+ * 
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
  */
 export function notFoundHandler(req, res) {
     res.status(404).json({
@@ -59,8 +78,18 @@ export function notFoundHandler(req, res) {
 }
 
 /**
- * Async wrapper for route handlers
- * Catches errors in async functions and passes to error handler
+ * Async route handler wrapper
+ * Wraps async Express route handlers to automatically catch rejected promises
+ * and forward errors to the global error handler via next()
+ * 
+ * @param {Function} fn - Async route handler function (req, res, next) => Promise
+ * @returns {Function} Wrapped middleware that catches async errors
+ * 
+ * @example
+ * router.get('/items', asyncHandler(async (req, res) => {
+ *     const items = await Item.find()
+ *     res.json(items)
+ * }))
  */
 export function asyncHandler(fn) {
     return (req, res, next) => {

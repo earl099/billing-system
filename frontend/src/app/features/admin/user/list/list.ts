@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Admin user list component
+ * Displays a paginated, searchable table of user accounts
+ * with view, edit, and delete actions. Logs delete operations for audit trail.
+ */
+
 import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
@@ -35,6 +41,7 @@ export class List implements OnInit, OnDestroy {
   currentPage = signal(1)
   pageSize = signal(5)
 
+  /** Debounce timer for search input */
   private debounceTimer: ReturnType<typeof setTimeout> | null = null
   columns = ['name', 'role', 'actions']
 
@@ -50,6 +57,7 @@ export class List implements OnInit, OnDestroy {
     })
   }
 
+  /** Computed filtered user list based on search query (name or role) */
   filteredUsers = computed(() => {
     const q = this.searchQuery().toLowerCase().trim()
     if(!q) return this.users();
@@ -60,6 +68,7 @@ export class List implements OnInit, OnDestroy {
     )
   })
 
+  /** Computed paginated subset of filtered users */
   paginatedUsers = computed(() => {
     const start = (this.currentPage() - 1) * this.pageSize()
     return this.filteredUsers().slice(start, start + this.pageSize())
@@ -73,6 +82,7 @@ export class List implements OnInit, OnDestroy {
     if (this.debounceTimer) clearTimeout(this.debounceTimer)
   }
 
+  /** Fetches all users from the API */
   async load() {
     try {
       const userList = await this.userService.list()
@@ -83,6 +93,7 @@ export class List implements OnInit, OnDestroy {
     }
   }
 
+  /** Navigates to the user detail view */
   view(u: any) {
     if (!u?._id) {
       toast.error('Invalid user record')
@@ -91,6 +102,7 @@ export class List implements OnInit, OnDestroy {
     this.router.navigate(['/admin/user', u._id])
   }
 
+  /** Navigates to the user edit form */
   edit(u: any) {
     if (!u?._id) {
       toast.error('Invalid user record')
@@ -99,6 +111,7 @@ export class List implements OnInit, OnDestroy {
     this.router.navigate(['/admin/user', u._id, 'edit'])
   }
 
+  /** Deletes a user with confirmation and audit logging */
   async delete(u: any) {
     if (!u?._id) {
       toast.error('Invalid user record')

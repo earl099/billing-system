@@ -1,29 +1,43 @@
+/**
+ * Billing service
+ * Handles billing letter generation, PDF preview/upload, download, listing, and cleanup operations
+ */
+
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { environment } from '@env/environment';
 import { firstValueFrom } from 'rxjs';
 
+/** Response shape from billing generation endpoint */
 interface BillingGenerateResponse {
   [key: string]: any;
 }
 
+/** Response shape from billing preview endpoint */
 interface BillingPreviewResponse {
   previews: Array<{ public_id: string; url: string; label: string }>;
 }
 
+/** Response shape from billing list endpoint */
 interface BillingListResponse {
   list: any[];
 }
 
+/** Response shape from billing details endpoint */
 interface BillingDetailsResponse {
   billing: any;
 }
 
+/** Preview item with sanitized URL for safe iframe/embed display */
 interface PreviewItem {
+  /** Cloudinary public ID for the uploaded preview */
   public_id: string;
+  /** Original Cloudinary URL */
   rawUrl: string;
+  /** Angular SafeResourceUrl for use in iframes */
   safeUrl: any;
+  /** Display label for the preview */
   label: string;
 }
 
@@ -35,6 +49,17 @@ export class Billing {
   private http = inject(HttpClient)
   private sanitizer = inject(DomSanitizer)
 
+  /**
+   * Generates a final merged billing PDF
+   * Combines billing letter and attachments into a single PDF uploaded to Cloudinary
+   * 
+   * @param code - Client code
+   * @param fd - FormData containing billing letter and attachment files
+   * @param _previewPublicIds - Cloudinary public IDs of previews to clean up after generation
+   * @param _previewUrls - URLs of preview files used for merging
+   * @param mode - Generation mode: 'preview' or 'direct'
+   * @returns Generation response with billing ID and download URL
+   */
   async billingGenerate(
     code: string,
     fd: FormData,
@@ -52,6 +77,14 @@ export class Billing {
     }
   }
 
+  /**
+   * Uploads billing letter and attachments for preview
+   * Converts files to PDF and returns sanitized Cloudinary URLs for display
+   * 
+   * @param code - Client code
+   * @param formData - FormData containing billing letter and attachment files
+   * @returns Array of preview items with sanitized URLs for safe embedding
+   */
   async billingPreview(code: string, formData: FormData): Promise<PreviewItem[]> {
     try {
       const res = await firstValueFrom(
@@ -72,6 +105,12 @@ export class Billing {
     }
   }
 
+  /**
+   * Downloads a billing PDF from Cloudinary and triggers a browser download
+   * 
+   * @param publicId - Cloudinary public ID of the PDF to download
+   * @param code - Client code for the API route
+   */
   async download(publicId: string, code: string): Promise<void> {
     try {
       const blob = await firstValueFrom(
@@ -92,6 +131,12 @@ export class Billing {
     }
   }
 
+  /**
+   * Fetches paginated list of billing records for a client
+   * 
+   * @param code - Client code
+   * @returns Array of billing records
+   */
   async billingList(code: string): Promise<any[]> {
     try {
       const res = await firstValueFrom(this.http.get<BillingListResponse>(`${this.apiUrl}/billing/${code}/list`))
@@ -101,6 +146,13 @@ export class Billing {
     }
   }
 
+  /**
+   * Fetches details of a single billing record
+   * 
+   * @param id - Billing record MongoDB ID
+   * @param code - Client code
+   * @returns Billing record with populated creator info
+   */
   async billingDetails(id: string, code: string): Promise<any> {
     try {
       const res = await firstValueFrom(this.http.get<BillingDetailsResponse>(`${this.apiUrl}/billing/${code}/${id}`))
@@ -110,6 +162,13 @@ export class Billing {
     }
   }
 
+  /**
+   * Deletes a billing record by ID
+   * 
+   * @param _id - Billing record MongoDB ID
+   * @param code - Client code
+   * @returns Deletion confirmation response
+   */
   async deleteBilling(_id: string, code: string): Promise<any> {
     try {
       const res = await firstValueFrom(this.http.delete<any>(`${this.apiUrl}/billing/${code}/${_id}`))
@@ -119,6 +178,13 @@ export class Billing {
     }
   }
 
+  /**
+   * Cleans up temporary preview files from Cloudinary
+   * Called when user cancels billing generation to remove orphaned preview uploads
+   * 
+   * @param previewPublicIds - Array of Cloudinary public IDs to delete
+   * @param client - Client code for the API route
+   */
   async cleanup(previewPublicIds: string[], client: string): Promise<void> {
     try {
       if(!previewPublicIds.length) return

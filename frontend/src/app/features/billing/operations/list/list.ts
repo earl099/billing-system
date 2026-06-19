@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Billing operations list component
+ * Displays a paginated, searchable table of generated billing records
+ * with view, download, and delete actions. Logs delete operations.
+ */
+
 import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -40,6 +46,7 @@ export class List implements OnInit, OnDestroy {
   loading = signal(true)
   user = signal<any>({})
 
+  /** Debounce timer for search input */
   private debounceTimer: ReturnType<typeof setTimeout> | null = null
   columns = ['billingLetter', 'createdBy', 'createdAt', 'actions']
 
@@ -55,6 +62,7 @@ export class List implements OnInit, OnDestroy {
     })
   }
 
+  /** Computed filtered billing list based on search query */
   filteredBillings = computed(() => {
     const q = this.searchQuery().toLowerCase().trim()
     if(!q) return this.billingList();
@@ -66,6 +74,7 @@ export class List implements OnInit, OnDestroy {
     )
   })
 
+  /** Computed paginated subset of filtered billings */
   paginatedBillings = computed(() => {
     const start = (this.currentPage() - 1) * this.pageSize()
     return this.filteredBillings().slice(start, start + this.pageSize())
@@ -84,6 +93,7 @@ export class List implements OnInit, OnDestroy {
     if (this.debounceTimer) clearTimeout(this.debounceTimer)
   }
 
+  /** Fetches billing records and formats dates for display */
   async load() {
     try {
       this.loading.set(true)
@@ -105,6 +115,7 @@ export class List implements OnInit, OnDestroy {
     }
   }
 
+  /** Navigates to the billing detail view */
   view(b: any) {
     if (!b?._id) {
       toast.error('Invalid billing record')
@@ -113,6 +124,7 @@ export class List implements OnInit, OnDestroy {
     this.router.navigate(['billing', this.code(), 'view', b._id])
   }
 
+  /** Deletes a billing record with confirmation and audit logging */
   async delete(b: any) {
     if (!b?._id) {
       toast.error('Invalid billing record')
@@ -142,6 +154,7 @@ export class List implements OnInit, OnDestroy {
     else { this.currentPage.set(Math.min(Math.max(page, 1), this.totalPages())) }
   }
 
+  /** Navigates to the billing generation form */
   generate() {
     this.router.navigate(['billing', this.code(), 'generate'])
   }

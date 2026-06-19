@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Admin user creation component
+ * Provides a form for creating new user accounts with role assignment
+ * and client access configuration. Non-admin users are auto-assigned
+ * to the "ALL" client. Logs the operation on success.
+ */
+
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -47,10 +54,12 @@ export class Create implements OnInit {
   loading = signal(false)
   error = signal<string | null>(null)
 
+  /** Loads available clients for the handledClients multi-select on init */
   async ngOnInit() {
     await this.loadClient()
   }
 
+  /** Fetches client list for assignment dropdown */
   async loadClient() {
     try {
       const clientList = await this.clientService.list()
@@ -61,6 +70,11 @@ export class Create implements OnInit {
     }
   }
 
+  /**
+   * Handles role change logic for client assignment
+   * Non-admin users are auto-assigned to "ALL" client and the field is disabled.
+   * Admin users get full client selection control.
+   */
   isAdmin() {
     const role = this.form.get('role')?.value
     const handledClientsControl = this.form.get('handledClients')
@@ -78,6 +92,7 @@ export class Create implements OnInit {
     }
   }
 
+  /** Submits the user creation form with confirmation and audit logging */
   async submit() {
     if(this.form.invalid) return
     if(!confirm('Are you sure you want to create this User?')) return

@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Signup component
+ * Handles new user registration with name, username, email, and password.
+ * Redirects already-authenticated users to dashboard.
+ * Logs successful signup operations for audit trail.
+ */
+
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatChipsModule } from '@angular/material/chips';
@@ -49,12 +56,14 @@ export class Signup implements OnInit {
   loading = false
   error: string | null = null
 
+  /** Redirects to dashboard if user already has a valid token */
   async ngOnInit() {
     if (this.authService.hasValidToken()) {
       this.router.navigate(['/dashboard'])
     }
   }
 
+  /** Submits registration data, creates the account, and redirects to login */
   async submit() {
     if(this.form.invalid) return
     this.loading = true

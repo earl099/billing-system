@@ -1,6 +1,16 @@
+/**
+ * @fileoverview File upload middleware using Multer
+ * Configures disk storage with timestamped filenames and file type/size validation
+ */
+
 import multer from 'multer'
 import path from 'path'
 
+/**
+ * Multer disk storage configuration
+ * Saves files to the 'uploads/' directory with unique timestamped filenames
+ * preserving the original file extension
+ */
 const storage = multer.diskStorage({
     destination: 'uploads/',
     filename: (_, file, cb) => {
@@ -9,6 +19,17 @@ const storage = multer.diskStorage({
     }
 })
 
+/**
+ * Multer upload middleware instance
+ * - Accepts only .pdf and .docx files
+ * - Maximum file size: 10MB
+ * - Rejects invalid file types with a descriptive error message
+ * 
+ * @type {import('multer').Multer}
+ * 
+ * @example
+ * router.post('/upload', upload.single('file'), controller)
+ */
 export const upload = multer({
     storage,
     fileFilter: (_, file, cb) => {

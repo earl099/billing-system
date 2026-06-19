@@ -1,0 +1,132 @@
+<div class="max-w-7xl mx-auto p-6">
+  <h2 class="text-2xl font-semibold mb-6">OFBANK Manpower Billing</h2>
+
+  @switch (step()) {
+    @case ('setup') {
+      <mat-card class="p-6 max-w-lg">
+        <h3 class="text-lg font-semibold mb-4">Select Template & Date Range</h3>
+
+        <mat-form-field appearance="outline" class="w-full mb-4">
+          <mat-label>Template</mat-label>
+          <mat-select [(value)]="selectedTemplateId">
+            @for (t of templates(); track t.id) {
+              <mat-option [value]="t.id">{{ t.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <div class="flex gap-4 mb-4">
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Year</mat-label>
+            <mat-select [value]="selectedYear()" (selectionChange)="selectedYear.set($event.value); updateDateRange()">
+              @for (y of yearOptions; track y) {
+                <mat-option [value]="y">{{ y }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Month</mat-label>
+            <mat-select [value]="selectedMonth()" (selectionChange)="selectedMonth.set($event.value); updateDateRange()">
+              @for (m of monthOptions; track m.value) {
+                <mat-option [value]="m.value">{{ m.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="flex gap-4 mb-4">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="period" value="first"
+                   [checked]="selectedPeriod() === 'first'"
+                   (change)="selectedPeriod.set('first'); updateDateRange()">
+            1st – 15th
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="period" value="second"
+                   [checked]="selectedPeriod() === 'second'"
+                   (change)="selectedPeriod.set('second'); updateDateRange()">
+            16th – End
+          </label>
+        </div>
+
+        <p class="text-sm text-gray-600 mb-4">
+          Date range: <strong>{{ dateRange().label }}</strong>
+        </p>
+
+        <button mat-raised-button color="primary" (click)="createBilling()">
+          Create Billing File
+        </button>
+      </mat-card>
+    }
+
+    @case ('loading') {
+      <div class="flex flex-col items-center gap-4 py-16">
+        <mat-spinner diameter="48"></mat-spinner>
+        <p class="text-gray-600">Creating billing file and loading tables...</p>
+      </div>
+    }
+
+    @case ('editing') {
+      <div>
+        <p class="text-sm text-gray-600 mb-4">
+          File: <strong>{{ fileName() }}</strong>
+        </p>
+
+        <mat-tab-group>
+          <mat-tab label="Janitorial">
+            <div class="pt-4">
+              <app-editable-billing-table
+                #janTable
+                [title]="'Janitorial ' + dateRange().sheetLabel"
+                [columnDefs]="jBillingColumns"
+                [rawData]="jBillingData()"
+              />
+            </div>
+          </mat-tab>
+          <mat-tab label="Manpower">
+            <div class="pt-4">
+              <app-editable-billing-table
+                #manTable
+                [title]="'Manpower ' + dateRange().sheetLabel"
+                [columnDefs]="oBillingColumns"
+                [rawData]="oBillingData()"
+              />
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+
+        <div class="mt-6 flex gap-4">
+          <button mat-raised-button color="primary" (click)="saveBilling()">
+            Save to Excel
+          </button>
+          <button mat-button (click)="openInSharePoint()">
+            Open in SharePoint
+          </button>
+        </div>
+      </div>
+    }
+
+    @case ('saving') {
+      <div class="flex flex-col items-center gap-4 py-16">
+        <mat-spinner diameter="48"></mat-spinner>
+        <p class="text-gray-600">Saving billing data...</p>
+      </div>
+    }
+
+    @case ('done') {
+      <mat-card class="p-6 max-w-lg text-center">
+        <h3 class="text-lg font-semibold mb-2">Billing data saved successfully</h3>
+        <p class="text-sm text-gray-600 mb-6">File: {{ fileName() }}</p>
+        <div class="flex gap-4 justify-center">
+          <button mat-raised-button color="primary" (click)="openInSharePoint()">
+            Open in SharePoint
+          </button>
+          <button mat-button (click)="goToDashboard()">
+            Back to Dashboard
+          </button>
+        </div>
+      </mat-card>
+    }
+  }
+</div>

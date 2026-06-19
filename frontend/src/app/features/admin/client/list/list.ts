@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Admin client list component
+ * Displays a paginated, searchable table of client organizations
+ * with view, edit, and delete actions. Logs delete operations for audit trail.
+ */
+
 import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
@@ -35,6 +41,7 @@ export class List implements OnInit, OnDestroy {
   currentPage = signal(1)
   pageSize = signal(5)
 
+  /** Debounce timer for search input to avoid excessive filtering */
   private debounceTimer: ReturnType<typeof setTimeout> | null = null
   columns = ['code', 'name', 'actions']
 
@@ -50,6 +57,7 @@ export class List implements OnInit, OnDestroy {
     })
   }
 
+  /** Computed filtered client list based on search query (code or name) */
   filteredClients = computed(() => {
     const q = this.searchQuery().toLowerCase().trim()
     if(!q) return this.clients();
@@ -60,6 +68,7 @@ export class List implements OnInit, OnDestroy {
     )
   })
 
+  /** Computed paginated subset of filtered clients */
   paginatedClients = computed(() => {
     const start = (this.currentPage() - 1) * this.pageSize()
     return this.filteredClients().slice(start, start + this.pageSize())
@@ -73,6 +82,7 @@ export class List implements OnInit, OnDestroy {
     if (this.debounceTimer) clearTimeout(this.debounceTimer)
   }
 
+  /** Fetches all clients from the API */
   async load() {
     try {
       const clientList = await this.clientService.list()
@@ -83,6 +93,7 @@ export class List implements OnInit, OnDestroy {
     }
   }
 
+  /** Navigates to the client detail view */
   view(c: any) {
     if (!c?._id) {
       toast.error('Invalid client record')
@@ -91,6 +102,7 @@ export class List implements OnInit, OnDestroy {
     this.router.navigate(['/admin/client', c._id])
   }
 
+  /** Navigates to the client edit form */
   edit(c: any) {
     if (!c?._id) {
       toast.error('Invalid client record')
@@ -99,6 +111,7 @@ export class List implements OnInit, OnDestroy {
     this.router.navigate(['/admin/client', c._id, 'edit'])
   }
 
+  /** Deletes a client with confirmation and audit logging */
   async delete(c: any) {
     if (!c?._id) {
       toast.error('Invalid client record')

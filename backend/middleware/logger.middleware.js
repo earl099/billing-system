@@ -1,8 +1,19 @@
+/**
+ * @fileoverview HTTP request logging and audit middleware
+ * Provides request logging with response timing, audit trails for security-sensitive operations,
+ * error logging with request context, and security event tracking
+ */
+
 import logger from '#utils/logger.util.js'
 
 /**
  * HTTP request logging middleware
- * Logs all incoming requests with method, path, status, and response time
+ * Logs all incoming requests with method, path, status code, and response time.
+ * Requests resulting in 4xx/5xx responses are logged at WARN level.
+ * 
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {import('express').NextFunction} next - Express next middleware function
  */
 export function httpLoggerMiddleware(req, res, next) {
     const start = Date.now()
@@ -30,8 +41,12 @@ export function httpLoggerMiddleware(req, res, next) {
 }
 
 /**
- * Audit logging for security-sensitive operations
- * Logs user actions with full context
+ * Logs security-sensitive user actions for audit trail purposes
+ * Records the action, user, timestamp, and any additional contextual details
+ * 
+ * @param {string} action - Description of the audited action (e.g., 'Password changed', 'Role modified')
+ * @param {string} userId - ID of the user performing the action
+ * @param {Object} [details={}] - Additional context about the action
  */
 export function auditLog(action, userId, details = {}) {
     logger.warn('AUDIT', {
@@ -43,8 +58,12 @@ export function auditLog(action, userId, details = {}) {
 }
 
 /**
- * Error logging with context
- * Logs errors with request context for debugging
+ * Logs application errors with optional request context for debugging
+ * Attaches request method, path, user ID, and IP when a request object is provided
+ * 
+ * @param {Error} error - The error to log
+ * @param {import('express').Request|null} [req=null] - Optional Express request for context
+ * @param {Object} [context={}] - Additional contextual data about the error
  */
 export function logError(error, req = null, context = {}) {
     const errorData = {
@@ -66,8 +85,11 @@ export function logError(error, req = null, context = {}) {
 }
 
 /**
- * Security event logging
- * Logs failed authentication attempts, authorization failures, etc.
+ * Logs security-related events such as failed login attempts and authorization failures
+ * Records event type, timestamp, and additional details
+ * 
+ * @param {string} eventType - Type of security event (e.g., 'FAILED_LOGIN', 'UNAUTHORIZED_ACCESS')
+ * @param {Object} [details={}] - Additional context about the security event
  */
 export function logSecurityEvent(eventType, details = {}) {
     logger.warn('SECURITY EVENT', {

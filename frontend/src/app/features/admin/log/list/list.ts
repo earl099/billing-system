@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Admin audit log list component
+ * Displays a paginated, searchable table of audit log entries
+ * with view action for inspecting individual log details
+ */
+
 import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
@@ -28,6 +34,7 @@ export class List implements OnInit {
   currentPage = signal(1)
   pageSize = signal(5)
 
+  /** Debounce timer for search input */
   private debounceTimer: any
   columns = ['user', 'operation', 'view']
 
@@ -43,6 +50,7 @@ export class List implements OnInit {
     })
   }
 
+  /** Computed filtered log list based on search query (operation or user) */
   filteredLogs = computed(() => {
     const q = this.searchQuery().toLowerCase().trim()
     if(!q) return this.logs();
@@ -53,6 +61,7 @@ export class List implements OnInit {
     )
   })
 
+  /** Computed paginated subset of filtered logs */
   paginatedLogs = computed(() => {
     const start = (this.currentPage() - 1) * this.pageSize()
     return this.filteredLogs().slice(start, start + this.pageSize())
@@ -62,11 +71,13 @@ export class List implements OnInit {
     await this.load()
   }
 
+  /** Fetches all audit logs from the API */
   async load() {
     const logList = await this.logService.list()
     this.logs.set(logList)
   }
 
+  /** Navigates to the log detail view */
   view(l: any) {
     this.router.navigate(['/admin/log', l._id])
   }

@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Pages feature routes
+ * Defines top-level routes for public and authenticated pages
+ * Dashboard is protected by authGuard; login/signup/home are public
+ */
+
 import { Route } from "@angular/router";
 import { Home } from "./home/home";
 import { Dashboard } from "./dashboard/dashboard";
@@ -5,6 +11,7 @@ import { Login } from "./login/login";
 import { Signup } from "./signup/signup";
 import { authGuard } from "@guards/auth-guard";
 
+/** Route configuration for top-level application pages */
 export const INDEX_ROUTES: Route[] = [
   { path: '', component: Home },
   { path: 'home', component: Home },

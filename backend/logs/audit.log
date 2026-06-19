@@ -109,3 +109,39 @@
   "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
   "userId": "695f4b3fc9882594236f3394"
 }
+2026-06-15 07:36:11 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/editor/create/ofbank/ofbank",
+  "status": 500,
+  "duration": "10375ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-15 07:38:39 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/editor/create/ofbank/ofbank",
+  "status": 500,
+  "duration": "1155ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-16 08:55:43 [warn]: HTTP Request {
+  "method": "PATCH",
+  "path": "/editor/ofbank/01O6RSSI4HKP4OJROGGJEJBJQOXXZNLCUV/setup",
+  "status": 500,
+  "duration": "3380ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-16 15:28:03 [warn]: HTTP Request {
+  "method": "PATCH",
+  "path": "/editor/ofbank/01O6RSSI7E2EEESAMADFAI7KYSV4EQKVH6/setup",
+  "status": 500,
+  "duration": "4519ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}

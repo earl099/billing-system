@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Login component
+ * Handles user authentication with username/email and password.
+ * Redirects already-authenticated users to dashboard.
+ * Logs successful login operations for audit trail.
+ */
+
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -33,12 +40,14 @@ export class Login {
   loading = false
   error: string | null = null
 
+  /** Redirects to dashboard if user already has a valid token */
   ngOnInit() {
     if (this.authService.hasValidToken()) {
       this.router.navigate(['/dashboard'])
     }
   }
 
+  /** Submits login credentials, stores JWT token, and logs the operation */
   async submit() {
     if (this.form.invalid) return
     this.loading = true

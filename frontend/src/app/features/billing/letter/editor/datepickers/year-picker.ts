@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Year-only picker component with "yyyy" format (e.g., "2026")
+ * Opens datepicker in year view and only captures the selected year
+ */
+
 import { Component, Input } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatDatepickerModule, MatDatepicker } from '@angular/material/datepicker';
@@ -6,6 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import { provideLuxonDateAdapter } from '@angular/material-luxon-adapter';
 import { DateTime } from 'luxon';
 
+/** Luxon date format configuration for "yyyy" display */
 export const MONTH_YEAR_FORMATS = {
   parse: {
     dateInput: 'yyyy',
@@ -53,6 +59,7 @@ export class YearPickerComponent {
   @Input({ required: true }) control!: any;
   @Input({ required: true }) label!: string
 
+  /** Captures selected year and closes the datepicker */
   setYear(
     normalizedMonthAndYear: DateTime,
     datepicker: MatDatepicker<DateTime>

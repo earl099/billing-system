@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Manpower employee update component
+ * Dynamically builds a form based on client-specific employee schema,
+ * loads existing data, and updates the employee row in the SharePoint EmployeeTable
+ */
+
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -45,6 +51,7 @@ export class Update implements OnInit {
   code = signal(this.route.snapshot.paramMap.get('code'))
   index = signal(this.route.snapshot.paramMap.get('index'))
 
+  /** Client-specific form field schemas (same as create component) */
   private employeeSchema: Record<string, FieldConfig[]> = {
     ofbank: [
       { key: 'empNo', label: 'Employee No', type: 'text', required: true },
@@ -66,53 +73,26 @@ export class Update implements OnInit {
     ]
   }
 
+  /** Input columns sent to the backend for form-to-row mapping */
   inputColumnMap: Record<string, string[]> = {
     ofbank: [
-      'empNo',
-      'name',
-      'posCode',
-      'dept',
-      'status',
-      'type',
-      'payType',
-      'payFreq',
-      'tin',
-      'sssNo',
-      'phicNo',
-      'hdmfNo',
-      'hd',
-      'mfopt',
-      'salary',
-      'bankNo',
+      'empNo', 'name', 'posCode', 'dept', 'status', 'type',
+      'payType', 'payFreq', 'tin', 'sssNo', 'phicNo', 'hdmfNo',
+      'hd', 'mfopt', 'salary', 'bankNo',
     ]
   }
 
+  /** Full column map including formula-derived columns in the Excel table */
   fullColumnMap: Record<string, string[]> = {
     ofbank: [
-      'empNo',
-      'name',
-      'posCode',
-      'posName',
-      'dept',
-      'status',
-      'type',
-      'payType',
-      'payFreq',
-      'tin',
-      'sssNo',
-      'phicNo',
-      'hdmfNo',
-      'hd',
-      'mfopt',
-      'salary',
-      'bankNo',
-      'endorsed',
-      'difference',
-      'dBillingRate',
-      'mBillingRate'
+      'empNo', 'name', 'posCode', 'posName', 'dept', 'status',
+      'type', 'payType', 'payFreq', 'tin', 'sssNo', 'phicNo',
+      'hdmfNo', 'hd', 'mfopt', 'salary', 'bankNo',
+      'endorsed', 'difference', 'dBillingRate', 'mBillingRate'
     ]
   }
 
+  /** Builds the form and loads existing employee data on init */
   async ngOnInit() {
     const schema = this.employeeSchema[this.code()!]
     this.formConfig.set(schema)
@@ -121,6 +101,7 @@ export class Update implements OnInit {
 
   }
 
+  /** Constructs a FormGroup from the field schema (no required validators for update) */
   private buildForm(schema: FieldConfig[]) {
     const group: any = {}
 
@@ -131,6 +112,7 @@ export class Update implements OnInit {
     this.form = this.fb.group(group)
   }
 
+  /** Loads existing employee data from SharePoint and patches the form values */
   async loadData() {
     const data = await this.manpowerService.getManpower(
       this.code()!,
@@ -150,6 +132,7 @@ export class Update implements OnInit {
     this.form.patchValue(mapped)
   }
 
+  /** Submits updated employee data to the SharePoint EmployeeTable with confirmation */
   async updateData() {
     if(confirm('Are you sure you want to update this data?')) {
       try {
@@ -176,6 +159,7 @@ export class Update implements OnInit {
     this.router.navigate(['manpower', this.code(), 'list'])
   }
 
+  /** Restricts input to decimal numbers */
   decimalFilter(event: any) {
     const reg = /^-?\d*(\.\d{0,2})?$/;
     let input = event.target.value + String.fromCharCode(event.charCode);

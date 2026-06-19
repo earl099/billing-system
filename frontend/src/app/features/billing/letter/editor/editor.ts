@@ -1,3 +1,12 @@
+/**
+ * @fileoverview Billing letter editor component
+ * Multi-step wizard for creating billing documents from SharePoint templates.
+ * Step 1: Select template (Word/Excel, blank/prefilled)
+ * Step 2: Fill in billing data via client-specific dynamic forms
+ * Step 3 (Excel only): Add transmittal items
+ * Creates the document via Microsoft Graph API and opens it for editing
+ */
+
 import { DecimalPipe, formatDate } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
@@ -62,6 +71,7 @@ export class Editor implements OnInit {
   formConfig = signal<FieldConfig[]>([])
   fileType = signal<'word' | 'excel' | null>(null)
 
+  /** Client-specific billing form schemas defining fields for each client type */
   private billingSchemas: Record<string, FieldConfig[]> = {
     acid: [
       { key: 'soaNo', label: 'SOA Number', type: 'text', required: true },
@@ -111,6 +121,7 @@ export class Editor implements OnInit {
     ]
   }
 
+  /** Domains allowed for iframe embedding via DomSanitizer bypass */
   private trustedDomains = ['lbpresources.sharepoint.com', 'cloudinary.com']
 
   fileEditorService = inject(FileEditor)
@@ -125,6 +136,7 @@ export class Editor implements OnInit {
   form1: UntypedFormGroup = this.fb.group({})
   transmittalItems: UntypedFormArray = this.fb.array([])
 
+  /** Validates that a URL belongs to a trusted domain before allowing iframe embedding */
   private isUrlTrusted(url: string): boolean {
     try {
       const urlObj = new URL(url)
@@ -137,6 +149,7 @@ export class Editor implements OnInit {
     }
   }
 
+  /** Builds a reactive form group from the field schema configuration */
   private buildDynamicForm(schema: FieldConfig[]) {
     const group: any = {}
 
@@ -150,6 +163,7 @@ export class Editor implements OnInit {
     this.form = this.fb.group(group)
   }
 
+  /** Computed safe URL for iframe embedding, null if URL is not from a trusted domain */
   safeUrl = computed<SafeResourceUrl | null>(() => {
     const url = this._url()
     if (!url || !this.isUrlTrusted(url)) {
@@ -158,6 +172,7 @@ export class Editor implements OnInit {
     return this.sanitizer.bypassSecurityTrustResourceUrl(url)
   })
 
+  /** Loads available templates from SharePoint on init */
   async ngOnInit() {
     if (!this.code()) {
       toast.error('Invalid client code')
@@ -167,6 +182,7 @@ export class Editor implements OnInit {
     await this.loadTemplates()
   }
 
+  /** Fetches template list from SharePoint for the current client */
   async loadTemplates() {
     try {
       const code = this.code()
@@ -182,6 +198,12 @@ export class Editor implements OnInit {
     }
   }
 
+  /**
+   * Handles template selection and configures the wizard flow
+   * - Blank templates skip to immediate creation
+   * - Word templates go to step 2 (data entry)
+   * - Excel templates go to step 3 (data entry + transmittal items)
+   */
   selectTemplate(t: any) {
     if (!t || !t.name) {
       toast.error('Invalid template')
@@ -235,6 +257,7 @@ export class Editor implements OnInit {
     }
   }
 
+  /** Creates a blank billing document from template and opens it in a new tab */
   async createBlank() {
     if (!this.selectedTemplate()) {
       toast.error('Please select a template')
@@ -271,6 +294,7 @@ export class Editor implements OnInit {
     }
   }
 
+  /** Creates a prefilled billing document using form data and opens it in a new tab */
   async createBillingLetter() {
     if(this.form.invalid) {
       toast.error('Please fill in all required fields')
@@ -310,6 +334,7 @@ export class Editor implements OnInit {
     }
   }
 
+  /** Restricts input to decimal numbers */
   decimalFilter(event: any) {
     const reg = /^-?\d*(\.\d{0,2})?$/;
     let input = event.target.value + String.fromCharCode(event.charCode);
@@ -319,6 +344,11 @@ export class Editor implements OnInit {
     }
   }
 
+  /**
+   * Transforms form values for template rendering
+   * Formats dates according to each field's dateFormat and converts numbers to 2-decimal strings.
+   * For Excel templates, converts dates to ISO strings for Graph API compatibility.
+   */
   private transformFormValues(type: 'word' | 'excel') {
     const values = { ...this.form.value }
     const schema = this.formConfig()
@@ -357,6 +387,7 @@ export class Editor implements OnInit {
     return values
   }
 
+  /** Adds a new transmittal item row to the FormArray */
   createTransmittalRow() {
     const group: any = {}
     const transmittalFieldConfig: FieldConfig[] = [
@@ -376,16 +407,19 @@ export class Editor implements OnInit {
     this.transmittalItems.push(this.fb.group(group))
   }
 
+  /** Removes the last transmittal item row from the FormArray */
   removeTransmittalRow() {
     if (this.transmittalItems.length > 0) {
       this.transmittalItems.removeAt(this.transmittalItems.length - 1)
     }
   }
 
+  /** @returns Typed array of transmittal FormGroup controls */
   get transmittalControls() {
     return this.transmittalItems.controls as UntypedFormGroup[]
   }
 
+  /** @returns Sum of all transmittal item amounts */
   get transmittalTotal(): number {
     return this.transmittalItems.controls
     .map(ctrl => Number(ctrl.get('amount')?.value || 0))

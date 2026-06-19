@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Admin user update component
+ * Loads an existing user by ID, displays editable form with role/client assignment,
+ * and updates the user record on submit. Handles Admin role logic for client access.
+ * Logs the operation for audit trail.
+ */
+
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatChipsModule } from '@angular/material/chips';
@@ -50,6 +57,7 @@ export class Update implements OnInit {
   error = signal<string | null>(null)
   userId = signal<string | null>(null)
 
+  /** Loads user data, client list, and patches the form. Disables client selection for Admin role. */
   async ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id')
     if (!id) {
@@ -89,6 +97,11 @@ export class Update implements OnInit {
     }
   }
 
+  /**
+   * Handles role change logic for client assignment
+   * Non-admin users are auto-assigned to "ALL" client and the field is disabled.
+   * Admin users get full client selection control.
+   */
   isAdmin() {
     const role = this.form.get('role')?.value
     const handledClientsControl = this.form.get('handledClients')
@@ -106,6 +119,7 @@ export class Update implements OnInit {
     }
   }
 
+  /** Submits updated user data with confirmation and audit logging. Only includes password if provided. */
   async submit() {
     if(!this.userId()) return
     if(this.form.invalid) return

@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Billing rate creation component
+ * Provides a form for creating new billing rate entries in the SharePoint PositionTable.
+ * Auto-calculates semi-monthly rate from monthly rate. Logs the operation on success.
+ */
+
 import { ChangeDetectionStrategy, Component, inject, OnInit, OnDestroy } from '@angular/core'
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms'
 import { Subscription } from 'rxjs'
@@ -46,8 +52,10 @@ export class Create implements OnInit, OnDestroy {
 
   loading = false
   error: string | null = null
+  /** Subscription to monthlyRate changes for auto-calculating semiMonthlyRate */
   private monthlyRateSub?: Subscription
 
+  /** Submits the billing rate form, creates the entry, and logs the operation */
   async submit() {
     if(this.form.invalid) return
     this.loading = true
@@ -81,6 +89,7 @@ export class Create implements OnInit, OnDestroy {
     this.router.navigate(['/rates', this.code, 'list'])
   }
 
+  /** Subscribes to monthlyRate changes to auto-compute semiMonthlyRate = monthlyRate / 2 */
   ngOnInit() {
     this.monthlyRateSub = this.form.get('monthlyRate')!.valueChanges.subscribe(val => {
       this.form.get('semiMonthlyRate')!.setValue(Number(val ?? 0) / 2, { emitEvent: false })

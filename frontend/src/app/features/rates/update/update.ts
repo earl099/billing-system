@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Billing rate update component
+ * Loads an existing billing rate by index, displays it in an editable form,
+ * and updates the SharePoint PositionTable on submit. Logs the operation for audit trail.
+ */
+
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core'
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms'
 import { MatIconModule } from '@angular/material/icon'
@@ -47,6 +53,7 @@ export class Update implements OnInit {
   loading = false
   error: string | null = null
 
+  /** Loads the existing billing rate data and patches the form values */
   async ngOnInit() {
     const data = await this.ratesService.get(this.code ?? '', this.index)
     this.form.patchValue({
@@ -60,6 +67,7 @@ export class Update implements OnInit {
     })
   }
 
+  /** Submits updated billing rate data, updates the SharePoint row, and logs the operation */
   async submit() {
     if(this.form.invalid) return
     this.loading = true
