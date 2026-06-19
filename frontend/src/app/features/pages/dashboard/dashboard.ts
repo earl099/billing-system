@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Dashboard component
+ * Authenticated user landing page displaying client list and user profile information
+ */
+
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { RouterLink } from '@angular/router';
@@ -24,6 +29,7 @@ export class Dashboard implements OnInit {
   user = signal<any>({})
   clients = signal<any>({})
 
+  /** Loads current user profile and all available clients on init */
   async ngOnInit() {
     this.user.set(await this.authService.getProfile())
     this.clients.set(await this.clientService.allList())

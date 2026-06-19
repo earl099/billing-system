@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Manpower employee detail view component
+ * Displays all employee fields from the SharePoint EmployeeTable in a read-only view
+ */
+
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
@@ -17,6 +22,8 @@ export class View implements OnInit {
   employee = signal<any[]>([])
   code: any
   index: any
+
+  /** Display labels for employee fields, mapped 1:1 to Excel column order */
   fields = [
     'Employee No.',
     'Name',
@@ -41,14 +48,16 @@ export class View implements OnInit {
     'Monthly Billing Rate'
   ]
 
+  /** Loads the employee data by index from the SharePoint EmployeeTable */
   async ngOnInit() {
     this.index = this.route.snapshot.paramMap.get('index')
     this.code = this.route.snapshot.paramMap.get('code')
     const data = await this.manpowerService.getManpower(this.code ?? '', Number(this.index), 'BILLING-TEMPLATE.xlsm', 'EmployeeTable')
-    this.employee.set(data.employee)
+    this.employee.set(data.data)
     console.log(this.employee())
   }
 
+  /** Navigates to the employee edit form */
   edit() {
     this.router.navigate(['manpower', this.code, this.index, 'edit'])
   }

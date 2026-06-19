@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Home (landing page) component
+ * Public-facing landing page displayed for unauthenticated users
+ */
+
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';

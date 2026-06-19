@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Admin client update component
+ * Loads an existing client by ID, displays it in an editable form with pay frequency selection,
+ * and updates the client record on submit. Logs the operation for audit trail.
+ */
+
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -45,6 +51,7 @@ export class Update implements OnInit {
   error = signal<string | null>(null)
   clientId = signal<string | null>(null)
 
+  /** Loads client data and pay frequency options, then patches the form */
   async ngOnInit() {
     this.clientId.set(this.route.snapshot.paramMap.get('id')!)
     if(!this.clientId()) return
@@ -53,13 +60,15 @@ export class Update implements OnInit {
     const payFreqs = await this.payFreqService.list()
     this.payFreqList.set(payFreqs)
 
+    const payFreq = client().payFreq
     this.form.patchValue({
       code: client().code,
       name: client().name,
-      payFreq: client().payFreq
+      payFreq: Array.isArray(payFreq) ? payFreq : []
     })
   }
 
+  /** Submits updated client data with confirmation and audit logging */
   async submit() {
     if(!this.clientId()) return
     if(this.form.invalid) return
@@ -83,8 +92,8 @@ export class Update implements OnInit {
 
       await this.logService.create(log)
     } catch (err: any) {
-      this.error = err?.message ?? 'Update Client failed'
-      toast.error('Error: ' + (this.error ?? err?.message))
+      this.error.set(err?.message ?? 'Update Client failed')
+      toast.error('Error: ' + (this.error() ?? err?.message))
     } finally {
       this.loading.set(false)
     }

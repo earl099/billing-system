@@ -1,9 +1,16 @@
+/**
+ * @fileoverview Login component
+ * Handles user authentication with username/email and password.
+ * Redirects already-authenticated users to dashboard.
+ * Logs successful login operations for audit trail.
+ */
+
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
 import { LogDTO } from '@models/log';
-import { UserAuthDTO, UserDTO } from '@models/user';
+import { UserAuthDTO } from '@models/user';
 import { Auth } from '@services/auth';
 import { Log } from '@services/log';
 import { toast } from 'ngx-sonner';
@@ -33,20 +40,32 @@ export class Login {
   loading = false
   error: string | null = null
 
+  /** Redirects to dashboard if user already has a valid token */
+  ngOnInit() {
+    if (this.authService.hasValidToken()) {
+      this.router.navigate(['/dashboard'])
+    }
+  }
+
+  /** Submits login credentials, stores JWT token, and logs the operation */
   async submit() {
     if (this.form.invalid) return
     this.loading = true
     this.error = null
-    let userAuth: UserAuthDTO
 
     const { identifier, password } = this.form.value
-    userAuth = { identifier: identifier!, password: password! }
+    if (!identifier || !password) {
+      this.error = 'Please fill in all fields'
+      this.loading = false
+      return
+    }
+
+    const userAuth: UserAuthDTO = { identifier, password }
 
     try {
-      const user = await this.authService.login(userAuth)
+      await this.authService.login(userAuth)
 
       const logObject: LogDTO = {
-        user: user.user.name,
         operation: 'Logged In'
       }
 
@@ -54,8 +73,10 @@ export class Login {
 
       this.router.navigate(['/dashboard'])
       toast.success('Logged in successfully.')
-    } catch (e: any) {
-      this.error = 'Error: ' + e?.message || 'Login failed'
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : 'Login failed'
+      this.error = `Error: ${errorMessage}`
+      toast.error(this.error)
     } finally {
       this.loading = false
     }

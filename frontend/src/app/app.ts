@@ -1,4 +1,11 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+/**
+ * @fileoverview Root application component
+ * Serves as the shell component containing the navigation bar, toast notifications,
+ * and router outlet. Manages user session state, token expiration watching,
+ * and logout with audit logging.
+ */
+
+import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { RouterOutlet, RouterLink, Router } from '@angular/router';
 import { LogDTO } from '@models/log';
 import { Auth } from '@services/auth';
@@ -15,21 +22,42 @@ import { NgxSonnerToaster, toast } from 'ngx-sonner';
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App implements OnInit {
+export class App implements OnInit, OnDestroy {
   protected readonly title = signal('LBRDC Billing System');
   protected readonly toast = toast
   authService = inject(Auth)
   logService = inject(Log)
   router = inject(Router)
-  user = signal<any>({})
+  /** Current authenticated user profile, null if not logged in */
+  user = signal<any>(null)
 
-  constructor() { this.authService.startTokenWatcher() }
-
+  /** Starts token expiration watcher and loads user profile if already authenticated */
   ngOnInit(): void {
-    this.user.set(this.authService.getProfile())
-    if(this.authService.hasValidToken()) this.router.navigate(['dashboard'])
+    if (this.authService.hasValidToken()) {
+      this.authService.startTokenWatcher()
+      this.loadProfile()
+    }
   }
 
+  /** Cleans up token watcher timeout to prevent memory leaks */
+  ngOnDestroy(): void {
+    this.authService.clearTokenWatcher()
+  }
+
+  /** Fetches the current user's profile from the API */
+  private async loadProfile() {
+    try {
+      const profile = await this.authService.getProfile()
+      this.user.set(profile)
+    } catch (error) {
+      console.error('Failed to load profile:', error)
+    }
+  }
+
+  /**
+   * Returns the appropriate home route based on authentication state
+   * @returns '/dashboard' if logged in, '/' if not
+   */
   home() {
     if(this.user()) {
       return '/dashboard'
@@ -39,11 +67,10 @@ export class App implements OnInit {
     }
   }
 
+  /** Logs the logout operation, clears the session, and redirects to home */
   async logout() {
     try {
-      const user = this.authService.fetchUser() ?? ''
       const logObject: LogDTO = {
-        user,
         operation: 'Logged Out'
       }
       await this.logService.create(logObject)

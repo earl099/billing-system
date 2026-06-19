@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Billing controller
+ * Handles billing letter generation, preview, PDF merging, download, and CRUD operations
+ */
+
 import fs from 'fs/promises'
 import path from 'path'
 import billingModel from '#models/billing.model.js'
@@ -9,6 +14,14 @@ import cloudinary from '#config/cloudinary.js'
 
 const execAsync = promisify(exec)
 
+/**
+ * Ensures a file is converted to PDF buffer
+ * If file is already PDF, reads and returns it. If DOCX, converts via LibreOffice.
+ * Cleans up temporary files after conversion.
+ * 
+ * @param {Object} file - Multer file object with path, mimetype, originalname
+ * @returns {Promise<Buffer>} PDF file buffer
+ */
 async function ensurePdfBuffer(file) {
     if(file.mimetype === 'application/pdf') {
         const buffer = await fs.readFile(file.path)
@@ -32,6 +45,14 @@ async function ensurePdfBuffer(file) {
     return buffer
 }
 
+/**
+ * Generates preview PDFs for billing letter and attachments
+ * Converts uploaded files to PDF and uploads them to Cloudinary for preview.
+ * Returns preview URLs and public IDs for later use in final generation.
+ * 
+ * @param {import('express').Request} req - Request with files: { billingLetter, attachments[] }
+ * @param {import('express').Response} res - Response with { previews[] }
+ */
 export async function previewBilling(req, res) {
   try {
     const { code } = req.params
@@ -83,22 +104,43 @@ export async function previewBilling(req, res) {
   }
 }
 
+/**
+ * Generates final billing PDF by merging all sources
+ * Combines billing letter, attachments, and/or preview URLs into a single PDF.
+ * Uploads final PDF to Cloudinary and creates a billing record in the database.
+ * Cleans up preview files after successful generation.
+ * 
+ * @param {import('express').Request} req - Request with params: { code }, body: { previewPublicIds, previewUrls }, files: { billingLetter, attachments }
+ * @param {import('express').Response} res - Response with { success, billingId, downloadUrl }
+ */
 export async function generateBilling(req, res) {
   try {
     const { code } = req.params
+    
+    // SECURITY: Use verified user from JWT token, not from request body
+    const userId = req.user?.id
+    if (!userId) {
+      return res.status(401).json({ error: 'User authentication required' })
+    }
+    
     let previewPublicIds = req.body.previewPublicIds || [];
     let previewUrls = req.body.previewUrls || [];
-    let user = req.body.user
+
+    // Parse JSON strings if sent as form data
     if (typeof previewPublicIds === 'string') {
-      previewPublicIds = JSON.parse(previewPublicIds);
+      try {
+        previewPublicIds = JSON.parse(previewPublicIds);
+      } catch {
+        return res.status(400).json({ error: 'Invalid previewPublicIds format' });
+      }
     }
 
     if (typeof previewUrls === 'string') {
-      previewUrls = JSON.parse(previewUrls);
-    }
-
-    if(typeof user === 'string') {
-      user = JSON.parse(user)
+      try {
+        previewUrls = JSON.parse(previewUrls);
+      } catch {
+        return res.status(400).json({ error: 'Invalid previewUrls format' });
+      }
     }
 
     const billingLetter = req.files?.billingLetter?.[0];
@@ -110,6 +152,7 @@ export async function generateBilling(req, res) {
 
     const sources = [];
 
+    // Use preview URLs if available, otherwise process uploaded files
     const hasPreviews = Array.isArray(previewUrls) && previewUrls.length;
     if (hasPreviews) {
       previewUrls = previewUrls.filter(
@@ -133,6 +176,7 @@ export async function generateBilling(req, res) {
     }
 
     else {
+      // Process billing letter
       if (billingLetter.mimetype.includes('word')) {
         const buffer = await docxToPdfBuffer(billingLetter.path);
         sources.push(buffer);
@@ -142,6 +186,7 @@ export async function generateBilling(req, res) {
         sources.push(buffer);
       }
 
+      // Process attachments
       for (const file of attachments) {
         if (file.mimetype.includes('word')) {
           const buffer = await docxToPdfBuffer(file.path);
@@ -158,11 +203,13 @@ export async function generateBilling(req, res) {
       throw new Error('No PDF sources provided');
     }
 
+    // Merge all PDFs into one
     const finalBuffer = await mergePdfBuffers(sources);
     const curDate = new Date()
     const publicId = `billing-${code.toUpperCase()}-${curDate.getMonth() + 1}-${curDate.getDate()}-${curDate.getFullYear()}`;
     const upload = await uploadPdfBuffer(finalBuffer, `billing/${code}/final`, publicId);
 
+    // Create billing record in database
     const record = await billingModel.create({
       client: code.toUpperCase(),
       billingLetter: billingLetter.originalname,
@@ -171,9 +218,10 @@ export async function generateBilling(req, res) {
         secure_url: upload.secure_url,
         public_id: upload.public_id
       },
-      createdBy: user._id || null
+      createdBy: userId  // Use verified userId from JWT
     });
 
+    // Clean up preview files
     if (Array.isArray(previewPublicIds) && previewPublicIds.length) {
       await deleteResources(previewPublicIds);
     }
@@ -193,7 +241,13 @@ export async function generateBilling(req, res) {
   }
 }
 
-
+/**
+ * Deletes preview PDF files from Cloudinary
+ * Used to clean up temporary preview files when user cancels billing generation
+ * 
+ * @param {import('express').Request} req - Request with params: { code }, body: { previewPublicIds[] }
+ * @param {import('express').Response} res - Response with { success, deleted }
+ */
 export async function deletePreviews(req, res) {
     try {
       const { code } = req.params
@@ -217,6 +271,13 @@ export async function deletePreviews(req, res) {
     }
 }
 
+/**
+ * Downloads a billing PDF from Cloudinary
+ * Fetches the PDF from Cloudinary and streams it to the client as an attachment
+ * 
+ * @param {import('express').Request} req - Request with params: { publicId }
+ * @param {import('express').Response} res - Response with PDF file stream
+ */
 export async function downloadBilling(req, res) {
     try {
         const { publicId } = req.params;
@@ -243,19 +304,52 @@ export async function downloadBilling(req, res) {
     }
 }
 
-
-export async function billingList(_req, res) {
+/**
+ * Lists all billing records with pagination
+ * Returns paginated list of billing records sorted by creation date (newest first)
+ * 
+ * @param {import('express').Request} req - Request with query: { page, limit }
+ * @param {import('express').Response} res - Response with { list[], pagination }
+ */
+export async function billingList(req, res) {
     try {
-        const list = await billingModel
-        .find().populate('createdBy').sort({ createdAt: -1 })
-        const total = await billingModel.countDocuments()
+        const { page = 1, limit = 10 } = req.query
+        const pageNum = Math.max(1, parseInt(page) || 1)
+        const limitNum = Math.min(100, Math.max(1, parseInt(limit) || 10))
+        const skip = (pageNum - 1) * limitNum
 
-        res.json({ list, total })
+        const list = await billingModel
+            .find()
+            .populate('createdBy')
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limitNum)
+
+        const total = await billingModel.countDocuments()
+        const pages = Math.ceil(total / limitNum)
+
+        res.json({ 
+            list, 
+            pagination: {
+                total,
+                page: pageNum,
+                limit: limitNum,
+                pages,
+                hasNext: pageNum < pages,
+                hasPrev: pageNum > 1
+            }
+        })
     } catch (error) {
-        res.status(500).json({ message: `Server error: ${error}` })
+        res.status(500).json({ message: 'Server error' })
     }
 }
 
+/**
+ * Gets a single billing record by ID
+ * 
+ * @param {import('express').Request} req - Request with params: { code, _id }
+ * @param {import('express').Response} res - Response with { billing }
+ */
 export async function getBilling(req, res) {
     try {
       const { code } = req.params
@@ -265,21 +359,34 @@ export async function getBilling(req, res) {
 
       res.json({ billing })
     } catch (error) {
-      res.status(500).json({ message: `Server error: ${error}` })
+      res.status(500).json({ message: 'Server error' })
     }
 }
 
+/**
+ * Deletes a billing record by ID
+ * 
+ * @param {import('express').Request} req - Request with params: { code, _id }
+ * @param {import('express').Response} res - Response with success message
+ */
 export async function deleteBilling(req, res) {
   try {
     const { code } = req.params
-    const billing = await billingModel.findByIdAndDelete({ _id: req.params._id })
+    const billing = await billingModel.findByIdAndDelete(req.params._id)
     if(!billing) return res.status(404).json({ message: `${code.toUpperCase()} Billing not found` });
     res.json({ message: `${code.toUpperCase()} Billing deleted successfully` })
   } catch (error) {
-    res.status(500).json({ message: `Server error: ${error}` })
+    res.status(500).json({ message: 'Server error' })
   }
 }
 
+/**
+ * Deletes all billing records from the database
+ * WARNING: Destructive operation - clears all billing data
+ * 
+ * @param {import('express').Request} req - Express request (unused)
+ * @param {import('express').Response} res - Response with deletion result
+ */
 export async function clearBilling(req, res) {
   try {
     const billing = await billingModel.deleteMany({})

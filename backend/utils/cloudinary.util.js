@@ -1,6 +1,24 @@
+/**
+ * @fileoverview Cloudinary utility functions
+ * Provides helper functions for PDF upload, resource deletion, and cleanup operations
+ */
+
 import cloudinary from "#config/cloudinary.js";
 import path from 'path'
 
+/**
+ * Uploads a PDF buffer to Cloudinary as a raw file
+ * Generates a unique public ID using sanitized filename and timestamp
+ * 
+ * @param {Buffer} buffer - PDF file buffer to upload
+ * @param {string} folder - Cloudinary folder path for storage
+ * @param {string} originalName - Original filename (used for public ID generation)
+ * @returns {Promise<Object>} Cloudinary upload result containing secure_url and public_id
+ * 
+ * @example
+ * const result = await uploadPdfBuffer(pdfBuffer, 'billing/client1', 'invoice.pdf')
+ * console.log(result.secure_url) // https://res.cloudinary.com/...
+ */
 export async function uploadPdfBuffer(buffer, folder, originalName) {
   const base = path.parse(originalName).name
     .replace(/[^\w\d-_]+/g, '_'); // sanitize
@@ -23,8 +41,13 @@ export async function uploadPdfBuffer(buffer, folder, originalName) {
   });
 }
 
-
-
+/**
+ * Deletes multiple resources from Cloudinary by their public IDs
+ * Uses 'raw' resource type for PDF files
+ * 
+ * @param {string[]} publicIds - Array of Cloudinary public IDs to delete
+ * @returns {Promise<void>} Resolves when deletion completes (no-op if array is empty)
+ */
 export async function deleteResources(publicIds = []) {
     if(!publicIds.length) return
 
@@ -33,6 +56,13 @@ export async function deleteResources(publicIds = []) {
     })
 }
 
+/**
+ * Cleans up old preview PDFs from Cloudinary for a specific client
+ * Deletes files older than 1 hour from the billing/{client}/previews folder
+ * 
+ * @param {string} client - Client identifier for folder path
+ * @returns {Promise<void>} Resolves when cleanup completes
+ */
 export async function cleanupOldPreviews(client) {
     const { resources } = await cloudinary.search.expression(`folder:billing/${client}/previews AND resource_type:raw`)
     .max_results(100)

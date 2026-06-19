@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Admin user management routes
+ * Defines CRUD routes for user accounts, protected by auth and role (Admin) guards
+ */
+
 import { Route } from "@angular/router";
 import { List } from "./list/list";
 import { Create } from "./create/create";
@@ -6,7 +11,7 @@ import { Update } from "./update/update";
 import { authGuard } from "@guards/auth-guard";
 import { roleGuard } from "@guards/role-guard";
 
-
+/** Route configuration for admin user management pages */
 export const USER_ROUTES: Route[] = [
   { path: 'user/list', component: List, canActivate: [authGuard, roleGuard] },
   { path: 'user/create', component: Create, canActivate: [authGuard, roleGuard] },

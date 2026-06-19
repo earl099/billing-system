@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Admin user detail view component
+ * Displays a single user's information including role and assigned clients
+ * with navigation to the edit form
+ */
+
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
@@ -20,12 +26,14 @@ export class View implements OnInit {
   userService = inject(User)
   user = signal<any>({})
 
+  /** Loads user data and all clients for resolving client references in the template */
   async ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id')!
     this.user.set(await this.userService.get(id))
     this.clients.set(await this.clientService.list())
   }
 
+  /** Navigates to the user edit form */
   edit() {
     this.router.navigate(['admin/user', this.user()._id, 'edit'])
   }

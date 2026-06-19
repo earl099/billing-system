@@ -1,11 +1,16 @@
-import { Component, Input, Output, inject } from '@angular/core';
-import { ReactiveFormsModule, FormControl, AbstractControl } from '@angular/forms';
-import { MatDatepickerModule, MatDatepicker } from '@angular/material/datepicker';
+/**
+ * @fileoverview Date picker component with "MMMM dd, yyyy" format (e.g., "January 5, 2026")
+ * Used in billing letter editor for billing date fields
+ */
+
+import { Component, Input } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { provideLuxonDateAdapter } from '@angular/material-luxon-adapter';
-import { DateTime } from 'luxon';
 
+/** Luxon date format configuration for "MMMM dd, yyyy" display */
 export const MONTH_DATE_YEAR_FORMATS = {
   parse: {
     dateInput: 'MMMM dd yyyy',

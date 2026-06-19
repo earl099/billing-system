@@ -1,0 +1,147 @@
+2026-05-28 15:11:44 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.mongodb-test.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.mongodb-test.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-05-28 15:33:42 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.mongodb-test.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.mongodb-test.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-05-28 15:37:01 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.mongodb-test.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.mongodb-test.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-05-29 16:49:31 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-05-29 16:49:36 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-05-29 17:01:19 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-05-29 17:02:28 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-05-29 17:09:10 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-05-29 17:13:04 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-06-01 08:17:09 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-06-01 08:18:11 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-06-01 08:19:24 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-06-01 08:20:12 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-06-01 08:22:03 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-06-01 08:22:10 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-06-01 08:22:12 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-06-01 08:22:24 [error]: DB connection error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net - Error: querySrv ECONNREFUSED _mongodb._tcp.billing-system.j1yrr.mongodb.net
+    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)
+2026-06-02 11:56:13 [error]: DB connection error: Could not connect to any servers in your MongoDB Atlas cluster. One common reason is that you're trying to access the database from an IP that isn't whitelisted. Make sure your current IP address is on your Atlas cluster's IP whitelist: https://www.mongodb.com/docs/atlas/security-whitelist/ - MongooseServerSelectionError: Could not connect to any servers in your MongoDB Atlas cluster. One common reason is that you're trying to access the database from an IP that isn't whitelisted. Make sure your current IP address is on your Atlas cluster's IP whitelist: https://www.mongodb.com/docs/atlas/security-whitelist/
+    at _handleConnectionErrors (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\lib\connection.js:1180:11)
+    at NativeConnection.openUri (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\lib\connection.js:1111:11)
+2026-06-02 11:59:30 [error]: Unhandled Error Cannot read properties of undefined (reading 'data') - TypeError: Cannot read properties of undefined (reading 'data')
+    at addToTable (file:///C:/Users/lbrdc/OneDrive/Desktop/billing-system/backend/utils/graphClient.js:399:36)
+    at Layer.handleRequest (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\route.js:117:3)
+    at handle (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\layer.js:152:17)
+    at C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\index.js:295:15
+    at param (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\index.js:600:14)
+    at param (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\index.js:610:14)
+    at processParams (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\index.js:664:3)
+2026-06-02 11:59:30 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/api/manpower/btr/add",
+  "status": 500,
+  "duration": "2ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-02 11:59:37 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/btr/list",
+  "status": 500,
+  "duration": "1017ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-05 10:04:42 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/manpower/ofbank/add",
+  "status": 500,
+  "duration": "1450ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-05 13:33:13 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/manpower/ofbank/add",
+  "status": 500,
+  "duration": "2086ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-05 14:09:23 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/ofbank/list",
+  "status": 401,
+  "duration": "3ms",
+  "ip": "::1",
+  "userAgent": "PostmanRuntime/7.54.0",
+  "userId": "anonymous"
+}
+2026-06-09 19:39:18 [warn]: HTTP Request {
+  "method": "PATCH",
+  "path": "/manpower/ofbank/0/edit",
+  "status": 500,
+  "duration": "1423ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-10 15:57:37 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/manpower/ofbank/add",
+  "status": 500,
+  "duration": "3606ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-15 07:36:11 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/editor/create/ofbank/ofbank",
+  "status": 500,
+  "duration": "10375ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-15 07:38:39 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/editor/create/ofbank/ofbank",
+  "status": 500,
+  "duration": "1155ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-16 08:55:43 [warn]: HTTP Request {
+  "method": "PATCH",
+  "path": "/editor/ofbank/01O6RSSI4HKP4OJROGGJEJBJQOXXZNLCUV/setup",
+  "status": 500,
+  "duration": "3380ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-16 15:28:03 [warn]: HTTP Request {
+  "method": "PATCH",
+  "path": "/editor/ofbank/01O6RSSI7E2EEESAMADFAI7KYSV4EQKVH6/setup",
+  "status": 500,
+  "duration": "4519ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}

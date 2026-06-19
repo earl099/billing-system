@@ -1,11 +1,17 @@
-import { Component, Input, Output, inject } from '@angular/core';
-import { ReactiveFormsModule, FormControl, AbstractControl } from '@angular/forms';
+/**
+ * @fileoverview Month-only picker component with "MMMM" format (e.g., "January")
+ * Opens datepicker in year view and only captures the selected month
+ */
+
+import { Component, Input } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
 import { MatDatepickerModule, MatDatepicker } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { provideLuxonDateAdapter } from '@angular/material-luxon-adapter';
 import { DateTime } from 'luxon';
 
+/** Luxon date format configuration for "MMMM" display */
 export const MONTH_YEAR_FORMATS = {
   parse: {
     dateInput: 'MMMM',
@@ -53,6 +59,7 @@ export class MonthPickerComponent {
   @Input({ required: true }) control!: any;
   @Input({ required: true }) label!: string
 
+  /** Captures selected month and closes the datepicker */
   setMonthAndYear(
     normalizedMonthAndYear: DateTime,
     datepicker: MatDatepicker<DateTime>

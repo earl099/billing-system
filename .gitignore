@@ -8,6 +8,9 @@ frontend/bazel-out
 frontend/node_modules
 frontend/npm-debug.log
 frontend/yarn-error.log
+backend/node_modules
+backend/npm-debug.log
+backend/yarn-error.log
 
 # IDEs and editors
 .idea/
@@ -33,6 +36,16 @@ frontend/.history/*
 !.vscode/extensions.json
 .history/*
 
+# Environment files
+.env
+.env.local
+.env.*.local
+backend/.env
+backend/.env.local
+backend/uploads/
+backend/uploads/**/*.pdf
+backend/uploads/**/*.docx
+
 # Miscellaneous
 frontend/.angular/cache
 frontend/.sass-cache/
@@ -42,10 +55,12 @@ frontend/libpeerconnection.log
 frontend/testem.log
 frontend/typings
 frontend/__screenshots__/
-backend/.env
 
 # System files
 .DS_Store
 Thumbs.db
+*.swp
+*.swo
+*~
 
 backend/node_modules

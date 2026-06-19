@@ -1,7 +1,14 @@
+/**
+ * @fileoverview Billing generation component
+ * Handles uploading billing letters and attachments, previewing as PDFs,
+ * merging into a final PDF, and downloading the result.
+ * Cleans up preview files on navigation away or page unload.
+ */
+
 import { ChangeDetectionStrategy, Component, HostListener, inject, OnDestroy, signal } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { environment } from '@env/environment.prod';
+import { environment } from '@env/environment';
 import { MATERIAL_MODULES } from '@material';
 import { LogDTO } from '@models/log';
 import { Auth } from '@services/auth';
@@ -19,7 +26,6 @@ import { toast } from 'ngx-sonner';
 export class Generate implements OnDestroy {
   route = inject(ActivatedRoute)
 
-  //** SIGNALS TO BE USED **/
   code = signal(this.route.snapshot.paramMap.get('code')!)
   billingLetter = signal<File | null>(null);
   attachments = signal<File[]>([]);
@@ -29,8 +35,10 @@ export class Generate implements OnDestroy {
   loading = signal(false);
   downloadUrl = signal<string | null>(null);
   finalFileName = signal<string>(`${this.code().toUpperCase()}-Billing.pdf`)
+  /** Flag to prevent duplicate cleanup calls */
   private cleanedUp = false
 
+  /** Sends cleanup beacon on page unload to delete orphaned preview files */
   @HostListener('window:beforeunload', ['$event'])
   handleBeforeUnload(event: Event) {
     const ids = this.previews().map((p: any) => p.public_id)
@@ -38,23 +46,23 @@ export class Generate implements OnDestroy {
     if(!ids.length) return
 
     navigator.sendBeacon(
-      `${environment.apiUrl}/${this.code().toLowerCase()}/cleanup`,
+      `${environment.apiUrl}/billing/${this.code().toLowerCase()}/cleanup`,
       JSON.stringify({ previewPublicIds: ids })
     )
   }
 
-  //** SERVICES NEEDED **/
   billingService = inject(Billing)
   authService = inject(Auth)
   logService = inject(Log)
   router = inject(Router)
   sanitizer = inject(DomSanitizer)
 
-  //** FILE SELECTION **/
+  /** Handles billing letter file selection */
   selectBillingLetter(e: any) { this.billingLetter.set(e.target.files[0]) }
+  /** Handles attachment files selection */
   selectAttachments(e: any) { this.attachments.set([...e.target.files]) }
 
-  //** PREVIEW FUNCTION **/
+  /** Uploads billing letter and attachments for PDF preview */
   async preview() {
     if(!this.billingLetter()) return alert('Billing Letter required');
 
@@ -70,7 +78,7 @@ export class Generate implements OnDestroy {
     this.loading.set(false)
   }
 
-  //** GENERATE FUNCTION **/
+  /** Generates the final merged billing PDF and provides download URL */
   async generate() {
     if(!this.billingLetter()) return alert('Billing Letter required')
     if(!confirm('Are you sure you want to generate this Billing?')) return
@@ -78,7 +86,6 @@ export class Generate implements OnDestroy {
     try {
       this.isPreviewClicked.set(false)
       this.loading.set(true)
-      const user = signal(await this.authService.getProfile())
 
       const formData = new FormData
       formData.append('billingLetter', this.billingLetter()!)
@@ -93,7 +100,6 @@ export class Generate implements OnDestroy {
 
       formData.append('previewPublicIds', JSON.stringify(previewPublicIds))
       formData.append('previewUrls', JSON.stringify(previewUrls));
-      formData.append('user', JSON.stringify(user()))
 
       const billing = await this.billingService.billingGenerate(
         this.code(),
@@ -103,12 +109,10 @@ export class Generate implements OnDestroy {
         this.mode() ?? 'direct'
       )
 
-      this.downloadUrl.set(billing.downloadUrl)
+      this.downloadUrl.set(billing['downloadUrl'])
       this.loading.set(false)
 
-
       const logObject: LogDTO = {
-        user: user().name,
         operation: `Generated Billing for ${this.code().toUpperCase()}`
       }
 
@@ -125,6 +129,7 @@ export class Generate implements OnDestroy {
     }
   }
 
+  /** Downloads the final merged PDF from Cloudinary */
   async downloadFinalPdf() {
     const url = this.downloadUrl()
     if(!url) return
@@ -142,10 +147,12 @@ export class Generate implements OnDestroy {
     URL.revokeObjectURL(objectUrl)
   }
 
+  /** Cleans up preview files from Cloudinary on component destroy */
   async ngOnDestroy() {
     await this.cleanupPreviews(this.code())
   }
 
+  /** Deletes temporary preview files from Cloudinary to prevent orphaned uploads */
   private async cleanupPreviews(client: string) {
     if (this.cleanedUp) return;
 

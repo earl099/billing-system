@@ -1,6 +1,11 @@
-import { DecimalPipe } from '@angular/common';
+/**
+ * @fileoverview Manpower employee creation component
+ * Dynamically builds a form based on client-specific employee schema
+ * and adds new employee rows to the SharePoint EmployeeTable
+ */
+
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
-import { FormControl, FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -38,6 +43,7 @@ export class Create implements OnInit {
   formConfig = signal<FieldConfig[]>([])
   manpowerService = inject(Manpower)
 
+  /** Client-specific form field schemas defining which employee fields to display */
   private employeeSchema: Record<string, FieldConfig[]> = {
     ofbank: [
       { key: 'empNo', label: 'Employee No', type: 'text', required: true },
@@ -59,6 +65,7 @@ export class Create implements OnInit {
     ]
   }
 
+  /** Input columns sent to the backend for form-to-row mapping */
   inputColumnMap: Record<string, string[]> = {
     ofbank: [
       'empNo',
@@ -80,6 +87,7 @@ export class Create implements OnInit {
     ]
   }
 
+  /** Full column map including formula-derived columns in the Excel table */
   fullColumnMap: Record<string, string[]> = {
     ofbank: [
       'empNo',
@@ -114,11 +122,13 @@ export class Create implements OnInit {
 
   form: UntypedFormGroup = this.fb.group({})
 
+  /** Builds the dynamic form from the client-specific schema on init */
   async ngOnInit() {
     this.formConfig.set(this.employeeSchema[this.code()!])
     this.buildDynamicForm(this.employeeSchema[this.code()!])
   }
 
+  /** Constructs a FormGroup from the field schema, applying required validators */
   private buildDynamicForm(schema: FieldConfig[]) {
     const group: any = {}
 
@@ -132,6 +142,7 @@ export class Create implements OnInit {
     this.form = this.fb.group(group)
   }
 
+  /** Restricts input to decimal numbers (allows optional negative sign and up to 2 decimal places) */
   decimalFilter(event: any) {
     const reg = /^-?\d*(\.\d{0,2})?$/;
     let input = event.target.value + String.fromCharCode(event.charCode);
@@ -141,6 +152,7 @@ export class Create implements OnInit {
     }
   }
 
+  /** Submits the employee form data to add a new row to the SharePoint EmployeeTable */
   async addData() {
     try {
       await this.manpowerService.addToTable(

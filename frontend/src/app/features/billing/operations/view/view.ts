@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Billing detail view component
+ * Displays a single billing record with download capability for the final merged PDF
+ */
+
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -20,12 +25,14 @@ export class View implements OnInit {
   code = signal(this.route.snapshot.paramMap.get('code')!)
   createdDate!: Date
 
+  /** Loads billing record details and parses the creation date */
   async ngOnInit() {
     const id = this.route.snapshot.paramMap.get('_id')!
     this.billing.set(await this.billingService.billingDetails(id, this.code()))
     this.createdDate = new Date(this.billing().createdAt)
   }
 
+  /** Downloads the final merged PDF from Cloudinary */
   async downloadFinalPdf() {
     const url = this.billing().finalPdf.secure_url
     if(!url) return

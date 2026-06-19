@@ -1,0 +1,55 @@
+<div class="overflow-x-auto">
+  <h3 class="text-lg font-semibold mb-3">{{ title() }}</h3>
+  <table mat-table [dataSource]="rows()" class="w-full">
+
+    @for (col of displayedColumns(); track col) {
+      @let colDef = getColDef(col);
+
+      @if (colDef) {
+        @if (colDef.type === 'readonly') {
+          <ng-container [matColumnDef]="col">
+            <th mat-header-cell *matHeaderCellDef class="sticky-col" [class.sticky-col-2]="col === 'empNo'">
+              {{ colDef.label }}
+            </th>
+            <td mat-cell *matCellDef="let row" class="sticky-col" [class.sticky-col-2]="col === 'empNo'">
+              {{ getCellDisplay(row, colDef) }}
+            </td>
+          </ng-container>
+        }
+
+        @if (colDef.type === 'time') {
+          <ng-container [matColumnDef]="col">
+            <th mat-header-cell *matHeaderCellDef>{{ colDef.label }}</th>
+            <td mat-cell *matCellDef="let row; let i = index">
+              <mat-form-field appearance="outline" class="w-24">
+                <input matInput
+                       [formControl]="row.formGroup.get(colDef.key)"
+                       placeholder="HH:MM"
+                       maxlength="5">
+                @if (row.formGroup.get(colDef.key)?.hasError('invalidTime')) {
+                  <mat-error>HH:MM</mat-error>
+                }
+              </mat-form-field>
+            </td>
+          </ng-container>
+        }
+
+        @if (colDef.type === 'text') {
+          <ng-container [matColumnDef]="col">
+            <th mat-header-cell *matHeaderCellDef>{{ colDef.label }}</th>
+            <td mat-cell *matCellDef="let row; let i = index">
+              <mat-form-field appearance="outline" class="w-40">
+                <input matInput
+                       [formControl]="row.formGroup.get(colDef.key)"
+                       placeholder="Remarks">
+              </mat-form-field>
+            </td>
+          </ng-container>
+        }
+      }
+    }
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
+  </table>
+</div>
