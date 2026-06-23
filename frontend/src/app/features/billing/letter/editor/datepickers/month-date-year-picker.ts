@@ -3,7 +3,7 @@
  * Used in billing letter editor for billing date fields
  */
 
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -49,6 +49,7 @@ export const MONTH_DATE_YEAR_FORMATS = {
     </mat-form-field>
 
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [provideLuxonDateAdapter(MONTH_DATE_YEAR_FORMATS)]
 })
 export class MonthDateYearPickerComponent {

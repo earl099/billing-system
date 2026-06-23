@@ -5,7 +5,7 @@
 
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { environment } from '@env/environment';
+import { environment } from '@env/environment.prod';
 import { LogDTO } from '@models/log';
 import { firstValueFrom } from 'rxjs';
 

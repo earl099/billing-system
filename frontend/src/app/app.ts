@@ -5,7 +5,7 @@
  * and logout with audit logging.
  */
 
-import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet, RouterLink, Router } from '@angular/router';
 import { LogDTO } from '@models/log';
 import { Auth } from '@services/auth';
@@ -20,6 +20,7 @@ import { NgxSonnerToaster, toast } from 'ngx-sonner';
     RouterLink
 ],
   templateUrl: './app.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './app.css'
 })
 export class App implements OnInit, OnDestroy {
