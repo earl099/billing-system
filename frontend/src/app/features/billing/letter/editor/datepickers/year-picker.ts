@@ -3,7 +3,7 @@
  * Opens datepicker in year view and only captures the selected year
  */
 
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatDatepickerModule, MatDatepicker } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -53,6 +53,7 @@ export const MONTH_YEAR_FORMATS = {
     </mat-form-field>
 
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [provideLuxonDateAdapter(MONTH_YEAR_FORMATS)]
 })
 export class YearPickerComponent {
