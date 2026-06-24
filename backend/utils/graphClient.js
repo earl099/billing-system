@@ -898,6 +898,133 @@ function mapToRow(columnMap, data, tableName) {
     })
 }
 
+export async function createMonthlySuppliesBilling(req, res) {
+    try {
+        const { code } = req.params
+        const { templateId, month, year } = req.body
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+
+        const fileName = `${code.toUpperCase()}-Monthly-Supplies-${month} ${year}.xlsx`
+
+        const folder = await graphRequest(
+            'GET',
+            `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts/${code}`
+        )
+
+        await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${templateId}/copy`,
+            {
+                name: fileName,
+                parentReference: { id: folder.data.id }
+            },
+            { validateStatus: s => s === 202 }
+        )
+
+        await new Promise(r => setTimeout(r, 5000))
+
+        const children = await graphRequest(
+            'GET',
+            `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts/${code}:/children`
+        )
+
+        const excelFile = children.data.value.find(f => f.name === fileName)
+
+        if (!excelFile) throw new Error('Copied Excel file not found')
+
+        res.json({
+            documentId: excelFile.id,
+            editUrl: excelFile.webUrl,
+            fileName
+        })
+
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to create monthly supplies billing' })
+    }
+}
+
+export async function setupMonthlySuppliesBilling(req, res) {
+    try {
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+        const { fileId } = req.params
+        const { month, year, period1, billingAmount1, period2, billingAmount2, annualRentalFee } = req.body
+
+        const rental = ((annualRentalFee * 0.22) + annualRentalFee) / 12  // Monthly rental fee with 12% VAT and 10% Administrative fee
+
+        const now = new Date()
+        const months = ['January', 'February', 'March', 'April', 'May', 'June',
+                        'July', 'August', 'September', 'October', 'November', 'December']
+        const dateCreated = `${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`
+        const monthPeriod = `FOR THE PERIOD OF ${month} ${year}`
+
+        const session = await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/createSession`,
+            { persistChanges: true }
+        )
+
+        const sessionId = session.data.id
+
+        // Rename the first worksheet to the month name
+        const worksheetsRes = await graphRequest(
+            'GET',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets`,
+            null,
+            { headers: { 'workbook-session-id': sessionId } }
+        )
+
+        const firstSheet = worksheetsRes.data.value[0]
+        const sheet = month
+
+        await graphRequest(
+            'PATCH',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets/${firstSheet.id}`,
+            { name: sheet },
+            { headers: { 'workbook-session-id': sessionId } }
+        )
+
+        const cellUpdates = [
+            ['C10', monthPeriod],
+            ['C12', dateCreated],
+            ['C20', period1],
+            ['E20', billingAmount1],
+            ['C21', period2],
+            ['E21', billingAmount2],
+            ['E23', rental]
+        ]
+
+        const batchRequests = cellUpdates.map(([cell, value], index) => ({
+            id: `supplies-${index + 1}`,
+            method: 'PATCH',
+            url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('${sheet}')/range(address='${cell}')`,
+            headers: { 'Content-Type': 'application/json' },
+            body: { values: [[value]] }
+        }))
+
+        await graphBatchRequest(batchRequests, sessionId)
+
+        await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/application/calculate`,
+            { calculationType: 'Full' }
+        )
+
+        await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/closeSession`,
+            null,
+            { headers: { 'workbook-session-id': sessionId } }
+        )
+
+        res.json({ message: 'Monthly supplies billing setup complete' })
+
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to setup monthly supplies billing' })
+    }
+}
+
 /**
  * Exports a SharePoint document as PDF using the Graph API's built-in conversion
  * Streams the PDF content directly to the client as an attachment

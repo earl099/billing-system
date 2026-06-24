@@ -18,7 +18,9 @@ import {
     listTemplates,
     saveOfbankTables,
     setupOfbankBilling,
-    updateRow
+    updateRow,
+    createMonthlySuppliesBilling,
+    setupMonthlySuppliesBilling
 } from "#utils/graphClient.js";
 import { Router } from "express";
 
@@ -61,5 +63,12 @@ graphRouter.patch('/editor/ofbank/:fileId/setup', setupOfbankBilling)
 graphRouter.get('/editor/ofbank/:fileId/tables', getOfbankTables)
 /** PATCH /editor/ofbank/:fileId/save - Save edited billing data back to both tables */
 graphRouter.patch('/editor/ofbank/:fileId/save', saveOfbankTables)
+
+// OFBANK MONTHLY SUPPLIES BILLING
+
+/** POST /editor/create/:code/monthly-supplies - Copy monthly supplies template and rename file */
+graphRouter.post('/editor/create/:code/monthly-supplies', createMonthlySuppliesBilling)
+/** PATCH /editor/monthly-supplies/:fileId/setup - Fill monthly supplies billing cells */
+graphRouter.patch('/editor/monthly-supplies/:fileId/setup', setupMonthlySuppliesBilling)
 
 export default graphRouter

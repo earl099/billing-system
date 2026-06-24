@@ -34,6 +34,28 @@ interface SaveTablesPayload {
   oBillingRows: BillingRow[]
 }
 
+interface MonthlySuppliesCreatePayload {
+  templateId: string
+  month: string
+  year: number
+}
+
+interface MonthlySuppliesSetupPayload {
+  month: string
+  year: number
+  period1: string
+  billingAmount1: number
+  period2: string
+  billingAmount2: number
+  annualRentalFee: number
+}
+
+interface MonthlySuppliesCreateResponse {
+  documentId: string
+  editUrl: string
+  fileName: string
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -71,6 +93,24 @@ export class OfbankBilling {
     return firstValueFrom(
       this.http.patch<any>(
         `${this.apiUrl}/editor/ofbank/${fileId}/save`,
+        payload
+      )
+    )
+  }
+
+  async createMonthlySuppliesBilling(code: string, payload: MonthlySuppliesCreatePayload): Promise<MonthlySuppliesCreateResponse> {
+    return firstValueFrom(
+      this.http.post<MonthlySuppliesCreateResponse>(
+        `${this.apiUrl}/editor/create/${code}/monthly-supplies`,
+        payload
+      )
+    )
+  }
+
+  async setupMonthlySuppliesBilling(fileId: string, payload: MonthlySuppliesSetupPayload): Promise<any> {
+    return firstValueFrom(
+      this.http.patch<any>(
+        `${this.apiUrl}/editor/monthly-supplies/${fileId}/setup`,
         payload
       )
     )
