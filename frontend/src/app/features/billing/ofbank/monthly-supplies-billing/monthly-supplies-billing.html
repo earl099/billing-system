@@ -1,0 +1,119 @@
+<div class="max-w-7xl mx-auto p-6">
+  <h2 class="text-2xl font-semibold mb-6">OFBANK Monthly Supplies Billing</h2>
+
+  @switch (step()) {
+    @case ('setup') {
+      <mat-card class="p-6 max-w-lg">
+        <h3 class="text-lg font-semibold mb-4">Select Template & Month</h3>
+
+        <mat-form-field appearance="outline" class="w-full mb-4">
+          <mat-label>Template</mat-label>
+          <mat-select [(value)]="selectedTemplateId">
+            @for (t of templates(); track t.id) {
+              <mat-option [value]="t.id">{{ t.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <div class="flex gap-4 mb-4">
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Year</mat-label>
+            <mat-select [(value)]="selectedYear">
+              @for (y of yearOptions; track y) {
+                <mat-option [value]="y">{{ y }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Month</mat-label>
+            <mat-select [(value)]="selectedMonth">
+              @for (m of monthOptions; track m) {
+                <mat-option [value]="m">{{ m }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <button mat-raised-button color="primary" (click)="createBilling()">
+          Create Billing File
+        </button>
+      </mat-card>
+    }
+
+    @case ('loading') {
+      <div class="flex flex-col items-center gap-4 py-16">
+        <mat-spinner diameter="48"></mat-spinner>
+        <p class="text-gray-600">Creating billing file...</p>
+      </div>
+    }
+
+    @case ('editing') {
+      <mat-card class="p-6 max-w-lg">
+        <h3 class="text-lg font-semibold mb-4">Enter Billing Details</h3>
+        <p class="text-sm text-gray-600 mb-4">
+          File: <strong>{{ fileName() }}</strong>
+        </p>
+
+        <h4 class="font-semibold mb-2">Period 1</h4>
+        <mat-form-field appearance="outline" class="w-full mb-4">
+          <mat-label>Period (e.g., January 1-15, 2025)</mat-label>
+          <input matInput [(ngModel)]="period1" placeholder="January 1-15, 2025">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full mb-4">
+          <mat-label>Billing Amount 1</mat-label>
+          <input matInput type="number" [(ngModel)]="billingAmount1" placeholder="0.00">
+        </mat-form-field>
+
+        <h4 class="font-semibold mb-2">Period 2</h4>
+        <mat-form-field appearance="outline" class="w-full mb-4">
+          <mat-label>Period (e.g., January 16-31, 2025)</mat-label>
+          <input matInput [(ngModel)]="period2" placeholder="January 16-31, 2025">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full mb-4">
+          <mat-label>Billing Amount 2</mat-label>
+          <input matInput type="number" [(ngModel)]="billingAmount2" placeholder="0.00">
+        </mat-form-field>
+
+        <h4 class="font-semibold mb-2">Rental Fee</h4>
+        <mat-form-field appearance="outline" class="w-full mb-4">
+          <mat-label>Annual Rental Fee</mat-label>
+          <input matInput type="number" [(ngModel)]="annualRentalFee" placeholder="0.00">
+        </mat-form-field>
+
+        <div class="flex gap-4">
+          <button mat-raised-button color="primary" (click)="saveBilling()">
+            Save Billing Data
+          </button>
+          <button mat-button (click)="openInSharePoint()">
+            Open in SharePoint
+          </button>
+        </div>
+      </mat-card>
+    }
+
+    @case ('saving') {
+      <div class="flex flex-col items-center gap-4 py-16">
+        <mat-spinner diameter="48"></mat-spinner>
+        <p class="text-gray-600">Saving billing data...</p>
+      </div>
+    }
+
+    @case ('done') {
+      <mat-card class="p-6 max-w-lg text-center">
+        <h3 class="text-lg font-semibold mb-2">Billing data saved successfully</h3>
+        <p class="text-sm text-gray-600 mb-6">File: {{ fileName() }}</p>
+        <div class="flex gap-4 justify-center">
+          <button mat-raised-button color="primary" (click)="openInSharePoint()">
+            Open in SharePoint
+          </button>
+          <button mat-button (click)="goToDashboard()">
+            Back to Dashboard
+          </button>
+        </div>
+      </mat-card>
+    }
+  }
+</div>

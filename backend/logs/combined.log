@@ -385,3 +385,45 @@
 2026-06-22 11:23:42 [info]: Server running on port 3000 
 2026-06-23 08:01:27 [info]: Connected to MongoDB 
 2026-06-23 08:01:27 [info]: Server running on port 3000 
+2026-06-24 08:35:09 [info]: Connected to MongoDB 
+2026-06-24 08:35:09 [info]: Server running on port 3000 
+2026-06-24 10:40:55 [info]: Connected to MongoDB 
+2026-06-24 10:40:55 [info]: Server running on port 3000 
+2026-06-24 10:41:08 [info]: Connected to MongoDB 
+2026-06-24 10:41:08 [info]: Server running on port 3000 
+2026-06-24 10:41:16 [info]: Connected to MongoDB 
+2026-06-24 10:41:16 [info]: Server running on port 3000 
+2026-06-24 10:46:49 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/auth/me",
+  "status": 401,
+  "duration": "7ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "anonymous"
+}
+2026-06-24 10:55:09 [warn]: HTTP Request {
+  "method": "PATCH",
+  "path": "/editor/monthly-supplies/01O6RSSI4FOKIMVFBNHFA26OAF2MSWX5VN/setup",
+  "status": 500,
+  "duration": "6948ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-24 10:59:22 [info]: Connected to MongoDB 
+2026-06-24 10:59:22 [info]: Server running on port 3000 
+2026-06-24 11:03:22 [info]: Connected to MongoDB 
+2026-06-24 11:03:22 [info]: Server running on port 3000 
+2026-06-24 11:03:38 [info]: Connected to MongoDB 
+2026-06-24 11:03:38 [info]: Server running on port 3000 
+2026-06-24 11:04:14 [info]: Connected to MongoDB 
+2026-06-24 11:04:14 [info]: Server running on port 3000 
+2026-06-24 11:04:16 [info]: Connected to MongoDB 
+2026-06-24 11:04:16 [info]: Server running on port 3000 
+2026-06-24 11:04:22 [info]: Connected to MongoDB 
+2026-06-24 11:04:22 [info]: Server running on port 3000 
+2026-06-24 11:04:25 [info]: Connected to MongoDB 
+2026-06-24 11:04:25 [info]: Server running on port 3000 
+2026-06-24 11:04:33 [info]: Connected to MongoDB 
+2026-06-24 11:04:33 [info]: Server running on port 3000 
