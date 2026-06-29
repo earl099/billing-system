@@ -324,21 +324,31 @@ export async function createSpadBillingLetter(req, res) {
         // ==========================================
         const billingSheet = 'BILLING LETTER'
 
-        const billingDate = new Date(data.billingDate)
-        const monthAndYear = new Date(data.monthAndYear)
+        // Helper to parse date and extract UTC components (avoids timezone issues)
+        const getDateParts = (dateStr) => {
+            const date = new Date(dateStr)
+            return {
+                year: date.getUTCFullYear(),
+                month: date.getUTCMonth() + 2,
+                day: date.getUTCDate() + 1
+            }
+        }
 
-        // Cell-value pairs for the BILLING LETTER sheet using Excel TEXT formulas for date formatting
+        const billingDate = getDateParts(data.billingDate)
+        const monthAndYear = getDateParts(data.monthAndYear)
+
+        // Cell-value pairs for the BILLING LETTER sheet using Excel DATE function for accurate dates
         const billingUpdates = [
-            ['I4', `=CONCAT("SOA NO: PMS ", TEXT("${monthAndYear.getMonth() + 1}/${monthAndYear.getFullYear()}", "yyyy"))`],
-            ['I5', `=UPPER(TEXT("${monthAndYear.getMonth() + 1}/${monthAndYear.getFullYear()}", "mmmm"))`],
-            ['I6', `=UPPER(TEXT("${billingDate.getDate()}/${monthAndYear.getMonth() + 1}/${monthAndYear.getFullYear()}", "mmmm dd, yyyy"))`],
-            ['A20', `=CONCAT("Property security and upkeep services rendered by LBRDC as of ", TEXT("${monthAndYear.getMonth() + 1}/${monthAndYear.getFullYear()}", "mmmm yyyy"))`],
+            ['I4', `=CONCAT("SOA NO: PMS ", TEXT(DATE(${monthAndYear.year}, ${monthAndYear.month}, 1), "yyyy"))`],
+            ['I5', `=UPPER(TEXT(DATE(${monthAndYear.year}, ${monthAndYear.month}, 1), "mmmm"))`],
+            ['I6', `=UPPER(TEXT(DATE(${monthAndYear.year}, ${monthAndYear.month}, ${billingDate.day}), "mmmm dd, yyyy"))`],
+            ['A20', `=CONCAT("Property security and upkeep services rendered by LBRDC as of ", TEXT(DATE(${monthAndYear.year}, ${monthAndYear.month}, 1), "mmmm yyyy"))`],
             ['A21', `for ${data.clientName}`],
-            ['B25', `=UPPER(TEXT("${monthAndYear.getMonth() + 1}/${monthAndYear.getFullYear()}", "mmmm yyyy"))`],
+            ['B25', `=UPPER(TEXT(DATE(${monthAndYear.year}, ${monthAndYear.month}, 1), "mmmm yyyy"))`],
             ['K25', data.amount],
             ['K29', '=SUM(K22:K28)'],
             ['I35', `PMC NO. ${data.pmcNo}`],
-            ['B37', `=UPPER(TEXT("${monthAndYear.getMonth() + 1}/${monthAndYear.getFullYear()}", "mmmm yyyy"))`],
+            ['B37', `=UPPER(TEXT(DATE(${monthAndYear.year}, ${monthAndYear.month}, 1), "mmmm yyyy"))`],
             ['A44', data.bAsstName],
             ['E44', data.bcuChiefName]
         ]
@@ -360,7 +370,7 @@ export async function createSpadBillingLetter(req, res) {
         const transmittalSheet = 'TRANSMITTAL'
 
         const transmittalBatch = [
-            ['B11', `=UPPER(TEXT("${billingDate.getDate()}/${billingDate.getMonth() + 1}/${billingDate.getFullYear()}", "mmmm dd, yyyy"))`],
+            ['B11', `=UPPER(TEXT(DATE(${billingDate.year}, ${billingDate.month-1}, ${billingDate.day}), "mmmm dd, yyyy"))`],
             ['E11', data.bAsstName],
             ['B30', data.bAsstName]
         ].map(([cell, value], index) => ({
@@ -470,7 +480,7 @@ export async function setupOfbankBilling(req, res) {
     try {
         const SITE_ID = process.env.SHAREPOINT_SITE_ID
         const { fileId } = req.params
-        const { dateRange } = req.body
+        const { dateRange, soaNo } = req.body
 
         const session = await graphRequest(
             'POST',
@@ -523,6 +533,13 @@ export async function setupOfbankBilling(req, res) {
                 url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('OFBANK MANPOWER')/range(address='B4')`,
                 headers: { 'Content-Type': 'application/json' },
                 body: { values: [['FOR THE PERIOD OF ' + dateRange.label]] }
+            },
+            {
+                id: 'date-4',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('OFBANK MANPOWER')/range(address='G6')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [[`SOA NO. ${soaNo}`]] }
             }
         ]
 
@@ -1022,6 +1039,615 @@ export async function setupMonthlySuppliesBilling(req, res) {
     } catch (err) {
         console.error(err?.response?.data || err)
         res.status(500).json({ message: 'Failed to setup monthly supplies billing' })
+    }
+}
+
+// ==========================================
+// BTR MISS BILLING FUNCTIONS
+// ==========================================
+
+export async function createBtrMissBilling(req, res) {
+    try {
+        const { code } = req.params
+        const { templateId, dateRange } = req.body
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+
+        const fileName = `${code.toUpperCase()}-MISS-Billing-${dateRange.label}.xlsm`
+
+        const folder = await graphRequest(
+            'GET',
+            `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts/${code}`
+        )
+
+        await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${templateId}/copy`,
+            {
+                name: fileName,
+                parentReference: { id: folder.data.id }
+            },
+            { validateStatus: s => s === 202 }
+        )
+
+        await new Promise(r => setTimeout(r, 5000))
+
+        const children = await graphRequest(
+            'GET',
+            `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts/${code}:/children`
+        )
+
+        const excelFile = children.data.value.find(f => f.name === fileName)
+
+        if (!excelFile) throw new Error('Copied Excel file not found')
+
+        res.json({
+            documentId: excelFile.id,
+            editUrl: excelFile.webUrl,
+            fileName
+        })
+
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to create BTr MISS billing' })
+    }
+}
+
+export async function setupBtrMissBilling(req, res) {
+    try {
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+        const { fileId } = req.params
+        const { dateRange, soaNo_MISS } = req.body
+
+        const session = await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/createSession`,
+            { persistChanges: true }
+        )
+
+        const sessionId = session.data.id
+
+        const itSheetName = `IT Billing ${dateRange.sheetLabel}`
+
+        const renameBatch = [
+            {
+                id: 'rename-1',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets/{itBillingSheet}`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { name: itSheetName }
+            }
+        ]
+
+        await graphBatchRequest(renameBatch, sessionId)
+
+        const dateBatch = [
+            {
+                id: 'date-1',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('${itSheetName}')/range(address='A4')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [['for the period ' + dateRange.label]] }
+            },
+            {
+                id: 'date-2',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('MISS')/range(address='B4')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [['FOR THE PERIOD OF ' + dateRange.label]] }
+            },
+            {
+                id: 'date-3',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('MISS')/range(address='H6')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [[`SOA NO. ${soaNo_MISS}`]] }
+            }
+        ]
+
+        await graphBatchRequest(dateBatch, sessionId)
+
+        await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/application/calculate`,
+            { calculationType: 'Full' }
+        )
+
+        await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/closeSession`,
+            null,
+            { headers: { 'workbook-session-id': sessionId } }
+        )
+
+        res.json({ message: 'BTr MISS billing setup complete' })
+
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to setup BTr MISS billing' })
+    }
+}
+
+export async function getBtrMissTables(req, res) {
+    try {
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+        const { fileId } = req.params
+
+        const itRes = await graphRequest(
+            'GET',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/tables('itBillingTable')/rows`
+        )
+
+        res.json({
+            itBilling: itRes.data.value.map(r => ({ index: r.index, values: r.values[0] }))
+        })
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to read BTr MISS billing tables' })
+    }
+}
+
+export async function saveBtrMissTables(req, res) {
+    try {
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+        const { fileId } = req.params
+        const { itBillingRows } = req.body
+
+        const session = await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/createSession`,
+            { persistChanges: true }
+        )
+
+        const sessionId = session.data.id
+
+        const ITBILLING_FORMULA_INDICES = [0, 2, 3, 4, 5, 6]
+
+        function buildBatchRequests(rows, tableName, formulaIndices) {
+            return rows.map(row => {
+                const values = row.values.map((val, i) =>
+                    formulaIndices.includes(i) ? null : val
+                )
+                return {
+                    id: `${tableName}-${row.index}`,
+                    method: 'PATCH',
+                    url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/tables('${tableName}')/rows/itemAt(index=${row.index})`,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: { values: [values] }
+                }
+            })
+        }
+
+        const itBatch = buildBatchRequests(itBillingRows, 'itBillingTable', ITBILLING_FORMULA_INDICES)
+
+        for (let i = 0; i < itBatch.length; i += 20) {
+            const chunk = itBatch.slice(i, i + 20)
+            await graphBatchRequest(chunk, sessionId)
+        }
+
+        await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/application/calculate`,
+            { calculationType: 'Full' }
+        )
+
+        await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/closeSession`,
+            null,
+            { headers: { 'workbook-session-id': sessionId } }
+        )
+
+        res.json({ message: 'BTr MISS billing data saved successfully' })
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to save BTr MISS billing data' })
+    }
+}
+
+// ==========================================
+// BTR JANITORIAL BILLING FUNCTIONS
+// ==========================================
+
+export async function createBtrJanitorialBilling(req, res) {
+    try {
+        const { code } = req.params
+        const { templateId, dateRange } = req.body
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+
+        const fileName = `${code.toUpperCase()}-Janitorial-Billing-${dateRange.label}.xlsm`
+
+        const folder = await graphRequest(
+            'GET',
+            `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts/${code}`
+        )
+
+        await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${templateId}/copy`,
+            {
+                name: fileName,
+                parentReference: { id: folder.data.id }
+            },
+            { validateStatus: s => s === 202 }
+        )
+
+        await new Promise(r => setTimeout(r, 5000))
+
+        const children = await graphRequest(
+            'GET',
+            `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts/${code}:/children`
+        )
+
+        const excelFile = children.data.value.find(f => f.name === fileName)
+
+        if (!excelFile) throw new Error('Copied Excel file not found')
+
+        res.json({
+            documentId: excelFile.id,
+            editUrl: excelFile.webUrl,
+            fileName
+        })
+
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to create BTr Janitorial billing' })
+    }
+}
+
+export async function setupBtrJanitorialBilling(req, res) {
+    try {
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+        const { fileId } = req.params
+        const { dateRange, soaNo_JANITORIAL, soaNo_HAULER, soaNo_TFMCD } = req.body
+
+        const session = await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/createSession`,
+            { persistChanges: true }
+        )
+
+        const sessionId = session.data.id
+
+        const jSheetName = `Janitorial Billing ${dateRange.sheetLabel}`
+
+        const renameBatch = [
+            {
+                id: 'rename-1',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets/{jBillingSheet}`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { name: jSheetName }
+            }
+        ]
+
+        await graphBatchRequest(renameBatch, sessionId)
+
+        const dateBatch = [
+            {
+                id: 'date-1',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('${jSheetName}')/range(address='A4')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [['for the period ' + dateRange.label]] }
+            },
+            {
+                id: 'date-2',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('JANITORIAL')/range(address='B4')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [['FOR THE PERIOD OF ' + dateRange.label]] }
+            },
+            {
+                id: 'date-3',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('JANITORIAL')/range(address='G6')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [[`SOA NO. ${soaNo_JANITORIAL}`]] }
+            },
+            {
+                id: 'date-4',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('BTr-HAULER')/range(address='B4')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [['FOR THE PERIOD OF ' + dateRange.label]] }
+            },
+            {
+                id: 'date-5',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('BTr-HAULER')/range(address='G6')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [[`SOA NO. ${soaNo_HAULER}`]] }
+            },
+            {
+                id: 'date-6',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('BTr-TFMCD')/range(address='B4')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [['FOR THE PERIOD OF ' + dateRange.label]] }
+            },
+            {
+                id: 'date-7',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('BTr-TFMCD')/range(address='G6')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [[`SOA NO. ${soaNo_TFMCD}`]] }
+            }
+        ]
+
+        await graphBatchRequest(dateBatch, sessionId)
+
+        await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/application/calculate`,
+            { calculationType: 'Full' }
+        )
+
+        await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/closeSession`,
+            null,
+            { headers: { 'workbook-session-id': sessionId } }
+        )
+
+        res.json({ message: 'BTr Janitorial billing setup complete' })
+
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to setup BTr Janitorial billing' })
+    }
+}
+
+export async function getBtrJanitorialTables(req, res) {
+    try {
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+        const { fileId } = req.params
+
+        const jRes = await graphRequest(
+            'GET',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/tables('jBillingTable')/rows`
+        )
+
+        res.json({
+            jBilling: jRes.data.value.map(r => ({ index: r.index, values: r.values[0] }))
+        })
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to read BTr Janitorial billing tables' })
+    }
+}
+
+export async function saveBtrJanitorialTables(req, res) {
+    try {
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+        const { fileId } = req.params
+        const { jBillingRows } = req.body
+
+        const session = await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/createSession`,
+            { persistChanges: true }
+        )
+
+        const sessionId = session.data.id
+
+        const JBILLING_FORMULA_INDICES = [0, 2, 3, 4, 5, 6]
+
+        function buildBatchRequests(rows, tableName, formulaIndices) {
+            return rows.map(row => {
+                const values = row.values.map((val, i) =>
+                    formulaIndices.includes(i) ? null : val
+                )
+                return {
+                    id: `${tableName}-${row.index}`,
+                    method: 'PATCH',
+                    url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/tables('${tableName}')/rows/itemAt(index=${row.index})`,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: { values: [values] }
+                }
+            })
+        }
+
+        const jBatch = buildBatchRequests(jBillingRows, 'jBillingTable', JBILLING_FORMULA_INDICES)
+
+        for (let i = 0; i < jBatch.length; i += 20) {
+            const chunk = jBatch.slice(i, i + 20)
+            await graphBatchRequest(chunk, sessionId)
+        }
+
+        await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/application/calculate`,
+            { calculationType: 'Full' }
+        )
+
+        await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/closeSession`,
+            null,
+            { headers: { 'workbook-session-id': sessionId } }
+        )
+
+        res.json({ message: 'BTr Janitorial billing data saved successfully' })
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to save BTr Janitorial billing data' })
+    }
+}
+
+// ==========================================
+// BTR SUPPLIES BILLING FUNCTIONS
+// ==========================================
+
+export async function createBtrSuppliesBilling(req, res) {
+    try {
+        const { code } = req.params
+        const { templateId, month, year } = req.body
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+
+        const fileName = `${month.toUpperCase()} BTR JANITORIAL, UTILITY & SUPPLIES ${year}.xlsx`
+
+        const folder = await graphRequest(
+            'GET',
+            `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts/${code}`
+        )
+
+        await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${templateId}/copy`,
+            {
+                name: fileName,
+                parentReference: { id: folder.data.id }
+            },
+            { validateStatus: s => s === 202 }
+        )
+
+        await new Promise(r => setTimeout(r, 5000))
+
+        const children = await graphRequest(
+            'GET',
+            `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts/${code}:/children`
+        )
+
+        const excelFile = children.data.value.find(f => f.name === fileName)
+
+        if (!excelFile) throw new Error('Copied Excel file not found')
+
+        res.json({
+            documentId: excelFile.id,
+            editUrl: excelFile.webUrl,
+            fileName
+        })
+
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to create BTr supplies billing' })
+    }
+}
+
+export async function setupBtrSuppliesBilling(req, res) {
+    try {
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+        const { fileId } = req.params
+        const {
+            month,
+            year,
+            particulars,
+            billingMonth,
+            period1,
+            period2,
+            mAmount1,
+            mAmount2,
+            sAmount,
+            aaName,
+            bcuChief,
+            supplyRows
+        } = req.body
+
+        const now = new Date()
+        const months = ['January', 'February', 'March', 'April', 'May', 'June',
+                        'July', 'August', 'September', 'October', 'November', 'December']
+        const dateCreated = `${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`
+
+        const session = await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/createSession`,
+            { persistChanges: true }
+        )
+
+        const sessionId = session.data.id
+
+        const worksheetsRes = await graphRequest(
+            'GET',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets`,
+            null,
+            { headers: { 'workbook-session-id': sessionId } }
+        )
+
+        const templateSheet = worksheetsRes.data.value.find(w => w.name === '{monthYear}')
+        const sheetName = `${month.toUpperCase()} ${year}`
+
+        if (templateSheet) {
+            await graphRequest(
+                'PATCH',
+                `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets/${templateSheet.id}`,
+                { name: sheetName },
+                { headers: { 'workbook-session-id': sessionId } }
+            )
+        }
+
+        const cellUpdates = [
+            ['C12', particulars],
+            ['C13', billingMonth],
+            ['C15', dateCreated],
+            ['C23', period1],
+            ['C24', period2],
+            ['E23', mAmount1],
+            ['E24', mAmount2],
+            ['E26', sAmount],
+            ['A38', aaName.toUpperCase()],
+            ['E38', bcuChief.toUpperCase()]
+        ]
+
+        const batchRequests = cellUpdates.map(([cell, value], index) => ({
+            id: `supplies-${index + 1}`,
+            method: 'PATCH',
+            url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('${sheetName}')/range(address='${cell}')`,
+            headers: { 'Content-Type': 'application/json' },
+            body: { values: [[value]] }
+        }))
+
+        await graphBatchRequest(batchRequests, sessionId)
+
+        if (Array.isArray(supplyRows) && supplyRows.length > 0) {
+            for (let i = 0; i < supplyRows.length; i++) {
+                await graphRequest(
+                    'POST',
+                    `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('${sheetName}')/range(address='A27:E27')/insert`,
+                    { shift: 'Down' },
+                    { headers: { 'workbook-session-id': sessionId } }
+                )
+            }
+
+            const rowBatch = supplyRows.map((row, index) => ({
+                id: `row-${index + 1}`,
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('${sheetName}')/range(address='A${27 + index}:E${27 + index}')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [[row.field, null, null, null, row.amount]] }
+            }))
+
+            for (let i = 0; i < rowBatch.length; i += 20) {
+                const chunk = rowBatch.slice(i, i + 20)
+                await graphBatchRequest(chunk, sessionId)
+            }
+
+            await graphRequest(
+                'POST',
+                `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('${sheetName}')/range(address='A${27 + supplyRows.length}:E${27 + supplyRows.length}')/insert`,
+                { shift: 'Down' },
+                { headers: { 'workbook-session-id': sessionId } }
+            )
+        }
+
+        await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/application/calculate`,
+            { calculationType: 'Full' },
+            { headers: { 'workbook-session-id': sessionId } }
+        )
+
+        await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/closeSession`,
+            null,
+            { headers: { 'workbook-session-id': sessionId } }
+        )
+
+        res.json({ message: 'BTr supplies billing setup complete' })
+
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to setup BTr supplies billing' })
     }
 }
 

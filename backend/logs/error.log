@@ -46,3 +46,47 @@
     at param (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\index.js:600:14)
     at param (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\index.js:610:14)
     at processParams (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\index.js:664:3)
+2026-06-24 14:34:15 [error]: Unhandled Error Cannot read properties of undefined (reading 'map') - TypeError: Cannot read properties of undefined (reading 'map')
+    at file:///C:/Users/lbrdc/OneDrive/Desktop/billing-system/backend/middleware/validate.middleware.js:29:45
+    at Layer.handleRequest (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\route.js:157:13)
+    at file:///C:/Users/lbrdc/OneDrive/Desktop/billing-system/backend/middleware/validateObjectId.middleware.js:32:9
+    at Layer.handleRequest (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\route.js:117:3)
+    at handle (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\layer.js:152:17)
+    at C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\index.js:295:15
+2026-06-24 14:35:47 [error]: Unhandled Error Cannot read properties of undefined (reading 'map') - TypeError: Cannot read properties of undefined (reading 'map')
+    at file:///C:/Users/lbrdc/OneDrive/Desktop/billing-system/backend/middleware/validate.middleware.js:29:45
+    at Layer.handleRequest (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\route.js:157:13)
+    at file:///C:/Users/lbrdc/OneDrive/Desktop/billing-system/backend/middleware/validateObjectId.middleware.js:32:9
+    at Layer.handleRequest (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\route.js:117:3)
+    at handle (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\layer.js:152:17)
+    at C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\index.js:295:15
+2026-06-24 14:36:34 [error]: Unhandled Error error.map is not a function - TypeError: error.map is not a function
+    at file:///C:/Users/lbrdc/OneDrive/Desktop/billing-system/backend/middleware/validate.middleware.js:29:38
+    at Layer.handleRequest (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\route.js:157:13)
+    at file:///C:/Users/lbrdc/OneDrive/Desktop/billing-system/backend/middleware/validateObjectId.middleware.js:32:9
+    at Layer.handleRequest (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\route.js:117:3)
+    at handle (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\layer.js:152:17)
+    at C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\index.js:295:15
+2026-06-24 14:37:16 [error]: Unhandled Error Cannot read properties of undefined (reading 'map') - TypeError: Cannot read properties of undefined (reading 'map')
+    at file:///C:/Users/lbrdc/OneDrive/Desktop/billing-system/backend/middleware/validate.middleware.js:29:45
+    at Layer.handleRequest (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\route.js:157:13)
+    at file:///C:/Users/lbrdc/OneDrive/Desktop/billing-system/backend/middleware/validateObjectId.middleware.js:32:9
+    at Layer.handleRequest (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\route.js:117:3)
+    at handle (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\layer.js:152:17)
+    at C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\index.js:295:15

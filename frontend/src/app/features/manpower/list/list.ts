@@ -1,7 +1,8 @@
 /**
  * @fileoverview Manpower employee list component
  * Displays a paginated, searchable table of employees from the SharePoint EmployeeTable
- * with view, edit, and delete actions
+ * with view, edit, and delete actions. Loads available billing templates and requires
+ * user selection when multiple templates exist.
  */
 
 import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, OnDestroy, signal } from '@angular/core';
@@ -12,7 +13,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
 import { Manpower } from '@services/manpower';
+import { FileEditor } from '@services/file-editor';
 import { toast } from 'ngx-sonner';
+import { MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'app-list',
@@ -21,7 +24,8 @@ import { toast } from 'ngx-sonner';
     MatTableModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatSelectModule
   ],
   templateUrl: './list.html',
   styleUrl: './list.css',
@@ -29,6 +33,7 @@ import { toast } from 'ngx-sonner';
 })
 export class List implements OnInit, OnDestroy {
   manpowerService = inject(Manpower)
+  fileEditor = inject(FileEditor)
   route = inject(ActivatedRoute)
   router = inject(Router)
 
@@ -38,7 +43,11 @@ export class List implements OnInit, OnDestroy {
   searchQuery = signal('')
   currentPage = signal(1)
   pageSize = signal(5)
-  loading = signal(true)
+  loading = signal(false)
+
+  templates = signal<any[]>([])
+  selectedTemplate = signal<any>(null)
+  needsTemplateSelection = signal(false)
 
   /** Debounce timer for search input to avoid excessive filtering */
   private debounceTimer: ReturnType<typeof setTimeout> | null = null
@@ -89,18 +98,50 @@ export class List implements OnInit, OnDestroy {
       this.router.navigate(['/'])
       return
     }
-    await this.loadData()
+    await this.loadTemplates()
   }
 
   ngOnDestroy() {
     if (this.debounceTimer) clearTimeout(this.debounceTimer)
   }
 
+  /** Loads available billing templates and decides whether to prompt or auto-load */
+  async loadTemplates() {
+    try {
+      const all = await this.fileEditor.getTemplates(this.code())
+      const excelTemplates = all.filter((t: any) =>
+        t.type === 'excel' && t.name.endsWith('.xlsm')
+      )
+      this.templates.set(excelTemplates)
+
+      if (excelTemplates.length > 1) {
+        this.needsTemplateSelection.set(true)
+      } else {
+        if (excelTemplates.length === 1) {
+          this.selectedTemplate.set(excelTemplates[0])
+        }
+        this.loading.set(true)
+        await this.loadData()
+      }
+    } catch (e) {
+      toast.error('Failed to load templates')
+    }
+  }
+
+  /** Handles template selection and triggers data loading */
+  async onTemplateSelected(template: any) {
+    this.selectedTemplate.set(template)
+    this.loading.set(true)
+    await this.loadData()
+  }
+
   /** Fetches employee data from SharePoint and maps row values to display columns */
   async loadData() {
     try {
       this.loading.set(true)
-      const dataSource = await this.manpowerService.listData(this.code(), 'BILLING-TEMPLATE.xlsm', 'EmployeeTable')
+      const fileName = this.selectedTemplate()?.name ?? ''
+      const dataSource = await this.manpowerService.listData(this.code(), fileName, 'EmployeeTable')
+
       const formattedData = []
 
       for(let i = 0; i < dataSource.length; i++) {
@@ -147,7 +188,8 @@ export class List implements OnInit, OnDestroy {
     if(!confirm('Are you sure you want to delete this employee? This action is permanent.')) return
 
     try {
-      await this.manpowerService.deleteRow(this.code(), d.index, 'BILLING-TEMPLATE.xlsm', 'EmployeeTable')
+      const fileName = this.selectedTemplate()?.name ?? ''
+      await this.manpowerService.deleteRow(this.code(), d.index, fileName, 'EmployeeTable')
       toast.success('Employee deleted successfully')
       await this.loadData()
     } catch (e) {

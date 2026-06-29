@@ -20,7 +20,17 @@ import {
     setupOfbankBilling,
     updateRow,
     createMonthlySuppliesBilling,
-    setupMonthlySuppliesBilling
+    setupMonthlySuppliesBilling,
+    createBtrMissBilling,
+    setupBtrMissBilling,
+    getBtrMissTables,
+    saveBtrMissTables,
+    createBtrJanitorialBilling,
+    setupBtrJanitorialBilling,
+    getBtrJanitorialTables,
+    saveBtrJanitorialTables,
+    createBtrSuppliesBilling,
+    setupBtrSuppliesBilling
 } from "#utils/graphClient.js";
 import { Router } from "express";
 
@@ -70,5 +80,34 @@ graphRouter.patch('/editor/ofbank/:fileId/save', saveOfbankTables)
 graphRouter.post('/editor/create/:code/monthly-supplies', createMonthlySuppliesBilling)
 /** PATCH /editor/monthly-supplies/:fileId/setup - Fill monthly supplies billing cells */
 graphRouter.patch('/editor/monthly-supplies/:fileId/setup', setupMonthlySuppliesBilling)
+
+// BTR MISS BILLING
+
+/** POST /editor/create/:code/btr-miss - Copy BTr MISS billing template */
+graphRouter.post('/editor/create/:code/btr-miss', createBtrMissBilling)
+/** PATCH /editor/btr-miss/:fileId/setup - Setup BTr MISS billing cells */
+graphRouter.patch('/editor/btr-miss/:fileId/setup', setupBtrMissBilling)
+/** GET /editor/btr-miss/:fileId/tables - Read itBillingTable from BTr MISS file */
+graphRouter.get('/editor/btr-miss/:fileId/tables', getBtrMissTables)
+/** PATCH /editor/btr-miss/:fileId/save - Save edited itBillingTable data */
+graphRouter.patch('/editor/btr-miss/:fileId/save', saveBtrMissTables)
+
+// BTR JANITORIAL BILLING
+
+/** POST /editor/create/:code/btr-janitorial - Copy BTr Janitorial billing template */
+graphRouter.post('/editor/create/:code/btr-janitorial', createBtrJanitorialBilling)
+/** PATCH /editor/btr-janitorial/:fileId/setup - Setup BTr Janitorial billing cells */
+graphRouter.patch('/editor/btr-janitorial/:fileId/setup', setupBtrJanitorialBilling)
+/** GET /editor/btr-janitorial/:fileId/tables - Read jBillingTable from BTr Janitorial file */
+graphRouter.get('/editor/btr-janitorial/:fileId/tables', getBtrJanitorialTables)
+/** PATCH /editor/btr-janitorial/:fileId/save - Save edited jBillingTable data */
+graphRouter.patch('/editor/btr-janitorial/:fileId/save', saveBtrJanitorialTables)
+
+// BTR SUPPLIES BILLING
+
+/** POST /editor/create/:code/btr-supplies - Copy BTr supplies billing template */
+graphRouter.post('/editor/create/:code/btr-supplies', createBtrSuppliesBilling)
+/** PATCH /editor/btr-supplies/:fileId/setup - Fill BTr supplies billing cells and insert rows */
+graphRouter.patch('/editor/btr-supplies/:fileId/setup', setupBtrSuppliesBilling)
 
 export default graphRouter

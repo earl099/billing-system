@@ -427,3 +427,366 @@
 2026-06-24 11:04:25 [info]: Server running on port 3000 
 2026-06-24 11:04:33 [info]: Connected to MongoDB 
 2026-06-24 11:04:33 [info]: Server running on port 3000 
+2026-06-24 14:33:55 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/auth/me",
+  "status": 401,
+  "duration": "34ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "anonymous"
+}
+2026-06-24 14:34:15 [error]: Unhandled Error Cannot read properties of undefined (reading 'map') - TypeError: Cannot read properties of undefined (reading 'map')
+    at file:///C:/Users/lbrdc/OneDrive/Desktop/billing-system/backend/middleware/validate.middleware.js:29:45
+    at Layer.handleRequest (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\route.js:157:13)
+    at file:///C:/Users/lbrdc/OneDrive/Desktop/billing-system/backend/middleware/validateObjectId.middleware.js:32:9
+    at Layer.handleRequest (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\route.js:117:3)
+    at handle (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\layer.js:152:17)
+    at C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\index.js:295:15
+2026-06-24 14:34:15 [warn]: HTTP Request {
+  "method": "PUT",
+  "path": "/api/user/6a3b7990d5dadae5428dfb20",
+  "status": 500,
+  "duration": "6ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-24 14:35:44 [info]: Connected to MongoDB 
+2026-06-24 14:35:44 [info]: Server running on port 3000 
+2026-06-24 14:35:47 [error]: Unhandled Error Cannot read properties of undefined (reading 'map') - TypeError: Cannot read properties of undefined (reading 'map')
+    at file:///C:/Users/lbrdc/OneDrive/Desktop/billing-system/backend/middleware/validate.middleware.js:29:45
+    at Layer.handleRequest (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\route.js:157:13)
+    at file:///C:/Users/lbrdc/OneDrive/Desktop/billing-system/backend/middleware/validateObjectId.middleware.js:32:9
+    at Layer.handleRequest (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\route.js:117:3)
+    at handle (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\layer.js:152:17)
+    at C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\index.js:295:15
+2026-06-24 14:35:47 [warn]: HTTP Request {
+  "method": "PUT",
+  "path": "/api/user/6a3b7990d5dadae5428dfb20",
+  "status": 500,
+  "duration": "8ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-24 14:36:31 [info]: Connected to MongoDB 
+2026-06-24 14:36:31 [info]: Server running on port 3000 
+2026-06-24 14:36:34 [error]: Unhandled Error error.map is not a function - TypeError: error.map is not a function
+    at file:///C:/Users/lbrdc/OneDrive/Desktop/billing-system/backend/middleware/validate.middleware.js:29:38
+    at Layer.handleRequest (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\route.js:157:13)
+    at file:///C:/Users/lbrdc/OneDrive/Desktop/billing-system/backend/middleware/validateObjectId.middleware.js:32:9
+    at Layer.handleRequest (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\route.js:117:3)
+    at handle (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\layer.js:152:17)
+    at C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\index.js:295:15
+2026-06-24 14:36:34 [warn]: HTTP Request {
+  "method": "PUT",
+  "path": "/api/user/6a3b7990d5dadae5428dfb20",
+  "status": 500,
+  "duration": "8ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-24 14:36:44 [info]: Connected to MongoDB 
+2026-06-24 14:36:44 [info]: Server running on port 3000 
+2026-06-24 14:37:16 [error]: Unhandled Error Cannot read properties of undefined (reading 'map') - TypeError: Cannot read properties of undefined (reading 'map')
+    at file:///C:/Users/lbrdc/OneDrive/Desktop/billing-system/backend/middleware/validate.middleware.js:29:45
+    at Layer.handleRequest (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\route.js:157:13)
+    at file:///C:/Users/lbrdc/OneDrive/Desktop/billing-system/backend/middleware/validateObjectId.middleware.js:32:9
+    at Layer.handleRequest (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\route.js:117:3)
+    at handle (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\layer.js:152:17)
+    at C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\index.js:295:15
+2026-06-24 14:37:16 [warn]: HTTP Request {
+  "method": "PUT",
+  "path": "/api/user/6a3b7990d5dadae5428dfb20",
+  "status": 500,
+  "duration": "9ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-24 14:46:53 [info]: Connected to MongoDB 
+2026-06-24 14:46:53 [info]: Server running on port 3000 
+2026-06-24 14:47:06 [info]: Connected to MongoDB 
+2026-06-24 14:47:06 [info]: Server running on port 3000 
+2026-06-24 15:39:50 [info]: Connected to MongoDB 
+2026-06-24 15:39:50 [info]: Server running on port 3000 
+2026-06-24 15:40:37 [info]: Connected to MongoDB 
+2026-06-24 15:40:37 [info]: Server running on port 3000 
+2026-06-24 16:41:35 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/editor/create/spad/excel",
+  "status": 500,
+  "duration": "13358ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-24 16:44:38 [info]: Connected to MongoDB 
+2026-06-24 16:44:38 [info]: Server running on port 3000 
+2026-06-24 16:44:40 [info]: Connected to MongoDB 
+2026-06-24 16:44:40 [info]: Server running on port 3000 
+2026-06-24 16:47:17 [info]: Connected to MongoDB 
+2026-06-24 16:47:17 [info]: Server running on port 3000 
+2026-06-24 16:47:19 [info]: Connected to MongoDB 
+2026-06-24 16:47:19 [info]: Server running on port 3000 
+2026-06-24 16:50:25 [info]: Connected to MongoDB 
+2026-06-24 16:50:25 [info]: Server running on port 3000 
+2026-06-24 16:50:28 [info]: Connected to MongoDB 
+2026-06-24 16:50:28 [info]: Server running on port 3000 
+2026-06-24 16:50:34 [info]: Connected to MongoDB 
+2026-06-24 16:50:34 [info]: Server running on port 3000 
+2026-06-24 16:53:20 [info]: Connected to MongoDB 
+2026-06-24 16:53:20 [info]: Server running on port 3000 
+2026-06-25 08:05:09 [info]: Connected to MongoDB 
+2026-06-25 08:05:09 [info]: Server running on port 3000 
+2026-06-25 10:06:10 [info]: Connected to MongoDB 
+2026-06-25 10:06:10 [info]: Server running on port 3000 
+2026-06-25 14:39:14 [info]: Connected to MongoDB 
+2026-06-25 14:39:14 [info]: Server running on port 3000 
+2026-06-29 08:20:58 [info]: Connected to MongoDB 
+2026-06-29 08:20:58 [info]: Server running on port 3000 
+2026-06-29 08:47:38 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/btr/list",
+  "status": 500,
+  "duration": "890ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-29 08:48:03 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/btr/list",
+  "status": 500,
+  "duration": "436ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-29 08:52:37 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/ofbank/list",
+  "status": 500,
+  "duration": "376ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-29 09:15:21 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/btr/list",
+  "status": 500,
+  "duration": "459ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-29 09:15:36 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/btr/list",
+  "status": 500,
+  "duration": "454ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-29 09:16:51 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/btr/list",
+  "status": 500,
+  "duration": "438ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-29 09:19:00 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/btr/list",
+  "status": 500,
+  "duration": "592ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-29 09:19:05 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/btr/list",
+  "status": 500,
+  "duration": "291ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-29 09:19:18 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/btr/list",
+  "status": 500,
+  "duration": "432ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-29 09:19:20 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/btr/list",
+  "status": 500,
+  "duration": "283ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-29 09:20:50 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/btr/list",
+  "status": 500,
+  "duration": "519ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-29 09:20:54 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/btr/list",
+  "status": 500,
+  "duration": "243ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-29 09:20:57 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/btr/list",
+  "status": 500,
+  "duration": "355ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-29 09:21:15 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/btr/list",
+  "status": 500,
+  "duration": "414ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-29 09:22:11 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/btr/list",
+  "status": 500,
+  "duration": "668ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-29 09:23:03 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/btr/list",
+  "status": 500,
+  "duration": "468ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-29 09:23:28 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/btr/list",
+  "status": 500,
+  "duration": "459ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-29 09:24:32 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/btr/list",
+  "status": 500,
+  "duration": "443ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-29 09:25:20 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/btr/list",
+  "status": 500,
+  "duration": "427ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-29 09:25:25 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/btr/list",
+  "status": 500,
+  "duration": "372ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-29 09:25:26 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/btr/list",
+  "status": 500,
+  "duration": "319ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-29 09:25:46 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/btr/list",
+  "status": 500,
+  "duration": "443ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-29 09:25:59 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/btr/list",
+  "status": 500,
+  "duration": "421ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-29 09:26:30 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/ofbank/list",
+  "status": 500,
+  "duration": "404ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-29 10:28:04 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/btr/list",
+  "status": 500,
+  "duration": "992ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-06-29 17:14:07 [info]: Connected to MongoDB 
+2026-06-29 17:14:07 [info]: Server running on port 3000 

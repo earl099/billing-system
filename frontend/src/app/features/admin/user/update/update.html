@@ -39,10 +39,16 @@
         <mat-label>Handled Clients</mat-label>
         <mat-select formControlName="handledClients" multiple>
           @for (client of clientList(); track client) {
-            @if (client.code !== 'ALL' && client.code !== 'NONE') {
-              <mat-option [value]="client._id">{{ client.code }} ({{ client.name }})</mat-option>
+            @if (form.get('role')?.value === 'User') {
+              @if (client.code !== 'ALL' && client.code !== 'NONE') {
+                <mat-option [value]="client._id">{{ client.code }} ({{ client.name }})</mat-option>
+              }
             }
-
+            @else {
+              @if (client.code === 'ALL') {
+                <mat-option [value]="client._id">{{ client.code }} ({{ client.name }})</mat-option>
+              }
+            }
           }
         </mat-select>
       </mat-form-field>

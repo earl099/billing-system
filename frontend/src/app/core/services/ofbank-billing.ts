@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { environment } from '@env/environment.prod';
+import { environment } from '@env/environment';
 import { firstValueFrom } from 'rxjs';
 
 interface DateRange {
@@ -72,7 +72,7 @@ export class OfbankBilling {
     )
   }
 
-  async setupBilling(fileId: string, payload: { dateRange: DateRange }): Promise<any> {
+  async setupBilling(fileId: string, payload: { dateRange: DateRange, soaNo: string }): Promise<any> {
     return firstValueFrom(
       this.http.patch<any>(
         `${this.apiUrl}/editor/ofbank/${fileId}/setup`,
