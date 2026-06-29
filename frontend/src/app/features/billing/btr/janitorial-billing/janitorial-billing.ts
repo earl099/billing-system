@@ -7,10 +7,10 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { Router } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
 import { FileEditor } from '@services/file-editor';
-import { OfbankBilling } from '@services/ofbank-billing';
+import { BtrBilling } from '@services/btr-billing';
 import { DateTime } from 'luxon';
 import { toast } from 'ngx-sonner';
-import { BillingColumnDef, BillingRow, EditableBillingTable } from '../editable-table/editable-table';
+import { BillingColumnDef, BillingRow, EditableBillingTable } from '../../ofbank/editable-table/editable-table';
 
 const JBILLING_COLUMNS: BillingColumnDef[] = [
   { key: 'no', label: 'No.', type: 'readonly', index: 0 },
@@ -37,38 +37,13 @@ const JBILLING_COLUMNS: BillingColumnDef[] = [
   { key: 'remarks', label: 'Remarks', type: 'text', index: 21 },
 ]
 
-const OBILLING_COLUMNS: BillingColumnDef[] = [
-  { key: 'no', label: 'No.', type: 'readonly', index: 0 },
-  { key: 'empNo', label: 'Employee No.', type: 'readonly', index: 1 },
-  { key: 'empName', label: 'Employee Name', type: 'readonly', index: 2 },
-  { key: 'position', label: 'Position', type: 'readonly', index: 3 },
-  { key: 'monthlyRate', label: 'Monthly Rate', type: 'readonly', index: 4 },
-  { key: 'undertime', label: 'Undertime', type: 'time', index: 5 },
-  { key: 'legalHolidayOT', label: 'Legal Holiday OT (100%)', type: 'time', index: 6 },
-  { key: 'regularOT', label: 'Regular OT', type: 'time', index: 7 },
-  { key: 'restDayOT', label: 'Rest Day OT', type: 'time', index: 8 },
-  { key: 'restDayOTExcess', label: 'Rest Day OT Excess', type: 'time', index: 9 },
-  { key: 'specialHolidayOT', label: 'Special Holiday OT', type: 'time', index: 10 },
-  { key: 'specialHolidayOTRestDay', label: 'Special Holiday OT in Rest Day', type: 'time', index: 11 },
-  { key: 'specialHolidayOTExcess', label: 'Special Holiday OT Excess', type: 'time', index: 12 },
-  { key: 'legalHolidayOT2', label: 'Legal Holiday OT (200%)', type: 'time', index: 13 },
-  { key: 'legalHolidayOTExcess', label: 'Legal Holiday OT Excess', type: 'time', index: 14 },
-  { key: 'nightDiffOT', label: 'Night Diff OT', type: 'time', index: 15 },
-  { key: 'nightDiffRestDayOT', label: 'Night Diff Rest Day OT', type: 'time', index: 16 },
-  { key: 'nightDiffRestDayOTExcess', label: 'Night Diff Rest Day OT Excess', type: 'time', index: 17 },
-  { key: 'nightDiffLegalHolidayOT', label: 'Night Diff Legal Holiday OT', type: 'time', index: 18 },
-  { key: 'nightDiffLegalHolidayOTExcess', label: 'Night Diff Legal Holiday OT Excess', type: 'time', index: 19 },
-  { key: 'nightDiffLegalHolidayOTExcess2', label: 'Night Diff Legal Holiday OT Excess 2', type: 'time', index: 20 },
-  { key: 'remarks', label: 'Remarks', type: 'text', index: 21 },
-]
-
 interface DateRangeOption {
   label: string
   sheetLabel: string
 }
 
 @Component({
-  selector: 'app-manpower-billing',
+  selector: 'app-janitorial-billing',
   imports: [
     ...MATERIAL_MODULES,
     FormsModule,
@@ -79,16 +54,16 @@ interface DateRangeOption {
     MatTabsModule,
     EditableBillingTable,
   ],
-  templateUrl: './manpower-billing.html',
-  styleUrl: './manpower-billing.css',
+  templateUrl: './janitorial-billing.html',
+  styleUrl: './janitorial-billing.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ManpowerBilling {
+export class JanitorialBilling {
   private fileEditor = inject(FileEditor)
-  private ofbankBilling = inject(OfbankBilling)
+  private btrBilling = inject(BtrBilling)
   private router = inject(Router)
 
-  readonly code = 'ofbank'
+  readonly code = 'btr'
 
   step = signal<'setup' | 'loading' | 'editing' | 'saving' | 'done'>('setup')
   templates = signal<any[]>([])
@@ -98,15 +73,14 @@ export class ManpowerBilling {
   fileName = signal<string>('')
 
   jBillingData = signal<BillingRow[]>([])
-  oBillingData = signal<BillingRow[]>([])
-
   jBillingColumns = JBILLING_COLUMNS
-  oBillingColumns = OBILLING_COLUMNS
 
   selectedYear = signal<number>(DateTime.now().year)
   selectedMonth = signal<number>(DateTime.now().month)
   selectedPeriod = signal<'first' | 'second'>('first')
-  soaNo = signal<string>('')
+  soaNo_JANITORIAL = signal<string>('')
+  soaNo_HAULER = signal<string>('')
+  soaNo_TFMCD = signal<string>('')
 
   yearOptions = Array.from({ length: 5 }, (_, i) => DateTime.now().year - 2 + i)
   monthOptions = Array.from({ length: 12 }, (_, i) => ({
@@ -114,8 +88,7 @@ export class ManpowerBilling {
     label: DateTime.fromObject({ month: i + 1 }).toFormat('MMMM')
   }))
 
-  janTable = viewChild<EditableBillingTable>('janTable')
-  manTable = viewChild<EditableBillingTable>('manTable')
+  jTable = viewChild<EditableBillingTable>('jTable')
 
   dateRange = signal<DateRangeOption>({ label: '', sheetLabel: '' })
 
@@ -128,7 +101,7 @@ export class ManpowerBilling {
     try {
       const all = await this.fileEditor.getTemplates(this.code)
       this.templates.set(all.filter((t: any) =>
-        t.type === 'excel' && t.name.endsWith('.xlsm')
+        t.type === 'excel' && t.name.includes('JANITORIAL-TEMPLATE') && t.name.endsWith('.xlsm')
       ))
     } catch (e) {
       toast.error('Failed to load templates')
@@ -160,15 +133,15 @@ export class ManpowerBilling {
       return
     }
 
-    if (!this.soaNo()) {
-      toast.error('Please enter the SOA number')
+    if (!this.soaNo_JANITORIAL() || !this.soaNo_HAULER() || !this.soaNo_TFMCD()) {
+      toast.error('Please enter all SOA numbers')
       return
     }
 
     this.step.set('loading')
 
     try {
-      const result = await this.ofbankBilling.createBilling(this.code, {
+      const result = await this.btrBilling.createJanitorialBilling(this.code, {
         templateId: this.selectedTemplateId(),
         dateRange: this.dateRange()
       })
@@ -177,14 +150,15 @@ export class ManpowerBilling {
       this.editUrl.set(result.editUrl)
       this.fileName.set(result.fileName)
 
-      await this.ofbankBilling.setupBilling(result.documentId, {
+      await this.btrBilling.setupJanitorialBilling(result.documentId, {
         dateRange: this.dateRange(),
-        soaNo: this.soaNo()
+        soaNo_JANITORIAL: this.soaNo_JANITORIAL(),
+        soaNo_HAULER: this.soaNo_HAULER(),
+        soaNo_TFMCD: this.soaNo_TFMCD()
       })
 
-      const tables = await this.ofbankBilling.getTables(result.documentId)
+      const tables = await this.btrBilling.getJanitorialTables(result.documentId)
       this.jBillingData.set(tables.jBilling)
-      this.oBillingData.set(tables.oBilling)
 
       this.step.set('editing')
     } catch (e) {
@@ -194,11 +168,10 @@ export class ManpowerBilling {
   }
 
   async saveBilling() {
-    const jan = this.janTable()
-    const man = this.manTable()
+    const j = this.jTable()
     const id = this.fileId()
 
-    if (!jan || !man || !id) {
+    if (!j || !id) {
       toast.error('Something went wrong')
       return
     }
@@ -206,9 +179,8 @@ export class ManpowerBilling {
     this.step.set('saving')
 
     try {
-      await this.ofbankBilling.saveTables(id, {
-        jBillingRows: jan.getEditedRows(),
-        oBillingRows: man.getEditedRows()
+      await this.btrBilling.saveJanitorialTables(id, {
+        jBillingRows: j.getEditedRows()
       })
 
       this.step.set('done')

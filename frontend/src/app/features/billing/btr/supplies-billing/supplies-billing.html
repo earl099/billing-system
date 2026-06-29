@@ -1,0 +1,169 @@
+<div class="max-w-7xl mx-auto p-6">
+  <h2 class="text-2xl font-semibold mb-6">BTr Monthly Supplies Billing</h2>
+
+  @switch (step()) {
+    @case ('setup') {
+      <mat-card class="p-6 max-w-2xl">
+        <h3 class="text-lg font-semibold mb-4">Select Template & Billing Details</h3>
+
+        <mat-form-field appearance="outline" class="w-full mb-4">
+          <mat-label>Template</mat-label>
+          <mat-select [value]="selectedTemplateId()" (valueChange)="selectedTemplateId.set($event)">
+            @for (t of templates(); track t.id) {
+              <mat-option [value]="t.id">{{ t.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <div class="flex gap-4 mb-4">
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Year</mat-label>
+            <mat-select [value]="selectedYear()" (valueChange)="selectedYear.set($event)">
+              @for (y of yearOptions; track y) {
+                <mat-option [value]="y">{{ y }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Month</mat-label>
+            <mat-select [value]="selectedMonth()" (valueChange)="selectedMonth.set($event)">
+              @for (m of monthOptions; track m) {
+                <mat-option [value]="m">{{ m }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="w-full mb-4">
+          <mat-label>Particulars</mat-label>
+          <input matInput [value]="particulars()" (input)="particulars.set($any($event.target).value)" placeholder="Enter particulars">
+        </mat-form-field>
+
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Period 1</mat-label>
+            <input matInput [value]="period1()" (input)="period1.set($any($event.target).value)" placeholder="e.g. October 1-15, 2026">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Amount 1</mat-label>
+            <input matInput type="number" [value]="mAmount1()" (input)="mAmount1.set(+$any($event.target).value)" placeholder="0.00">
+          </mat-form-field>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Period 2</mat-label>
+            <input matInput [value]="period2()" (input)="period2.set($any($event.target).value)" placeholder="e.g. October 16-31, 2026">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Amount 2</mat-label>
+            <input matInput type="number" [value]="mAmount2()" (input)="mAmount2.set(+$any($event.target).value)" placeholder="0.00">
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="w-full mb-4">
+          <mat-label>Supplies Amount</mat-label>
+          <input matInput type="number" [value]="sAmount()" (input)="sAmount.set(+$any($event.target).value)" placeholder="0.00">
+        </mat-form-field>
+
+        <div class="mb-4">
+          <div class="flex justify-between items-center mb-2">
+            <h4 class="text-md font-semibold">Supply Rows</h4>
+            <button mat-stroked-button (click)="addRow()">Add Row</button>
+          </div>
+
+          @for (row of supplyRows(); track $index) {
+            <div class="flex gap-4 mb-2">
+              <mat-form-field appearance="outline" class="flex-1">
+                <mat-label>Field</mat-label>
+                <input matInput [value]="row.field" (input)="updateRow($index, { field: $any($event.target).value })" placeholder="Description">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="w-1/3">
+                <mat-label>Amount</mat-label>
+                <input matInput type="number" [value]="row.amount" (input)="updateRow($index, { amount: +$any($event.target).value })" placeholder="0.00">
+              </mat-form-field>
+
+              <button mat-icon-button color="warn" (click)="removeRow($index)" class="self-center">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Account Assistant Name</mat-label>
+            <input matInput [value]="aaName()" (input)="aaName.set($any($event.target).value)" placeholder="e.g. MARICAR S. MARTINEZ">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Chief, Billing and Collection Unit</mat-label>
+            <input matInput [value]="bcuChief()" (input)="bcuChief.set($any($event.target).value)" placeholder="e.g. MARIA IVINA D. PEREZ">
+          </mat-form-field>
+        </div>
+
+        <p class="text-sm text-gray-600 mb-4">
+          Billing Month: <strong>{{ billingMonth() }}</strong>
+        </p>
+
+        <button mat-raised-button color="primary" (click)="createBilling()">
+          Generate Billing File
+        </button>
+      </mat-card>
+    }
+
+    @case ('loading') {
+      <div class="flex flex-col items-center gap-4 py-16">
+        <mat-spinner diameter="48"></mat-spinner>
+        <p class="text-gray-600">Creating billing file...</p>
+      </div>
+    }
+
+    @case ('editing') {
+      <div>
+        <p class="text-sm text-gray-600 mb-4">
+          File: <strong>{{ fileName() }}</strong>
+        </p>
+
+        <p class="text-gray-600 mb-4">
+          Review the billing details above, then click Save to write the data into the Excel file.
+        </p>
+
+        <div class="mt-6 flex gap-4">
+          <button mat-raised-button color="primary" (click)="saveBilling()">
+            Save to Excel
+          </button>
+          <button mat-button (click)="openInSharePoint()">
+            Open in SharePoint
+          </button>
+        </div>
+      </div>
+    }
+
+    @case ('saving') {
+      <div class="flex flex-col items-center gap-4 py-16">
+        <mat-spinner diameter="48"></mat-spinner>
+        <p class="text-gray-600">Saving billing data...</p>
+      </div>
+    }
+
+    @case ('done') {
+      <mat-card class="p-6 max-w-lg text-center">
+        <h3 class="text-lg font-semibold mb-2">Billing data saved successfully</h3>
+        <p class="text-sm text-gray-600 mb-6">File: {{ fileName() }}</p>
+        <div class="flex gap-4 justify-center">
+          <button mat-raised-button color="primary" (click)="openInSharePoint()">
+            Open in SharePoint
+          </button>
+          <button mat-button (click)="goToDashboard()">
+            Back to Dashboard
+          </button>
+        </div>
+      </mat-card>
+    }
+  }
+</div>

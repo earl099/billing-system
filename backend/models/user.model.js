@@ -51,8 +51,7 @@ const userSchema = Schema({
     role: { 
         type: String, 
         enum: ['Admin', 'User'], 
-        default: 'User',
-        immutable: true  // Prevent role manipulation after creation
+        default: 'User'
     },
     handledClients: { 
         type: [Schema.Types.ObjectId], 

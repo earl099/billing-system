@@ -48,8 +48,11 @@ export const createUserSchema = z.object({
 
 export const updateUserSchema = z.object({
     name: z.string().min(1, 'Name required').max(100, 'Name too long').trim().optional(),
+    username: z.string().min(3, 'Username must be 3+ characters').max(50, 'Username too long').trim().optional(),
     email: z.string().email('Invalid email').toLowerCase().trim().optional(),
-    role: z.enum(['Admin', 'User']).optional()
+    password: z.string().min(8, 'Password must be 8+ characters').max(100, 'Password too long').optional(),
+    role: z.enum(['Admin', 'User']).optional(),
+    handledClients: z.array(z.string()).optional()
 }).strict()
 
 // Pay frequency schemas

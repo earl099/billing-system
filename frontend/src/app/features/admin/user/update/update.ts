@@ -87,8 +87,12 @@ export class Update implements OnInit {
         handledClients: user.handledClients ?? []
       })
 
-      if(this.form.get('role')?.value === 'Admin') {
-        this.form.get('handledClients')?.disable()
+      if(this.form.get('role')?.value !== 'Admin') {
+        const allClient = this.clientList().find(c => c.code === 'ALL')
+        if(allClient) {
+          this.form.get('handledClients')?.setValue([allClient._id])
+          this.form.get('handledClients')?.disable()
+        }
       }
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : 'Failed to load user'

@@ -1,5 +1,5 @@
 <div class="max-w-7xl mx-auto p-6">
-  <h2 class="text-2xl font-semibold mb-6">OFBANK Manpower Billing</h2>
+  <h2 class="text-2xl font-semibold mb-6">BTr MISS Billing</h2>
 
   @switch (step()) {
     @case ('setup') {
@@ -51,8 +51,8 @@
         </div>
 
         <mat-form-field appearance="outline" class="w-full mb-4">
-          <mat-label>SOA Number</mat-label>
-          <input matInput [value]="soaNo()" (input)="soaNo.set($any($event.target).value)" placeholder="Enter SOA number">
+          <mat-label>SOA Number (MISS)</mat-label>
+          <input matInput [value]="soaNo_MISS()" (input)="soaNo_MISS.set($any($event.target).value)" placeholder="Enter SOA number">
         </mat-form-field>
 
         <p class="text-sm text-gray-600 mb-4">
@@ -78,28 +78,14 @@
           File: <strong>{{ fileName() }}</strong>
         </p>
 
-        <mat-tab-group>
-          <mat-tab label="Janitorial">
-            <div class="pt-4">
-              <app-editable-billing-table
-                #janTable
-                [title]="'Janitorial ' + dateRange().sheetLabel"
-                [columnDefs]="jBillingColumns"
-                [rawData]="jBillingData()"
-              />
-            </div>
-          </mat-tab>
-          <mat-tab label="Manpower">
-            <div class="pt-4">
-              <app-editable-billing-table
-                #manTable
-                [title]="'Manpower ' + dateRange().sheetLabel"
-                [columnDefs]="oBillingColumns"
-                [rawData]="oBillingData()"
-              />
-            </div>
-          </mat-tab>
-        </mat-tab-group>
+        <div class="pt-4">
+          <app-editable-billing-table
+            #itTable
+            [title]="'IT Billing ' + dateRange().sheetLabel"
+            [columnDefs]="itBillingColumns"
+            [rawData]="itBillingData()"
+          />
+        </div>
 
         <div class="mt-6 flex gap-4">
           <button mat-raised-button color="primary" (click)="saveBilling()">

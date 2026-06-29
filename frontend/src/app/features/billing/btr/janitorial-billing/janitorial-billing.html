@@ -1,5 +1,5 @@
 <div class="max-w-7xl mx-auto p-6">
-  <h2 class="text-2xl font-semibold mb-6">OFBANK Manpower Billing</h2>
+  <h2 class="text-2xl font-semibold mb-6">BTr Janitorial Billing</h2>
 
   @switch (step()) {
     @case ('setup') {
@@ -51,8 +51,18 @@
         </div>
 
         <mat-form-field appearance="outline" class="w-full mb-4">
-          <mat-label>SOA Number</mat-label>
-          <input matInput [value]="soaNo()" (input)="soaNo.set($any($event.target).value)" placeholder="Enter SOA number">
+          <mat-label>SOA Number (JANITORIAL)</mat-label>
+          <input matInput [value]="soaNo_JANITORIAL()" (input)="soaNo_JANITORIAL.set($any($event.target).value)" placeholder="Enter SOA number">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full mb-4">
+          <mat-label>SOA Number (BTr-HAULER)</mat-label>
+          <input matInput [value]="soaNo_HAULER()" (input)="soaNo_HAULER.set($any($event.target).value)" placeholder="Enter SOA number">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full mb-4">
+          <mat-label>SOA Number (BTr-TFMCD)</mat-label>
+          <input matInput [value]="soaNo_TFMCD()" (input)="soaNo_TFMCD.set($any($event.target).value)" placeholder="Enter SOA number">
         </mat-form-field>
 
         <p class="text-sm text-gray-600 mb-4">
@@ -78,28 +88,14 @@
           File: <strong>{{ fileName() }}</strong>
         </p>
 
-        <mat-tab-group>
-          <mat-tab label="Janitorial">
-            <div class="pt-4">
-              <app-editable-billing-table
-                #janTable
-                [title]="'Janitorial ' + dateRange().sheetLabel"
-                [columnDefs]="jBillingColumns"
-                [rawData]="jBillingData()"
-              />
-            </div>
-          </mat-tab>
-          <mat-tab label="Manpower">
-            <div class="pt-4">
-              <app-editable-billing-table
-                #manTable
-                [title]="'Manpower ' + dateRange().sheetLabel"
-                [columnDefs]="oBillingColumns"
-                [rawData]="oBillingData()"
-              />
-            </div>
-          </mat-tab>
-        </mat-tab-group>
+        <div class="pt-4">
+          <app-editable-billing-table
+            #jTable
+            [title]="'Janitorial Billing ' + dateRange().sheetLabel"
+            [columnDefs]="jBillingColumns"
+            [rawData]="jBillingData()"
+          />
+        </div>
 
         <div class="mt-6 flex gap-4">
           <button mat-raised-button color="primary" (click)="saveBilling()">
