@@ -486,3 +486,39 @@
   "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
   "userId": "695f4b3fc9882594236f3394"
 }
+2026-07-14 08:28:39 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/btr/0",
+  "status": 500,
+  "duration": "260ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-07-14 08:38:55 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/btr/0",
+  "status": 500,
+  "duration": "235ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-07-14 08:40:08 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/btr/0",
+  "status": 500,
+  "duration": "245ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-07-14 08:41:32 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/manpower/btr/0",
+  "status": 500,
+  "duration": "273ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
