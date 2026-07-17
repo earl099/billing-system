@@ -828,3 +828,38 @@
   "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
   "userId": "695f4b3fc9882594236f3394"
 }
+2026-07-17 08:06:15 [info]: Connected to MongoDB 
+2026-07-17 08:06:15 [info]: Server running on port 3000 
+2026-07-17 08:22:18 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/auth/me",
+  "status": 401,
+  "duration": "4ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+  "userId": "anonymous"
+}
+2026-07-17 08:43:17 [error]: Unhandled Error Cannot read properties of undefined (reading 'map') - TypeError: Cannot read properties of undefined (reading 'map')
+    at file:///C:/Users/lbrdc/OneDrive/Desktop/billing-system/backend/middleware/validate.middleware.js:29:45
+    at Layer.handleRequest (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\route.js:157:13)
+    at file:///C:/Users/lbrdc/OneDrive/Desktop/billing-system/backend/node_modules/express-rate-limit/dist/index.mjs:970:7
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///C:/Users/lbrdc/OneDrive/Desktop/billing-system/backend/node_modules/express-rate-limit/dist/index.mjs:825:5
+2026-07-17 08:43:17 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/api/auth/signup",
+  "status": 500,
+  "duration": "2ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+  "userId": "anonymous"
+}
+2026-07-17 08:49:12 [info]: Connected to MongoDB 
+2026-07-17 08:49:12 [info]: Server running on port 3000 
+2026-07-17 08:49:51 [info]: Connected to MongoDB 
+2026-07-17 08:49:51 [info]: Server running on port 3000 
+2026-07-17 08:50:10 [info]: Connected to MongoDB 
+2026-07-17 08:50:10 [info]: Server running on port 3000 
+2026-07-17 08:50:22 [info]: Connected to MongoDB 
+2026-07-17 08:50:22 [info]: Server running on port 3000 

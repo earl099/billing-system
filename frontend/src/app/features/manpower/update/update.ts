@@ -70,12 +70,35 @@ export class Update implements OnInit {
       { key: 'mfopt', label: 'MFOPT Amount', type: 'text'},
       { key: 'salary', label: 'Salary', type: 'text' },
       { key: 'bankNo', label: 'Bank Account No.',  type: 'text' },
+    ],
+    btr: [
+      { key: 'empNo', label: 'Employee No', type: 'text', required: true },
+      { key: 'name', label: 'Name', type: 'text', required: true },
+      { key: 'posCode', label: 'Position Code', type: 'text', required: true },
+      { key: 'dept', label: 'Department', type: 'text', required: true },
+      { key: 'status', label: 'Status', type: 'text', required: true },
+      { key: 'type', label: 'Type', type: 'text' },
+      { key: 'payType', label: 'Pay type', type: 'text' },
+      { key: 'payFreq', label: 'Pay Frequency', type: 'text' },
+      { key: 'tin', label: 'TIN', type: 'text' },
+      { key: 'sssNo', label: 'SSS No.', type: 'text' },
+      { key: 'phicNo', label: 'PHIC No.', type: 'text' },
+      { key: 'hdmfNo', label: 'HDMF No.', type: 'text' },
+      { key: 'hd', label: 'HD', type: 'text' },
+      { key: 'mfopt', label: 'MFOPT Amount', type: 'text'},
+      { key: 'salary', label: 'Salary', type: 'text' },
+      { key: 'bankNo', label: 'Bank Account No.',  type: 'text' },
     ]
   }
 
   /** Input columns sent to the backend for form-to-row mapping */
   inputColumnMap: Record<string, string[]> = {
     ofbank: [
+      'empNo', 'name', 'posCode', 'dept', 'status', 'type',
+      'payType', 'payFreq', 'tin', 'sssNo', 'phicNo', 'hdmfNo',
+      'hd', 'mfopt', 'salary', 'bankNo',
+    ],
+    btr: [
       'empNo', 'name', 'posCode', 'dept', 'status', 'type',
       'payType', 'payFreq', 'tin', 'sssNo', 'phicNo', 'hdmfNo',
       'hd', 'mfopt', 'salary', 'bankNo',
@@ -89,16 +112,24 @@ export class Update implements OnInit {
       'type', 'payType', 'payFreq', 'tin', 'sssNo', 'phicNo',
       'hdmfNo', 'hd', 'mfopt', 'salary', 'bankNo',
       'endorsed', 'difference', 'dBillingRate', 'mBillingRate'
+    ],
+    btr: [
+      'empNo', 'name', 'posCode', 'posName', 'dept', 'status',
+      'type', 'payType', 'payFreq', 'tin', 'sssNo', 'phicNo',
+      'hdmfNo', 'hd', 'mfopt', 'salary', 'bankNo',
+      'endorsed', 'difference', 'dBillingRate', 'mBillingRate'
     ]
   }
 
+  fileName = signal<string | null>(null)
+
   /** Builds the form and loads existing employee data on init */
   async ngOnInit() {
+    this.fileName.set(this.route.snapshot.queryParamMap.get('fileName'))
     const schema = this.employeeSchema[this.code()!]
     this.formConfig.set(schema)
     this.buildForm(schema)
-
-
+    await this.loadData()
   }
 
   /** Constructs a FormGroup from the field schema (no required validators for update) */
@@ -114,32 +145,50 @@ export class Update implements OnInit {
 
   /** Loads existing employee data from SharePoint and patches the form values */
   async loadData() {
-    const data = await this.manpowerService.getManpower(
-      this.code()!,
-      Number(this.index()!),
-      'BILLING-TEMPLATE.xlsm',
-      'EmployeeTable'
-    )
+    const fileName = this.fileName()
 
-    const values = data.data
+    if (!fileName) {
+      console.error('No template fileName provided')
+      return
+    }
 
-    const mapped: any = {}
+    try {
+      const data = await this.manpowerService.getManpower(
+        this.code()!,
+        Number(this.index()),
+        fileName,
+        'EmployeeTable'
+      )
 
-    this.inputColumnMap[this.code()!].forEach((key, i) => {
-      mapped[key] = values[i]
-    })
+      const values = data.data
 
-    this.form.patchValue(mapped)
+      const mapped: any = {}
+
+      this.inputColumnMap[this.code()!].forEach((key, i) => {
+        mapped[key] = values[i]
+      })
+
+      this.form.patchValue(mapped)
+    } catch (error) {
+      console.error('Error fetching employee data:', error)
+    }
   }
 
   /** Submits updated employee data to the SharePoint EmployeeTable with confirmation */
   async updateData() {
+    const fileName = this.fileName()
+
+    if (!fileName) {
+      toast.error('No template fileName provided')
+      return
+    }
+
     if(confirm('Are you sure you want to update this data?')) {
       try {
         await this.manpowerService.updateRow(
           this.code()!,
           Number(this.index()),
-          'BILLING-TEMPLATE.xlsm',
+          fileName,
           'EmployeeTable',
           {
             form: this.form.value,

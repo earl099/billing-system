@@ -161,22 +161,26 @@ export class List implements OnInit, OnDestroy {
     }
   }
 
-  /** Navigates to the employee detail view */
+  /** Navigates to the employee detail view, passing the selected template filename */
   view(d: any) {
     if (!d?.index && d?.index !== 0) {
       toast.error('Invalid record')
       return
     }
-    this.router.navigate(['manpower', this.code(), d.index, 'view'])
+    this.router.navigate(['manpower', this.code(), d.index, 'view'], {
+      queryParams: { fileName: this.selectedTemplate()?.name ?? '' }
+    })
   }
 
-  /** Navigates to the employee edit form */
+  /** Navigates to the employee edit form, passing the selected template filename */
   edit(d: any) {
     if (!d?.index && d?.index !== 0) {
       toast.error('Invalid record')
       return
     }
-    this.router.navigate(['manpower', this.code(), d.index, 'edit'])
+    this.router.navigate(['manpower', this.code(), d.index, 'edit'], {
+      queryParams: { fileName: this.selectedTemplate()?.name ?? '' }
+    })
   }
 
   /** Deletes an employee row from the SharePoint EmployeeTable with confirmation */
