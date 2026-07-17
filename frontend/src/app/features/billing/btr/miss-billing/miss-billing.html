@@ -51,9 +51,26 @@
         </div>
 
         <mat-form-field appearance="outline" class="w-full mb-4">
+          <mat-label>Billing Period</mat-label>
+          <input matInput [value]="billingPeriod()" (input)="billingPeriod.set($any($event.target).value)" placeholder="e.g. October 1-15, 2026">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full mb-4">
           <mat-label>SOA Number (MISS)</mat-label>
           <input matInput [value]="soaNo_MISS()" (input)="soaNo_MISS.set($any($event.target).value)" placeholder="Enter SOA number">
         </mat-form-field>
+
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Account Assistant</mat-label>
+            <input matInput [value]="acctAsst()" (input)="acctAsst.set($any($event.target).value)" placeholder="Enter name">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Chief, Billing and Collection Unit</mat-label>
+            <input matInput [value]="bcuChief()" (input)="bcuChief.set($any($event.target).value)" placeholder="Enter name">
+          </mat-form-field>
+        </div>
 
         <p class="text-sm text-gray-600 mb-4">
           Date range: <strong>{{ dateRange().label }}</strong>
