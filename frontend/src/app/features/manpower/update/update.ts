@@ -70,12 +70,35 @@ export class Update implements OnInit {
       { key: 'mfopt', label: 'MFOPT Amount', type: 'text'},
       { key: 'salary', label: 'Salary', type: 'text' },
       { key: 'bankNo', label: 'Bank Account No.',  type: 'text' },
+    ],
+    btr: [
+      { key: 'empNo', label: 'Employee No', type: 'text', required: true },
+      { key: 'name', label: 'Name', type: 'text', required: true },
+      { key: 'posCode', label: 'Position Code', type: 'text', required: true },
+      { key: 'dept', label: 'Department', type: 'text', required: true },
+      { key: 'status', label: 'Status', type: 'text', required: true },
+      { key: 'type', label: 'Type', type: 'text' },
+      { key: 'payType', label: 'Pay type', type: 'text' },
+      { key: 'payFreq', label: 'Pay Frequency', type: 'text' },
+      { key: 'tin', label: 'TIN', type: 'text' },
+      { key: 'sssNo', label: 'SSS No.', type: 'text' },
+      { key: 'phicNo', label: 'PHIC No.', type: 'text' },
+      { key: 'hdmfNo', label: 'HDMF No.', type: 'text' },
+      { key: 'hd', label: 'HD', type: 'text' },
+      { key: 'mfopt', label: 'MFOPT Amount', type: 'text'},
+      { key: 'salary', label: 'Salary', type: 'text' },
+      { key: 'bankNo', label: 'Bank Account No.',  type: 'text' },
     ]
   }
 
   /** Input columns sent to the backend for form-to-row mapping */
   inputColumnMap: Record<string, string[]> = {
     ofbank: [
+      'empNo', 'name', 'posCode', 'dept', 'status', 'type',
+      'payType', 'payFreq', 'tin', 'sssNo', 'phicNo', 'hdmfNo',
+      'hd', 'mfopt', 'salary', 'bankNo',
+    ],
+    btr: [
       'empNo', 'name', 'posCode', 'dept', 'status', 'type',
       'payType', 'payFreq', 'tin', 'sssNo', 'phicNo', 'hdmfNo',
       'hd', 'mfopt', 'salary', 'bankNo',
@@ -114,12 +137,29 @@ export class Update implements OnInit {
 
   /** Loads existing employee data from SharePoint and patches the form values */
   async loadData() {
-    const data = await this.manpowerService.getManpower(
-      this.code()!,
-      Number(this.index()!),
-      'BILLING-TEMPLATE.xlsm',
-      'EmployeeTable'
-    )
+    let data
+    
+    //temporary fix for ofbank manpower data retrieval, as it uses a different template file
+    if(this.code() === 'ofbank') {
+      data = await this.manpowerService.getManpower(this.code() ?? '', Number(this.index()), 'BILLING-TEMPLATE.xlsm', 'EmployeeTable')
+    }
+    else {
+      try {
+        data = await this.manpowerService.getManpower(this.code()!, Number(this.index()), 'BTr-BILLING-JANITORIAL-TEMPLATE.xlsm', 'EmployeeTable' )
+      } catch (error) {
+        console.error('Error fetching employee data:', error)
+        return
+      }
+      
+      try {
+        data = await this.manpowerService.getManpower(this.code()!, Number(this.index()), 'BTr-BILLING-MISS-TEMPLATE.xlsm', 'EmployeeTable' )
+      }
+      catch (error) {
+        console.error('Error fetching employee data:', error)
+        return
+      }
+    }
+    
 
     const values = data.data
 

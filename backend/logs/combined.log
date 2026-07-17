@@ -828,3 +828,5 @@
   "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
   "userId": "695f4b3fc9882594236f3394"
 }
+2026-07-17 08:06:15 [info]: Connected to MongoDB 
+2026-07-17 08:06:15 [info]: Server running on port 3000 

@@ -6,7 +6,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
-import { environment } from '@env/environment';
+import { environment } from '@env/environment.prod';
 import { firstValueFrom } from 'rxjs';
 
 /** Response shape from billing generation endpoint */

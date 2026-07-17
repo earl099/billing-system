@@ -54,6 +54,8 @@ export class View implements OnInit {
     this.index = this.route.snapshot.paramMap.get('index')
     this.code = this.route.snapshot.paramMap.get('code')
     let data
+    
+    //temporary fix for ofbank manpower data retrieval, as it uses a different template file
     if(this.code === 'ofbank') {
       data = await this.manpowerService.getManpower(this.code ?? '', Number(this.index), 'BILLING-TEMPLATE.xlsm', 'EmployeeTable')
     }
@@ -72,7 +74,6 @@ export class View implements OnInit {
         console.error('Error fetching employee data:', error)
         return
       }
-      
     }
     this.employee.set(data.data)
     console.log(this.employee())
