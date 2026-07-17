@@ -50,13 +50,13 @@ export function globalErrorHandler(err, req, res, next) {
  * Converts Zod validation errors into standardized HTTP 400 error objects
  * Maps each validation error to a field/message pair for client consumption
  * 
- * @param {{ errors: Array<{ path: string[], message: string }> }} error - Zod validation error object
+ * @param {{ issues: Array<{ path: string[], message: string }> }} error - Zod validation error object
  * @returns {Error & { statusCode: number, errors: Array<{ field: string, message: string }> }} Formatted error with 400 status
  */
 export function handleValidationError(error) {
     const err = new Error('Validation failed')
     err.statusCode = 400
-    err.errors = error.errors?.map(e => ({
+    err.errors = error.issues?.map(e => ({
         field: e.path.join('.'),
         message: e.message
     }))

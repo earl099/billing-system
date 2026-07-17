@@ -112,16 +112,24 @@ export class Update implements OnInit {
       'type', 'payType', 'payFreq', 'tin', 'sssNo', 'phicNo',
       'hdmfNo', 'hd', 'mfopt', 'salary', 'bankNo',
       'endorsed', 'difference', 'dBillingRate', 'mBillingRate'
+    ],
+    btr: [
+      'empNo', 'name', 'posCode', 'posName', 'dept', 'status',
+      'type', 'payType', 'payFreq', 'tin', 'sssNo', 'phicNo',
+      'hdmfNo', 'hd', 'mfopt', 'salary', 'bankNo',
+      'endorsed', 'difference', 'dBillingRate', 'mBillingRate'
     ]
   }
 
+  fileName = signal<string | null>(null)
+
   /** Builds the form and loads existing employee data on init */
   async ngOnInit() {
+    this.fileName.set(this.route.snapshot.queryParamMap.get('fileName'))
     const schema = this.employeeSchema[this.code()!]
     this.formConfig.set(schema)
     this.buildForm(schema)
-
-
+    await this.loadData()
   }
 
   /** Constructs a FormGroup from the field schema (no required validators for update) */
@@ -137,49 +145,50 @@ export class Update implements OnInit {
 
   /** Loads existing employee data from SharePoint and patches the form values */
   async loadData() {
-    let data
-    
-    //temporary fix for ofbank manpower data retrieval, as it uses a different template file
-    if(this.code() === 'ofbank') {
-      data = await this.manpowerService.getManpower(this.code() ?? '', Number(this.index()), 'BILLING-TEMPLATE.xlsm', 'EmployeeTable')
+    const fileName = this.fileName()
+
+    if (!fileName) {
+      console.error('No template fileName provided')
+      return
     }
-    else {
-      try {
-        data = await this.manpowerService.getManpower(this.code()!, Number(this.index()), 'BTr-BILLING-JANITORIAL-TEMPLATE.xlsm', 'EmployeeTable' )
-      } catch (error) {
-        console.error('Error fetching employee data:', error)
-        return
-      }
-      
-      try {
-        data = await this.manpowerService.getManpower(this.code()!, Number(this.index()), 'BTr-BILLING-MISS-TEMPLATE.xlsm', 'EmployeeTable' )
-      }
-      catch (error) {
-        console.error('Error fetching employee data:', error)
-        return
-      }
+
+    try {
+      const data = await this.manpowerService.getManpower(
+        this.code()!,
+        Number(this.index()),
+        fileName,
+        'EmployeeTable'
+      )
+
+      const values = data.data
+
+      const mapped: any = {}
+
+      this.inputColumnMap[this.code()!].forEach((key, i) => {
+        mapped[key] = values[i]
+      })
+
+      this.form.patchValue(mapped)
+    } catch (error) {
+      console.error('Error fetching employee data:', error)
     }
-    
-
-    const values = data.data
-
-    const mapped: any = {}
-
-    this.inputColumnMap[this.code()!].forEach((key, i) => {
-      mapped[key] = values[i]
-    })
-
-    this.form.patchValue(mapped)
   }
 
   /** Submits updated employee data to the SharePoint EmployeeTable with confirmation */
   async updateData() {
+    const fileName = this.fileName()
+
+    if (!fileName) {
+      toast.error('No template fileName provided')
+      return
+    }
+
     if(confirm('Are you sure you want to update this data?')) {
       try {
         await this.manpowerService.updateRow(
           this.code()!,
           Number(this.index()),
-          'BILLING-TEMPLATE.xlsm',
+          fileName,
           'EmployeeTable',
           {
             form: this.form.value,

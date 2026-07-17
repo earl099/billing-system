@@ -90,3 +90,10 @@
     at handle (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\index.js:435:11)
     at Layer.handleRequest (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\layer.js:152:17)
     at C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\index.js:295:15
+2026-07-17 08:43:17 [error]: Unhandled Error Cannot read properties of undefined (reading 'map') - TypeError: Cannot read properties of undefined (reading 'map')
+    at file:///C:/Users/lbrdc/OneDrive/Desktop/billing-system/backend/middleware/validate.middleware.js:29:45
+    at Layer.handleRequest (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\router\lib\route.js:157:13)
+    at file:///C:/Users/lbrdc/OneDrive/Desktop/billing-system/backend/node_modules/express-rate-limit/dist/index.mjs:970:7
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///C:/Users/lbrdc/OneDrive/Desktop/billing-system/backend/node_modules/express-rate-limit/dist/index.mjs:825:5

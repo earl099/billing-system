@@ -19,10 +19,11 @@ export class View implements OnInit {
   route = inject(ActivatedRoute)
   router = inject(Router)
   manpowerService = inject(Manpower)
-  
+
   employee = signal<any[]>([])
   code: any
   index: any
+  fileName: any
 
   /** Display labels for employee fields, mapped 1:1 to Excel column order */
   fields = [
@@ -53,34 +54,30 @@ export class View implements OnInit {
   async ngOnInit() {
     this.index = this.route.snapshot.paramMap.get('index')
     this.code = this.route.snapshot.paramMap.get('code')
-    let data
-    
-    //temporary fix for ofbank manpower data retrieval, as it uses a different template file
-    if(this.code === 'ofbank') {
-      data = await this.manpowerService.getManpower(this.code ?? '', Number(this.index), 'BILLING-TEMPLATE.xlsm', 'EmployeeTable')
+    this.fileName = this.route.snapshot.queryParamMap.get('fileName')
+
+    if (!this.fileName) {
+      console.error('No template fileName provided')
+      return
     }
-    else {
-      try {
-        data = await this.manpowerService.getManpower(this.code ?? '', Number(this.index), 'BTr-BILLING-JANITORIAL-TEMPLATE.xlsm', 'EmployeeTable' )
-      } catch (error) {
-        console.error('Error fetching employee data:', error)
-        return
-      }
-      
-      try {
-        data = await this.manpowerService.getManpower(this.code ?? '', Number(this.index), 'BTr-BILLING-MISS-TEMPLATE.xlsm', 'EmployeeTable' )
-      }
-      catch (error) {
-        console.error('Error fetching employee data:', error)
-        return
-      }
+
+    try {
+      const data = await this.manpowerService.getManpower(
+        this.code ?? '',
+        Number(this.index),
+        this.fileName,
+        'EmployeeTable'
+      )
+      this.employee.set(data.data)
+    } catch (error) {
+      console.error('Error fetching employee data:', error)
     }
-    this.employee.set(data.data)
-    console.log(this.employee())
   }
 
   /** Navigates to the employee edit form */
   edit() {
-    this.router.navigate(['manpower', this.code, this.index, 'edit'])
+    this.router.navigate(['manpower', this.code, this.index, 'edit'], {
+      queryParams: { fileName: this.fileName }
+    })
   }
 }
