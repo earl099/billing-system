@@ -101,6 +101,11 @@ export class SuppliesBilling {
       return
     }
 
+    if (!this.particulars() || !this.period1() || !this.period2()) {
+      toast.error('Please fill in particulars and both periods')
+      return
+    }
+
     this.step.set('loading')
 
     try {
@@ -114,7 +119,23 @@ export class SuppliesBilling {
       this.editUrl.set(result.editUrl)
       this.fileName.set(result.fileName)
 
-      this.step.set('editing')
+      await this.btrBilling.setupBtrSuppliesBilling(result.documentId, {
+        month: this.selectedMonth(),
+        year: this.selectedYear(),
+        particulars: this.particulars(),
+        billingMonth: this.billingMonth(),
+        period1: this.period1(),
+        period2: this.period2(),
+        mAmount1: this.mAmount1(),
+        mAmount2: this.mAmount2(),
+        sAmount: this.sAmount(),
+        aaName: this.aaName().toUpperCase(),
+        bcuChief: this.bcuChief().toUpperCase(),
+        supplyRows: this.supplyRows().filter(r => r.field.trim() !== '')
+      })
+
+      this.step.set('done')
+      toast.success('Billing file generated successfully')
     } catch (e) {
       toast.error('Failed to create billing file')
       this.step.set('setup')

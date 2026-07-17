@@ -79,6 +79,9 @@ export class MissBilling {
   selectedMonth = signal<number>(DateTime.now().month)
   selectedPeriod = signal<'first' | 'second'>('first')
   soaNo_MISS = signal<string>('')
+  billingPeriod = signal<string>('')
+  acctAsst = signal<string>('')
+  bcuChief = signal<string>('')
 
   yearOptions = Array.from({ length: 5 }, (_, i) => DateTime.now().year - 2 + i)
   monthOptions = Array.from({ length: 12 }, (_, i) => ({
@@ -99,7 +102,7 @@ export class MissBilling {
     try {
       const all = await this.fileEditor.getTemplates(this.code)
       this.templates.set(all.filter((t: any) =>
-        t.type === 'excel' && t.name.includes('MISS-BILLING-TEMPLATE') && t.name.endsWith('.xlsm')
+        t.type === 'excel' && t.name.toUpperCase().includes('BTR-BILLING-MISS-TEMPLATE')
       ))
     } catch (e) {
       toast.error('Failed to load templates')
@@ -131,8 +134,13 @@ export class MissBilling {
       return
     }
 
-    if (!this.soaNo_MISS()) {
-      toast.error('Please enter the SOA number for MISS')
+    if (!this.soaNo_MISS() || !this.billingPeriod()) {
+      toast.error('Please enter the SOA number and billing period for MISS')
+      return
+    }
+
+    if (!this.acctAsst() || !this.bcuChief()) {
+      toast.error('Please enter Account Assistant and BCU Chief')
       return
     }
 
@@ -150,7 +158,10 @@ export class MissBilling {
 
       await this.btrBilling.setupMissBilling(result.documentId, {
         dateRange: this.dateRange(),
-        soaNo_MISS: this.soaNo_MISS()
+        soaNo_MISS: this.soaNo_MISS(),
+        billingPeriod: this.billingPeriod(),
+        acctAsst: this.acctAsst().toUpperCase(),
+        bcuChief: this.bcuChief().toUpperCase()
       })
 
       const tables = await this.btrBilling.getMissTables(result.documentId)

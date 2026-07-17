@@ -545,6 +545,25 @@ export async function setupOfbankBilling(req, res) {
 
         await graphBatchRequest(dateBatch, sessionId)
 
+        const signatoryBatch = [
+            {
+                id: 'sig-1',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('MISS')/range(address='B33')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [[acctAsst.toUpperCase()]] }
+            },
+            {
+                id: 'sig-2',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('MISS')/range(address='E33')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [[bcuChief.toUpperCase()]] }
+            }
+        ]
+
+        await graphBatchRequest(signatoryBatch, sessionId)
+
         await graphRequest(
             'POST',
             `/sites/${SITE_ID}/drive/items/${fileId}/workbook/application/calculate`,
@@ -1096,7 +1115,7 @@ export async function setupBtrMissBilling(req, res) {
     try {
         const SITE_ID = process.env.SHAREPOINT_SITE_ID
         const { fileId } = req.params
-        const { dateRange, soaNo_MISS } = req.body
+        const { dateRange, soaNo_MISS, billingPeriod, acctAsst, bcuChief } = req.body
 
         const session = await graphRequest(
             'POST',
@@ -1133,7 +1152,7 @@ export async function setupBtrMissBilling(req, res) {
                 method: 'PATCH',
                 url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('MISS')/range(address='B4')`,
                 headers: { 'Content-Type': 'application/json' },
-                body: { values: [['FOR THE PERIOD OF ' + dateRange.label]] }
+                body: { values: [['FOR THE PERIOD OF ' + billingPeriod]] }
             },
             {
                 id: 'date-3',
@@ -1298,7 +1317,7 @@ export async function setupBtrJanitorialBilling(req, res) {
     try {
         const SITE_ID = process.env.SHAREPOINT_SITE_ID
         const { fileId } = req.params
-        const { dateRange, soaNo_JANITORIAL, soaNo_HAULER, soaNo_TFMCD } = req.body
+        const { dateRange, soaNo_JANITORIAL, soaNo_HAULER, soaNo_TFMCD, soaNo_OVERTIME, acctAsst, bcuChief } = req.body
 
         const session = await graphRequest(
             'POST',
@@ -1371,10 +1390,85 @@ export async function setupBtrJanitorialBilling(req, res) {
                 url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('BTr-TFMCD')/range(address='G6')`,
                 headers: { 'Content-Type': 'application/json' },
                 body: { values: [[`SOA NO. ${soaNo_TFMCD}`]] }
+            },
+            {
+                id: 'date-8',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('JANITORIAL OVERTIME')/range(address='B4')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [['FOR THE PERIOD OF ' + dateRange.label]] }
+            },
+            {
+                id: 'date-9',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('JANITORIAL OVERTIME')/range(address='G6')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [[`SOA NO. ${soaNo_OVERTIME}`]] }
             }
         ]
 
         await graphBatchRequest(dateBatch, sessionId)
+
+        const signatoryBatch = [
+            {
+                id: 'sig-1',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('JANITORIAL')/range(address='B117')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [[acctAsst.toUpperCase()]] }
+            },
+            {
+                id: 'sig-2',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('JANITORIAL')/range(address='E117')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [[bcuChief.toUpperCase()]] }
+            },
+            {
+                id: 'sig-3',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('JANITORIAL OVERTIME')/range(address='B31')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [[acctAsst.toUpperCase()]] }
+            },
+            {
+                id: 'sig-4',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('JANITORIAL OVERTIME')/range(address='D31')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [[bcuChief.toUpperCase()]] }
+            },
+            {
+                id: 'sig-5',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('BTr-HAULER')/range(address='B29')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [[acctAsst.toUpperCase()]] }
+            },
+            {
+                id: 'sig-6',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('BTr-HAULER')/range(address='E29')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [[bcuChief.toUpperCase()]] }
+            },
+            {
+                id: 'sig-7',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('BTr-TFMCD')/range(address='B23')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [[acctAsst.toUpperCase()]] }
+            },
+            {
+                id: 'sig-8',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('BTr-TFMCD')/range(address='E23')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [[bcuChief.toUpperCase()]] }
+            }
+        ]
+
+        await graphBatchRequest(signatoryBatch, sessionId)
 
         await graphRequest(
             'POST',

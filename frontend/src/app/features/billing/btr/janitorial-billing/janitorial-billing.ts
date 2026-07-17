@@ -81,6 +81,9 @@ export class JanitorialBilling {
   soaNo_JANITORIAL = signal<string>('')
   soaNo_HAULER = signal<string>('')
   soaNo_TFMCD = signal<string>('')
+  soaNo_OVERTIME = signal<string>('')
+  acctAsst = signal<string>('')
+  bcuChief = signal<string>('')
 
   yearOptions = Array.from({ length: 5 }, (_, i) => DateTime.now().year - 2 + i)
   monthOptions = Array.from({ length: 12 }, (_, i) => ({
@@ -133,8 +136,13 @@ export class JanitorialBilling {
       return
     }
 
-    if (!this.soaNo_JANITORIAL() || !this.soaNo_HAULER() || !this.soaNo_TFMCD()) {
+    if (!this.soaNo_JANITORIAL() || !this.soaNo_HAULER() || !this.soaNo_TFMCD() || !this.soaNo_OVERTIME()) {
       toast.error('Please enter all SOA numbers')
+      return
+    }
+
+    if (!this.acctAsst() || !this.bcuChief()) {
+      toast.error('Please enter Account Assistant and BCU Chief')
       return
     }
 
@@ -154,7 +162,10 @@ export class JanitorialBilling {
         dateRange: this.dateRange(),
         soaNo_JANITORIAL: this.soaNo_JANITORIAL(),
         soaNo_HAULER: this.soaNo_HAULER(),
-        soaNo_TFMCD: this.soaNo_TFMCD()
+        soaNo_TFMCD: this.soaNo_TFMCD(),
+        soaNo_OVERTIME: this.soaNo_OVERTIME(),
+        acctAsst: this.acctAsst().toUpperCase(),
+        bcuChief: this.bcuChief().toUpperCase()
       })
 
       const tables = await this.btrBilling.getJanitorialTables(result.documentId)

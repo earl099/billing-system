@@ -43,6 +43,9 @@ interface SaveJanitorialTablesPayload {
 interface MissSetupPayload {
   dateRange: DateRange
   soaNo_MISS: string
+  billingPeriod: string
+  acctAsst: string
+  bcuChief: string
 }
 
 interface JanitorialSetupPayload {
@@ -50,6 +53,9 @@ interface JanitorialSetupPayload {
   soaNo_JANITORIAL: string
   soaNo_HAULER: string
   soaNo_TFMCD: string
+  soaNo_OVERTIME: string
+  acctAsst: string
+  bcuChief: string
 }
 
 interface SupplyRow {
