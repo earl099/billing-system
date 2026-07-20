@@ -39,9 +39,10 @@ export const routes: Routes = [
       import('@admin/user/user.routes').then(mod => mod.USER_ROUTES),
       import('@admin/log/log.routes').then(mod => mod.LOG_ROUTES),
       import('@admin/payfreq/payfreq.routes').then(mod => mod.PAYFREQ_ROUTES),
-      import('@admin/client/client.routes').then(mod => mod.CLIENT_ROUTES)
-    ]).then(([userRoutes, logRoutes, payfreqRoutes, clientRoutes]) =>
-      [...userRoutes, ...logRoutes, ...payfreqRoutes, ...clientRoutes]
+      import('@admin/client/client.routes').then(mod => mod.CLIENT_ROUTES),
+      import('@admin/backup/backup.routes').then(mod => mod.BACKUP_ROUTES)
+    ]).then(([userRoutes, logRoutes, payfreqRoutes, clientRoutes, backupRoutes]) =>
+      [...userRoutes, ...logRoutes, ...payfreqRoutes, ...clientRoutes, ...backupRoutes]
     )
   },
   { path: 'billing', loadChildren: () => import('@billing/billing.routes').then(mod => mod.BILLING_ROUTES) },

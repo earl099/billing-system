@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 
 mat-card {
-  @apply bg-white;
+  background-color: var(--mat-sys-surface-container);
+  color: var(--mat-sys-on-surface);
   border-radius: 20px;
 }

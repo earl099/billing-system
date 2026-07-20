@@ -1,5 +1,5 @@
-<div class="p-6 fade-in max-w-5xl mx-auto">
-  <mat-card class="shadow-xl rounded-2xl">
+<div class="p-4 sm:p-6 fade-in max-w-full lg:max-w-5xl mx-auto">
+  <mat-card class="shadow-xl rounded-2xl p-4 sm:p-6">
     <mat-card-header>
       <mat-card-title class="text-xl font-semibold mb-4">
         Add Employee
@@ -8,7 +8,7 @@
 
     <mat-card-content>
       <h3 class="mt-4">Enter Employee Information</h3>
-      <form [formGroup]="form" class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+      <form [formGroup]="form" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
 
         @for (field of formConfig(); track field.key) {
           <mat-form-field class="w-full">
@@ -29,7 +29,7 @@
         }
       </form>
 
-      <div class="grid grid-cols-2 gap-4 mt-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
         <button mat-stroked-button (click)="addData()">
           Add Employee
         </button>

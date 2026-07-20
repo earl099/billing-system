@@ -1,14 +1,14 @@
-<div class="max-w-5xl mx-auto p-6 fade-in">
-  <h2 class="text-3xl font-semibold mb-6">Dashboard</h2>
-  <mat-card class="p-6 mb-6 motion-smooth scale-in">
-    <h3 class="text-xl font-semibold mb-2">Welcome, {{ user().name }}</h3>
+<div class="max-w-5xl mx-auto px-4 py-6 sm:p-4 sm:p-6 fade-in">
+  <h2 class="text-2xl sm:text-3xl font-semibold mb-4 sm:mb-6">Dashboard</h2>
+  <mat-card class="p-4 sm:p-4 sm:p-6 mb-4 sm:mb-6 motion-smooth scale-in">
+    <h3 class="text-lg sm:text-xl font-semibold mb-2">Welcome, {{ user().name }}</h3>
     <p class="text-gray-600">Email: {{ user().email }}</p>
     <p class="text-gray-600">Role: {{ user().role }}</p>
   </mat-card>
 
   @if (user().role === 'Admin') {
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <mat-card class="p-6 card-animate motion-smooth">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-4 sm:p-6">
+      <mat-card class="p-4 sm:p-4 sm:p-6 card-animate motion-smooth">
         <h4 class="text-lg font-semibold mb-2">Admin</h4>
         <button mat-button routerLink="/admin/user/list">Manage Users</button>
         <button mat-button routerLink="/admin/payfreq/list">Manage Pay Frequencies</button>
@@ -16,7 +16,7 @@
         <button mat-button routerLink="/admin/log/list">View Logs</button>
       </mat-card>
 
-      <mat-card class="p-6 card-animate motion-smooth">
+      <mat-card class="p-4 sm:p-6 card-animate motion-smooth">
         <h4 class="text-lg font-semibold mb-2">Manpower Management</h4>
         <mat-accordion multi>
           <mat-expansion-panel>
@@ -43,7 +43,7 @@
         </mat-accordion>
       </mat-card>
 
-      <mat-card class="p-6 card-animate motion-smooth delay-200">
+      <mat-card class="p-4 sm:p-6 card-animate motion-smooth delay-200">
         <h4 class="text-lg font-semibold mb-2">Billing</h4>
 
         <mat-accordion multi>
@@ -111,11 +111,11 @@
     </div>
   }
   @else {
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <mat-card class="p-6 card-animate motion-smooth delay-200">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:p-6">
+      <mat-card class="p-4 sm:p-6 card-animate motion-smooth delay-200">
         <h4 class="text-lg font-semibold mb-2">Manpower Management</h4>
         @for (client of clients(); track client) {
-          @for (handledClient of user().handleClients; track handledClient) {
+          @for (handledClient of user().handledClients; track handledClient) {
             <!-- CREATE A CONDITION WHERE IF HANDLED CLIENT IS A MANPOWER TYPE OF BILLING, THEN CREATE THIS -->
             @if (handledClient === client._id) {
               <mat-accordion multi>
@@ -129,7 +129,7 @@
       </mat-card>
 
 
-      <mat-card class="p-6 card-animate motion-smooth delay-200">
+      <mat-card class="p-4 sm:p-6 card-animate motion-smooth delay-200">
         <h4 class="text-lg font-semibold mb-2">Billing</h4>
         @for (client of clients(); track client) {
           @for (handledClient of user().handledClients; track handledClient) {

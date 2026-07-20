@@ -1,2 +1,50 @@
 /* global small styling */
-:host { display: block; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue"; }
+:host {
+  display: block;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue";
+}
+
+/* Remove default margins so the sidenav container fills the viewport */
+body,
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+/* Sidenav accordion styling */
+.sidenav-accordion .mat-expansion-panel {
+  background: transparent;
+  box-shadow: none;
+}
+
+.sidenav-accordion .mat-expansion-panel-header {
+  padding: 0 16px;
+  min-height: 48px;
+}
+
+.sidenav-accordion .mat-expansion-panel-body {
+  padding: 0 0 0 8px;
+}
+
+/* Ensure mat-sidenav-container fills the viewport */
+mat-sidenav-container {
+  display: block;
+  height: 100vh;
+}
+
+/* Toolbar height consistency */
+mat-toolbar {
+  min-height: 64px;
+}
+
+/* Active list item highlight */
+.mat-mdc-list-item-active {
+  background-color: var(--mat-sys-surface-variant);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+/* Drawer border for dark/light compatibility */
+mat-sidenav {
+  border-right: 1px solid var(--mat-sys-outline-variant);
+}

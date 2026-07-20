@@ -1,24 +1,146 @@
-<header class="bg-white shadow">
-  <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-    <h1 class="text-2xl font-semibold">  <a [routerLink]="home()">{{ title() }}</a></h1>
-    <nav class="space-x-4">
+<mat-sidenav-container class="h-screen">
+  <mat-sidenav
+    [mode]="isMobile() ? 'over' : 'side'"
+    [opened]="sidenavOpened()"
+    (openedChange)="sidenavOpened.set($event)"
+    class="w-72 bg-[var(--mat-sys-surface)] text-[var(--mat-sys-on-surface)] border-r border-[var(--mat-sys-outline-variant)]">
 
-      @if (authService.token() !== null) {
-        <a routerLink="/dashboard" class="hover:underline">Dashboard</a>
-        <a class="hover:underline" (click)="logout()" routerLink="/home">Logout</a>
-      }
-      @else {
-        <a [routerLink]="home()" class="hover:underline">Home</a>
-        <a routerLink="/login" class="hover:underline">Login</a>
-        <a routerLink="/signup" class="hover:underline">Signup</a>
-      }
+    @if (authService.token() !== null) {
+      <div class="p-4 border-b border-[var(--mat-sys-outline-variant)]">
+        <h2 class="text-lg font-semibold">{{ user()?.name }}</h2>
+        <p class="text-sm opacity-70">{{ user()?.role }}</p>
+      </div>
 
-    </nav>
-  </div>
-</header>
+      <mat-nav-list>
+        <mat-accordion multi class="sidenav-accordion">
+          @for (item of menuItems(); track item.label) {
+            @if (item.children) {
+              <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                  <mat-panel-title class="flex items-center gap-2">
+                    @if (item.icon) {
+                      <mat-icon class="text-[20px]">{{ item.icon }}</mat-icon>
+                    }
+                    {{ item.label }}
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+                <div class="pl-2">
+                  @for (child of item.children; track child.label) {
+                    @if (child.children) {
+                      <mat-accordion multi class="sidenav-accordion">
+                        <mat-expansion-panel>
+                          <mat-expansion-panel-header>
+                            <mat-panel-title>{{ child.label }}</mat-panel-title>
+                          </mat-expansion-panel-header>
+                          <div class="pl-2">
+                            @for (grandchild of child.children; track grandchild.label) {
+                              <a mat-list-item [routerLink]="grandchild.route" (click)="closeSidenavOnMobile()">
+                                @if (grandchild.icon) {
+                                  <mat-icon matListItemIcon>{{ grandchild.icon }}</mat-icon>
+                                }
+                                <span matListItemTitle>{{ grandchild.label }}</span>
+                              </a>
+                            }
+                          </div>
+                        </mat-expansion-panel>
+                      </mat-accordion>
+                    } @else {
+                      <a mat-list-item [routerLink]="child.route" (click)="closeSidenavOnMobile()">
+                        @if (child.icon) {
+                          <mat-icon matListItemIcon>{{ child.icon }}</mat-icon>
+                        }
+                        <span matListItemTitle>{{ child.label }}</span>
+                      </a>
+                    }
+                  }
+                </div>
+              </mat-expansion-panel>
+            } @else {
+              <a mat-list-item [routerLink]="item.route" (click)="closeSidenavOnMobile()">
+                @if (item.icon) {
+                  <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+                }
+                <span matListItemTitle>{{ item.label }}</span>
+              </a>
+            }
+          }
+        </mat-accordion>
+      </mat-nav-list>
+    } @else {
+      <div class="p-4 border-b border-[var(--mat-sys-outline-variant)]">
+        <h2 class="text-lg font-semibold">Menu</h2>
+      </div>
+      <mat-nav-list>
+        <a mat-list-item [routerLink]="home()" (click)="closeSidenavOnMobile()">
+          <span matListItemTitle>Home</span>
+        </a>
+        <a mat-list-item routerLink="/login" (click)="closeSidenavOnMobile()">
+          <span matListItemTitle>Login</span>
+        </a>
+        <a mat-list-item routerLink="/signup" (click)="closeSidenavOnMobile()">
+          <span matListItemTitle>Signup</span>
+        </a>
+      </mat-nav-list>
+    }
+  </mat-sidenav>
 
-<main class="container mx-auto px-6 py-8">
-  <ngx-sonner-toaster />
-  <router-outlet />
-</main>
+  <mat-sidenav-content>
+    <mat-toolbar class="bg-[var(--mat-sys-surface)] text-[var(--mat-sys-on-surface)] shadow">
+      <div class="container mx-auto px-4 md:px-6 py-2 flex flex-wrap justify-between items-center gap-4 w-full">
+        <div class="flex items-center gap-2">
+          @if (authService.token() !== null) {
+            <button mat-icon-button (click)="toggleSidenav()" aria-label="Toggle menu">
+              <mat-icon>menu</mat-icon>
+            </button>
+          }
+          <a [routerLink]="home()" class="text-xl sm:text-2xl font-semibold">{{ title() }}</a>
+        </div>
+        <div class="flex items-center gap-2">
+          <button mat-icon-button [matMenuTriggerFor]="userMenu" aria-label="User menu">
+            <mat-icon>account_circle</mat-icon>
+          </button>
+          <mat-menu #userMenu="matMenu">
+            <div class="flex items-center justify-between px-4 py-3 gap-4 min-h-[48px]">
+              <span>Dark mode</span>
+              <mat-slide-toggle
+                [checked]="themeService.darkMode()"
+                (change)="themeService.darkMode.set($event.checked)"
+                color="accent">
+              </mat-slide-toggle>
+            </div>
 
+            @if (authService.token() !== null) {
+              <button mat-menu-item routerLink="/dashboard">
+                <mat-icon>dashboard</mat-icon>
+                <span>Dashboard</span>
+              </button>
+              <button mat-menu-item (click)="logout()">
+                <mat-icon>logout</mat-icon>
+                <span>Logout</span>
+              </button>
+            }
+            @else {
+              <button mat-menu-item [routerLink]="home()">
+                <mat-icon>home</mat-icon>
+                <span>Home</span>
+              </button>
+              <button mat-menu-item routerLink="/login">
+                <mat-icon>login</mat-icon>
+                <span>Login</span>
+              </button>
+              <button mat-menu-item routerLink="/signup">
+                <mat-icon>person_add</mat-icon>
+                <span>Signup</span>
+              </button>
+            }
+          </mat-menu>
+        </div>
+      </div>
+    </mat-toolbar>
+
+    <main class="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
+      <ngx-sonner-toaster />
+      <router-outlet />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

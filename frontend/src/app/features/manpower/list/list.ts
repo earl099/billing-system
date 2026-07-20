@@ -209,8 +209,10 @@ export class List implements OnInit, OnDestroy {
     else { this.currentPage.set(Math.min(Math.max(page, 1), this.totalPages())) }
   }
 
-  /** Navigates to the employee creation form */
+  /** Navigates to the employee creation form, passing the selected template filename */
   generate() {
-    this.router.navigate(['manpower', this.code(), 'add'])
+    this.router.navigate(['manpower', this.code(), 'add'], {
+      queryParams: { fileName: this.selectedTemplate()?.name ?? '' }
+    })
   }
 }
