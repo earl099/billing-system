@@ -1,9 +1,9 @@
-<div class="max-w-7xl mx-auto p-6">
-  <h2 class="text-2xl font-semibold mb-6">OFBANK Manpower Billing</h2>
+<div class="max-w-7xl mx-auto p-4 sm:p-6">
+  <h2 class="text-2xl font-semibold mb-4 sm:mb-6">OFBANK Manpower Billing</h2>
 
   @switch (step()) {
     @case ('setup') {
-      <mat-card class="p-6 max-w-lg">
+      <mat-card class="p-4 sm:p-6 w-full max-w-full sm:max-w-lg">
         <h3 class="text-lg font-semibold mb-4">Select Template & Date Range</h3>
 
         <mat-form-field appearance="outline" class="w-full mb-4">
@@ -15,8 +15,8 @@
           </mat-select>
         </mat-form-field>
 
-        <div class="flex gap-4 mb-4">
-          <mat-form-field appearance="outline" class="flex-1">
+        <div class="flex flex-col sm:flex-row gap-4 mb-4">
+          <mat-form-field appearance="outline" class="flex-1 w-full">
             <mat-label>Year</mat-label>
             <mat-select [value]="selectedYear()" (selectionChange)="selectedYear.set($event.value); updateDateRange()">
               @for (y of yearOptions; track y) {
@@ -25,7 +25,7 @@
             </mat-select>
           </mat-form-field>
 
-          <mat-form-field appearance="outline" class="flex-1">
+          <mat-form-field appearance="outline" class="flex-1 w-full">
             <mat-label>Month</mat-label>
             <mat-select [value]="selectedMonth()" (selectionChange)="selectedMonth.set($event.value); updateDateRange()">
               @for (m of monthOptions; track m.value) {
@@ -35,7 +35,7 @@
           </mat-form-field>
         </div>
 
-        <div class="flex gap-4 mb-4">
+        <div class="flex flex-wrap gap-4 mb-4">
           <label class="flex items-center gap-2 cursor-pointer">
             <input type="radio" name="period" value="first"
                    [checked]="selectedPeriod() === 'first'"
@@ -59,7 +59,7 @@
           Date range: <strong>{{ dateRange().label }}</strong>
         </p>
 
-        <button mat-raised-button color="primary" (click)="createBilling()">
+        <button class="w-full sm:w-auto" mat-raised-button color="primary" (click)="createBilling()">
           Create Billing File
         </button>
       </mat-card>
@@ -101,11 +101,11 @@
           </mat-tab>
         </mat-tab-group>
 
-        <div class="mt-6 flex gap-4">
-          <button mat-raised-button color="primary" (click)="saveBilling()">
+        <div class="mt-6 flex flex-col sm:flex-row gap-4">
+          <button class="w-full sm:w-auto" mat-raised-button color="primary" (click)="saveBilling()">
             Save to Excel
           </button>
-          <button mat-button (click)="openInSharePoint()">
+          <button class="w-full sm:w-auto" mat-button (click)="openInSharePoint()">
             Open in SharePoint
           </button>
         </div>
@@ -120,14 +120,14 @@
     }
 
     @case ('done') {
-      <mat-card class="p-6 max-w-lg text-center">
+      <mat-card class="p-4 sm:p-6 max-w-full sm:max-w-lg text-center">
         <h3 class="text-lg font-semibold mb-2">Billing data saved successfully</h3>
         <p class="text-sm text-gray-600 mb-6">File: {{ fileName() }}</p>
-        <div class="flex gap-4 justify-center">
-          <button mat-raised-button color="primary" (click)="openInSharePoint()">
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <button class="w-full sm:w-auto" mat-raised-button color="primary" (click)="openInSharePoint()">
             Open in SharePoint
           </button>
-          <button mat-button (click)="goToDashboard()">
+          <button class="w-full sm:w-auto" mat-button (click)="goToDashboard()">
             Back to Dashboard
           </button>
         </div>

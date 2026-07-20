@@ -1,5 +1,5 @@
-<div class="flex justify-center items-center h-screen fade-in">
-  <mat-card class="w-96 p-8 card-animate">
+<div class="flex justify-center items-center min-h-screen px-4 py-6 fade-in">
+  <mat-card class="w-full max-w-md p-6 sm:p-8 card-animate">
     <h2 class="text-2xl font-semibold mb-6 text-center">Login</h2>
 
     <form [formGroup]="form" class="flex flex-col gap-4">
@@ -17,12 +17,12 @@
         <button mat-raised-button color="primary" [disabled]="loading || form.invalid" (click)="submit()" class="w-full motion-smooth">Login</button>
       </div>
 
-      @if (error) { <p class="text-red-600 mt-3">{{ error }}</p> }
+      @if (error) { <p class="mt-3 text-[var(--mat-sys-error)]">{{ error }}</p> }
     </form>
 
-    <p class="mt-4 text-center text-sm">
+    <p class="mt-4 text-center text-sm opacity-80">
       No account?
-      <a routerLink="/signup" class="text-blue-600">Sign up</a>
+      <a routerLink="/signup" class="text-[var(--mat-sys-primary)] hover:underline font-medium">Sign up</a>
     </p>
   </mat-card>
 </div>

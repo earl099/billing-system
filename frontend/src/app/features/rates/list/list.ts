@@ -1,21 +1,24 @@
 /**
  * @fileoverview Billing rate list component
  * Displays a paginated, searchable table of billing rates from the SharePoint PositionTable
- * with view, edit, and delete actions. Logs delete operations for audit trail.
+ * with view, edit, and delete actions. Logs delete operations for audit logging.
+ * Requires template selection before loading PositionTable data when multiple templates exist.
  */
 
 import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
+import { LogDTO } from '@models/log';
+import { Auth } from '@services/auth';
+import { FileEditor } from '@services/file-editor';
+import { Log } from '@services/log';
 import { Manpower } from '@services/manpower';
 import { Rates } from '@services/rates';
-import { Auth } from '@services/auth';
-import { Log } from '@services/log';
-import { LogDTO } from '@models/log';
 import { toast } from 'ngx-sonner';
 
 @Component({
@@ -25,7 +28,8 @@ import { toast } from 'ngx-sonner';
     MatTableModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatSelectModule
   ],
   templateUrl: './list.html',
   styleUrl: './list.css',
@@ -34,6 +38,7 @@ import { toast } from 'ngx-sonner';
 export class List implements OnInit, OnDestroy {
   manpowerService = inject(Manpower)
   ratesService = inject(Rates)
+  fileEditor = inject(FileEditor)
   authService = inject(Auth)
   logService = inject(Log)
   route = inject(ActivatedRoute)
@@ -45,7 +50,11 @@ export class List implements OnInit, OnDestroy {
   searchQuery = signal('')
   currentPage = signal(1)
   pageSize = signal(5)
-  loading = signal(true)
+  loading = signal(false)
+
+  templates = signal<any[]>([])
+  selectedTemplate = signal<any>(null)
+  needsTemplateSelection = signal(false)
 
   /** Debounce timer for search input to avoid excessive filtering */
   private debounceTimer: ReturnType<typeof setTimeout> | null = null
@@ -90,19 +99,49 @@ export class List implements OnInit, OnDestroy {
       this.router.navigate(['/'])
       return
     }
-    await this.loadData()
+    await this.loadTemplates()
   }
 
   ngOnDestroy() {
     if (this.debounceTimer) clearTimeout(this.debounceTimer)
   }
 
+  /** Loads available billing templates and decides whether to prompt or auto-load */
+  async loadTemplates() {
+    try {
+      const all = await this.fileEditor.getTemplates(this.code())
+      const excelTemplates = all.filter((t: any) =>
+        t.type === 'excel' && t.name.endsWith('.xlsm')
+      )
+      this.templates.set(excelTemplates)
+
+      if (excelTemplates.length > 1) {
+        this.needsTemplateSelection.set(true)
+      } else {
+        if (excelTemplates.length === 1) {
+          this.selectedTemplate.set(excelTemplates[0])
+        }
+        this.loading.set(true)
+        await this.loadData()
+      }
+    } catch (e) {
+      toast.error('Failed to load templates')
+    }
+  }
+
+  /** Handles template selection and triggers data loading */
+  async onTemplateSelected(template: any) {
+    this.selectedTemplate.set(template)
+    this.loading.set(true)
+    await this.loadData()
+  }
+
   /** Fetches billing rate data from SharePoint and maps row values to display columns */
   async loadData() {
     try {
       this.loading.set(true)
-      const dataSource = await this.manpowerService.listData(this.code(), 'BILLING-TEMPLATE.xlsm', 'PositionTable')
-      console.log(dataSource[0].index)
+      const fileName = this.selectedTemplate()?.name ?? 'BILLING-TEMPLATE.xlsm'
+      const dataSource = await this.manpowerService.listData(this.code(), fileName, 'PositionTable')
       const formattedData = []
 
       for(let i = 0; i < dataSource.length; i++) {
@@ -170,8 +209,10 @@ export class List implements OnInit, OnDestroy {
     else { this.currentPage.set(Math.min(Math.max(page, 1), this.totalPages())) }
   }
 
-  /** Navigates to the billing rate creation form */
+  /** Navigates to the billing rate creation form, passing the selected template filename */
   generate() {
-    this.router.navigate(['rates', this.code(), 'add'])
+    this.router.navigate(['rates', this.code(), 'add'], {
+      queryParams: { fileName: this.selectedTemplate()?.name ?? '' }
+    })
   }
 }

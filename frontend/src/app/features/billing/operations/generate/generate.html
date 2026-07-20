@@ -1,16 +1,16 @@
-<mat-card class="p-6 card-animate max-w-3xl mx-auto">
+<mat-card class="p-4 sm:p-6 card-animate max-w-full sm:max-w-3xl mx-auto">
   <h2 class="text-2xl font-semibold mb-4">Generate {{code().toUpperCase()}} Billing</h2>
 
-  <div class="space-y-3 mb-6 space-x-3.5 flex">
-    <div class="flex flex-col">
+  <div class="flex flex-col sm:flex-row gap-4 mb-6">
+    <div class="flex flex-col w-full sm:w-auto">
       <input type="file" #fileInput accept=".pdf, .docx" hidden (change)="selectBillingLetter($event)" />
-      <button mat-raised-button (click)="fileInput.click()" class="mb-4">Upload Billing Letter</button>
+      <button mat-raised-button (click)="fileInput.click()" class="mb-4 w-full sm:w-auto">Upload Billing Letter</button>
       <span>{{ billingLetter()?.name }}</span>
     </div>
 
-    <div class="flex flex-col">
+    <div class="flex flex-col w-full sm:w-auto">
       <input type="file" #fileInput1 multiple accept=".pdf, .docx" hidden (change)="selectAttachments($event)" />
-      <button mat-raised-button (click)="fileInput1.click()" class="mb-4">Upload Supporting Files</button>
+      <button mat-raised-button (click)="fileInput1.click()" class="mb-4 w-full sm:w-auto">Upload Supporting Files</button>
       @for (file of attachments(); track file) {
         <span>{{ file.name }}</span>
       }
@@ -29,37 +29,39 @@
         <h3 class="text-xl font-semibold">Preview (Order Included)</h3>
         @for (p of previews(); track p.public_id) {
           <h4 class="font-medium mb-2">{{ p.label }}</h4>
-          <iframe [src]="p.safeUrl" title="test" [attr.aria-label]="p.label" class="w-full h-96 border rounded"></iframe>
+          <iframe [src]="p.safeUrl" title="test" [attr.aria-label]="p.label" class="w-full h-64 sm:h-96 border rounded"></iframe>
         }
       </div>
     }
   }
 
-  <button mat-raised-button color="primary"
-          class="motion-smooth mt-4"
-          [disabled]="loading()"
-          (click)="preview()">
-    Preview Files
-  </button>
+  <div class="flex flex-col sm:flex-row gap-3 mt-4">
+    <button mat-raised-button color="primary"
+            class="motion-smooth w-full sm:w-auto"
+            [disabled]="loading()"
+            (click)="preview()">
+      Preview Files
+    </button>
 
-  <button mat-raised-button color="primary"
-          class="motion-smooth mb-4 mt-6"
-          [disabled]="loading()"
-          (click)="generate()">
-    Generate PDF
-  </button>
+    <button mat-raised-button color="primary"
+            class="motion-smooth w-full sm:w-auto"
+            [disabled]="loading()"
+            (click)="generate()">
+      Generate PDF
+    </button>
+  </div>
 
-  <div class="flex mt-4 justify-evenly">
+  <div class="flex flex-col sm:flex-row justify-evenly gap-3 mt-4">
     @if(downloadUrl()) {
       <button
         mat-raised-button
         (click)="downloadFinalPdf()"
-        class="motion-smooth mb-4">
+        class="motion-smooth w-full sm:w-auto">
         Download PDF File
       </button>
     }
 
-    <button mat-stroked-button (click)="router.navigate(['/dashboard'])">Back to Dashboard</button>
+    <button class="w-full sm:w-auto" mat-stroked-button (click)="router.navigate(['/dashboard'])">Back to Dashboard</button>
   </div>
 
 </mat-card>

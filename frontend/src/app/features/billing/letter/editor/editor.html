@@ -1,5 +1,5 @@
-<div class="p-6 fade-in max-w-5xl mx-auto">
-  <mat-card class="shadow-xl rounded-2xl">
+<div class="p-4 sm:p-6 fade-in max-w-full lg:max-w-5xl mx-auto">
+  <mat-card class="shadow-xl rounded-2xl p-4 sm:p-6">
     <mat-card-header>
       <mat-card-title class="text-xl font-semibold mb-4">
         Billing Letter Editor
@@ -11,9 +11,9 @@
       <div>
         <h2 class="text-md">Choose your template:</h2>
         <br>
-        <div class="grid grid-cols-2 gap-3 mt-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
           @for (t of templates(); track t.id) {
-            <button mat-raised-button color="primary" (click)="selectTemplate(t)">
+            <button class="w-full" mat-raised-button color="primary" (click)="selectTemplate(t)">
               {{ t.name }}
             </button>
           }
@@ -24,7 +24,7 @@
         <div class="mt-4">
           <h2 class="text-md">Generate Billing Letter File:</h2>
           <br>
-          <button mat-raised-button class="mb-6" (click)="createBlank()" [disabled]="isGenerating()">
+          <button class="w-full sm:w-auto" mat-raised-button class="mb-6" (click)="createBlank()" [disabled]="isGenerating()">
             @if(isGenerating()) {
               <mat-progress-spinner
                 diameter="20"
@@ -43,7 +43,7 @@
       @if (step() === 2) {
         <h3 class="mt-4">Enter Billing Information</h3>
 
-        <form [formGroup]="form" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <form [formGroup]="form" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
           @for (field of formConfig(); track field.key) {
             @if (field.type !== 'monthYear' && field.type !== 'date' && field.type !== 'dateMonthYear' && field.type !== 'month') {
               <mat-form-field
@@ -109,10 +109,10 @@
           }
         </form>
 
-        <div class="flex justify-end gap-3 mt-6">
-          <button mat-stroked-button (click)="step.set(1)">Back</button>
+        <div class="flex flex-col sm:flex-row justify-end gap-3 mt-6">
+          <button class="w-full sm:w-auto" mat-stroked-button (click)="step.set(1)">Back</button>
 
-          <button mat-raised-button color="primary"
+          <button class="w-full sm:w-auto" mat-raised-button color="primary"
             (click)="createBillingLetter()"
             [disabled]="form.invalid || isGenerating()">
               @if (isGenerating()) {
@@ -134,7 +134,7 @@
       @if(step() === 3) {
         <h3 class="mt-4">{{code()!.toUpperCase()}} Billing Information</h3>
 
-        <form [formGroup]="form" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <form [formGroup]="form" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
           <!-- MAIN BILLING FIELDS -->
           @for (field of formConfig(); track field.key) {
             @if (field.type !== 'monthYear' && field.type !== 'date' && field.type !== 'dateMonthYear' && field.type !== 'month' && field.type !== 'year') {
@@ -231,15 +231,15 @@
           }
 
           <!-- TRANSMITTAL TABLE -->
-          <div class="mt-6 col-span-2">
+          <div class="mt-6 col-span-1 sm:col-span-2">
             <h3 class="text-lg font-semibold mb-3">Transmittal Items</h3>
 
             <div formArrayName="transmittalItems">
               @for (row of transmittalControls; track $index; let i = $index) {
                 <div
                     [formGroupName]="i"
-                    class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 border p-4 rounded-xl">
-                  <mat-form-field>
+                    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4 border p-4 rounded-xl">
+                  <mat-form-field class="w-full">
                     <mat-label>Property</mat-label>
                     <input matInput formControlName="property">
                   </mat-form-field>
@@ -249,13 +249,13 @@
                     label="Month and Year">
                   </app-month-year-picker>
 
-                  <mat-form-field>
+                  <mat-form-field class="w-full">
                     <mat-label>Amount</mat-label>
                     <input matInput type="number" formControlName="amount">
 
                   </mat-form-field>
 
-                  <mat-form-field>
+                  <mat-form-field class="w-full">
                     <mat-label>PMC Number</mat-label>
                     <input matInput formControlName="pmcNo">
                   </mat-form-field>
@@ -263,12 +263,12 @@
               }
             </div>
 
-            <div class="grid grid-cols-2 gap-4 mt-4">
-              <button mat-stroked-button (click)="createTransmittalRow()">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+              <button class="w-full" mat-stroked-button (click)="createTransmittalRow()">
                 Add Row
               </button>
 
-              <button mat-stroked-button (click)="removeTransmittalRow()" [disabled]="transmittalItems.length === 1">
+              <button class="w-full" mat-stroked-button (click)="removeTransmittalRow()" [disabled]="transmittalItems.length === 1">
                 Remove Row
               </button>
             </div>
@@ -282,8 +282,8 @@
           Total: {{ transmittalTotal | number:'1.2-2' }}
         </div>
 
-        <div class="flex justify-end gap-3 mt-6">
-          <button mat-raised-button color="primary"
+        <div class="flex flex-col sm:flex-row justify-end gap-3 mt-6">
+          <button class="w-full sm:w-auto" mat-raised-button color="primary"
               (click)="createBillingLetter()"
               [disabled]="form.invalid || isGenerating()">
             @if(isGenerating()) {

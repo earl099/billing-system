@@ -1,9 +1,9 @@
-<div class="max-w-2xl mx-auto p-6 fade-in">
-  <mat-card class="p-6 card-animate">
+<div class="max-w-full md:max-w-2xl mx-auto p-4 sm:p-6 fade-in">
+  <mat-card class="p-4 sm:p-6 card-animate">
     <h3 class="text-xl font-semibold mb-4">Edit Billing Rate</h3>
 
     <form [formGroup]="form" class="grid gap-4">
-      <mat-form-field appearance="fill">
+      <mat-form-field class="w-full" appearance="fill">
         <mat-label>Position Code</mat-label>
         <input matInput formControlName="posCode" />
         @if (form.get('posCode')?.invalid) {
@@ -11,12 +11,12 @@
         }
       </mat-form-field>
 
-      <mat-form-field appearance="fill">
+      <mat-form-field class="w-full" appearance="fill">
         <mat-label>Position Name</mat-label>
         <input matInput formControlName="posName" />
       </mat-form-field>
 
-      <mat-form-field appearance="fill">
+      <mat-form-field class="w-full" appearance="fill">
         <mat-label>Salary/Wage</mat-label>
         <input matInput type="number" formControlName="salaryWage" />
         @if (form.get('salaryWage')?.invalid) {
@@ -24,7 +24,7 @@
         }
       </mat-form-field>
 
-      <mat-form-field appearance="fill">
+      <mat-form-field class="w-full" appearance="fill">
         <mat-label>Daily Rate</mat-label>
         <input matInput formControlName="dailyRate" />
         @if (form.get('dailyRate')?.invalid) {
@@ -32,7 +32,7 @@
         }
       </mat-form-field>
 
-      <mat-form-field appearance="fill">
+      <mat-form-field class="w-full" appearance="fill">
         <mat-label>Monthly Rate</mat-label>
         <input matInput type="number" formControlName="monthlyRate" step="0.01" />
         @if (form.get('monthlyRate')?.invalid) {
@@ -40,7 +40,7 @@
         }
       </mat-form-field>
 
-      <mat-form-field appearance="fill">
+      <mat-form-field class="w-full" appearance="fill">
         <mat-label>Semi-Monthly Rate</mat-label>
         <input matInput type="number" formControlName="semiMonthlyRate" />
         @if (form.get('semiMonthlyRate')?.invalid) {
@@ -48,7 +48,7 @@
         }
       </mat-form-field>
 
-      <mat-form-field appearance="fill">
+      <mat-form-field class="w-full" appearance="fill">
         <mat-label>Salary Type</mat-label>
         <input matInput formControlName="salaryType" />
         @if (form.get('salaryType')?.invalid) {
@@ -60,9 +60,9 @@
         <p class="text-red-600 mt-2">{{ error }}</p>
       }
 
-      <div class="flex gap-3">
-        <button mat-raised-button color="primary" [disabled]="loading" (click)="submit()">Update Rate</button>
-        <button mat-stroked-button (click)="cancel()">Cancel</button>
+      <div class="flex flex-col sm:flex-row gap-3">
+        <button class="w-full sm:w-auto" mat-raised-button color="primary" [disabled]="loading" (click)="submit()">Update Rate</button>
+        <button class="w-full sm:w-auto" mat-stroked-button (click)="cancel()">Cancel</button>
       </div>
     </form>
   </mat-card>

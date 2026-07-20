@@ -4,6 +4,7 @@
  */
 
 import authRouter from "#routes/auth.routes.js";
+import backupRouter from "#routes/backup.routes.js";
 import clientRouter from "#routes/client.routes.js";
 import logRouter from "#routes/log.routes.js";
 import payFreqRouter from "#routes/payfreq.routes.js";
@@ -29,6 +30,7 @@ const ALL_ROUTES = [
     userRouter,
     payFreqRouter,
     clientRouter,
+    backupRouter,
 ]
 
 export default ALL_ROUTES
