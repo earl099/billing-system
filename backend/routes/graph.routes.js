@@ -30,7 +30,14 @@ import {
     getBtrJanitorialTables,
     saveBtrJanitorialTables,
     createBtrSuppliesBilling,
-    setupBtrSuppliesBilling
+    setupBtrSuppliesBilling,
+    createDofTimekeeping,
+    createDofBilling,
+    setupDofBilling,
+    getDofTables,
+    saveDofTables,
+    saveDofSignatories,
+    listDofBillingDrafts,
 } from "#utils/graphClient.js";
 import { Router } from "express";
 
@@ -109,5 +116,22 @@ graphRouter.patch('/editor/btr-janitorial/:fileId/save', saveBtrJanitorialTables
 graphRouter.post('/editor/create/:code/btr-supplies', createBtrSuppliesBilling)
 /** PATCH /editor/btr-supplies/:fileId/setup - Fill BTr supplies billing cells and insert rows */
 graphRouter.patch('/editor/btr-supplies/:fileId/setup', setupBtrSuppliesBilling)
+
+// DOF BILLING
+
+/** POST /editor/create/:code/dof/timekeeping - Create three DOF timekeeping files (JAN, OMS, MAN) */
+graphRouter.post('/editor/create/:code/dof/timekeeping', createDofTimekeeping)
+/** POST /editor/create/:code/dof/billing - Copy DOF billing template and rename file */
+graphRouter.post('/editor/create/:code/dof/billing', createDofBilling)
+/** PATCH /editor/dof/:timekeepingId/:billingId/setup - Rename worksheets and fill period cells in billing and timekeeping files */
+graphRouter.patch('/editor/dof/:timekeepingId/:billingId/setup', setupDofBilling)
+/** GET /editor/dof/drafts - List DOF billing draft files, newest first */
+graphRouter.get('/editor/dof/drafts', listDofBillingDrafts)
+/** GET /editor/dof/:fileId/tables - Read jTimekeep/oTimekeep/mTimekeep plus the billing file's jBilling/oBilling/mBilling tables */
+graphRouter.get('/editor/dof/:fileId/tables', getDofTables)
+/** PATCH /editor/dof/:fileId/tables - Save timekeeper data to the three timekeeping files and the billing file */
+graphRouter.patch('/editor/dof/:fileId/tables', saveDofTables)
+/** PATCH /editor/dof/:fileId/signatories - Save SOA number and signatory cells */
+graphRouter.patch('/editor/dof/:fileId/signatories', saveDofSignatories)
 
 export default graphRouter

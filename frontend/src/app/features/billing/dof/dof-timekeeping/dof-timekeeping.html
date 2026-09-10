@@ -1,0 +1,303 @@
+<div class="dof-billing-container">
+  @switch (step()) {
+    @case ('setup') {
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>DOF Timekeeping - File Generation</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Year</mat-label>
+              <mat-select [(ngModel)]="selectedYear" (selectionChange)="updateDateRange()">
+                @for (year of yearOptions; track year) {
+                  <mat-option [value]="year">{{ year }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Month</mat-label>
+              <mat-select [(ngModel)]="selectedMonth" (selectionChange)="updateDateRange()">
+                @for (month of monthOptions; track month.value) {
+                  <mat-option [value]="month.value">{{ month.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Billing Period</mat-label>
+              <mat-select [(ngModel)]="selectedPeriod" (selectionChange)="updateDateRange()">
+                <mat-option value="first">1 - 15</mat-option>
+                <mat-option value="second">16 - {{ lastDayOfMonth() }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <p class="period-display">{{ dateRange().label }}</p>
+
+          <button mat-raised-button color="primary" (click)="createBilling()">Generate Files</button>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    @case ('loading') {
+      <div class="loading-state">
+        <mat-spinner diameter="48"></mat-spinner>
+        <p>Creating DOF billing files...</p>
+      </div>
+    }
+
+    @case ('editing') {
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Timekeeper Data Input</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-tab-group>
+            @for (category of categories(); track category.key) {
+              <mat-tab [label]="category.label">
+                <div class="category-panel">
+                  <h3 class="category-title">{{ category.label }} {{ dateRange().sheetLabel }}</h3>
+
+                  @for (emp of category.employees; track emp.index) {
+                    <mat-expansion-panel class="employee-panel">
+                      <mat-expansion-panel-header>
+                        <mat-panel-title>{{ emp.empNo }} - {{ emp.empName }}</mat-panel-title>
+                      </mat-expansion-panel-header>
+
+                      <div class="employee-form">
+                        @if (category.key === 'oms') {
+                          <div class="section">
+                            <h4 class="section-title">Rest Days</h4>
+                            <div class="rest-day-chips">
+                              @for (day of ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']; track day) {
+                                <mat-checkbox
+                                  [checked]="emp.restDays.includes(day)"
+                                  (change)="toggleRestDay(emp, day)">
+                                  {{ day }}
+                                </mat-checkbox>
+                              }
+                            </div>
+                          </div>
+                        }
+
+                        @if (category.key === 'jan') {
+                          <div class="section">
+                            <h4 class="section-title">Regular Hours</h4>
+                            <div class="date-list">
+                              @for (day of emp.janitorialDays; track day.date) {
+                                <div class="date-row">
+                                  <mat-checkbox
+                                    [checked]="day.checked"
+                                    (change)="toggleJanitorialDay(emp, day)">
+                                    {{ day.date }}
+                                  </mat-checkbox>
+                                  <mat-form-field appearance="outline" class="hours-field">
+                                    <mat-label>Rendered Hours</mat-label>
+                                    <input matInput
+                                           [(ngModel)]="day.hours"
+                                           [disabled]="day.checked"
+                                           placeholder="HH:MM" />
+                                  </mat-form-field>
+                                </div>
+                              }
+                            </div>
+                            <p class="computed-value">Computed regular hours: {{ computeRegularHours(emp, category.key) }}</p>
+                          </div>
+                        }
+
+                        <div class="section">
+
+                          <h4 class="section-title">Absences</h4>
+                          <mat-checkbox [(ngModel)]="emp.hasAbsences">
+                            Employee has absences
+                          </mat-checkbox>
+
+                          @if (emp.hasAbsences) {
+                            <div class="entries">
+                              @for (entry of emp.absences; track $index) {
+                                <div class="entry-row">
+                                  <mat-form-field appearance="outline">
+                                    <mat-label>Date</mat-label>
+                                    <input matInput [(ngModel)]="entry.date" type="date" />
+                                  </mat-form-field>
+                                  <button mat-icon-button (click)="removeAbsenceDate(emp, $index)">
+                                    <mat-icon>delete</mat-icon>
+                                  </button>
+                                </div>
+                              }
+                              <button mat-button (click)="addAbsenceDate(emp)">Add Absence Date</button>
+                            </div>
+                          }
+                        </div>
+
+                        <div class="section">
+                          <h4 class="section-title">Undertime</h4>
+                          <mat-checkbox [(ngModel)]="emp.hasUndertime">
+                            Employee has undertime
+                          </mat-checkbox>
+
+                          @if (emp.hasUndertime) {
+                            <div class="entries">
+                              @for (entry of emp.undertimes; track $index) {
+                                <div class="entry-row">
+                                  <mat-form-field appearance="outline">
+                                    <mat-label>Date</mat-label>
+                                    <input matInput [(ngModel)]="entry.date" type="date" />
+                                  </mat-form-field>
+                                  <mat-form-field appearance="outline">
+                                    <mat-label>Time</mat-label>
+                                    <input matInput [(ngModel)]="entry.time" placeholder="HH:MM" />
+                                  </mat-form-field>
+                                  <button mat-icon-button (click)="removeUndertimeDate(emp, $index)">
+                                    <mat-icon>delete</mat-icon>
+                                  </button>
+                                </div>
+                              }
+                              <button mat-button (click)="addUndertimeDate(emp)">Add Undertime Date</button>
+                            </div>
+                          }
+
+                          @if (category.key !== 'jan') {
+                            <p class="computed-value">Computed regular hours: {{ computeRegularHours(emp, category.key) }}</p>
+                          }
+                        </div>
+
+                        @if (category.key !== 'jan') {
+                          <div class="section">
+                            <h4 class="section-title">Daily Breakdown</h4>
+                            <div class="date-list">
+                              @for (day of buildDayPreview(emp, category.key); track $index) {
+                                <div class="date-row breakdown-row">
+                                  <span class="breakdown-date">{{ day.dateIso }}@if (day.dayName) { ({{ day.dayName }}) }</span>
+                                  <span class="breakdown-hours">{{ day.hours ?? '—' }}</span>
+                                  <span class="breakdown-flags">{{ day.flags.join(' · ') }}</span>
+                                </div>
+                              }
+                            </div>
+                          </div>
+                        }
+
+                        <div class="section">
+                          <h4 class="section-title">Overtime</h4>
+                          <mat-checkbox [(ngModel)]="emp.hasOvertime">
+                            Employee has overtime
+                          </mat-checkbox>
+
+                          @if (emp.hasOvertime) {
+                            <div class="entries">
+                              @for (ot of emp.overtimes; track $index) {
+                                <div class="entry-row">
+                                  <mat-form-field appearance="outline">
+                                    <mat-label>Type</mat-label>
+                                    <mat-select [(ngModel)]="ot.type">
+                                      @for (type of ['Regular OT', 'Regular Rest Day OT', 'Special Holiday OT', 'Special Holiday Excess OT', 'Legal Holiday OT', 'Legal Holiday Excess OT']; track type) {
+                                        <mat-option [value]="type">{{ type }}</mat-option>
+                                      }
+                                    </mat-select>
+                                  </mat-form-field>
+                                  <mat-form-field appearance="outline">
+                                    <mat-label>Date</mat-label>
+                                    <input matInput [(ngModel)]="ot.date" type="date" />
+                                  </mat-form-field>
+                                  <mat-form-field appearance="outline">
+                                    <mat-label>Time</mat-label>
+                                    <input matInput [(ngModel)]="ot.time" placeholder="HH:MM" />
+                                  </mat-form-field>
+                                  <button mat-icon-button (click)="removeOvertime(emp, $index)">
+                                    <mat-icon>delete</mat-icon>
+                                  </button>
+                                </div>
+                              }
+                              <button mat-button (click)="addOvertime(emp)">Add Overtime</button>
+                            </div>
+                          }
+                        </div>
+
+                        @if (category.key !== 'man') {
+                          <div class="section">
+                            <h4 class="section-title">Night Differential</h4>
+                            <mat-checkbox [(ngModel)]="emp.hasNightDifferential">
+                              Employee has night differentials
+                            </mat-checkbox>
+
+                            @if (emp.hasNightDifferential) {
+                              <div class="entries">
+                                @for (nd of emp.nightDifferentials; track $index) {
+                                  <div class="entry-row">
+                                    <mat-form-field appearance="outline">
+                                      <mat-label>Type</mat-label>
+                                      <mat-select [(ngModel)]="nd.type">
+                                        @for (type of ['Night Differential', 'Night Differential Overtime', 'Night Differential Rest Day Overtime', 'Night Differential Special Holiday Overtime', 'Night Differential Special Holiday Overtime Excess', 'Night Differential Legal Holiday Overtime', 'Night Differential Legal Holiday Overtime Excess']; track type) {
+                                          <mat-option [value]="type">{{ type }}</mat-option>
+                                        }
+                                      </mat-select>
+                                    </mat-form-field>
+                                    <mat-form-field appearance="outline">
+                                      <mat-label>Date</mat-label>
+                                      <input matInput [(ngModel)]="nd.date" type="date" />
+                                    </mat-form-field>
+                                    <mat-form-field appearance="outline">
+                                      <mat-label>Time</mat-label>
+                                      <input matInput [(ngModel)]="nd.time" placeholder="HH:MM" />
+                                    </mat-form-field>
+                                    <button mat-icon-button (click)="removeNightDifferential(emp, $index)">
+                                      <mat-icon>delete</mat-icon>
+                                    </button>
+                                  </div>
+                                }
+                                <button mat-button (click)="addNightDifferential(emp)">Add Night Differential</button>
+                              </div>
+                            }
+                          </div>
+                        }
+
+                        @if (category.key === 'jan') {
+                          <mat-form-field appearance="outline" class="full-width">
+                            <mat-label>Remarks</mat-label>
+                            <input matInput [(ngModel)]="emp.remarks" />
+                          </mat-form-field>
+                        }
+                      </div>
+                    </mat-expansion-panel>
+                  }
+                </div>
+              </mat-tab>
+            }
+          </mat-tab-group>
+
+          <div class="actions">
+            <button mat-raised-button color="primary" (click)="saveTimekeeperData()">Save Timekeeper Data</button>
+            <button mat-button (click)="openInSharePoint()">Open in SharePoint</button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    @case ('saving') {
+      <div class="loading-state">
+        <mat-spinner diameter="48"></mat-spinner>
+        <p>Saving data...</p>
+      </div>
+    }
+
+    @case ('done') {
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>DOF Timekeeping Complete</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Files created and data applied successfully.</p>
+          <p class="file-name">{{ billingFile()?.fileName }}</p>
+          <div class="actions">
+            <button mat-raised-button color="primary" routerLink="/billing/soa/dof/billing">Proceed to Billing Signatories</button>
+            <button mat-button (click)="openInSharePoint()">Open in SharePoint</button>
+            <button mat-button (click)="goToDashboard()">Go to Dashboard</button>
+            <button mat-button (click)="retry()">Create Another</button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+  }
+</div>

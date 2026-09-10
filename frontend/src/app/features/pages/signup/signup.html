@@ -44,6 +44,20 @@
         }
       </mat-form-field>
 
+      @if (clients().length > 0) {
+        <mat-form-field class="w-full mt-3">
+          <mat-label>Handled Clients</mat-label>
+          <mat-select formControlName="handledClients" multiple>
+            @for (client of clients(); track client._id) {
+              <mat-option [value]="client._id">{{ client.code }} ({{ client.name }})</mat-option>
+            }
+          </mat-select>
+          @if (form.get('handledClients')?.touched && form.get('handledClients')?.hasError('required')) {
+            <mat-error>Select at least one client</mat-error>
+          }
+        </mat-form-field>
+      }
+
       <div class="mt-3 flex justify-between items-center">
         <button mat-raised-button color="primary" type="submit" [disabled]="loading() || form.invalid" class="w-full motion-smooth">Sign up</button>
       </div>

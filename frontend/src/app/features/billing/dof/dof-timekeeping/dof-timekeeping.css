@@ -1,0 +1,166 @@
+.dof-billing-container {
+  padding: 1rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.form-row mat-form-field {
+  min-width: 200px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.period-display {
+  font-weight: 500;
+  margin: 1rem 0;
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.signatory-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem 0;
+}
+
+.file-name {
+  font-style: italic;
+  color: #666;
+}
+
+mat-tab-group {
+  margin-top: 1rem;
+}
+
+.category-panel {
+  padding: 1rem 0;
+}
+
+.category-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.employee-panel {
+  margin-bottom: 0.75rem;
+}
+
+.employee-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 0.5rem 0;
+}
+
+.section {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem 0;
+}
+
+.entries {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.entry-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.computed-value {
+  margin-top: 0.75rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.employee-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+}
+
+.employee-info p {
+  margin: 0;
+}
+
+.rest-day-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+}
+
+.date-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.date-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.hours-field {
+  width: 140px;
+}
+
+.breakdown-row {
+  padding: 0.25rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.breakdown-date {
+  min-width: 180px;
+  font-weight: 500;
+}
+
+.breakdown-hours {
+  min-width: 48px;
+  text-align: right;
+  font-weight: 600;
+}
+
+.breakdown-flags {
+  color: #666;
+  font-size: 0.875rem;
+}

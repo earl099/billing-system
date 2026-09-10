@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Shell(npm:*)",
+      "Shell(node --check utils/graphClient.js)",
+      "Shell(node --check config/dof.config.js)",
+      "Shell(node --check routes/graph.routes.js)",
+      "Shell(node --check backend/utils/graphClient.js)",
+      "Shell(node inspect-dof-tables.mjs)",
+      "Shell(node \"C:\\Users\\lbrdc\\AppData\\Local\\Temp\\commandcode\\C--Users-lbrdc-OneDrive-Desktop-billing-system\\73f6b40d-13ae-4161-8957-1fd19f389fb6\\scratchpad\\inspect-dof-tables.mjs\")",
+      "Shell(node inspect-dof-drafts.mjs)",
+      "Shell(node inspect-dof-saved.mjs)",
+      "Shell(node check-pagination.mjs)",
+      "Shell(node check-formulas.mjs)",
+      "Shell(node check-formulas2.mjs)",
+      "Shell(node check-formulas3.mjs)",
+      "powershell"
+    ],
+    "deny": [],
+    "defaultMode": "default"
+  }
+}

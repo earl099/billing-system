@@ -10,7 +10,8 @@ export const signupSchema = z.object({
     name: z.string().min(1, 'Name is required').max(100, 'Name too long').trim(),
     username: z.string().min(3, 'Username must be 3+ characters').max(50, 'Username too long').toLowerCase().trim(),
     email: z.string().email('Invalid email format').toLowerCase().trim(),
-    password: z.string().min(8, 'Password must be 8+ characters').max(100, 'Password too long')
+    password: z.string().min(8, 'Password must be 8+ characters').max(100, 'Password too long'),
+    handledClients: z.array(z.string()).optional()
 })
 
 export const loginSchema = z.object({

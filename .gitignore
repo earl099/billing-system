@@ -45,6 +45,8 @@ backend/.env.local
 backend/uploads/
 backend/uploads/**/*.pdf
 backend/uploads/**/*.docx
+backend/uploads/**/*.xlsx
+backend/*.mjs
 
 # Miscellaneous
 frontend/.angular/cache
