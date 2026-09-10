@@ -19,26 +19,66 @@ import PizZip from 'pizzip'
 import Docxtemplater from 'docxtemplater'
 import axios from 'axios'
 import { getGraphToken } from '#config/graphAuth.js'
+import {
+    DOF_TEMPLATES,
+    DOF_SOURCE_SHEETS,
+    DOF_SOA_SHEETS,
+    DOF_TABLES,
+    DOF_PLACEHOLDERS,
+    DOF_BILLING_TABLES,
+    DOF_BILLING_FORMULA_INDICES,
+    DOF_FORMULA_INDICES,
+    DOF_DAY_FORMULA_INDICES,
+} from '#config/dof.config.js'
+
+/** Upper bound for any single throttle/backoff wait */
+const THROTTLE_WAIT_CAP_MS = 60000
+
+/**
+ * True when Graph reports rate limiting: HTTP 429 or throttle error codes such
+ * as FileOpenHostTooManyRequests / tooManyRequestsUncategorized. Workbook-host
+ * throttling often returns these on non-429 statuses, with the finer-grained
+ * code nested under error.innerError.code.
+ */
+const isThrottledResponse = (status, code, innerCode) =>
+    status === 429 ||
+    /toomanyrequests/i.test(code || '') ||
+    /toomanyrequests/i.test(innerCode || '')
+
+/**
+ * Exponential backoff with jitter, capped at THROTTLE_WAIT_CAP_MS.
+ * Starts at ~3s and roughly doubles each attempt so later retries ride out
+ * workbook-host cooldown windows (FileOpenHost throttling can last a minute+).
+ */
+const backoffMs = attempt =>
+    Math.min(3000 * Math.pow(2, attempt) + Math.random() * 1000, THROTTLE_WAIT_CAP_MS)
+
+/** Prefers the Retry-After header when present; falls back to exponential backoff */
+const throttleWaitMs = (retryAfterHeader, attempt) => {
+    const retryAfterSec = parseInt(retryAfterHeader, 10)
+    if (!isNaN(retryAfterSec) && retryAfterSec > 0) {
+        return Math.min(retryAfterSec * 1000, THROTTLE_WAIT_CAP_MS)
+    }
+    return backoffMs(attempt)
+}
 
 /**
  * Sends an authenticated request to the Microsoft Graph API
  * Automatically acquires a bearer token, constructs the full Graph URL,
  * and merges custom headers/config into the axios request.
+ * Retries throttled (429 / *TooManyRequests codes) and transient gateway
+ * failures (502/503/504) with backoff, honoring the Retry-After header when
+ * SharePoint provides one.
  * 
  * @param {string} method - HTTP method (GET, POST, PUT, PATCH, DELETE)
  * @param {string} url - Graph API path (e.g., '/sites/{id}/drive/...') or full HTTPS URL
  * @param {any} [data=null] - Request body data
  * @param {Object} [config={}] - Additional axios config (headers, responseType, validateStatus, etc.)
+ *   May also include `maxRetries` (default 5) to control the retry budget.
  * @returns {Promise<import('axios').AxiosResponse>} Axios response from the Graph API
- * @throws {Error} If no Graph token is available
+ * @throws {Error} If no Graph token is available, or after retries are exhausted
  */
 export async function graphRequest(method, url, data = null, config = {}) {
-    const token = await getGraphToken()
-    
-    if(!token) {
-        throw new Error('Microsoft Graph is missing')
-    }
-
     let graphPath = url
     
     if(!graphPath.startsWith('/')) {
@@ -49,58 +89,226 @@ export async function graphRequest(method, url, data = null, config = {}) {
     const finalUrl = url.startsWith('https://')
         ? url
         : `https://graph.microsoft.com/v1.0${graphPath}`
-    
-    const headers = {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-        ...(config.headers || {})
-    }
 
-    return axios({
-        method,
-        url: finalUrl,
-        data,
-        ...config,
-        headers
-    })
+    const { maxRetries = 5, ...axiosConfig } = config
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        const token = await getGraphToken()
+        
+        if(!token) {
+            throw new Error('Microsoft Graph is missing')
+        }
+
+        try {
+            return await axios({
+                method,
+                url: finalUrl,
+                data,
+                ...axiosConfig,
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                    ...(axiosConfig.headers || {})
+                }
+            })
+        } catch (err) {
+            const status = err?.response?.status
+            const code = err?.response?.data?.error?.code
+            const innerCode = err?.response?.data?.error?.innerError?.code
+            const message = err?.response?.data?.error?.message
+
+            const throttled = isThrottledResponse(status, code, innerCode)
+            const transient = status === 502 || status === 503 || status === 504 ||
+                /timeout|serviceunavailable|temporarilyunavailable/i.test(code || '')
+
+            if ((!throttled && !transient) || attempt === maxRetries) throw err
+
+            const waitMs = throttled
+                ? throttleWaitMs(err?.response?.headers?.['retry-after'], attempt)
+                : backoffMs(attempt)
+
+            console.warn(
+                `Graph request ${method} ${graphPath} throttled/failed (${status ?? err?.message}), ` +
+                `retrying in ${Math.round(waitMs)}ms (attempt ${attempt + 1}/${maxRetries})`
+            )
+            await new Promise(r => setTimeout(r, waitMs))
+        }
+    }
 }
 
 /**
  * Sends a batch of requests to the Microsoft Graph API in a single HTTP call
  * Uses the $batch endpoint for atomic multi-operation execution within a workbook session.
- * Throws if any individual request in the batch returns a 4xx/5xx status.
+ * Retries throttled requests (HTTP 429 or *TooManyRequests codes, including
+ * FileOpenHostTooManyRequests and the nested tooManyRequestsUncategorized) and
+ * transient gateway/timeout failures (502/503/504, e.g.
+ * FileOpenBaseDocumentCheckHostTimeout) with backoff, recreating the
+ * workbook session via `refreshSession` when it expires or the host wedges mid-save.
+ * Throws if any individual request in the batch returns a 4xx/5xx status after retries.
  * 
  * @param {Array<{ id: string, method: string, url: string, headers?: Object, body?: any }>} requests - Array of batch request objects
  * @param {string} sessionId - Active workbook session ID for consistent operations
+ * @param {Object} [options] - { maxRetries: number, refreshSession: () => Promise<string> }
+ *   `refreshSession` closes the expired session, creates a new one, and returns its ID
  * @returns {Promise<Object>} Batch response data containing individual response results
  * @throws {Error} If any batch operation fails with status >= 400
  */
-export async function graphBatchRequest(requests, sessionId) {
-    const token = await getGraphToken()
+export async function graphBatchRequest(requests, sessionId, options = {}) {
+    const { maxRetries = 5, refreshSession } = options
 
-    const res = await axios.post(
-        'https://graph.microsoft.com/v1.0/$batch',
-        { requests },
-        {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
-                'workbook-session-id': sessionId
+    let pending = requests
+
+    const isInvalidSession = obj =>
+        /invalidsession/i.test(obj?.error?.code || '')
+
+    // Transient workbook-host failures (gateway timeouts, host can't open the
+    // file) typically succeed on retry with a fresh session. Also catches
+    // 500 UnknownError wrapping a WAC "Service Unavailable" HTML page, which
+    // Excel Online returns transiently under sustained write load.
+    const isTransientFailure = (status, code, message) =>
+        status === 502 || status === 503 || status === 504 ||
+        /timeout|serviceunavailable|temporarilyunavailable/i.test(code || '') ||
+        (status === 500 &&
+            /unknownerror/i.test(code || '') &&
+            /service is unavailable|WACError|technical difficulties/i.test(message || ''))
+
+    const waitForThrottle = async (retryAfterValues, attempt) => {
+        const retryAfter = retryAfterValues
+            .map(v => parseInt(v, 10))
+            .filter(n => !isNaN(n) && n > 0)
+
+        let waitMs = retryAfter.length > 0
+            ? Math.max(...retryAfter) * 1000
+            : backoffMs(attempt)
+
+        waitMs = Math.min(waitMs, THROTTLE_WAIT_CAP_MS)
+
+        console.warn(`Graph batch throttled, retrying in ${Math.round(waitMs)}ms`)
+
+        if (waitMs > 15000 && refreshSession) {
+            try {
+                const newSessionId = await refreshSession()
+                if (newSessionId) sessionId = newSessionId
+            } catch (err) {
+                console.warn('Session refresh failed during throttle wait:', err?.message)
             }
         }
-    )
 
-    const failed = res.data.responses.filter(r => r.status >= 400)
+        await new Promise(r => setTimeout(r, waitMs))
+    }
 
-    if(failed.length > 0) {
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        const token = await getGraphToken()
+
+        const res = await axios.post(
+            'https://graph.microsoft.com/v1.0/$batch',
+            { requests: pending },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                    'workbook-session-id': sessionId
+                },
+                validateStatus: () => true
+            }
+        )
+
+        // Whole batch rejected, e.g. invalid workbook session or throttled endpoint
+        if (res.status >= 400) {
+            if (isInvalidSession(res.data) && refreshSession && attempt < maxRetries) {
+                console.warn('Workbook session invalid, recreating session and retrying batch')
+                const newSessionId = await refreshSession()
+                if (newSessionId) sessionId = newSessionId
+                continue
+            }
+
+            if (isThrottledResponse(res.status, res.data?.error?.code, res.data?.error?.innerError?.code) && attempt < maxRetries) {
+                await waitForThrottle([res.headers?.['retry-after']], attempt)
+                continue
+            }
+
+            if (isTransientFailure(res.status, res.data?.error?.code, res.data?.error?.message) && attempt < maxRetries) {
+                console.warn(`Batch request hit transient error ${res.status}, refreshing session and retrying`)
+                if (refreshSession) {
+                    try {
+                        const newSessionId = await refreshSession()
+                        if (newSessionId) sessionId = newSessionId
+                    } catch (err) {
+                        console.warn('Session refresh failed during transient retry:', err?.message)
+                    }
+                }
+                await new Promise(r => setTimeout(r, backoffMs(attempt)))
+                continue
+            }
+
+            console.error('Batch request failed: ', res.data?.error || res.data)
+            throw new Error('Some batch operations failed')
+        }
+
+        const failed = res.data.responses.filter(r => r.status >= 400)
+
+        if (failed.length === 0) {
+            return res.data
+        }
+
+        const invalidSessionFailures = failed.filter(r => isInvalidSession(r.body))
+
+        if (invalidSessionFailures.length > 0 && refreshSession && attempt < maxRetries) {
+            console.warn('Batch operations report invalid session, recreating session and retrying')
+            const newSessionId = await refreshSession()
+            if (newSessionId) sessionId = newSessionId
+            continue
+        }
+
+        const throttled = failed.filter(r =>
+            isThrottledResponse(r.status, r.body?.error?.code, r.body?.error?.innerError?.code)
+        )
+
+        if (throttled.length > 0 && attempt < maxRetries) {
+            const retryAfterValues = throttled.flatMap(r => {
+                const headers = r.headers || {}
+                const value = headers['Retry-After'] ?? headers['retry-after']
+                return value ? [value] : []
+            })
+
+            await waitForThrottle(retryAfterValues, attempt)
+
+            const failedIds = new Set(failed.map(f => f.id))
+            pending = requests.filter(r => failedIds.has(r.id))
+            continue
+        }
+
+        // Workbook-host timeouts (e.g. FileOpenBaseDocumentCheckHostTimeout) —
+        // retry only when every failure is transient so hard errors still throw.
+        const transient = failed.filter(r =>
+            isTransientFailure(r.status, r.body?.error?.code || r.body?.error?.innerError?.code, r.body?.error?.message)
+        )
+
+        if (transient.length > 0 && transient.length === failed.length && attempt < maxRetries) {
+            console.warn(`${transient.length} batch operation(s) hit transient workbook errors, refreshing session and retrying`)
+
+            if (refreshSession) {
+                try {
+                    const newSessionId = await refreshSession()
+                    if (newSessionId) sessionId = newSessionId
+                } catch (err) {
+                    console.warn('Session refresh failed during transient retry:', err?.message)
+                }
+            }
+
+            await new Promise(r => setTimeout(r, backoffMs(attempt)))
+
+            const failedIds = new Set(transient.map(f => f.id))
+            pending = requests.filter(r => failedIds.has(r.id))
+            continue
+        }
+
         for (const failure of failed) {
             console.error('Batch failures: ', failure.body.error)
         }
-        
+
         throw new Error('Some batch operations failed')
     }
-
-    return res.data
 }
 
 /**
@@ -436,7 +644,9 @@ export async function createOfbankBilling(req, res) {
         const { templateId, dateRange } = req.body
         const SITE_ID = process.env.SHAREPOINT_SITE_ID
 
-        const fileName = `${code.toUpperCase()}-Billing-${dateRange.label}.xlsm`
+        const now = new Date()
+        const timestamp = `${now.getHours()}${now.getMinutes()}${now.getSeconds()}`
+        const fileName = `${code.toUpperCase()}-Billing-${dateRange.label}-${timestamp}.xlsm`
 
         const folder = await graphRequest(
             'GET',
@@ -940,7 +1150,9 @@ export async function createMonthlySuppliesBilling(req, res) {
         const { templateId, month, year } = req.body
         const SITE_ID = process.env.SHAREPOINT_SITE_ID
 
-        const fileName = `${code.toUpperCase()}-Monthly-Supplies-${month} ${year}.xlsx`
+        const now = new Date()
+        const timestamp = `${now.getHours()}${now.getMinutes()}${now.getSeconds()}`
+        const fileName = `${code.toUpperCase()}-Monthly-Supplies-${month} ${year}-${timestamp}.xlsx`
 
         const folder = await graphRequest(
             'GET',
@@ -989,8 +1201,8 @@ export async function setupMonthlySuppliesBilling(req, res) {
         const rental = ((annualRentalFee * 0.22) + annualRentalFee) / 12  // Monthly rental fee with 12% VAT and 10% Administrative fee
 
         const now = new Date()
-        const months = ['January', 'February', 'March', 'April', 'May', 'June',
-                        'July', 'August', 'September', 'October', 'November', 'December']
+        const months = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE',
+                        'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER']
         const dateCreated = `${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`
         const monthPeriod = `FOR THE PERIOD OF ${month} ${year}`
 
@@ -1071,7 +1283,9 @@ export async function createBtrMissBilling(req, res) {
         const { templateId, dateRange } = req.body
         const SITE_ID = process.env.SHAREPOINT_SITE_ID
 
-        const fileName = `${code.toUpperCase()}-MISS-Billing-${dateRange.label}.xlsm`
+        const now = new Date()
+        const timestamp = `${now.getHours()}${now.getMinutes()}${now.getSeconds()}`
+        const fileName = `${code.toUpperCase()}-MISS-Billing-${dateRange.label}-${timestamp}.xlsm`
 
         const folder = await graphRequest(
             'GET',
@@ -1273,7 +1487,9 @@ export async function createBtrJanitorialBilling(req, res) {
         const { templateId, dateRange } = req.body
         const SITE_ID = process.env.SHAREPOINT_SITE_ID
 
-        const fileName = `${code.toUpperCase()}-Janitorial-Billing-${dateRange.label}.xlsm`
+        const now = new Date()
+        const timestamp = `${now.getHours()}${now.getMinutes()}${now.getSeconds()}`
+        const fileName = `${code.toUpperCase()}-Janitorial-Billing-${dateRange.label}-${timestamp}.xlsm`
 
         const folder = await graphRequest(
             'GET',
@@ -1578,7 +1794,9 @@ export async function createBtrSuppliesBilling(req, res) {
         const { templateId, month, year } = req.body
         const SITE_ID = process.env.SHAREPOINT_SITE_ID
 
-        const fileName = `${month.toUpperCase()} BTR JANITORIAL, UTILITY & SUPPLIES ${year}.xlsx`
+        const now = new Date()
+        const timestamp = `${now.getHours()}${now.getMinutes()}${now.getSeconds()}`
+        const fileName = `${month.toUpperCase()} BTR JANITORIAL, UTILITY & SUPPLIES ${year}-${timestamp}.xlsx`
 
         const folder = await graphRequest(
             'GET',
@@ -1742,6 +1960,629 @@ export async function setupBtrSuppliesBilling(req, res) {
     } catch (err) {
         console.error(err?.response?.data || err)
         res.status(500).json({ message: 'Failed to setup BTr supplies billing' })
+    }
+}
+
+// ==========================================
+// DOF BILLING FUNCTIONS
+// ==========================================
+
+async function findDofTemplate(code, templateName) {
+    const SITE_ID = process.env.SHAREPOINT_SITE_ID
+    const response = await graphRequest(
+        'GET',
+        `/sites/${SITE_ID}/drive/root:/Templates/${code}:/children`
+    )
+    return response.data.value.find(f => f.name === templateName)
+}
+
+export async function createDofTimekeeping(req, res) {
+    try {
+        const { code } = req.params
+        const { dateRange, year, month, billingPeriod } = req.body
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+
+        const now = new Date()
+        const timestamp = `${now.getHours()}${now.getMinutes()}${now.getSeconds()}`
+        const periodLabel = billingPeriod || dateRange.sheetLabel?.replace(/\s+/g, '-')
+        const suffix = `${month}-${periodLabel}-${year}-${timestamp}`
+
+        const folder = await graphRequest(
+            'GET',
+            `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts/${code}`
+        )
+
+        const prefixes = {
+            jan: `A_JAN-${suffix}`,
+            oms: `B_OMS-${suffix}`,
+            man: `C_MAN-${suffix}`,
+        }
+
+        const files = {}
+
+        for (const [key, templateName] of Object.entries(DOF_TEMPLATES.timekeeping)) {
+            const template = await findDofTemplate(code, templateName)
+            if (!template) {
+                throw new Error(`Timekeeping template ${templateName} not found`)
+            }
+
+            const fileName = `${prefixes[key]}.xlsx`
+
+            await graphRequest(
+                'POST',
+                `/sites/${SITE_ID}/drive/items/${template.id}/copy`,
+                {
+                    name: fileName,
+                    parentReference: { id: folder.data.id }
+                },
+                { validateStatus: s => s === 202 }
+            )
+
+            await new Promise(r => setTimeout(r, 5000))
+
+            const children = await graphRequest(
+                'GET',
+                `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts/${code}:/children`
+            )
+
+            const excelFile = children.data.value.find(f => f.name === fileName)
+
+            if (!excelFile) {
+                throw new Error(`Copied timekeeping file ${fileName} not found`)
+            }
+
+            files[key] = {
+                documentId: excelFile.id,
+                editUrl: excelFile.webUrl,
+                fileName
+            }
+        }
+
+        res.json(files)
+
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to create DOF timekeeping files' })
+    }
+}
+
+export async function createDofBilling(req, res) {
+    try {
+        const { code } = req.params
+        const { dateRange } = req.body
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+
+        const template = await findDofTemplate(code, DOF_TEMPLATES.billing)
+        if (!template) {
+            throw new Error(`Billing template ${DOF_TEMPLATES.billing} not found`)
+        }
+
+        const now = new Date()
+        const timestamp = `${now.getHours()}${now.getMinutes()}${now.getSeconds()}`
+        const fileName = `${code.toUpperCase()}-BILLING-${dateRange.label}-${timestamp}.xlsm`
+
+        const folder = await graphRequest(
+            'GET',
+            `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts/${code}`
+        )
+
+        await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${template.id}/copy`,
+            {
+                name: fileName,
+                parentReference: { id: folder.data.id }
+            },
+            { validateStatus: s => s === 202 }
+        )
+
+        await new Promise(r => setTimeout(r, 5000))
+
+        const children = await graphRequest(
+            'GET',
+            `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts/${code}:/children`
+        )
+
+        const excelFile = children.data.value.find(f => f.name === fileName)
+
+        if (!excelFile) throw new Error('Copied DOF billing file not found')
+
+        res.json({
+            documentId: excelFile.id,
+            editUrl: excelFile.webUrl,
+            fileName
+        })
+
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to create DOF billing file' })
+    }
+}
+
+/**
+ * Replaces {placeholder} tokens in a DOF billing workbook (e.g. {billingPeriod},
+ * {soaNo}, {acctAsst}, {bcuChief}).
+ * Scans each worksheet's used range via its `formulas` matrix — only literal
+ * string cells (not starting with '=') containing a token are rewritten, so
+ * formula cells are never clobbered. Matched cells are written back in batches
+ * of 20 inside a single workbook session, followed by a full recalculation.
+ *
+ * @param {string} fileId - SharePoint drive item ID of the billing workbook
+ * @param {Record<string, string>} replacements - Map of '{token}' -> replacement text
+ * @param {string[]} [sheets] - Optional worksheet name filter (case-insensitive); all sheets when omitted
+ */
+async function replaceDofPlaceholders(fileId, replacements, sheets = null) {
+    const SITE_ID = process.env.SHAREPOINT_SITE_ID
+    const keys = Object.keys(replacements).filter(k => k)
+    if (keys.length === 0) return
+
+    const colLetter = i => {
+        let s = ''
+        i += 1
+        while (i > 0) { const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26) }
+        return s
+    }
+
+    const session = await graphRequest(
+        'POST',
+        `/sites/${SITE_ID}/drive/items/${fileId}/workbook/createSession`,
+        { persistChanges: true }
+    )
+    const sessionId = session.data.id
+
+    try {
+        const worksheetsRes = await graphRequest(
+            'GET',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets`,
+            null,
+            { headers: { 'workbook-session-id': sessionId } }
+        )
+        let sheetNames = worksheetsRes.data.value.map(w => w.name)
+        if (sheets) {
+            const wanted = new Set(sheets.map(s => s.toLowerCase()))
+            sheetNames = sheetNames.filter(n => wanted.has(n.toLowerCase()))
+        }
+
+        const writes = []
+        for (const sheet of sheetNames) {
+            const rangeRes = await graphRequest(
+                'GET',
+                `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('${sheet}')/usedRange`,
+                null,
+                { headers: { 'workbook-session-id': sessionId } }
+            )
+            const formulas = rangeRes.data.formulas
+            if (!formulas) continue
+            const rowOffset = rangeRes.data.rowIndex ?? 0
+            const colOffset = rangeRes.data.columnIndex ?? 0
+
+            for (let r = 0; r < formulas.length; r++) {
+                for (let c = 0; c < formulas[r].length; c++) {
+                    const cell = formulas[r][c]
+                    if (typeof cell !== 'string' || cell.startsWith('=')) continue
+                    let newText = cell
+                    for (const key of keys) {
+                        if (newText.includes(key)) newText = newText.split(key).join(replacements[key])
+                    }
+                    if (newText !== cell) {
+                        writes.push({
+                            id: `${sheet}-${rowOffset + r}-${colOffset + c}`,
+                            method: 'PATCH',
+                            url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('${sheet}')/range(address='${colLetter(colOffset + c)}${rowOffset + r + 1}')`,
+                            headers: { 'Content-Type': 'application/json' },
+                            body: { values: [[newText]] }
+                        })
+                    }
+                }
+            }
+        }
+
+        for (let i = 0; i < writes.length; i += 20) {
+            await graphBatchRequest(writes.slice(i, i + 20), sessionId)
+        }
+
+        await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/application/calculate`,
+            { calculationType: 'Full' },
+            { headers: { 'workbook-session-id': sessionId } }
+        )
+    } finally {
+        try {
+            await graphRequest(
+                'POST',
+                `/sites/${SITE_ID}/drive/items/${fileId}/workbook/closeSession`,
+                null,
+                { headers: { 'workbook-session-id': sessionId } }
+            )
+        } catch (err) {
+            console.warn('Failed to close DOF placeholder session:', err?.response?.data || err.message)
+        }
+    }
+}
+
+/**
+ * Lists DOF billing draft files from SharePoint (BillingLetterDrafts/DOF),
+ * newest first, for the standalone signatories component's file picker
+ * 
+ * @param {import('express').Request} req - Request with no required params
+ * @param {import('express').Response} res - Response with array of { id, name, lastModifiedDateTime, webUrl }
+ */
+export async function listDofBillingDrafts(req, res) {
+    try {
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+
+        const response = await graphRequest(
+            'GET',
+            `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts/DOF:/children`
+        )
+
+        const drafts = response.data.value
+            .filter(f => f.name.startsWith('DOF-BILLING-'))
+            .sort((a, b) => new Date(b.lastModifiedDateTime) - new Date(a.lastModifiedDateTime))
+            .map(f => ({ id: f.id, name: f.name, lastModifiedDateTime: f.lastModifiedDateTime, webUrl: f.webUrl }))
+
+        res.json(drafts)
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to list DOF billing drafts' })
+    }
+}
+
+export async function setupDofBilling(req, res) {
+    try {
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+        const { billingId } = req.params
+        const { dateRange, timekeepingFiles, year, month, billingPeriod } = req.body
+
+        const fullMonth = month || dateRange.label.split(' ')[0]
+        const period = billingPeriod || dateRange.label.split(' ')[1].replace(',', '')
+        const yr = year || dateRange.label.split(' ')[2]
+        const threeLetterMonth = fullMonth.substring(0, 3).toUpperCase()
+
+        const janOmsPeriodLabel = `FOR THE PERIOD ${fullMonth} ${period}, ${yr}`
+        const manPeriodLabel = `FOR THE PERIOD ${threeLetterMonth} ${period}, ${yr}`
+        const twoDigitPeriod = period.split('-').map(d => String(d).padStart(2, '0')).join('-')
+        const billingPeriodLabel = `for the period ${fullMonth.toUpperCase()} ${twoDigitPeriod}, ${yr}`
+
+        const categoryPeriodLabels = {
+            jan: janOmsPeriodLabel,
+            oms: janOmsPeriodLabel,
+            man: manPeriodLabel,
+        }
+
+        const billingSheetNames = {
+            jan: `JAN ${threeLetterMonth} ${period} ${yr}`,
+            oms: `OMS ${threeLetterMonth} ${period} ${yr}`,
+            man: `MAN ${threeLetterMonth} ${period} ${yr}`,
+        }
+
+        async function setupBillingFile(fileId) {
+            const session = await graphRequest(
+                'POST',
+                `/sites/${SITE_ID}/drive/items/${fileId}/workbook/createSession`,
+                { persistChanges: true }
+            )
+
+            const sessionId = session.data.id
+
+            const renameBatch = [
+                {
+                    id: 'rename-man',
+                    method: 'PATCH',
+                    url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('${DOF_SOURCE_SHEETS.billing.man}')`,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: { name: billingSheetNames.man }
+                },
+                {
+                    id: 'rename-oms',
+                    method: 'PATCH',
+                    url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('${DOF_SOURCE_SHEETS.billing.oms}')`,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: { name: billingSheetNames.oms }
+                },
+                {
+                    id: 'rename-jan',
+                    method: 'PATCH',
+                    url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('${DOF_SOURCE_SHEETS.billing.jan}')`,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: { name: billingSheetNames.jan }
+                }
+            ]
+
+            await graphBatchRequest(renameBatch, sessionId)
+
+            await graphRequest(
+                'POST',
+                `/sites/${SITE_ID}/drive/items/${fileId}/workbook/application/calculate`,
+                { calculationType: 'Full' },
+                { headers: { 'workbook-session-id': sessionId } }
+            )
+
+            await graphRequest(
+                'POST',
+                `/sites/${SITE_ID}/drive/items/${fileId}/workbook/closeSession`,
+                null,
+                { headers: { 'workbook-session-id': sessionId } }
+            )
+        }
+
+        async function setupTimekeepingFile(fileId, category) {
+            const sourceSheet = DOF_SOURCE_SHEETS.timekeeping[category]
+
+            const session = await graphRequest(
+                'POST',
+                `/sites/${SITE_ID}/drive/items/${fileId}/workbook/createSession`,
+                { persistChanges: true }
+            )
+
+            const sessionId = session.data.id
+
+            const worksheetsRes = await graphRequest(
+                'GET',
+                `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets`,
+                null,
+                { headers: { 'workbook-session-id': sessionId } }
+            )
+            const availableSheets = worksheetsRes.data.value.map(w => w.name)
+
+            const matchedSource = availableSheets.find(name => name.toLowerCase() === sourceSheet.toLowerCase())
+            if (!matchedSource) {
+                console.error(`[DOF] Worksheet '${sourceSheet}' not found in timekeeping file ${fileId}. Available sheets:`, availableSheets)
+                throw new Error(`Worksheet '${sourceSheet}' not found in timekeeping file`)
+            }
+
+            const periodLabel = categoryPeriodLabels[category]
+            const periodSheetCandidates = ['Summary of Timekeep', 'BUDGET UTILIZATION']
+            if (category === 'jan') {
+                periodSheetCandidates.push('TARDINESS REPORT')
+            }
+
+            const periodSheets = periodSheetCandidates.map(sheet => {
+                const matched = availableSheets.find(name => name.toLowerCase() === sheet.toLowerCase())
+                if (!matched) {
+                    console.warn(`[DOF] Worksheet '${sheet}' not found in timekeeping file ${fileId}`)
+                }
+                return matched
+            }).filter(Boolean)
+
+            const periodBatch = [
+                ...periodSheets.map(sheet => ({
+                    id: `period-label-${category}-${sheet}`,
+                    method: 'PATCH',
+                    url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('${sheet}')/range(address='A3')`,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: { values: [[periodLabel]] }
+                }))
+            ]
+
+            if (periodBatch.length > 0) {
+                await graphBatchRequest(periodBatch, sessionId)
+            }
+
+            await graphRequest(
+                'POST',
+                `/sites/${SITE_ID}/drive/items/${fileId}/workbook/application/calculate`,
+                { calculationType: 'Full' },
+                { headers: { 'workbook-session-id': sessionId } }
+            )
+
+            await graphRequest(
+                'POST',
+                `/sites/${SITE_ID}/drive/items/${fileId}/workbook/closeSession`,
+                null,
+                { headers: { 'workbook-session-id': sessionId } }
+            )
+        }
+
+        await setupBillingFile(billingId)
+
+        if (timekeepingFiles) {
+            for (const [category, fileId] of Object.entries(timekeepingFiles)) {
+                if (!fileId) continue
+                await setupTimekeepingFile(fileId, category)
+            }
+        }
+
+        // Replace {billingPeriod} tokens across the billing workbook. Runs after
+        // the renames above since the helper lists worksheets fresh.
+        await replaceDofPlaceholders(billingId, { [DOF_PLACEHOLDERS.billingPeriod]: billingPeriodLabel })
+
+        res.json({ message: 'DOF billing setup complete' })
+
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to setup DOF billing' })
+    }
+}
+
+export async function getDofTables(req, res) {
+    try {
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+        const billingId = req.params.fileId
+        const { janId, omsId, manId } = req.query
+
+        async function getAllRows(fileId, tableName) {
+            const rows = []
+            let url = `/sites/${SITE_ID}/drive/items/${fileId}/workbook/tables('${tableName}')/rows`
+            while (url) {
+                const page = await graphRequest('GET', url)
+                rows.push(...(page.data.value ?? []))
+                url = page.data['@odata.nextLink'] ?? null
+            }
+            return rows
+        }
+
+        const mapRows = rows => rows.map(r => ({ index: r.index, values: r.values[0] }))
+
+        const [janRows, omsRows, manRows, janBillingRows, omsBillingRows, manBillingRows] = await Promise.all([
+            getAllRows(janId, DOF_TABLES.jan),
+            getAllRows(omsId, DOF_TABLES.oms),
+            getAllRows(manId, DOF_TABLES.man),
+            getAllRows(billingId, DOF_BILLING_TABLES.jan),
+            getAllRows(billingId, DOF_BILLING_TABLES.oms),
+            getAllRows(billingId, DOF_BILLING_TABLES.man),
+        ])
+
+        res.json({
+            jan: mapRows(janRows),
+            oms: mapRows(omsRows),
+            man: mapRows(manRows),
+            janBilling: mapRows(janBillingRows),
+            omsBilling: mapRows(omsBillingRows),
+            manBilling: mapRows(manBillingRows),
+        })
+
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to read DOF billing tables' })
+    }
+}
+
+export async function saveDofTables(req, res) {
+    try {
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+        const billingId = req.params.fileId
+        const { janRows, omsRows, manRows, janBillingRows, omsBillingRows, manBillingRows, timekeepingFiles } = req.body
+
+        // Timekeeping rows use block/day formula protection; billing rows carry
+        // per-employee aggregates and only protect the billing formula columns.
+        const categories = [
+            { rows: janRows, tableName: DOF_TABLES.jan, fileId: timekeepingFiles?.jan, formulaIndices: DOF_FORMULA_INDICES.jan, dayFormulaIndices: DOF_DAY_FORMULA_INDICES.jan },
+            { rows: omsRows, tableName: DOF_TABLES.oms, fileId: timekeepingFiles?.oms, formulaIndices: DOF_FORMULA_INDICES.oms, dayFormulaIndices: DOF_DAY_FORMULA_INDICES.oms },
+            { rows: manRows, tableName: DOF_TABLES.man, fileId: timekeepingFiles?.man, formulaIndices: DOF_FORMULA_INDICES.man, dayFormulaIndices: DOF_DAY_FORMULA_INDICES.man },
+            { rows: janBillingRows, tableName: DOF_BILLING_TABLES.jan, fileId: billingId, formulaIndices: DOF_BILLING_FORMULA_INDICES.jan, dayFormulaIndices: null },
+            { rows: omsBillingRows, tableName: DOF_BILLING_TABLES.oms, fileId: billingId, formulaIndices: DOF_BILLING_FORMULA_INDICES.oms, dayFormulaIndices: null },
+            { rows: manBillingRows, tableName: DOF_BILLING_TABLES.man, fileId: billingId, formulaIndices: DOF_BILLING_FORMULA_INDICES.man, dayFormulaIndices: null },
+        ]
+
+        const createSession = async fileId => {
+            const session = await graphRequest(
+                'POST',
+                `/sites/${SITE_ID}/drive/items/${fileId}/workbook/createSession`,
+                { persistChanges: true }
+            )
+            return session.data.id
+        }
+
+        const refreshSession = async (fileId, sessionId) => {
+            try {
+                await graphRequest(
+                    'POST',
+                    `/sites/${SITE_ID}/drive/items/${fileId}/workbook/closeSession`,
+                    null,
+                    { headers: { 'workbook-session-id': sessionId } }
+                )
+            } catch (err) {
+                console.warn('Failed to close expired DOF workbook session:', err?.response?.data || err.message)
+            }
+            return createSession(fileId)
+        }
+
+        // Group row writes by target file so each file is saved in one session
+        const requestsByFile = new Map()
+        for (const category of categories) {
+            if (!category.fileId || !category.rows || category.rows.length === 0) {
+                continue
+            }
+
+            const requests = category.rows.map(row => {
+                const protectedIndices = row.type === 'day' && category.dayFormulaIndices
+                    ? category.dayFormulaIndices
+                    : category.formulaIndices
+                const values = row.values.map((val, i) =>
+                    protectedIndices.includes(i) ? null : val
+                )
+                return {
+                    id: `${category.tableName}-${row.index}`,
+                    method: 'PATCH',
+                    url: `/sites/${SITE_ID}/drive/items/${category.fileId}/workbook/tables('${category.tableName}')/rows/itemAt(index=${row.index})`,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: { values: [values] }
+                }
+            })
+
+            const existing = requestsByFile.get(category.fileId) ?? []
+            requestsByFile.set(category.fileId, existing.concat(requests))
+        }
+
+        for (const [fileId, requests] of requestsByFile) {
+            let sessionId = await createSession(fileId)
+            let lastRefresh = Date.now()
+
+            const onRefresh = async () => {
+                sessionId = await refreshSession(fileId, sessionId)
+                lastRefresh = Date.now()
+                return sessionId
+            }
+
+            try {
+                for (let i = 0; i < requests.length; i += 20) {
+                    if (Date.now() - lastRefresh > 30000) {
+                        await onRefresh()
+                    }
+
+                    const chunk = requests.slice(i, i + 20)
+                    await graphBatchRequest(chunk, sessionId, { refreshSession: onRefresh })
+
+                    if (i + 20 < requests.length) {
+                        await new Promise(r => setTimeout(r, 1000))
+                    }
+                }
+
+                await graphRequest(
+                    'POST',
+                    `/sites/${SITE_ID}/drive/items/${fileId}/workbook/application/calculate`,
+                    { calculationType: 'Full' },
+                    { headers: { 'workbook-session-id': sessionId } }
+                )
+            } finally {
+                try {
+                    await graphRequest(
+                        'POST',
+                        `/sites/${SITE_ID}/drive/items/${fileId}/workbook/closeSession`,
+                        null,
+                        { headers: { 'workbook-session-id': sessionId } }
+                    )
+                } catch (err) {
+                    console.warn('Failed to close DOF workbook session:', err?.response?.data || err.message)
+                }
+            }
+        }
+
+        res.json({ message: 'DOF billing data saved successfully' })
+
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to save DOF billing data' })
+    }
+}
+
+export async function saveDofSignatories(req, res) {
+    try {
+        const { fileId } = req.params
+        const { signatories } = req.body
+
+        // Replace {soaNo}/{acctAsst}/{bcuChief} tokens per SOA sheet. The
+        // JANITORIAL sheet uses the {accAsst} typo variant, covered by the
+        // extra replacement key.
+        for (const sheet of DOF_SOA_SHEETS) {
+            const sig = signatories[sheet]
+            if (!sig) continue
+
+            await replaceDofPlaceholders(fileId, {
+                [DOF_PLACEHOLDERS.soaNo]: `SOA NO. ${sig.soaNo}`,
+                [DOF_PLACEHOLDERS.acctAsst]: sig.acctAsst.toUpperCase(),
+                [DOF_PLACEHOLDERS.acctAsstAlt]: sig.acctAsst.toUpperCase(),
+                [DOF_PLACEHOLDERS.bcuChief]: sig.bcuChief.toUpperCase(),
+            }, [sheet])
+        }
+
+        res.json({ message: 'DOF signatories saved successfully' })
+
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to save DOF signatories' })
     }
 }
 

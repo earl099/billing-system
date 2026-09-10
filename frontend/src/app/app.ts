@@ -142,14 +142,14 @@ export class App implements OnInit, OnDestroy {
   /** Starts token expiration watcher, loads user profile/clients, and sets up responsive sidenav */
   ngOnInit(): void {
     this.isMobile.set(this.breakpointObserver.isMatched(Breakpoints.Handset));
-    this.sidenavOpened.set(!this.isMobile());
+    this.sidenavOpened.set(!this.isMobile() && this.authService.hasValidToken());
 
     this.breakpointObserver
       .observe([Breakpoints.Handset])
       .pipe(takeUntil(this.destroy$))
       .subscribe((result) => {
         this.isMobile.set(result.matches);
-        this.sidenavOpened.update(() => !result.matches);
+        this.sidenavOpened.update(() => !result.matches && this.authService.hasValidToken());
       });
 
     if (this.authService.hasValidToken()) {

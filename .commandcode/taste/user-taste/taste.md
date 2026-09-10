@@ -1,0 +1,21 @@
+# User Taste
+- Keep underlying data intact; suppress duplicate entries at the UI/presentation layer rather than removing them from the data model. Confidence: 0.7
+- Do not rename source worksheet names in timekeeping/billing files; preserve the original worksheet name to avoid replacing scan identifiers and creating duplicate employee entries. Confidence: 0.8
+- Present distinct data categories (e.g., absences vs. undertime) as separate UI sections rather than combining them. Confidence: 0.8
+- Expects data exported to external/source systems to align exactly with the system's documented column order and structure. Confidence: 0.8
+- When exporting row data, do not overwrite columns whose headers contain "total" (formula-only columns). Confidence: 0.8
+- Do not overwrite columns whose values are already supplied by the source/template (e.g., "pay type"), whether or not the header contains "total". Confidence: 0.8
+- Column mapping and formula-index protection should be service-specific (e.g., janitorial vs. operations vs. manpower timekeeping tables). Confidence: 0.7
+- Include a timestamp in generated filenames to prevent name collisions when regenerating files for the same period. Confidence: 0.9
+- Exclude rest days from regular-hour auto-input calculations; operations rest day varies per employee per month, janitorial rest day is Sunday, and manpower rest days are Saturday and Sunday. Overtime should still be counted on rest days. Confidence: 0.9
+- Time inputs for DOF timekeeping (undertime, overtime, night differential, janitorial rendered hours) should use an `hh:mm` format, not `hh:mm:ss`. Confidence: 0.9
+- For complex or evolving business rules (e.g., per-employee rest-day schedules), prefers discussing implementation options/ideas before committing to a specific approach. Confidence: 0.6
+- Prefers per-employee override controls in wizards for employee-specific scheduling rules (e.g., rest days), rather than global or per-month configuration. Confidence: 0.9
+- DOF timekeeping tables are structured as 16 rows per employee, one row per day; entries (hours, absences, UT/OT/ND) must be written to the row matching their date, and rows falling outside the selected billing period must be left blank. Confidence: 0.8
+- Wants full per-day visibility in the UI: display all day rows for each (deduplicated) employee so date/row misplacements can be spotted before saving. Confidence: 0.7
+- In Angular templates, prefers the built-in control flow blocks (e.g., `@for`) for rendering lists. Confidence: 0.6
+- When reporting a bug, pastes the full raw error output (error objects, stack traces, request IDs, HTTP logs) with minimal prose; expects root-cause diagnosis and a fix rather than clarifying questions. Confidence: 0.75
+- Resumes interrupted work with a bare "continue working on the last prompt" and no additional context; expects the assistant to reconstruct the in-progress task state itself (e.g., from saved plan documents and the current codebase) rather than asking what the prior task was. Confidence: 0.6
+- In generated DOF billing files, the {billingPeriod} placeholder must render as `for the period {MONTH} {twoDigitDayRange}, {fullYear}` — e.g., "for the period SEPTEMBER 01-15, 2026" (uppercase full month name, zero-padded day range, four-digit year). Confidence: 0.9
+- When requesting text/format changes, states the exact target output as a literal template string with named placeholders (e.g., "for the period {MONTH} {twoDigitBillingPeriod}, {fullYear}"); implement the format literally, including casing and zero-padding. Confidence: 0.6
+- Makes feature requests as terse one-liners describing only the desired end behavior (e.g., "the user should also indicate their handled clients before signing up"), with no implementation spec; expects the assistant to work out and implement the full-stack changes (frontend form, backend validation/controller) without clarifying questions. Confidence: 0.6

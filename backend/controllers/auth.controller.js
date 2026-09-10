@@ -18,14 +18,15 @@ if (!JWT_SECRET) {
 /**
  * Registers a new user account
  * First user automatically becomes Admin with access to all clients.
- * Second and subsequent users are created as regular Users with no client access.
+ * Subsequent users are created as regular Users with the selected handled
+ * clients (falls back to the NONE placeholder when none are provided/valid).
  * Returns a JWT token and user info on success.
  * 
- * @param {import('express').Request} req - Request with body: { name, username, email, password }
+ * @param {import('express').Request} req - Request with body: { name, username, email, password, handledClients? }
  * @param {import('express').Response} res - Response with { token, user } or error
  */
 export async function signup(req, res) {
-    const { name, username, email, password } = req.body
+    const { name, username, email, password, handledClients } = req.body
 
     try {
         const existingEmail = await userModel.findOne({ email })
@@ -81,13 +82,23 @@ export async function signup(req, res) {
                 await clientModel.create(clientObj)
             }
 
-            const client = await clientModel.findOne({ code: 'NONE' })
+            // Use selected handled clients; fall back to NONE placeholder when none provided
+            let clientIds = []
+            if(Array.isArray(handledClients) && handledClients.length > 0) {
+                const validIds = handledClients.filter(id => /^[0-9a-fA-F]{24}$/.test(id))
+                const existingClients = await clientModel.find({ _id: { $in: validIds } }).select('_id')
+                clientIds = existingClients.map(c => c._id)
+            }
+            if(clientIds.length === 0) {
+                const client = await clientModel.findOne({ code: 'NONE' })
+                clientIds = client ? [client._id] : []
+            }
             user = await userModel.create({
                 name,
                 username,
                 email,
                 password: hash,
-                handledClients: client._id
+                handledClients: clientIds
             })
         }
 

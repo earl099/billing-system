@@ -1,0 +1,82 @@
+<div class="dof-billing-container">
+  @switch (step()) {
+    @case ('loading') {
+      <div class="loading-state">
+        <mat-spinner diameter="48"></mat-spinner>
+        <p>Loading DOF billing drafts...</p>
+      </div>
+    }
+
+    @case ('editing') {
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>DOF Billing - Signatories</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Billing File</mat-label>
+            <mat-select [(ngModel)]="selectedFileId">
+              @for (draft of drafts(); track draft.id) {
+                <mat-option [value]="draft.id">{{ draft.name }} - {{ formatModified(draft.lastModifiedDateTime) }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          @if (drafts().length === 0) {
+            <p>No DOF billing drafts found. Create one from the timekeeping wizard first.</p>
+          }
+
+          <mat-tab-group>
+            @for (sheet of sheets; track sheet) {
+              <mat-tab [label]="sheet">
+                <div class="signatory-form">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>SOA Number</mat-label>
+                    <input matInput [ngModel]="signatories()[sheet].soaNo" (ngModelChange)="updateSignatory(sheet, 'soaNo', $event)" />
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Account Assistant</mat-label>
+                    <input matInput [ngModel]="signatories()[sheet].acctAsst" (ngModelChange)="updateSignatory(sheet, 'acctAsst', $event)" />
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>BCU Chief</mat-label>
+                    <input matInput [ngModel]="signatories()[sheet].bcuChief" (ngModelChange)="updateSignatory(sheet, 'bcuChief', $event)" />
+                  </mat-form-field>
+                </div>
+              </mat-tab>
+            }
+          </mat-tab-group>
+
+          <div class="actions">
+            <button mat-raised-button color="primary" (click)="saveSignatories()">Save Signatories</button>
+            <button mat-button (click)="openInSharePoint()" [disabled]="!selectedDraft()">Open in SharePoint</button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    @case ('saving') {
+      <div class="loading-state">
+        <mat-spinner diameter="48"></mat-spinner>
+        <p>Saving signatories...</p>
+      </div>
+    }
+
+    @case ('done') {
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>DOF Signatories Complete</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Signatories applied successfully.</p>
+          <p class="file-name">{{ selectedDraft()?.name }}</p>
+          <div class="actions">
+            <button mat-raised-button color="primary" (click)="openInSharePoint()">Open in SharePoint</button>
+            <button mat-button (click)="goToDashboard()">Go to Dashboard</button>
+            <button mat-button (click)="editAnother()">Edit Another File</button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+  }
+</div>

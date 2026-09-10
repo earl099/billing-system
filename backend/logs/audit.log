@@ -547,3 +547,318 @@
   "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
   "userId": "anonymous"
 }
+2026-07-31 09:35:28 [warn]: HTTP Request {
+  "method": "PATCH",
+  "path": "/editor/dof/null/01O6RSSI6TCBMPHGLKOZFIL4CFDGE7WZRT/setup",
+  "status": 500,
+  "duration": "3486ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-07-31 09:36:19 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/editor/dof/null/01O6RSSI6TCBMPHGLKOZFIL4CFDGE7WZRT/setup",
+  "status": 401,
+  "duration": "1ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",
+  "userId": "anonymous"
+}
+2026-07-31 09:36:19 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/favicon.ico",
+  "status": 404,
+  "duration": "0ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",
+  "userId": "anonymous"
+}
+2026-07-31 09:37:04 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/editor/create/DOF/dof/billing",
+  "status": 500,
+  "duration": "904ms",
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-08-11 18:23:26 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/editor/templates/dof",
+  "status": 500,
+  "duration": "305ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-08-11 18:28:27 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/editor/templates/dof",
+  "status": 500,
+  "duration": "369ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-08-11 18:29:45 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/editor/templates/dof",
+  "status": 500,
+  "duration": "406ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-08-11 18:31:01 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/editor/templates/dof",
+  "status": 500,
+  "duration": "359ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-08-11 18:31:53 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/editor/templates/dof",
+  "status": 500,
+  "duration": "376ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-08-11 18:33:39 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/editor/templates/dof",
+  "status": 500,
+  "duration": "396ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-08-11 18:35:05 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/editor/templates/dof",
+  "status": 500,
+  "duration": "306ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-08-11 18:35:14 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/editor/templates/ofbank",
+  "status": 500,
+  "duration": "276ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-08-11 18:36:10 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/editor/create/DOF/dof/timekeeping",
+  "status": 500,
+  "duration": "6796ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-08-11 18:40:46 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/editor/create/DOF/dof/timekeeping",
+  "status": 500,
+  "duration": "989ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-08-11 18:41:36 [warn]: HTTP Request {
+  "method": "PATCH",
+  "path": "/editor/dof/null/01O6RSSI3HCOY5KYDRD5CZAS5CQT6BFHOH/setup",
+  "status": 500,
+  "duration": "3968ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-08-11 19:01:45 [warn]: HTTP Request {
+  "method": "PATCH",
+  "path": "/editor/dof/null/01O6RSSI4DJEC4FET2TRBZZ2MZVFAUOJP3/setup",
+  "status": 500,
+  "duration": "4149ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-08-11 19:07:23 [warn]: HTTP Request {
+  "method": "PATCH",
+  "path": "/editor/dof/null/01O6RSSI23U2DJYIHK45BKUJ5S6GVXC5VI/setup",
+  "status": 500,
+  "duration": "2597ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-08-11 19:14:27 [warn]: HTTP Request {
+  "method": "PATCH",
+  "path": "/editor/dof/null/01O6RSSI5BLCEVID673VA3KHTD5H77ONCK/setup",
+  "status": 500,
+  "duration": "3422ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-08-11 19:22:17 [warn]: HTTP Request {
+  "method": "PATCH",
+  "path": "/editor/dof/null/01O6RSSI3G6ZEYF3E5JVFJGNREGDKBTXJV/setup",
+  "status": 500,
+  "duration": "11207ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-08-11 19:31:17 [warn]: HTTP Request {
+  "method": "PATCH",
+  "path": "/editor/dof/null/01O6RSSIZFOOX22GBN65BK6YRTBAHIAKNO/setup",
+  "status": 500,
+  "duration": "23472ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-08-11 19:33:09 [warn]: HTTP Request {
+  "method": "PATCH",
+  "path": "/editor/dof/null/01O6RSSI6BPAFQDN4QCRCI2W7V2ZPI5BCM/setup",
+  "status": 500,
+  "duration": "24929ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-08-11 19:51:54 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/editor/create/DOF/dof/timekeeping",
+  "status": 500,
+  "duration": "989ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-08-11 19:52:03 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/editor/create/DOF/dof/timekeeping",
+  "status": 500,
+  "duration": "899ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-08-11 19:52:08 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/editor/create/DOF/dof/timekeeping",
+  "status": 500,
+  "duration": "1026ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-08-12 13:32:14 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/editor/create/DOF/dof/timekeeping",
+  "status": 500,
+  "duration": "736ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-08-13 14:01:25 [warn]: HTTP Request {
+  "method": "PATCH",
+  "path": "/editor/dof/01O6RSSI44M23GQQ2FZZF3HWTRE3WYJLA2/tables",
+  "status": 500,
+  "duration": "7420ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-08-13 15:22:21 [warn]: HTTP Request {
+  "method": "PATCH",
+  "path": "/editor/dof/01O6RSSIZHGQ5HDWLGPNFY2YZV2CKDZHAL/tables",
+  "status": 500,
+  "duration": "6108ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-08-13 15:32:28 [warn]: HTTP Request {
+  "method": "PATCH",
+  "path": "/editor/dof/01O6RSSIZHGQ5HDWLGPNFY2YZV2CKDZHAL/tables",
+  "status": 500,
+  "duration": "438163ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-08-17 09:26:14 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/auth/login",
+  "status": 400,
+  "duration": "112ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0",
+  "userId": "anonymous"
+}
+2026-08-17 09:30:34 [warn]: HTTP Request {
+  "method": "PATCH",
+  "path": "/editor/dof/01O6RSSI5GUVBYQ4NG2VD22QRBJVSYRBUI/tables",
+  "status": 500,
+  "duration": "143061ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-08-25 11:06:25 [warn]: HTTP Request {
+  "method": "PATCH",
+  "path": "/editor/dof/01O6RSSI2IT64KPXLFURE3NLCESCLK5SLG/tables",
+  "status": 500,
+  "duration": "243822ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:154.0) Gecko/20100101 Firefox/154.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-09-01 17:25:45 [warn]: HTTP Request {
+  "method": "PATCH",
+  "path": "/editor/dof/01O6RSSIYINNRLN74HKFD3FXOJ2SKMB2NY/tables",
+  "status": 500,
+  "duration": "2804967ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:154.0) Gecko/20100101 Firefox/154.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-09-01 18:03:59 [warn]: HTTP Request {
+  "method": "PATCH",
+  "path": "/editor/dof/01O6RSSIYINNRLN74HKFD3FXOJ2SKMB2NY/tables",
+  "status": 500,
+  "duration": "128200ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:154.0) Gecko/20100101 Firefox/154.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-09-02 06:51:10 [warn]: HTTP Request {
+  "method": "PATCH",
+  "path": "/editor/dof/01O6RSSIYINNRLN74HKFD3FXOJ2SKMB2NY/tables",
+  "status": 500,
+  "duration": "45572481ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:154.0) Gecko/20100101 Firefox/154.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-09-09 15:07:29 [warn]: HTTP Request {
+  "method": "PATCH",
+  "path": "/editor/dof/01O6RSSI3RNU5LT3RY25BKEJAO4JIYEIH4/tables",
+  "status": 500,
+  "duration": "54684ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:155.0) Gecko/20100101 Firefox/155.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
