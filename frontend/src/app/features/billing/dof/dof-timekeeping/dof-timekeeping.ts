@@ -44,6 +44,29 @@ interface JanitorialDayEntry {
   hours: string
 }
 
+type GridTimeField = 'undertime' | 'overtime' | 'nightDifferential' | 'renderedHours'
+
+interface GridColumn {
+  key: string
+  label: string
+  kind?: GridTimeField
+  entryType?: string
+}
+
+interface GridRow {
+  dateIso: string
+  dayName: string
+  dayShort: string
+  isRestDay: boolean
+  isAbsent: boolean
+  isFullDay: boolean
+  isInPeriod: boolean
+  regularHours: number | null
+  renderedHours: string
+  values: Record<string, string>
+  errors: Record<string, boolean>
+}
+
 interface DayPreview {
   dateIso: string
   dayName: string
@@ -52,6 +75,35 @@ interface DayPreview {
 }
 
 const DAY_OPTIONS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
+const GRID_TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/
+
+function formatGridTimeInput(value: string): string {
+  const digits = value.replace(/\D/g, '').slice(0, 4)
+  if (digits.length <= 2) return digits
+  if (digits.length === 3) return `0${digits[0]}:${digits.slice(1)}`
+  return `${digits.slice(0, 2)}:${digits.slice(2)}`
+}
+
+function parseSpreadsheetHours(value: unknown, timeFormatted = false): number {
+  if (typeof value === 'number') return timeFormatted ? value * 24 : value
+  const text = String(value ?? '').trim()
+  if (!text) return 0
+  const numeric = Number(text)
+  if (Number.isFinite(numeric)) return timeFormatted ? numeric * 24 : numeric
+  return parseTimeToDecimal(text)
+}
+
+function isValidGridTime(value: string): boolean {
+  return value === '' || GRID_TIME_PATTERN.test(value)
+}
+
+function formatDecimalHoursAsTime(value: number): string {
+  const totalMinutes = Math.round(value * 60)
+  const hours = Math.floor(totalMinutes / 60)
+  const minutes = totalMinutes % 60
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`
+}
 
 const DEFAULT_REST_DAYS: Record<'jan' | 'oms' | 'man', string[]> = {
   jan: ['Sunday'],
@@ -106,6 +158,14 @@ function parseTimeToDecimal(time: string): number {
   const minutes = parts[1] ?? 0
   const seconds = parts[2] ?? 0
   return hours + minutes / 60 + seconds / 3600
+}
+
+// Excel stores TIMES as fractions of a day, so a time-formatted cell renders `n`
+// (decimal hours) as `n * 24` hours (3h -> 72:00, 8h -> 192:00). Use this for
+// OT cells only; regular-hours/UT/absent/ND cells are number-formatted and keep
+// plain decimal hours (so 8 stays 8, not 0.333).
+function parseTimeToExcelDays(time: string): number {
+  return parseTimeToDecimal(time) / 24
 }
 
 function excelSerialToIso(value: unknown): string | null {
@@ -297,8 +357,11 @@ const BILLING_COLUMN_CONFIG: Record<CategoryKey, BillingColumnConfig> = {
 export class DofTimekeepingComponent {
   private dofBilling = inject(DofBilling)
   private router = inject(Router)
+  private gridRowCache = new WeakMap<EmployeeTimekeep, Map<CategoryKey, GridRow[]>>()
 
   readonly code = 'DOF'
+
+  readonly timekeepingFileKeys: ('jan' | 'oms' | 'man')[] = ['jan', 'oms', 'man']
 
   step = signal<'setup' | 'loading' | 'editing' | 'saving' | 'done'>('setup')
 
@@ -309,6 +372,7 @@ export class DofTimekeepingComponent {
   selectedMonth = signal<number>(DateTime.now().month)
   selectedPeriod = signal<'first' | 'second'>('first')
   dateRange = signal<DateRangeOption>({ label: '', sheetLabel: '' })
+  entryView = signal<'grid' | 'form'>('grid')
 
   categories = signal<CategoryData[]>([
     { key: 'jan', label: 'JAN', employees: [], billingRows: [] },
@@ -444,7 +508,7 @@ export class DofTimekeepingComponent {
       if (!header) continue
       const empNo = header.values[0] ?? ''
       const empName = header.values[1] ?? ''
-      employees.push({
+      const emp: EmployeeTimekeep = {
         index: header.index,
         empNo,
         empName,
@@ -467,10 +531,362 @@ export class DofTimekeepingComponent {
         overtimes: [],
         hasNightDifferential: false,
         nightDifferentials: [],
-        remarks: '',
-      })
+        remarks: category === 'jan' ? header.values?.[45] ?? '' : '',
+      }
+      this.hydrateEmployeeEntries(emp, category)
+      employees.push(emp)
     }
     return employees
+  }
+
+  private hydrateEmployeeEntries(emp: EmployeeTimekeep, category: CategoryKey) {
+    const config = DAY_COLUMN_CONFIG[category]
+    const rowDates = this.getEmployeeRowDates(emp)
+
+    emp.dayRows.forEach((row, index) => {
+      const dateIso = rowDates[index] ?? ''
+      if (!dateIso) return
+      const values = row.originalValues
+
+      if (Number(values[config.absentCol]) > 0) {
+        emp.absences.push({ date: dateIso })
+      }
+
+      const undertime = parseSpreadsheetHours(values[config.utCol])
+      if (Number.isFinite(undertime) && undertime > 0) {
+        emp.undertimes.push({ date: dateIso, time: formatDecimalHoursAsTime(Math.max(0, 8 - undertime)) })
+      }
+
+      for (const [type, column] of Object.entries(config.otCols)) {
+        const hours = parseSpreadsheetHours(values[column], true)
+        if (Number.isFinite(hours) && hours > 0) {
+          emp.overtimes.push({ type, date: dateIso, time: formatDecimalHoursAsTime(hours) })
+        }
+      }
+
+      for (const [type, column] of Object.entries(config.ndCols)) {
+        const hours = parseSpreadsheetHours(values[column])
+        if (Number.isFinite(hours) && hours > 0) {
+          emp.nightDifferentials.push({ type, date: dateIso, time: formatDecimalHoursAsTime(hours) })
+        }
+      }
+
+      if (category === 'jan') {
+        const janitorialDay = emp.janitorialDays.find(day => day.date === dateIso)
+        const hours = parseSpreadsheetHours(values[3])
+        if (janitorialDay && Number.isFinite(hours) && hours > 0) {
+          janitorialDay.checked = hours === 8
+          janitorialDay.hours = formatDecimalHoursAsTime(hours)
+        }
+      }
+    })
+
+    emp.hasAbsences = emp.absences.length > 0
+    emp.hasUndertime = emp.undertimes.length > 0
+    emp.hasOvertime = emp.overtimes.length > 0
+    emp.hasNightDifferential = emp.nightDifferentials.length > 0
+  }
+
+  gridColumns(category: CategoryKey): GridColumn[] {
+    const columns: GridColumn[] = [{ key: 'regularHours', label: 'Reg' }]
+
+    if (category === 'jan') {
+      columns.push({ key: 'renderedHours', label: 'Rendered', kind: 'renderedHours' })
+    }
+
+    columns.push({ key: 'undertime', label: 'UT', kind: 'undertime' })
+    OT_TYPES.forEach((type, index) => columns.push({
+      key: `overtime-${index}`,
+      label: type.replace('Regular ', 'Reg '),
+      kind: 'overtime',
+      entryType: type,
+    }))
+
+    if (category !== 'man') {
+      NIGHT_DIFF_TYPES.forEach((type, index) => columns.push({
+        key: `night-differential-${index}`,
+        label: type.replace('Night Differential', 'ND'),
+        kind: 'nightDifferential',
+        entryType: type,
+      }))
+    }
+
+    return columns
+  }
+
+  gridRows(emp: EmployeeTimekeep, category: CategoryKey): GridRow[] {
+    let categoryRows = this.gridRowCache.get(emp)
+    if (!categoryRows) {
+      categoryRows = new Map<CategoryKey, GridRow[]>()
+      this.gridRowCache.set(emp, categoryRows)
+    }
+
+    const cached = categoryRows.get(category)
+    if (cached) return cached
+    const rows = this.buildGridRows(emp, category)
+    categoryRows.set(category, rows)
+    return rows
+  }
+
+  invalidateGrid(emp: EmployeeTimekeep) {
+    this.gridRowCache.delete(emp)
+  }
+
+  private buildGridRows(emp: EmployeeTimekeep, category: CategoryKey): GridRow[] {
+    const dates = this.getPeriodDates()
+    const periodDates = new Set(dates.map(date => date.toISODate()))
+    const rowDates = this.getEmployeeRowDates(emp)
+    const columns = this.gridColumns(category)
+
+    return emp.dayRows.map((_, index) => {
+      const dateIso = rowDates[index] ?? ''
+      const date = dateIso ? DateTime.fromISO(dateIso) : null
+      const isInPeriod = Boolean(date?.isValid && periodDates.has(dateIso))
+      const isRestDay = isInPeriod && this.isRestDayByDate(date!, emp.restDays)
+      const isAbsent = isInPeriod && category !== 'jan' && emp.absences.some(entry => entry.date === dateIso)
+      const janitorialDay = category === 'jan'
+        ? emp.janitorialDays.find(entry => entry.date === dateIso)
+        : undefined
+      const isFullDay = Boolean(janitorialDay?.checked)
+      const renderedHours = janitorialDay?.hours ?? ''
+      const parsedRenderedHours = renderedHours ? parseTimeToDecimal(renderedHours) : NaN
+      let regularHours: number | null = null
+
+      if (isInPeriod) {
+        if (category === 'jan') {
+          regularHours = isFullDay ? 8 : Number.isFinite(parsedRenderedHours) && parsedRenderedHours > 0 ? parsedRenderedHours : null
+        } else if (isAbsent) {
+          regularHours = 0
+        } else if (!isRestDay) {
+          regularHours = 8
+        }
+      }
+
+      const values: Record<string, string> = {}
+      const errors: Record<string, boolean> = {}
+      for (const column of columns) {
+        if (column.kind) {
+          values[column.key] = this.getGridTimeValue(emp, dateIso, column)
+          errors[column.key] = !isValidGridTime(values[column.key])
+        }
+      }
+
+      return {
+        dateIso,
+        dayName: date?.isValid ? date.toFormat('cccc') : '',
+        dayShort: date?.isValid ? date.toFormat('ccc') : '',
+        isRestDay,
+        isAbsent,
+        isFullDay,
+        isInPeriod,
+        regularHours,
+        renderedHours,
+        values,
+        errors,
+      }
+    })
+  }
+
+  private getEmployeeRowDates(emp: EmployeeTimekeep): string[] {
+    const dates = this.getPeriodDates()
+    return emp.dayRows.map((row, index) =>
+      excelSerialToIso(row.originalValues?.[2]) ?? dates[index]?.toISODate() ?? ''
+    )
+  }
+
+  private getGridEntries(emp: EmployeeTimekeep, column: GridColumn): Array<UndertimeEntry | OvertimeEntry | NightDifferentialEntry> {
+    if (column.kind === 'overtime') return emp.overtimes
+    if (column.kind === 'nightDifferential') return emp.nightDifferentials
+    return emp.undertimes
+  }
+
+  private getGridTimeValue(emp: EmployeeTimekeep, dateIso: string, column: GridColumn): string {
+    if (!dateIso || !column.kind) return ''
+
+    if (column.kind === 'renderedHours') {
+      return emp.janitorialDays.find(day => day.date === dateIso)?.hours ?? ''
+    }
+
+    const total = this.getGridEntries(emp, column)
+      .filter(entry => entry.date === dateIso && (!column.entryType || ('type' in entry && entry.type === column.entryType)))
+      .reduce((sum, entry) => sum + parseTimeToDecimal(entry.time), 0)
+    return total > 0 ? formatDecimalHoursAsTime(total) : ''
+  }
+
+  onGridTimeInput(emp: EmployeeTimekeep, row: GridRow, column: GridColumn, value: string) {
+    const normalized = formatGridTimeInput(value)
+    row.values[column.key] = normalized
+    if (!GRID_TIME_PATTERN.test(normalized)) {
+      row.errors[column.key] = true
+      return
+    }
+    if (!this.canSetGridTimeValue(emp, row.dateIso, column, normalized)) {
+      row.errors[column.key] = true
+      return
+    }
+    row.errors[column.key] = false
+    this.setGridTimeValue(emp, row.dateIso, column, normalized)
+  }
+
+  private canSetGridTimeValue(emp: EmployeeTimekeep, dateIso: string, column: GridColumn, value: string): boolean {
+    if (column.kind === 'renderedHours') return true
+    const matching = this.getGridEntries(emp, column).filter(entry => entry.date === dateIso && (!column.entryType || 'type' in entry && entry.type === column.entryType))
+    const otherTotal = matching.slice(1).reduce((sum, entry) => sum + parseTimeToDecimal(entry.time), 0)
+    return matching.length === 0 || parseTimeToDecimal(value) > otherTotal
+  }
+
+  onGridTimeBlur(emp: EmployeeTimekeep, row: GridRow, column: GridColumn) {
+    if (GRID_TIME_PATTERN.test(row.values[column.key]) && !row.errors[column.key]) return
+    row.values[column.key] = this.getGridTimeValue(emp, row.dateIso, column)
+    row.errors[column.key] = false
+  }
+
+  private setGridTimeValue(emp: EmployeeTimekeep, dateIso: string, column: GridColumn, value: string) {
+    if (column.kind === 'renderedHours') {
+      const day = emp.janitorialDays.find(entry => entry.date === dateIso)
+      if (day && !day.checked) {
+        day.hours = value
+        this.refreshGridRow(emp, dateIso, column)
+      }
+      return
+    }
+
+    if (column.kind === 'overtime') {
+      this.setTypedGridEntry(emp.overtimes, dateIso, column.entryType ?? OT_TYPES[0], value)
+      emp.hasOvertime = emp.overtimes.length > 0
+      this.refreshGridRow(emp, dateIso, column)
+      return
+    }
+
+    if (column.kind === 'nightDifferential') {
+      this.setTypedGridEntry(emp.nightDifferentials, dateIso, column.entryType ?? NIGHT_DIFF_TYPES[0], value)
+      emp.hasNightDifferential = emp.nightDifferentials.length > 0
+      this.refreshGridRow(emp, dateIso, column)
+      return
+    }
+
+    const matching = emp.undertimes.filter(entry => entry.date === dateIso)
+    this.setAggregateGridEntries(emp.undertimes, matching, dateIso, value)
+    emp.hasUndertime = emp.undertimes.length > 0
+    this.refreshGridRow(emp, dateIso, column)
+    this.categories.set([...this.categories()])
+  }
+
+  private setTypedGridEntry<T extends OvertimeEntry | NightDifferentialEntry>(entries: T[], dateIso: string, type: string, value: string) {
+    const matching = entries.filter(entry => entry.date === dateIso && entry.type === type)
+    this.setAggregateGridEntries(entries, matching, dateIso, value, type)
+  }
+
+  private setAggregateGridEntries<T extends UndertimeEntry | OvertimeEntry | NightDifferentialEntry>(
+    entries: T[],
+    matching: T[],
+    dateIso: string,
+    value: string,
+    type?: string
+  ) {
+    if (!value) {
+      for (const entry of matching) entries.splice(entries.indexOf(entry), 1)
+      return
+    }
+
+    if (matching.length === 0) {
+      entries.push({ date: dateIso, time: value, ...(type ? { type } : {}) } as T)
+      return
+    }
+
+    const otherTotal = matching.slice(1).reduce((sum, entry) => sum + parseTimeToDecimal(entry.time), 0)
+    const firstValue = parseTimeToDecimal(value) - otherTotal
+    if (firstValue > 0) {
+      matching[0].time = formatDecimalHoursAsTime(firstValue)
+      return
+    }
+
+    for (const entry of matching) entries.splice(entries.indexOf(entry), 1)
+  }
+
+  private refreshGridRow(emp: EmployeeTimekeep, dateIso: string, column: GridColumn) {
+    const categoryRows = this.gridRowCache.get(emp)
+    if (!categoryRows) return
+    for (const rows of categoryRows.values()) {
+      const row = rows.find(entry => entry.dateIso === dateIso)
+      if (row && column.kind) row.values[column.key] = this.getGridTimeValue(emp, dateIso, column)
+    }
+  }
+
+  onGridFullDayToggle(emp: EmployeeTimekeep, row: GridRow, checked: boolean) {
+    const day = emp.janitorialDays.find(entry => entry.date === row.dateIso)
+    if (!day) return
+    day.checked = checked
+    day.hours = checked ? '8:00' : ''
+    this.invalidateGrid(emp)
+    this.categories.set([...this.categories()])
+  }
+
+  onGridAbsenceToggle(emp: EmployeeTimekeep, row: GridRow, checked: boolean) {
+    emp.absences = emp.absences.filter(entry => entry.date !== row.dateIso)
+    if (checked) emp.absences.push({ date: row.dateIso })
+    emp.hasAbsences = emp.absences.length > 0
+    this.invalidateGrid(emp)
+    this.categories.set([...this.categories()])
+  }
+
+  selectGridInput(event: Event) {
+    const input = event.target as HTMLInputElement | null
+    input?.select()
+  }
+
+  clearGridCell(emp: EmployeeTimekeep, row: GridRow, column: GridColumn) {
+    if (!column.kind) return
+    row.values[column.key] = ''
+    row.errors[column.key] = false
+    this.setGridTimeValue(emp, row.dateIso, column, '')
+  }
+
+  onGridKeydown(
+    event: KeyboardEvent,
+    category: CategoryKey,
+    employeeIndex: number,
+    rowIndex: number,
+    columnIndex: number,
+    emp?: EmployeeTimekeep,
+    row?: GridRow,
+    column?: GridColumn
+  ) {
+    if (event.key === 'Delete' && emp && row && column) {
+      event.preventDefault()
+      this.clearGridCell(emp, row, column)
+      return
+    }
+
+    if (event.ctrlKey || event.metaKey) {
+      if (event.key === 'Enter') {
+        event.preventDefault()
+        void this.saveTimekeeperData()
+      }
+      return
+    }
+
+    let targetRow = rowIndex
+    let targetColumn = columnIndex
+    if (event.key === 'Enter' || event.key === 'ArrowDown') targetRow = rowIndex + 1
+    if (event.key === 'ArrowUp') targetRow = rowIndex - 1
+    if (event.key === 'ArrowRight' && !event.shiftKey) targetColumn = columnIndex + 1
+    if (event.key === 'ArrowLeft' && !event.shiftKey) targetColumn = columnIndex - 1
+    if (targetRow === rowIndex && targetColumn === columnIndex) return
+
+    event.preventDefault()
+    const next = document.querySelector<HTMLInputElement>(
+      `[data-grid-cell="${category}-${employeeIndex}-${targetRow}-${targetColumn}"]`
+    )
+    next?.focus()
+    next?.select()
+  }
+
+  setEntryView(view: 'grid' | 'form') {
+    for (const category of this.categories()) {
+      for (const employee of category.employees) this.invalidateGrid(employee)
+    }
+    this.entryView.set(view)
   }
 
   addAbsenceDate(emp: EmployeeTimekeep) {
@@ -520,6 +936,7 @@ export class DofTimekeepingComponent {
     } else {
       emp.restDays.push(day)
     }
+    this.invalidateGrid(emp)
     this.categories.set([...this.categories()])
   }
 
@@ -776,7 +1193,7 @@ export class DofTimekeepingComponent {
       for (const [type, col] of Object.entries(config.otCols)) {
         const total = emp.overtimes
           .filter(o => o.type === type && o.date === dateIso)
-          .reduce((sum, o) => sum + parseTimeToDecimal(o.time), 0)
+          .reduce((sum, o) => sum + parseTimeToExcelDays(o.time), 0)
         values[col] = total > 0 ? total : null
       }
 
@@ -881,9 +1298,9 @@ export class DofTimekeepingComponent {
     return rows
   }
 
-  openInSharePoint() {
-    const url = this.billingFile()?.editUrl
-    if (url) window.open(url, '_blank')
+  openTimekeepingFile(key: 'jan' | 'oms' | 'man') {
+    const file = this.timekeepingFiles()?.[key]
+    if (file?.editUrl) window.open(file.editUrl, '_blank')
   }
 
   goToDashboard() {

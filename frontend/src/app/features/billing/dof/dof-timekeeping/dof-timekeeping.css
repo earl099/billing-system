@@ -51,6 +51,13 @@
   color: #666;
 }
 
+.timekeeping-files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
 mat-tab-group {
   margin-top: 1rem;
 }
@@ -163,4 +170,140 @@ mat-tab-group {
 .breakdown-flags {
   color: #666;
   font-size: 0.875rem;
+}
+
+.entry-view-toggle {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.entry-view-toggle .active-view {
+  border-color: #3f51b5;
+  color: #3f51b5;
+}
+
+.grid-help {
+  color: #666;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.grid-employee-panel {
+  margin-bottom: 1rem;
+}
+
+.grid-scroll {
+  overflow-x: auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+}
+
+.timekeeping-grid {
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 100%;
+  width: max-content;
+  font-size: 0.875rem;
+}
+
+.timekeeping-grid th,
+.timekeeping-grid td {
+  border-bottom: 1px solid #eeeeee;
+  padding: 0.35rem 0.4rem;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.timekeeping-grid thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #f5f5f5;
+  color: #333;
+  font-size: 0.75rem;
+  font-weight: 600;
+  min-width: 5.5rem;
+}
+
+.timekeeping-grid .grid-date-column {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  min-width: 7.5rem;
+  background: #fff;
+  text-align: left;
+}
+
+.timekeeping-grid thead .grid-date-column {
+  z-index: 3;
+  background: #f5f5f5;
+}
+
+.timekeeping-grid tbody .grid-date-column span,
+.timekeeping-grid tbody .grid-date-column small,
+.timekeeping-grid tbody .grid-date-column em {
+  display: block;
+}
+
+.timekeeping-grid tbody .grid-date-column small {
+  color: #666;
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+
+.timekeeping-grid tbody .grid-date-column em {
+  color: #9a6700;
+  font-size: 0.7rem;
+  font-style: normal;
+}
+
+.timekeeping-grid tbody .grid-rest-day {
+  background: #fff8e1;
+}
+
+.timekeeping-grid tbody .grid-absent-day {
+  background: #ffebee;
+}
+
+.timekeeping-grid tbody .grid-outside-period {
+  opacity: 0.45;
+}
+
+.timekeeping-grid tbody tr:last-child td,
+.timekeeping-grid tbody tr:last-child th {
+  border-bottom: 0;
+}
+
+.grid-regular-hours {
+  display: inline-block;
+  min-width: 1.75rem;
+  margin-left: 0.25rem;
+  font-weight: 600;
+}
+
+.grid-time-input {
+  box-sizing: border-box;
+  width: 5rem;
+  border: 1px solid #bdbdbd;
+  border-radius: 4px;
+  padding: 0.35rem 0.4rem;
+  color: #222;
+  font: inherit;
+  text-align: center;
+}
+
+.grid-time-input:focus {
+  border-color: #3f51b5;
+  outline: 2px solid rgba(63, 81, 181, 0.2);
+}
+
+.grid-time-input:disabled {
+  background: #eeeeee;
+  cursor: not-allowed;
+}
+
+.grid-cell-error {
+  border-color: #d32f2f;
+  background: #fff5f5;
 }
