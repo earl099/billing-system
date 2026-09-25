@@ -58,9 +58,104 @@
             @for (category of categories(); track category.key) {
               <mat-tab [label]="category.label">
                 <div class="category-panel">
-                  <h3 class="category-title">{{ category.label }} {{ dateRange().sheetLabel }}</h3>
+                    <h3 class="category-title">{{ category.label }} {{ dateRange().sheetLabel }}</h3>
 
-                  @for (emp of category.employees; track emp.index) {
+                    <div class="entry-view-toggle">
+                      <button mat-stroked-button [class.active-view]="entryView() === 'grid'" (click)="setEntryView('grid')">Grid</button>
+                      <button mat-stroked-button [class.active-view]="entryView() === 'form'" (click)="setEntryView('form')">Detailed form</button>
+                    </div>
+
+                    @if (entryView() === 'grid') {
+                      <div class="grid-help">Type hours as digits (for example, 200 becomes 02:00). Use Tab or arrow keys to move; Ctrl+Enter saves.</div>
+                      @for (emp of category.employees; track emp.index; let employeeIndex = $index) {
+                        <mat-expansion-panel class="employee-panel grid-employee-panel">
+                          <mat-expansion-panel-header>
+                            <mat-panel-title>{{ emp.empNo }} - {{ emp.empName }}</mat-panel-title>
+                          </mat-expansion-panel-header>
+                          <div class="employee-form">
+                            @if (category.key === 'oms') {
+                              <div class="section">
+                                <h4 class="section-title">Rest Days</h4>
+                                <div class="rest-day-chips">
+                                  @for (day of ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']; track day) {
+                                    <mat-checkbox [checked]="emp.restDays.includes(day)" (change)="toggleRestDay(emp, day)">{{ day }}</mat-checkbox>
+                                  }
+                                </div>
+                              </div>
+                            }
+
+                            @let grid = gridRows(emp, category.key);
+                            <div class="grid-scroll">
+                              <table class="timekeeping-grid">
+                                <thead>
+                                  <tr>
+                                    <th class="grid-date-column">Date</th>
+                                    @for (column of gridColumns(category.key); track column.key) {
+                                      <th [title]="column.label">{{ column.label }}</th>
+                                    }
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  @for (row of grid; track row.dateIso; let rowIndex = $index) {
+                                    <tr [class.grid-rest-day]="row.isRestDay" [class.grid-absent-day]="row.isAbsent" [class.grid-outside-period]="!row.isInPeriod">
+                                      <th class="grid-date-column">
+                                        <span>{{ row.dateIso || '—' }}</span>
+                                        <small>{{ row.dayShort }}</small>
+                                        @if (row.isRestDay) { <em>Rest</em> }
+                                      </th>
+                                      @for (column of gridColumns(category.key); track column.key; let columnIndex = $index) {
+                                        <td>
+                                          @if (column.key === 'regularHours') {
+                                            @if (category.key === 'jan') {
+                                              <mat-checkbox
+                                                [checked]="row.isFullDay"
+                                                [disabled]="!row.isInPeriod"
+                                                (change)="onGridFullDayToggle(emp, row, $event.checked)"
+                                                aria-label="Full regular day"></mat-checkbox>
+                                            } @else {
+                                              <mat-checkbox
+                                                [checked]="row.isAbsent"
+                                                [disabled]="!row.isInPeriod"
+                                                (change)="onGridAbsenceToggle(emp, row, $event.checked)"
+                                                aria-label="Absent"></mat-checkbox>
+                                            }
+                                            <span class="grid-regular-hours">{{ row.regularHours ?? '—' }}</span>
+                                          } @else if (column.kind) {
+                                            <input
+                                              class="grid-time-input"
+                                              [class.grid-cell-error]="row.errors[column.key]"
+                                              [value]="row.values[column.key]"
+                                              [disabled]="!row.isInPeriod || (column.kind === 'renderedHours' && row.isFullDay)"
+                                              [attr.data-grid-cell]="category.key + '-' + employeeIndex + '-' + rowIndex + '-' + columnIndex"
+                                              [attr.aria-label]="column.label + ' ' + row.dateIso"
+                                              inputmode="numeric"
+                                              maxlength="5"
+                                              placeholder="HH:MM"
+                                              autocomplete="off"
+                                              (input)="onGridTimeInput(emp, row, column, $any($event.target).value)"
+                                              (blur)="onGridTimeBlur(emp, row, column)"
+                                              (focus)="selectGridInput($event)"
+                                              (keydown)="onGridKeydown($event, category.key, employeeIndex, rowIndex, columnIndex, emp, row, column)" />
+                                          }
+                                        </td>
+                                      }
+                                    </tr>
+                                  }
+                                </tbody>
+                              </table>
+                            </div>
+                            <p class="computed-value">Computed regular hours: {{ computeRegularHours(emp, category.key) }}</p>
+                            @if (category.key === 'jan') {
+                              <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>Remarks</mat-label>
+                                <input matInput [(ngModel)]="emp.remarks" />
+                              </mat-form-field>
+                            }
+                          </div>
+                        </mat-expansion-panel>
+                      }
+                    } @else {
+                      @for (emp of category.employees; track emp.index) {
                     <mat-expansion-panel class="employee-panel">
                       <mat-expansion-panel-header>
                         <mat-panel-title>{{ emp.empNo }} - {{ emp.empName }}</mat-panel-title>
@@ -262,6 +357,7 @@
                       </div>
                     </mat-expansion-panel>
                   }
+                   }
                 </div>
               </mat-tab>
             }
@@ -269,7 +365,6 @@
 
           <div class="actions">
             <button mat-raised-button color="primary" (click)="saveTimekeeperData()">Save Timekeeper Data</button>
-            <button mat-button (click)="openInSharePoint()">Open in SharePoint</button>
           </div>
         </mat-card-content>
       </mat-card>
@@ -288,11 +383,18 @@
           <mat-card-title>DOF Timekeeping Complete</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <p>Files created and data applied successfully.</p>
-          <p class="file-name">{{ billingFile()?.fileName }}</p>
+          <p>Timekeeping data saved successfully.</p>
+          <p class="file-name">Generated timekeeping files:</p>
+          <div class="timekeeping-files">
+            @for (key of timekeepingFileKeys; track key) {
+              @let file = timekeepingFiles()?.[key];
+              @if (file) {
+                <button mat-button (click)="openTimekeepingFile(key)">{{ file.fileName }}</button>
+              }
+            }
+          </div>
           <div class="actions">
             <button mat-raised-button color="primary" routerLink="/billing/soa/dof/billing">Proceed to Billing Signatories</button>
-            <button mat-button (click)="openInSharePoint()">Open in SharePoint</button>
             <button mat-button (click)="goToDashboard()">Go to Dashboard</button>
             <button mat-button (click)="retry()">Create Another</button>
           </div>
