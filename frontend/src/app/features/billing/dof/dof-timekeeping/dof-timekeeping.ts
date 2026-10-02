@@ -145,6 +145,7 @@ interface DateRangeOption {
 const OT_TYPES = [
   'Regular OT',
   'Regular Rest Day OT',
+  'Rest Day OT Excess',
   'Special Holiday OT',
   'Special Holiday Excess OT',
   'Legal Holiday OT',
@@ -202,6 +203,7 @@ const DAY_COLUMN_CONFIG: Record<CategoryKey, DayColumnConfig> = {
     otCols: {
       'Regular OT': 5,
       'Regular Rest Day OT': 6,
+      'Rest Day OT Excess': 7,
       'Special Holiday OT': 8,
       'Special Holiday Excess OT': 9,
       'Legal Holiday OT': 10,
@@ -283,6 +285,7 @@ const BILLING_COLUMN_CONFIG: Record<CategoryKey, BillingColumnConfig> = {
     otCols: {
       'Regular OT': 7,
       'Regular Rest Day OT': 8,
+      'Rest Day OT Excess': 9,
       'Special Holiday OT': 10,
       'Special Holiday Excess OT': 11,
       'Legal Holiday OT': 12,
@@ -303,6 +306,7 @@ const BILLING_COLUMN_CONFIG: Record<CategoryKey, BillingColumnConfig> = {
     otCols: {
       'Regular OT': 6,
       'Regular Rest Day OT': 7,
+      'Rest Day OT Excess': 8,
       'Special Holiday OT': 9,
       'Special Holiday Excess OT': 10,
       'Legal Holiday OT': 11,
@@ -330,7 +334,18 @@ const BILLING_COLUMN_CONFIG: Record<CategoryKey, BillingColumnConfig> = {
       'Legal Holiday OT': 10,
       'Legal Holiday Excess OT': 11,
     },
-    ndCols: {},
+    // mBillingTable carries eight night-differential columns (verified from the
+    // template headers). mTimekeep has no plain 'Night Differential' column, so
+    // that type has no billing destination and is reported when entered.
+    ndCols: {
+      'Night Differential Special Holiday Overtime': 12,
+      'Night Differential Special Holiday Overtime Excess': 13,
+      'Night Differential Overtime': 14,
+      'Night Differential Rest Day Overtime': 15,
+      'Night Differential Rest Day Overtime Excess': 16,
+      'Night Differential Legal Holiday Overtime': 17,
+      'Night Differential Legal Holiday Overtime Excess': 18,
+    },
   },
 }
 
@@ -373,6 +388,17 @@ export class DofTimekeepingComponent {
   selectedPeriod = signal<'first' | 'second'>('first')
   dateRange = signal<DateRangeOption>({ label: '', sheetLabel: '' })
   entryView = signal<'grid' | 'form'>('grid')
+
+  /**
+   * Employees with no row in the billing template. Their hours are appended as
+   * UNMATCHED marker rows, and this stays visible after the save so the rows can
+   * be reconciled against the template.
+   */
+  unmatchedEmployees = signal<string[]>([])
+
+  dismissUnmatched() {
+    this.unmatchedEmployees.set([])
+  }
 
   categories = signal<CategoryData[]>([
     { key: 'jan', label: 'JAN', employees: [], billingRows: [] },
@@ -595,23 +621,37 @@ export class DofTimekeepingComponent {
     }
 
     columns.push({ key: 'undertime', label: 'UT', kind: 'undertime' })
-    OT_TYPES.forEach((type, index) => columns.push({
+    // Only offer OT/ND types the category's timekeeping table actually has a
+    // column for, so hours are never entered into a cell that cannot be written.
+    const otTypes = OT_TYPES.filter(type => DAY_COLUMN_CONFIG[category].otCols[type] !== undefined)
+    otTypes.forEach((type, index) => columns.push({
       key: `overtime-${index}`,
       label: type.replace('Regular ', 'Reg '),
       kind: 'overtime',
       entryType: type,
     }))
 
-    if (category !== 'man') {
-      NIGHT_DIFF_TYPES.forEach((type, index) => columns.push({
-        key: `night-differential-${index}`,
-        label: type.replace('Night Differential', 'ND'),
-        kind: 'nightDifferential',
-        entryType: type,
-      }))
-    }
+    const ndTypes = NIGHT_DIFF_TYPES.filter(type => DAY_COLUMN_CONFIG[category].ndCols[type] !== undefined)
+    ndTypes.forEach((type, index) => columns.push({
+      key: `night-differential-${index}`,
+      label: type.replace('Night Differential', 'ND'),
+      kind: 'nightDifferential',
+      entryType: type,
+    }))
 
     return columns
+  }
+
+  /** OT types the category's timekeeping table has a column for */
+  overtimeTypesFor(category: CategoryKey): string[] {
+    const config = DAY_COLUMN_CONFIG[category]
+    return OT_TYPES.filter(type => config.otCols[type] !== undefined)
+  }
+
+  /** Night-differential types the category's timekeeping table has a column for */
+  nightDifferentialTypesFor(category: CategoryKey): string[] {
+    const config = DAY_COLUMN_CONFIG[category]
+    return NIGHT_DIFF_TYPES.filter(type => config.ndCols[type] !== undefined)
   }
 
   gridRows(emp: EmployeeTimekeep, category: CategoryKey): GridRow[] {
@@ -1041,19 +1081,28 @@ export class DofTimekeepingComponent {
 
     const periodDates = new Set(this.getPeriodDates().map(d => d.toISODate()))
     const unmatched: string[] = []
+    // An entry with no date cannot be placed on a day row and is dropped by both
+    // writers, so it must be reported rather than silently discarded.
+    const undated = (label: string, entry: { date: string }, kind: string) => {
+      if (!entry.date) unmatched.push(`${label} ${kind} with no date`)
+    }
     for (const cat of this.categories()) {
       for (const emp of cat.employees) {
         const label = `${cat.label} ${emp.empNo} ${emp.empName}`.trim()
         for (const a of emp.absences) {
+          undated(label, a, 'absence')
           if (a.date && !periodDates.has(a.date)) unmatched.push(`${label} absence ${a.date}`)
         }
         for (const u of emp.undertimes) {
+          undated(label, u, 'undertime')
           if (u.date && !periodDates.has(u.date)) unmatched.push(`${label} undertime ${u.date}`)
         }
         for (const o of emp.overtimes) {
+          undated(label, o, 'overtime')
           if (o.date && !periodDates.has(o.date)) unmatched.push(`${label} overtime ${o.date}`)
         }
         for (const n of emp.nightDifferentials) {
+          undated(label, n, 'night differential')
           if (n.date && !periodDates.has(n.date)) unmatched.push(`${label} night differential ${n.date}`)
         }
       }
@@ -1061,7 +1110,7 @@ export class DofTimekeepingComponent {
     if (unmatched.length > 0) {
       const preview = unmatched.slice(0, 3).join('; ')
       toast.warning(
-        `${unmatched.length} ${unmatched.length === 1 ? 'entry is' : 'entries are'} outside the billing period and will not be saved: ${preview}${unmatched.length > 3 ? '; …' : ''}`
+        `${unmatched.length} ${unmatched.length === 1 ? 'entry is' : 'entries are'} outside the billing period or missing a date and will not be saved: ${preview}${unmatched.length > 3 ? '; …' : ''}`
       )
     }
 
@@ -1101,8 +1150,11 @@ export class DofTimekeepingComponent {
       if (unmatchedBilling.length > 0) {
         const preview = unmatchedBilling.slice(0, 3).join('; ')
         toast.warning(
-          `${unmatchedBilling.length} ${unmatchedBilling.length === 1 ? 'employee has' : 'employees have'} no matching billing row and will not appear in the billing file: ${preview}${unmatchedBilling.length > 3 ? '; …' : ''}`
+          `${unmatchedBilling.length} ${unmatchedBilling.length === 1 ? 'employee has' : 'employees have'} no matching billing row: ${preview}${unmatchedBilling.length > 3 ? '; …' : ''}`
         )
+        // Keep the list on screen after the stepper advances so the marker rows
+        // in the file can be reconciled against the template.
+        this.unmatchedEmployees.set([...unmatchedBilling])
       }
 
       await this.dofBilling.saveTables(billing.documentId, payload)
@@ -1159,9 +1211,7 @@ export class DofTimekeepingComponent {
         values[config.utCol] = null
         values[config.absentCol] = null
         for (const col of Object.values(config.otCols)) values[col] = null
-        if (category !== 'man') {
-          for (const col of Object.values(config.ndCols)) values[col] = null
-        }
+        for (const col of Object.values(config.ndCols)) values[col] = null
         return values
       }
 
@@ -1197,13 +1247,11 @@ export class DofTimekeepingComponent {
         values[col] = total > 0 ? total : null
       }
 
-      if (category !== 'man') {
-        for (const [type, col] of Object.entries(config.ndCols)) {
-          const total = emp.nightDifferentials
-            .filter(n => n.type === type && n.date === dateIso)
-            .reduce((sum, n) => sum + parseTimeToDecimal(n.time), 0)
-          values[col] = total > 0 ? total : null
-        }
+      for (const [type, col] of Object.entries(config.ndCols)) {
+        const total = emp.nightDifferentials
+          .filter(n => n.type === type && n.date === dateIso)
+          .reduce((sum, n) => sum + parseTimeToDecimal(n.time), 0)
+        values[col] = total > 0 ? total : null
       }
 
       return values
@@ -1255,13 +1303,55 @@ export class DofTimekeepingComponent {
     const config = BILLING_COLUMN_CONFIG[category]
     const periodDates = new Set(this.getPeriodDates().map(d => d.toISODate()))
 
+    const sumEntries = (entries: Array<{ date: string; time: string }>, type?: string) =>
+      entries
+        .filter(e => e.date && periodDates.has(e.date) && (type === undefined || (e as { type?: string }).type === type))
+        .reduce((sum, e) => sum + parseTimeToDecimal(e.time), 0)
+
+    // An undertime entry records the time the employee clocked in, so the
+    // shortfall billed is 8h minus that (matching the per-day writer).
+    const sumUndertime = (entries: Array<{ date: string; time: string }>) =>
+      entries
+        .filter(e => e.date && periodDates.has(e.date))
+        .reduce((sum, e) => sum + (8 - parseTimeToDecimal(e.time)), 0)
+
     const rows: DofBillingTableRow[] = []
     for (const emp of cat.employees) {
-      // Unmatched employees are reported to the caller so their timekeeping
-      // input can't silently miss the billing file.
+      // Build the aggregates first so an unmatched employee can still be carried
+      // into the file as a flagged row rather than losing their hours.
+      const hoursCol = config.hoursCol !== null ? this.computeRegularHours(emp, category) : null
+      const utTotal = sumUndertime(emp.undertimes)
+      const otTotals = Object.fromEntries(
+        Object.keys(config.otCols).map(type => [type, sumEntries(emp.overtimes, type)])
+      )
+      const ndTotals = Object.fromEntries(
+        Object.keys(config.ndCols).map(type => [type, sumEntries(emp.nightDifferentials, type)])
+      )
+
       const match = this.findBillingRow(emp, cat.billingRows)
       if (!match) {
         unmatched.push(`${cat.label} ${emp.empNo} - ${emp.empName}`.trim())
+        // Only worth a marker row if the employee actually has hours to report.
+        const hasTotals =
+          (hoursCol !== null && hoursCol > 0) ||
+          utTotal > 0 ||
+          Object.values(otTotals).some(v => v > 0) ||
+          Object.values(ndTotals).some(v => v > 0)
+        if (!hasTotals) continue
+
+        const values: any[] = new Array(config.minLength).fill(null)
+        values[0] = emp.empNo
+        values[1] = `UNMATCHED - ${emp.empName}`
+        values[2] = emp.empName
+        if (config.hoursCol !== null) values[config.hoursCol] = hoursCol
+        if (config.utCol !== null && utTotal > 0) values[config.utCol] = utTotal
+        for (const [type, col] of Object.entries(config.otCols)) {
+          if (otTotals[type] > 0) values[col] = otTotals[type]
+        }
+        for (const [type, col] of Object.entries(config.ndCols)) {
+          if (ndTotals[type] > 0) values[col] = ndTotals[type]
+        }
+        rows.push({ index: -1, values, unmatched: true })
         continue
       }
 
@@ -1269,28 +1359,19 @@ export class DofTimekeepingComponent {
       while (values.length < config.minLength) values.push(null)
 
       if (config.hoursCol !== null) {
-        values[config.hoursCol] = this.computeRegularHours(emp, category)
+        values[config.hoursCol] = hoursCol
       }
 
       if (config.utCol !== null) {
-        const utTotal = emp.undertimes
-          .filter(u => u.date && periodDates.has(u.date))
-          .reduce((sum, u) => sum + (8 - parseTimeToDecimal(u.time)), 0)
         values[config.utCol] = utTotal > 0 ? utTotal : null
       }
 
       for (const [type, col] of Object.entries(config.otCols)) {
-        const total = emp.overtimes
-          .filter(o => o.type === type && periodDates.has(o.date))
-          .reduce((sum, o) => sum + parseTimeToDecimal(o.time), 0)
-        values[col] = total > 0 ? total : null
+        values[col] = otTotals[type] > 0 ? otTotals[type] : null
       }
 
       for (const [type, col] of Object.entries(config.ndCols)) {
-        const total = emp.nightDifferentials
-          .filter(n => n.type === type && periodDates.has(n.date))
-          .reduce((sum, n) => sum + parseTimeToDecimal(n.time), 0)
-        values[col] = total > 0 ? total : null
+        values[col] = ndTotals[type] > 0 ? ndTotals[type] : null
       }
 
       rows.push({ index: match.index, values })

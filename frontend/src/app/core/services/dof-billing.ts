@@ -58,6 +58,11 @@ export interface DofTableRow {
 export interface DofBillingTableRow {
   index: number
   values: any[]
+  /**
+   * Set when the employee had no row in the template's billing table. The backend
+   * appends these via rows/add so their hours are not lost, flagged for review.
+   */
+  unmatched?: boolean
 }
 
 export interface DofBillingDraft {
