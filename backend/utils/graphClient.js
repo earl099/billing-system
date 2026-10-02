@@ -307,7 +307,11 @@ export async function graphBatchRequest(requests, sessionId, options = {}) {
             console.error('Batch failures: ', failure.body.error)
         }
 
-        throw new Error('Some batch operations failed')
+        const error = new Error('Some batch operations failed')
+        // Carry the failing request ids so callers can report what did not save
+        // instead of only surfacing a generic failure.
+        error.failedRequests = failed.map(f => ({ id: f.id, status: f.status, error: f.body?.error?.code }))
+        throw error
     }
 }
 
@@ -2481,29 +2485,62 @@ export async function saveDofTables(req, res) {
 
         // Group row writes by target file so each file is saved in one session
         const requestsByFile = new Map()
+        // Batch ids must be unique: a repeated id makes Graph reject the whole
+        // $batch, which would lose every row in that chunk. Two employees
+        // resolving to the same billing row would otherwise collide here.
+        const seenIds = new Set()
+        let duplicateRequestsCollapsed = 0
+        let unmatchedRowsAdded = 0
+
         for (const category of categories) {
             if (!category.fileId || !category.rows || category.rows.length === 0) {
                 continue
             }
 
-            const requests = category.rows.map(row => {
+            const requests = []
+            for (const row of category.rows) {
                 const protectedIndices = row.type === 'day' && category.dayFormulaIndices
                     ? category.dayFormulaIndices
                     : category.formulaIndices
                 const values = row.values.map((val, i) =>
                     protectedIndices.includes(i) ? null : val
                 )
-                return {
-                    id: `${category.tableName}-${row.index}`,
+
+                // Unmatched employees have no template row; append them instead so
+                // their hours survive into the file for manual reconciliation.
+                if (row.unmatched) {
+                    requests.push({
+                        id: `${category.tableName}-unmatched-${unmatchedRowsAdded++}`,
+                        method: 'POST',
+                        url: `/sites/${SITE_ID}/drive/items/${category.fileId}/workbook/tables('${category.tableName}')/rows/add`,
+                        headers: { 'Content-Type': 'application/json' },
+                        body: { values: [values] }
+                    })
+                    continue
+                }
+
+                const id = `${category.tableName}-${row.index}`
+                if (seenIds.has(id)) {
+                    duplicateRequestsCollapsed++
+                    continue
+                }
+                seenIds.add(id)
+
+                requests.push({
+                    id,
                     method: 'PATCH',
                     url: `/sites/${SITE_ID}/drive/items/${category.fileId}/workbook/tables('${category.tableName}')/rows/itemAt(index=${row.index})`,
                     headers: { 'Content-Type': 'application/json' },
                     body: { values: [values] }
-                }
-            })
+                })
+            }
 
             const existing = requestsByFile.get(category.fileId) ?? []
             requestsByFile.set(category.fileId, existing.concat(requests))
+        }
+
+        if (duplicateRequestsCollapsed > 0) {
+            console.warn(`DOF save: collapsed ${duplicateRequestsCollapsed} duplicate row request(s) - two employees resolved to the same billing row`)
         }
 
         for (const [fileId, requests] of requestsByFile) {
@@ -2550,11 +2587,19 @@ export async function saveDofTables(req, res) {
             }
         }
 
-        res.json({ message: 'DOF billing data saved successfully' })
+        res.json({
+            message: 'DOF billing data saved successfully',
+            ...(unmatchedRowsAdded > 0 ? { unmatchedRowsAdded } : {}),
+        })
 
     } catch (err) {
         console.error(err?.response?.data || err)
-        res.status(500).json({ message: 'Failed to save DOF billing data' })
+        res.status(500).json({
+            message: 'Failed to save DOF billing data',
+            // Surface the failing request ids so a rejected batch (e.g. duplicate
+            // or out-of-range row index) can be traced instead of guessed at.
+            failedRequests: err?.failedRequests ?? null,
+        })
     }
 }
 

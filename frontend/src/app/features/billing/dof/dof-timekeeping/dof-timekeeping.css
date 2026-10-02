@@ -307,3 +307,33 @@ mat-tab-group {
   border-color: #d32f2f;
   background: #fff5f5;
 }
+
+.unmatched-panel {
+  margin: 1rem 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid #f9a825;
+  border-left: 4px solid #f9a825;
+  border-radius: 6px;
+  background: #fff8e1;
+}
+
+.unmatched-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.unmatched-note {
+  margin: 0.5rem 0;
+  color: #5d4037;
+  font-size: 0.875rem;
+}
+
+.unmatched-list {
+  margin: 0.5rem 0 0;
+  padding-left: 1.25rem;
+  max-height: 12rem;
+  overflow-y: auto;
+  font-size: 0.875rem;
+}
