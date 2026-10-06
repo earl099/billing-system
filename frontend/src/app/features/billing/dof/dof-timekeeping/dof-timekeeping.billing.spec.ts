@@ -86,9 +86,10 @@ describe('DofTimekeepingComponent billing totals', () => {
       setCategory('oms', [emp], [matchedRow()]);
 
       const [row] = component.buildBillingRows('oms', []);
-      // oBillingTable: 6 = REGULAR OT (125%), 7 = REST DAY OT (130%)
-      expect(row.values[6]).toBeCloseTo(3, 5);
-      expect(row.values[7]).toBeCloseTo(8, 5);
+      // oBillingTable: 6 = REGULAR OT (125%), 7 = REST DAY OT (130%).
+      // Billing OT columns are [hh]:mm-formatted -> Excel day-fractions.
+      expect(row.values[6]).toBeCloseTo(3 / 24, 5);
+      expect(row.values[7]).toBeCloseTo(8 / 24, 5);
       // Untouched OT columns stay empty rather than zeroed.
       expect(row.values[9]).toBeNull();
     });
@@ -104,9 +105,10 @@ describe('DofTimekeepingComponent billing totals', () => {
       setCategory('oms', [emp], [matchedRow()]);
 
       const [row] = component.buildBillingRows('oms', []);
-      // oBillingTable: 14 = NIGHT DIFFERENTIAL (10%), 21 = ND LEGAL HOLIDAY OT (20%)
-      expect(row.values[14]).toBeCloseTo(1.5, 5);
-      expect(row.values[21]).toBeCloseTo(2, 5);
+      // oBillingTable: 14 = NIGHT DIFFERENTIAL (10%), 21 = ND LEGAL HOLIDAY OT (20%).
+      // Billing ND columns are [hh]:mm-formatted -> Excel day-fractions.
+      expect(row.values[14]).toBeCloseTo(1.5 / 24, 5);
+      expect(row.values[21]).toBeCloseTo(2 / 24, 5);
     });
 
     it('writes undertime as the shortfall from an 8-hour day, not the time entered', () => {
@@ -130,8 +132,9 @@ describe('DofTimekeepingComponent billing totals', () => {
       setCategory('man', [emp], [matchedRow()]);
 
       const [row] = component.buildBillingRows('man', []);
-      // mBillingTable: 14 = NIGHT DIFFERENTIAL OT (13%)
-      expect(row.values[14]).toBeCloseTo(3, 5);
+      // mBillingTable: 14 = NIGHT DIFFERENTIAL OT (13%).
+      // Billing ND columns are [hh]:mm-formatted -> Excel day-fractions.
+      expect(row.values[14]).toBeCloseTo(3 / 24, 5);
     });
 
     it('sends REST DAY OT EXCESS hours to its own column', () => {
@@ -142,8 +145,9 @@ describe('DofTimekeepingComponent billing totals', () => {
       setCategory('oms', [emp], [matchedRow()]);
 
       const [row] = component.buildBillingRows('oms', []);
-      // oBillingTable: 8 = REST DAY OT EXCESS (169%)
-      expect(row.values[8]).toBeCloseTo(4, 5);
+      // oBillingTable: 8 = REST DAY OT EXCESS (169%).
+      // Billing OT columns are [hh]:mm-formatted -> Excel day-fractions.
+      expect(row.values[8]).toBeCloseTo(4 / 24, 5);
     });
   });
 
@@ -162,7 +166,8 @@ describe('DofTimekeepingComponent billing totals', () => {
       expect(rows.length).toBe(1);
       expect(rows[0].unmatched).toBe(true);
       // The hours survive on the marker row instead of being lost.
-      expect(rows[0].values[6]).toBeCloseTo(2, 5);
+      // Billing OT columns are [hh]:mm-formatted -> Excel day-fractions.
+      expect(rows[0].values[6]).toBeCloseTo(2 / 24, 5);
       expect(rows[0].values[1]).toContain('UNMATCHED');
       expect(rows[0].values[0]).toBe('E001');
     });
@@ -195,8 +200,9 @@ describe('DofTimekeepingComponent billing totals', () => {
       const written = rows.filter((r: any) => !r.unmatched);
       expect(flagged.length).toBe(1);
       expect(written.length).toBe(1);
-      expect(written[0].values[6]).toBeCloseTo(5, 5);
-      expect(flagged[0].values[6]).toBeCloseTo(1, 5);
+      // Billing OT columns are [hh]:mm-formatted -> Excel day-fractions.
+      expect(written[0].values[6]).toBeCloseTo(5 / 24, 5);
+      expect(flagged[0].values[6]).toBeCloseTo(1 / 24, 5);
     });
 
     it('exposes the unmatched list for the panel and clears it on dismiss', () => {
@@ -266,8 +272,33 @@ describe('DofTimekeepingComponent billing totals', () => {
       expect(dayTotal).toBeCloseTo(expectedHours / 24, 5);
 
       const [row] = component.buildBillingRows('oms', []);
-      // Billing OT column is number-formatted -> decimal hours.
-      expect(row.values[6]).toBeCloseTo(expectedHours, 5);
+      // Billing OT column is [hh]:mm-formatted -> Excel day-fraction,
+      // matching the per-day cells.
+      expect(row.values[6]).toBeCloseTo(expectedHours / 24, 5);
+    });
+
+    it('writes the JAN hours rendered as a day-fraction so it shows hh:mm', () => {
+      // The user's explicit requirement: NO. OF HOURS RENDERED on the JAN
+      // worksheet is the sum of the regular hours, displayed as hh:mm.
+      const emp = makeEmp({
+        // 12 full days (checked) + one 03:55 day = 99.9167h.
+        janitorialDays: [
+          ...Array.from({ length: 12 }, (_, i) => ({
+            date: `2026-09-${String(i + 1).padStart(2, '0')}`,
+            checked: true,
+            hours: '8:00',
+          })),
+          { date: '2026-09-13', checked: false, hours: '03:55' },
+          { date: '2026-09-14', checked: false, hours: '' },
+          { date: '2026-09-15', checked: false, hours: '' },
+        ],
+      });
+      setCategory('jan', [emp], [matchedRow()]);
+
+      const [row] = component.buildBillingRows('jan', []);
+      const expectedHours = 12 * 8 + 3 + 55 / 60;
+      // jBillingTable: 5 = NO. OF HOURS RENDERED, [hh]:mm-formatted.
+      expect(row.values[5]).toBeCloseTo(expectedHours / 24, 5);
     });
   });
 });
