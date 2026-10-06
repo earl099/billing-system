@@ -63,6 +63,83 @@ const throttleWaitMs = (retryAfterHeader, attempt) => {
 }
 
 /**
+ * Excel day-fraction round-trips through a float, so an OT value written as
+ * hours/24 can come back with a tiny representation drift. Comparing numbers
+ * with === would mark every OT cell changed on every save, which defeats the
+ * whole point of diffing.
+ */
+const DIFF_EPSILON = 1e-9
+
+const isBlankValue = val => val === null || val === undefined || val === ''
+
+/**
+ * Coerces a cell to a comparable form. Blanks (null / undefined / '') collapse to
+ * one class because the writers emit null for cleared cells while Graph may
+ * return '' or omit trailing cells entirely; treating those as different would
+ * rewrite every untouched row.
+ *
+ * A numeric-looking string is only folded into a number when the conversion is
+ * lossless (`String(Number(s)) === s`). '007' therefore stays the string '007'
+ * and does not match the number 7: employee numbers can carry leading zeros, and
+ * a false "equal" silently skips a real write. Erring toward "different" costs
+ * one extra write; erring toward "equal" loses data.
+ */
+const normalizeCell = val => {
+    if (isBlankValue(val)) return null
+    if (typeof val === 'number') return Number.isNaN(val) ? 'NaN' : val
+    if (typeof val === 'boolean') return val
+    if (typeof val === 'string') {
+        const trimmed = val.trim()
+        if (trimmed === '') return null
+        const asNumber = Number(trimmed)
+        return !Number.isNaN(asNumber) && String(asNumber) === trimmed ? asNumber : trimmed
+    }
+    // Objects (dates, rich values) are compared by identity-free JSON so a
+    // re-read of the same cell still matches.
+    return JSON.stringify(val)
+}
+
+/**
+ * True when two row value arrays would write the same thing to the workbook.
+ *
+ * Compared over max(len) treating missing entries as blank, so trailing padding
+ * added on the way out (config.minLength) does not register as a change.
+ */
+const valuesEqual = (a = [], b = []) => {
+    const len = Math.max(Array.isArray(a) ? a.length : 0, Array.isArray(b) ? b.length : 0)
+    for (let i = 0; i < len; i++) {
+        const left = normalizeCell(a?.[i])
+        const right = normalizeCell(b?.[i])
+
+        if (typeof left === 'number' && typeof right === 'number') {
+            // NaN was normalized to a string, so this only sees real numbers.
+            if (Math.abs(left - right) > DIFF_EPSILON) return false
+            continue
+        }
+
+        if (left !== right) return false
+    }
+    return true
+}
+
+/**
+ * Reads every row of a workbook table, following pagination.
+ * Shared by getDofTables (load) and saveDofTables (diff baseline).
+ *
+ * @returns {Promise<Array<{index: number, values: any[]}>>}
+ */
+const readTableRows = async (fileId, tableName, siteId) => {
+    const rows = []
+    let url = `/sites/${siteId}/drive/items/${fileId}/workbook/tables('${tableName}')/rows`
+    while (url) {
+        const page = await graphRequest('GET', url)
+        rows.push(...(page.data.value ?? []))
+        url = page.data['@odata.nextLink'] ?? null
+    }
+    return rows
+}
+
+/**
  * Sends an authenticated request to the Microsoft Graph API
  * Automatically acquires a bearer token, constructs the full Graph URL,
  * and merges custom headers/config into the axios request.
@@ -162,15 +239,22 @@ export async function graphBatchRequest(requests, sessionId, options = {}) {
         /invalidsession/i.test(obj?.error?.code || '')
 
     // Transient workbook-host failures (gateway timeouts, host can't open the
-    // file) typically succeed on retry with a fresh session. Also catches
-    // 500 UnknownError wrapping a WAC "Service Unavailable" HTML page, which
-    // Excel Online returns transiently under sustained write load.
+    // file) typically succeed on retry with a fresh session.
+    //
+    // The 500 case deliberately does NOT require a matching message any more. A
+    // real 3,884-row save aborted on `{ id: 'oTimekeep-28', status: 500, error:
+    // 'UnknownError' }` with no matching body text, so this test failed and the
+    // whole save was thrown away. A bare UnknownError from the workbook host is
+    // host-side noise rather than bad data, so it is retried like any other
+    // transient failure. Genuine data errors (bad row index, malformed table
+    // reference) come back as 400s and still fail fast below.
     const isTransientFailure = (status, code, message) =>
         status === 502 || status === 503 || status === 504 ||
         /timeout|serviceunavailable|temporarilyunavailable/i.test(code || '') ||
         (status === 500 &&
-            /unknownerror/i.test(code || '') &&
-            /service is unavailable|WACError|technical difficulties/i.test(message || ''))
+            (/unknownerror/i.test(code || '') ||
+                /unknownerror/i.test(message || '') ||
+                /service is unavailable|WACError|technical difficulties/i.test(message || '')))
 
     const waitForThrottle = async (retryAfterValues, attempt) => {
         const retryAfter = retryAfterValues
@@ -2406,16 +2490,7 @@ export async function getDofTables(req, res) {
         const billingId = req.params.fileId
         const { janId, omsId, manId } = req.query
 
-        async function getAllRows(fileId, tableName) {
-            const rows = []
-            let url = `/sites/${SITE_ID}/drive/items/${fileId}/workbook/tables('${tableName}')/rows`
-            while (url) {
-                const page = await graphRequest('GET', url)
-                rows.push(...(page.data.value ?? []))
-                url = page.data['@odata.nextLink'] ?? null
-            }
-            return rows
-        }
+        const getAllRows = (fileId, tableName) => readTableRows(fileId, tableName, SITE_ID)
 
         const mapRows = rows => rows.map(r => ({ index: r.index, values: r.values[0] }))
 
@@ -2447,7 +2522,7 @@ export async function saveDofTables(req, res) {
     try {
         const SITE_ID = process.env.SHAREPOINT_SITE_ID
         const billingId = req.params.fileId
-        const { janRows, omsRows, manRows, janBillingRows, omsBillingRows, manBillingRows, timekeepingFiles } = req.body
+        const { janRows, omsRows, manRows, janBillingRows, omsBillingRows, manBillingRows, timekeepingFiles, diffWrite } = req.body
 
         // Timekeeping rows use block/day formula protection; billing rows carry
         // per-employee aggregates and only protect the billing formula columns.
@@ -2491,11 +2566,48 @@ export async function saveDofTables(req, res) {
         const seenIds = new Set()
         let duplicateRequestsCollapsed = 0
         let unmatchedRowsAdded = 0
+        let skippedRows = 0
+
+        /**
+         * Current on-disk values per table, keyed `${fileId}::${tableName}` then by
+         * row index. Read fresh at save time rather than reusing the frontend's
+         * load-time snapshot: a save that fails part-way leaves rows written that
+         * the snapshot knows nothing about, and diffing against it would skip
+         * those rows and silently keep the wrong values.
+         *
+         * Null when the read fails, which disables diffing entirely rather than
+         * diffing against a partial map - a row missing from a partial map would
+         * otherwise look unchanged.
+         */
+        let currentState = null
+        if (diffWrite) {
+            const targets = [...new Map(
+                categories
+                    .filter(c => c.fileId && c.rows && c.rows.length > 0)
+                    .map(c => [`${c.fileId}::${c.tableName}`, c])
+            ).values()]
+
+            try {
+                const entries = await Promise.all(
+                    targets.map(async c => [
+                        `${c.fileId}::${c.tableName}`,
+                        new Map((await readTableRows(c.fileId, c.tableName, SITE_ID)).map(r => [r.index, r.values?.[0] ?? []])),
+                    ])
+                )
+                currentState = new Map(entries)
+            } catch (err) {
+                console.warn('DOF diff baseline read failed; writing every row instead of diffing:', err?.response?.data || err.message)
+                currentState = null
+            }
+        }
 
         for (const category of categories) {
             if (!category.fileId || !category.rows || category.rows.length === 0) {
                 continue
             }
+
+            const tableKey = `${category.fileId}::${category.tableName}`
+            const currentRows = currentState?.get(tableKey) ?? null
 
             const requests = []
             for (const row of category.rows) {
@@ -2526,6 +2638,25 @@ export async function saveDofTables(req, res) {
                 }
                 seenIds.add(id)
 
+                // Skip the write when the row already holds these values.
+                //
+                // Only compared outside formula-protected indices: those are
+                // nulled above and recomputed by Excel, so the computed side is
+                // meaningless there and would compare unequal every time.
+                //
+                // An index missing from the baseline means "cannot prove it is
+                // unchanged", so it is written - never treat unknown as unchanged.
+                if (currentRows) {
+                    const existing = currentRows.get(row.index)
+                    const comparable = values.map((val, i) =>
+                        protectedIndices.includes(i) ? existing?.[i] ?? null : val
+                    )
+                    if (existing && valuesEqual(comparable, existing)) {
+                        skippedRows++
+                        continue
+                    }
+                }
+
                 requests.push({
                     id,
                     method: 'PATCH',
@@ -2543,7 +2674,16 @@ export async function saveDofTables(req, res) {
             console.warn(`DOF save: collapsed ${duplicateRequestsCollapsed} duplicate row request(s) - two employees resolved to the same billing row`)
         }
 
+        // Files are saved strictly sequentially. Measured on a 3,884-row save,
+        // running the four files concurrently produced 68 FileOpenHost throttles,
+        // pinned the limiter at concurrency 1 and took 2,573s - worse than the
+        // serialized version. The workbook host has a hard write ceiling that
+        // does not self-regulate, so pacing here is load-bearing, not wasteful.
+        const saveStartedAt = Date.now()
+        const fileTimings = []
+
         for (const [fileId, requests] of requestsByFile) {
+            const fileStartedAt = Date.now()
             let sessionId = await createSession(fileId)
             let lastRefresh = Date.now()
 
@@ -2573,6 +2713,13 @@ export async function saveDofTables(req, res) {
                     { calculationType: 'Full' },
                     { headers: { 'workbook-session-id': sessionId } }
                 )
+
+                fileTimings.push({
+                    fileId,
+                    rows: requests.length,
+                    chunks: Math.ceil(requests.length / 20),
+                    ms: Date.now() - fileStartedAt,
+                })
             } finally {
                 try {
                     await graphRequest(
@@ -2587,9 +2734,16 @@ export async function saveDofTables(req, res) {
             }
         }
 
+        console.info(
+            `DOF save: ${[...requestsByFile.values()].reduce((n, r) => n + r.length, 0)} row(s) across ${requestsByFile.size} file(s) in ${Date.now() - saveStartedAt}ms; ` +
+            `written: ${[...requestsByFile.values()].reduce((n, r) => n + r.length, 0)}, skipped unchanged: ${skippedRows}${diffWrite ? '' : ' (diff off)'}; ` +
+            `per-file: ${JSON.stringify(fileTimings)}`
+        )
+
         res.json({
             message: 'DOF billing data saved successfully',
             ...(unmatchedRowsAdded > 0 ? { unmatchedRowsAdded } : {}),
+            ...(skippedRows > 0 ? { skippedRows } : {}),
         })
 
     } catch (err) {

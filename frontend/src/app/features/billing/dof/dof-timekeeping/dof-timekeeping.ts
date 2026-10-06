@@ -162,11 +162,16 @@ function parseTimeToDecimal(time: string): number {
 }
 
 // Excel stores TIMES as fractions of a day, so a time-formatted cell renders `n`
-// (decimal hours) as `n * 24` hours (3h -> 72:00, 8h -> 192:00). Use this for
-// OT cells only; regular-hours/UT/absent/ND cells are number-formatted and keep
-// plain decimal hours (so 8 stays 8, not 0.333).
+// days as `n * 24` hours (3h -> 72:00, 8h -> 192:00). The billing tables'
+// hours / OT / ND columns are `[hh]:mm`-formatted, so every total written
+// there must be a day-fraction, not decimal hours.
 function parseTimeToExcelDays(time: string): number {
   return parseTimeToDecimal(time) / 24
+}
+
+/** Converts a decimal-hours total into the Excel day-fraction a `[hh]:mm` cell expects. */
+function toExcelTime(hours: number): number {
+  return hours / 24
 }
 
 function excelSerialToIso(value: unknown): string | null {
@@ -1303,10 +1308,15 @@ export class DofTimekeepingComponent {
     const config = BILLING_COLUMN_CONFIG[category]
     const periodDates = new Set(this.getPeriodDates().map(d => d.toISODate()))
 
+    // The billing tables' hours / OT / ND columns are `[hh]:mm`-formatted,
+    // so every total written there is an Excel day-fraction (hours / 24),
+    // never decimal hours. Undertime is left as decimal hours: the JAN
+    // undertime column is a template formula that yields minutes, so the
+    // UT columns are plain numbers, not times.
     const sumEntries = (entries: Array<{ date: string; time: string }>, type?: string) =>
       entries
         .filter(e => e.date && periodDates.has(e.date) && (type === undefined || (e as { type?: string }).type === type))
-        .reduce((sum, e) => sum + parseTimeToDecimal(e.time), 0)
+        .reduce((sum, e) => sum + parseTimeToExcelDays(e.time), 0)
 
     // An undertime entry records the time the employee clocked in, so the
     // shortfall billed is 8h minus that (matching the per-day writer).
@@ -1319,7 +1329,7 @@ export class DofTimekeepingComponent {
     for (const emp of cat.employees) {
       // Build the aggregates first so an unmatched employee can still be carried
       // into the file as a flagged row rather than losing their hours.
-      const hoursCol = config.hoursCol !== null ? this.computeRegularHours(emp, category) : null
+      const hoursCol = config.hoursCol !== null ? toExcelTime(this.computeRegularHours(emp, category)) : null
       const utTotal = sumUndertime(emp.undertimes)
       const otTotals = Object.fromEntries(
         Object.keys(config.otCols).map(type => [type, sumEntries(emp.overtimes, type)])
