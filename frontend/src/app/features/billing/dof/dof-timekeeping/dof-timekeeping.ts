@@ -13,7 +13,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox'
 import { MatIconModule } from '@angular/material/icon'
 import { Router, RouterLink } from '@angular/router'
 import { BillingRow } from '@billing/ofbank/editable-table/editable-table'
-import { DofBilling, DofBillingTableRow, DofTableRow, DofTimekeepingFiles } from '@services/dof-billing'
+import { DofBilling, DofBillingTableRow, DofCategory, DofTableRow, DofTimekeepingFiles } from '@services/dof-billing'
 import { DateTime } from 'luxon'
 import { toast } from 'ngx-sonner'
 
@@ -383,10 +383,13 @@ export class DofTimekeepingComponent {
 
   readonly timekeepingFileKeys: ('jan' | 'oms' | 'man')[] = ['jan', 'oms', 'man']
 
-  step = signal<'setup' | 'loading' | 'editing' | 'saving' | 'done'>('setup')
+  step = signal<'setup' | 'loading' | 'editing' | 'done'>('setup')
 
   timekeepingFiles = signal<DofTimekeepingFiles | null>(null)
   billingFile = signal<{ documentId: string; editUrl: string; fileName: string } | null>(null)
+
+  /** Category currently being saved; disables every tab's save button. */
+  savingCategory = signal<DofCategory | null>(null)
 
   selectedYear = signal<number>(DateTime.now().year)
   selectedMonth = signal<number>(DateTime.now().month)
@@ -522,6 +525,16 @@ export class DofTimekeepingComponent {
         { key: 'oms', label: 'OMS', employees: this.mapRowsToEmployees(tables.oms, 'oms'), billingRows: tables.omsBilling },
         { key: 'man', label: 'MAN', employees: this.mapRowsToEmployees(tables.man, 'man'), billingRows: tables.manBilling },
       ])
+
+      const reusedExisting =
+        !billing.created ||
+        !timekeeping.jan.created ||
+        !timekeeping.oms.created ||
+        !timekeeping.man.created
+
+      if (reusedExisting) {
+        toast.info(`Existing DOF files for ${this.dateRange().label} loaded — update and save to update them in place`)
+      }
 
       this.step.set('editing')
     } catch (e) {
@@ -906,7 +919,7 @@ export class DofTimekeepingComponent {
     if (event.ctrlKey || event.metaKey) {
       if (event.key === 'Enter') {
         event.preventDefault()
-        void this.saveTimekeeperData()
+        void this.saveCategoryData(category)
       }
       return
     }
@@ -1076,7 +1089,57 @@ export class DofTimekeepingComponent {
     })
   }
 
-  async saveTimekeeperData() {
+  /**
+   * Collects the entries of one category that cannot be placed:
+   * undated entries, and dated entries outside the billing
+   * period. Both are dropped by the row builders, so they must
+   * be reported rather than silently discarded.
+   */
+  private collectCategoryWarnings(category: CategoryKey): string[] {
+    const cat = this.categories().find(c => c.key === category)
+    if (!cat) return []
+
+    const periodDates = new Set(this.getPeriodDates().map(d => d.toISODate()))
+    const warnings: string[] = []
+    // An entry with no date cannot be placed on a day row and is
+    // dropped by both writers, so it must be reported.
+    const undated = (label: string, entry: { date: string }, kind: string) => {
+      if (!entry.date) warnings.push(`${label} ${kind} with no date`)
+    }
+
+    for (const emp of cat.employees) {
+      const label = `${cat.label} ${emp.empNo} ${emp.empName}`.trim()
+      for (const a of emp.absences) {
+        undated(label, a, 'absence')
+        if (a.date && !periodDates.has(a.date)) warnings.push(`${label} absence ${a.date}`)
+      }
+      for (const u of emp.undertimes) {
+        undated(label, u, 'undertime')
+        if (u.date && !periodDates.has(u.date)) warnings.push(`${label} undertime ${u.date}`)
+      }
+      for (const o of emp.overtimes) {
+        undated(label, o, 'overtime')
+        if (o.date && !periodDates.has(o.date)) warnings.push(`${label} overtime ${o.date}`)
+      }
+      for (const n of emp.nightDifferentials) {
+        undated(label, n, 'night differential')
+        if (n.date && !periodDates.has(n.date)) warnings.push(`${label} night differential ${n.date}`)
+      }
+    }
+
+    return warnings
+  }
+
+  /**
+   * Saves one category's timekeeping rows to its timekeeping
+   * workbook and its billing aggregates to the billing file that
+   * owns the current billing period. When that billing file was
+   * generated for a different period, the backend resolves (or
+   * generates) the billing file for this period instead, and the
+   * resolved file is tracked here so the next category save
+   * targets it.
+   */
+  async saveCategoryData(category: DofCategory) {
     const files = this.timekeepingFiles()
     const billing = this.billingFile()
     if (!files || !billing) {
@@ -1084,72 +1147,44 @@ export class DofTimekeepingComponent {
       return
     }
 
-    const periodDates = new Set(this.getPeriodDates().map(d => d.toISODate()))
-    const unmatched: string[] = []
-    // An entry with no date cannot be placed on a day row and is dropped by both
-    // writers, so it must be reported rather than silently discarded.
-    const undated = (label: string, entry: { date: string }, kind: string) => {
-      if (!entry.date) unmatched.push(`${label} ${kind} with no date`)
-    }
-    for (const cat of this.categories()) {
-      for (const emp of cat.employees) {
-        const label = `${cat.label} ${emp.empNo} ${emp.empName}`.trim()
-        for (const a of emp.absences) {
-          undated(label, a, 'absence')
-          if (a.date && !periodDates.has(a.date)) unmatched.push(`${label} absence ${a.date}`)
-        }
-        for (const u of emp.undertimes) {
-          undated(label, u, 'undertime')
-          if (u.date && !periodDates.has(u.date)) unmatched.push(`${label} undertime ${u.date}`)
-        }
-        for (const o of emp.overtimes) {
-          undated(label, o, 'overtime')
-          if (o.date && !periodDates.has(o.date)) unmatched.push(`${label} overtime ${o.date}`)
-        }
-        for (const n of emp.nightDifferentials) {
-          undated(label, n, 'night differential')
-          if (n.date && !periodDates.has(n.date)) unmatched.push(`${label} night differential ${n.date}`)
-        }
-      }
-    }
-    if (unmatched.length > 0) {
-      const preview = unmatched.slice(0, 3).join('; ')
+    const cat = this.categories().find(c => c.key === category)
+    if (!cat) return
+
+    const warnings = this.collectCategoryWarnings(category)
+    if (warnings.length > 0) {
+      const preview = warnings.slice(0, 3).join('; ')
       toast.warning(
-        `${unmatched.length} ${unmatched.length === 1 ? 'entry is' : 'entries are'} outside the billing period or missing a date and will not be saved: ${preview}${unmatched.length > 3 ? '; …' : ''}`
+        `${warnings.length} ${warnings.length === 1 ? 'entry is' : 'entries are'} outside the billing period or missing a date and will not be saved: ${preview}${warnings.length > 3 ? '; …' : ''}`
       )
     }
 
-    this.step.set('saving')
+    const unmatchedBilling: string[] = []
+    const payload = {
+      rows: this.buildRows(category),
+      billingRows: this.buildBillingRows(category, unmatchedBilling),
+      timekeepingFileId: files[category].documentId,
+      code: this.code,
+      dateRange: this.dateRange(),
+      year: this.selectedYear(),
+      month: this.getMonthName(this.selectedMonth()),
+      billingPeriod: this.getBillingPeriod(),
+    }
+
+    if (cat.employees.length > 0 && payload.billingRows.length === 0) {
+      const preview = unmatchedBilling.slice(0, 3).join('; ')
+      toast.error(
+        `No employees matched a billing row — the billing file would receive no data. Unmatched: ${preview}${unmatchedBilling.length > 3 ? '; …' : ''}`
+      )
+      return
+    }
+
+    this.savingCategory.set(category)
 
     try {
-      const timekeepingIds = {
-        jan: files.jan.documentId,
-        oms: files.oms.documentId,
-        man: files.man.documentId,
-      }
+      const response = await this.dofBilling.saveCategoryTables(billing.documentId, category, payload)
 
-      const unmatchedBilling: string[] = []
-      const payload = {
-        janRows: this.buildRows('jan'),
-        omsRows: this.buildRows('oms'),
-        manRows: this.buildRows('man'),
-        janBillingRows: this.buildBillingRows('jan', unmatchedBilling),
-        omsBillingRows: this.buildBillingRows('oms', unmatchedBilling),
-        manBillingRows: this.buildBillingRows('man', unmatchedBilling),
-        timekeepingFiles: timekeepingIds,
-      }
-
-      const totalBillingRows =
-        payload.janBillingRows.length + payload.omsBillingRows.length + payload.manBillingRows.length
-      const totalEmployees = this.categories().reduce((n, c) => n + c.employees.length, 0)
-
-      if (totalEmployees > 0 && totalBillingRows === 0) {
-        const preview = unmatchedBilling.slice(0, 3).join('; ')
-        toast.error(
-          `No employees matched a billing row — the billing file would receive no data. Unmatched: ${preview}${unmatchedBilling.length > 3 ? '; …' : ''}`
-        )
-        this.step.set('editing')
-        return
+      if (response?.billingFile) {
+        this.billingFile.set(response.billingFile)
       }
 
       if (unmatchedBilling.length > 0) {
@@ -1157,19 +1192,21 @@ export class DofTimekeepingComponent {
         toast.warning(
           `${unmatchedBilling.length} ${unmatchedBilling.length === 1 ? 'employee has' : 'employees have'} no matching billing row: ${preview}${unmatchedBilling.length > 3 ? '; …' : ''}`
         )
-        // Keep the list on screen after the stepper advances so the marker rows
-        // in the file can be reconciled against the template.
-        this.unmatchedEmployees.set([...unmatchedBilling])
+        // Keep the list on screen so the marker rows in the file can
+        // be reconciled against the template.
+        this.unmatchedEmployees.update(list => [...new Set([...list, ...unmatchedBilling])])
       }
 
-      await this.dofBilling.saveTables(billing.documentId, payload)
+      if (response?.billingFileCreated) {
+        toast.info(`Billing period changed — new billing file generated: ${response.billingFile?.fileName}`)
+      }
 
-      this.step.set('done')
-      toast.success('DOF timekeeping data saved successfully')
+      toast.success(`${cat.label} timekeeping data saved successfully`)
     } catch (e) {
       console.error(e)
-      toast.error('Failed to save timekeeper data')
-      this.step.set('editing')
+      toast.error(`Failed to save ${cat.label} timekeeper data`)
+    } finally {
+      this.savingCategory.set(null)
     }
   }
 

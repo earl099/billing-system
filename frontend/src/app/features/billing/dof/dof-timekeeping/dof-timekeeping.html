@@ -65,6 +65,18 @@
                       <button mat-stroked-button [class.active-view]="entryView() === 'form'" (click)="setEntryView('form')">Detailed form</button>
                     </div>
 
+                    <div class="category-actions">
+                      <button mat-raised-button color="primary"
+                              [disabled]="savingCategory() !== null"
+                              (click)="saveCategoryData(category.key)">
+                        @if (savingCategory() === category.key) {
+                          <mat-spinner diameter="18"></mat-spinner>
+                        } @else {
+                          Save {{ category.label }}
+                        }
+                      </button>
+                    </div>
+
                     @if (entryView() === 'grid') {
                       <div class="grid-help">Type hours as digits (for example, 200 becomes 02:00). Use Tab or arrow keys to move; Ctrl+Enter saves.</div>
                       @for (emp of category.employees; track emp.index; let employeeIndex = $index) {
@@ -383,17 +395,10 @@
           }
 
           <div class="actions">
-            <button mat-raised-button color="primary" (click)="saveTimekeeperData()">Save Timekeeper Data</button>
+            <button mat-raised-button color="primary" (click)="step.set('done')">Done</button>
           </div>
         </mat-card-content>
       </mat-card>
-    }
-
-    @case ('saving') {
-      <div class="loading-state">
-        <mat-spinner diameter="48"></mat-spinner>
-        <p>Saving data...</p>
-      </div>
     }
 
     @case ('done') {

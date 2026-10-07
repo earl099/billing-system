@@ -36,6 +36,7 @@ import {
     setupDofBilling,
     getDofTables,
     saveDofTables,
+    saveDofCategoryTables,
     saveDofSignatories,
     listDofBillingDrafts,
 } from "#utils/graphClient.js";
@@ -131,6 +132,8 @@ graphRouter.get('/editor/dof/drafts', listDofBillingDrafts)
 graphRouter.get('/editor/dof/:fileId/tables', getDofTables)
 /** PATCH /editor/dof/:fileId/tables - Save timekeeper data to the three timekeeping files and the billing file */
 graphRouter.patch('/editor/dof/:fileId/tables', saveDofTables)
+/** PATCH /editor/dof/:fileId/tables/:category - Save one DOF category (jan/oms/man) to its timekeeping file and the billing file for that billing period */
+graphRouter.patch('/editor/dof/:fileId/tables/:category', saveDofCategoryTables)
 /** PATCH /editor/dof/:fileId/signatories - Save SOA number and signatory cells */
 graphRouter.patch('/editor/dof/:fileId/signatories', saveDofSignatories)
 

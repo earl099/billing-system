@@ -8,3 +8,4 @@
 - When asking "what would be the best way to do X?", wants a concrete recommendation plus the lighter alternatives and their trade-offs; then picks one and gives a terse go-ahead (e.g., "implement the grid"). Confidence: 0.7
 - Wants data-entry columns in the grid to be driven by the underlying config (only offer OT/ND/field types the destination can actually store), rather than showing every type unconditionally and losing the ones that have no destination. Confidence: 0.7
 - For conditions that require user action after the fact (e.g. records that could not be matched), prefers a persistent, dismissible panel with an itemized list over a transient toast that disappears. Confidence: 0.7
+- Prefers granular, per-item save actions: each DOF category tab (JAN/OMS/MAN) gets its own Save button (and Ctrl+Enter in a grid saves that category), chosen over a single bulk save-all button or an opaque backend-internal split. Confidence: 0.7
