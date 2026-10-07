@@ -10,9 +10,17 @@ export interface DateRange {
 }
 
 export interface DofTimekeepingFiles {
-  jan: { documentId: string; editUrl: string; fileName: string }
-  oms: { documentId: string; editUrl: string; fileName: string }
-  man: { documentId: string; editUrl: string; fileName: string }
+  jan: DofCreatedFile
+  oms: DofCreatedFile
+  man: DofCreatedFile
+}
+
+interface DofCreatedFile {
+  documentId: string
+  editUrl: string
+  fileName: string
+  /** False when an existing draft for the billing period was reused. */
+  created?: boolean
 }
 
 interface CreateTimekeepingPayload {
@@ -26,11 +34,7 @@ interface CreateBillingPayload {
   dateRange: DateRange
 }
 
-interface CreateResponse {
-  documentId: string
-  editUrl: string
-  fileName: string
-}
+type CreateResponse = DofCreatedFile
 
 interface SetupPayload {
   dateRange: DateRange
@@ -72,6 +76,8 @@ export interface DofBillingDraft {
   webUrl: string
 }
 
+export type DofCategory = 'jan' | 'oms' | 'man'
+
 interface SaveTablesPayload {
   janRows: DofTableRow[]
   omsRows: DofTableRow[]
@@ -87,6 +93,36 @@ interface SaveTablesPayload {
    * client-side snapshot, so it stays correct after a failed save.
    */
   diffWrite?: boolean
+}
+
+/**
+ * Payload for saving a single DOF category (jan, oms or man).
+ * The backend resolves the billing file that owns the payload's
+ * billing period - reusing the current one when the periods
+ * match, otherwise the newest draft for that period or a newly
+ * generated billing file - and writes the category's billing
+ * aggregates there.
+ */
+interface DofCategorySavePayload {
+  rows: DofTableRow[]
+  billingRows: DofBillingTableRow[]
+  timekeepingFileId: string
+  code: string
+  dateRange: DateRange
+  year: number
+  month: string
+  billingPeriod: string
+  diffWrite?: boolean
+}
+
+interface DofCategorySaveResponse {
+  message: string
+  /** The billing file the category's aggregates were written to. */
+  billingFile?: { documentId: string; editUrl: string; fileName: string }
+  /** True when the save generated a new billing file for the period. */
+  billingFileCreated?: boolean
+  unmatchedRowsAdded?: number
+  skippedRows?: number
 }
 
 interface SignatoryInput {
@@ -147,6 +183,25 @@ export class DofBilling {
     return firstValueFrom(
       this.http.patch<any>(
         `${this.apiUrl}/editor/dof/${fileId}/tables`,
+        payload
+      )
+    )
+  }
+
+  /**
+   * Saves one DOF category (jan, oms or man): its timekeeping rows
+   * to the category's timekeeping workbook and its billing
+   * aggregates to the billing file that owns the payload's billing
+   * period.
+   */
+  async saveCategoryTables(
+    billingFileId: string,
+    category: DofCategory,
+    payload: DofCategorySavePayload
+  ): Promise<DofCategorySaveResponse> {
+    return firstValueFrom(
+      this.http.patch<DofCategorySaveResponse>(
+        `${this.apiUrl}/editor/dof/${billingFileId}/tables/${category}`,
         payload
       )
     )
