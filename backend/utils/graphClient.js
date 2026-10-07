@@ -2086,9 +2086,46 @@ export async function createDofTimekeeping(req, res) {
             man: `C_MAN-${suffix}`,
         }
 
+        // Reuse the newest existing draft per category when one already
+        // exists for the requested billing period, so generating the same
+        // period twice never creates duplicate timekeeping files.
+        const children = await graphRequest(
+            'GET',
+            `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts/${code}:/children`
+        )
+
+        const wanted = { month, period: billingPeriod, year }
+        const prefixByCategory = { jan: 'A_JAN', oms: 'B_OMS', man: 'C_MAN' }
+
+        const findExistingForPeriod = category =>
+            children.data.value
+                .filter(f => {
+                    const parsed = parseDofTimekeepingFileName(f.name)
+                    return (
+                        parsed &&
+                        parsed.prefix === prefixByCategory[category] &&
+                        parsed.month.toLowerCase() === String(wanted.month).toLowerCase() &&
+                        parsed.period === wanted.period &&
+                        parsed.year === String(wanted.year)
+                    )
+                })
+                .sort((a, b) => new Date(b.lastModifiedDateTime) - new Date(a.lastModifiedDateTime))[0]
+
         const files = {}
 
         for (const [key, templateName] of Object.entries(DOF_TEMPLATES.timekeeping)) {
+            const existing = billingPeriod ? findExistingForPeriod(key) : null
+
+            if (existing) {
+                files[key] = {
+                    documentId: existing.id,
+                    editUrl: existing.webUrl,
+                    fileName: existing.name,
+                    created: false
+                }
+                continue
+            }
+
             const template = await findDofTemplate(code, templateName)
             if (!template) {
                 throw new Error(`Timekeeping template ${templateName} not found`)
@@ -2108,12 +2145,12 @@ export async function createDofTimekeeping(req, res) {
 
             await new Promise(r => setTimeout(r, 5000))
 
-            const children = await graphRequest(
+            const categoryChildren = await graphRequest(
                 'GET',
                 `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts/${code}:/children`
             )
 
-            const excelFile = children.data.value.find(f => f.name === fileName)
+            const excelFile = categoryChildren.data.value.find(f => f.name === fileName)
 
             if (!excelFile) {
                 throw new Error(`Copied timekeeping file ${fileName} not found`)
@@ -2122,7 +2159,8 @@ export async function createDofTimekeeping(req, res) {
             files[key] = {
                 documentId: excelFile.id,
                 editUrl: excelFile.webUrl,
-                fileName
+                fileName,
+                created: true
             }
         }
 
@@ -2134,52 +2172,88 @@ export async function createDofTimekeeping(req, res) {
     }
 }
 
+/**
+ * Copies DOF-BILLING-TEMPLATE.xlsm into BillingLetterDrafts/{code}/ with a
+ * period-stamped name ({CODE}-BILLING-{label}-{HHMMSS}.xlsm) and returns the
+ * new workbook's drive item info.
+ */
+async function copyDofBillingTemplate(code, dateRange) {
+    const SITE_ID = process.env.SHAREPOINT_SITE_ID
+
+    const template = await findDofTemplate(code, DOF_TEMPLATES.billing)
+    if (!template) {
+        throw new Error(`Billing template ${DOF_TEMPLATES.billing} not found`)
+    }
+
+    const now = new Date()
+    const timestamp = `${now.getHours()}${now.getMinutes()}${now.getSeconds()}`
+    const fileName = `${code.toUpperCase()}-BILLING-${dateRange.label}-${timestamp}.xlsm`
+
+    const folder = await graphRequest(
+        'GET',
+        `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts/${code}`
+    )
+
+    await graphRequest(
+        'POST',
+        `/sites/${SITE_ID}/drive/items/${template.id}/copy`,
+        {
+            name: fileName,
+            parentReference: { id: folder.data.id }
+        },
+        { validateStatus: s => s === 202 }
+    )
+
+    await new Promise(r => setTimeout(r, 5000))
+
+    const children = await graphRequest(
+        'GET',
+        `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts/${code}:/children`
+    )
+
+    const excelFile = children.data.value.find(f => f.name === fileName)
+
+    if (!excelFile) throw new Error('Copied DOF billing file not found')
+
+    return {
+        documentId: excelFile.id,
+        editUrl: excelFile.webUrl,
+        fileName
+    }
+}
+
 export async function createDofBilling(req, res) {
     try {
         const { code } = req.params
         const { dateRange } = req.body
         const SITE_ID = process.env.SHAREPOINT_SITE_ID
 
-        const template = await findDofTemplate(code, DOF_TEMPLATES.billing)
-        if (!template) {
-            throw new Error(`Billing template ${DOF_TEMPLATES.billing} not found`)
-        }
-
-        const now = new Date()
-        const timestamp = `${now.getHours()}${now.getMinutes()}${now.getSeconds()}`
-        const fileName = `${code.toUpperCase()}-BILLING-${dateRange.label}-${timestamp}.xlsm`
-
-        const folder = await graphRequest(
-            'GET',
-            `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts/${code}`
-        )
-
-        await graphRequest(
-            'POST',
-            `/sites/${SITE_ID}/drive/items/${template.id}/copy`,
-            {
-                name: fileName,
-                parentReference: { id: folder.data.id }
-            },
-            { validateStatus: s => s === 202 }
-        )
-
-        await new Promise(r => setTimeout(r, 5000))
-
+        // Reuse the newest existing draft for the requested period so
+        // generating the same period twice never creates a duplicate
+        // billing file (same resolution the save path applies).
         const children = await graphRequest(
             'GET',
             `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts/${code}:/children`
         )
 
-        const excelFile = children.data.value.find(f => f.name === fileName)
+        const prefix = `${code.toUpperCase()}-BILLING-${dateRange.label}-`
+        const existing = children.data.value
+            .filter(f => f.name.startsWith(prefix))
+            .sort((a, b) => new Date(b.lastModifiedDateTime) - new Date(a.lastModifiedDateTime))[0]
 
-        if (!excelFile) throw new Error('Copied DOF billing file not found')
+        if (existing) {
+            res.json({
+                documentId: existing.id,
+                editUrl: existing.webUrl,
+                fileName: existing.name,
+                created: false
+            })
+            return
+        }
 
-        res.json({
-            documentId: excelFile.id,
-            editUrl: excelFile.webUrl,
-            fileName
-        })
+        const billing = await copyDofBillingTemplate(code, dateRange)
+
+        res.json({ ...billing, created: true })
 
     } catch (err) {
         console.error(err?.response?.data || err)
@@ -2317,83 +2391,114 @@ export async function listDofBillingDrafts(req, res) {
     }
 }
 
+/**
+ * Computes every period-derived label used when setting up DOF billing
+ * and timekeeping workbooks. Falls back to the dateRange label parts
+ * when explicit year/month/period values are not supplied.
+ */
+function computeDofPeriodLabels({ dateRange, year, month, billingPeriod }) {
+    const fullMonth = month || dateRange.label.split(' ')[0]
+    const period = billingPeriod || dateRange.label.split(' ')[1].replace(',', '')
+    const yr = year || dateRange.label.split(' ')[2]
+    const threeLetterMonth = fullMonth.substring(0, 3).toUpperCase()
+
+    const janOmsPeriodLabel = `FOR THE PERIOD ${fullMonth} ${period}, ${yr}`
+    const manPeriodLabel = `FOR THE PERIOD ${threeLetterMonth} ${period}, ${yr}`
+    const twoDigitPeriod = period.split('-').map(d => String(d).padStart(2, '0')).join('-')
+    const billingPeriodLabel = `for the period ${fullMonth.toUpperCase()} ${twoDigitPeriod}, ${yr}`
+
+    return {
+        fullMonth,
+        period,
+        yr,
+        threeLetterMonth,
+        billingPeriodLabel,
+        categoryPeriodLabels: {
+            jan: janOmsPeriodLabel,
+            oms: janOmsPeriodLabel,
+            man: manPeriodLabel,
+        },
+        billingSheetNames: {
+            jan: `JAN ${threeLetterMonth} ${period} ${yr}`,
+            oms: `OMS ${threeLetterMonth} ${period} ${yr}`,
+            man: `MAN ${threeLetterMonth} ${period} ${yr}`,
+        },
+    }
+}
+
+/**
+ * Applies the billing-file half of the DOF setup: renames the three
+ * billing worksheets to their period sheet names and replaces the
+ * {billingPeriod} placeholder token across the workbook.
+ */
+async function applyDofBillingSetup(billingId, period) {
+    const SITE_ID = process.env.SHAREPOINT_SITE_ID
+    const { billingSheetNames, billingPeriodLabel } = computeDofPeriodLabels(period)
+
+    const session = await graphRequest(
+        'POST',
+        `/sites/${SITE_ID}/drive/items/${billingId}/workbook/createSession`,
+        { persistChanges: true }
+    )
+
+    const sessionId = session.data.id
+
+    const worksheetsRes = await graphRequest(
+        'GET',
+        `/sites/${SITE_ID}/drive/items/${billingId}/workbook/worksheets`,
+        null,
+        { headers: { 'workbook-session-id': sessionId } }
+    )
+    const sheetNames = worksheetsRes.data.value.map(w => w.name)
+
+    // Rename only when the sheet still carries its template source
+    // name and the period name is not present yet, so re-running
+    // setup on an already-set-up (reused) billing file is a no-op
+    // instead of a failed batch request against a missing sheet.
+    const renameBatch = Object.entries(DOF_SOURCE_SHEETS.billing)
+        .filter(([category, sourceSheet]) => {
+            const hasSource = sheetNames.some(n => n.toLowerCase() === sourceSheet.toLowerCase())
+            const hasTarget = sheetNames.some(n => n.toLowerCase() === billingSheetNames[category].toLowerCase())
+            return hasSource && !hasTarget
+        })
+        .map(([category, sourceSheet]) => ({
+            id: `rename-${category}`,
+            method: 'PATCH',
+            url: `/sites/${SITE_ID}/drive/items/${billingId}/workbook/worksheets('${sourceSheet}')`,
+            headers: { 'Content-Type': 'application/json' },
+            body: { name: billingSheetNames[category] }
+        }))
+
+    if (renameBatch.length > 0) {
+        await graphBatchRequest(renameBatch, sessionId)
+    }
+
+    await graphRequest(
+        'POST',
+        `/sites/${SITE_ID}/drive/items/${billingId}/workbook/application/calculate`,
+        { calculationType: 'Full' },
+        { headers: { 'workbook-session-id': sessionId } }
+    )
+
+    await graphRequest(
+        'POST',
+        `/sites/${SITE_ID}/drive/items/${billingId}/workbook/closeSession`,
+        null,
+        { headers: { 'workbook-session-id': sessionId } }
+    )
+
+    // Replace {billingPeriod} tokens across the billing workbook. Runs after
+    // the renames above since the helper lists worksheets fresh.
+    await replaceDofPlaceholders(billingId, { [DOF_PLACEHOLDERS.billingPeriod]: billingPeriodLabel })
+}
+
 export async function setupDofBilling(req, res) {
     try {
         const SITE_ID = process.env.SHAREPOINT_SITE_ID
         const { billingId } = req.params
         const { dateRange, timekeepingFiles, year, month, billingPeriod } = req.body
 
-        const fullMonth = month || dateRange.label.split(' ')[0]
-        const period = billingPeriod || dateRange.label.split(' ')[1].replace(',', '')
-        const yr = year || dateRange.label.split(' ')[2]
-        const threeLetterMonth = fullMonth.substring(0, 3).toUpperCase()
-
-        const janOmsPeriodLabel = `FOR THE PERIOD ${fullMonth} ${period}, ${yr}`
-        const manPeriodLabel = `FOR THE PERIOD ${threeLetterMonth} ${period}, ${yr}`
-        const twoDigitPeriod = period.split('-').map(d => String(d).padStart(2, '0')).join('-')
-        const billingPeriodLabel = `for the period ${fullMonth.toUpperCase()} ${twoDigitPeriod}, ${yr}`
-
-        const categoryPeriodLabels = {
-            jan: janOmsPeriodLabel,
-            oms: janOmsPeriodLabel,
-            man: manPeriodLabel,
-        }
-
-        const billingSheetNames = {
-            jan: `JAN ${threeLetterMonth} ${period} ${yr}`,
-            oms: `OMS ${threeLetterMonth} ${period} ${yr}`,
-            man: `MAN ${threeLetterMonth} ${period} ${yr}`,
-        }
-
-        async function setupBillingFile(fileId) {
-            const session = await graphRequest(
-                'POST',
-                `/sites/${SITE_ID}/drive/items/${fileId}/workbook/createSession`,
-                { persistChanges: true }
-            )
-
-            const sessionId = session.data.id
-
-            const renameBatch = [
-                {
-                    id: 'rename-man',
-                    method: 'PATCH',
-                    url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('${DOF_SOURCE_SHEETS.billing.man}')`,
-                    headers: { 'Content-Type': 'application/json' },
-                    body: { name: billingSheetNames.man }
-                },
-                {
-                    id: 'rename-oms',
-                    method: 'PATCH',
-                    url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('${DOF_SOURCE_SHEETS.billing.oms}')`,
-                    headers: { 'Content-Type': 'application/json' },
-                    body: { name: billingSheetNames.oms }
-                },
-                {
-                    id: 'rename-jan',
-                    method: 'PATCH',
-                    url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('${DOF_SOURCE_SHEETS.billing.jan}')`,
-                    headers: { 'Content-Type': 'application/json' },
-                    body: { name: billingSheetNames.jan }
-                }
-            ]
-
-            await graphBatchRequest(renameBatch, sessionId)
-
-            await graphRequest(
-                'POST',
-                `/sites/${SITE_ID}/drive/items/${fileId}/workbook/application/calculate`,
-                { calculationType: 'Full' },
-                { headers: { 'workbook-session-id': sessionId } }
-            )
-
-            await graphRequest(
-                'POST',
-                `/sites/${SITE_ID}/drive/items/${fileId}/workbook/closeSession`,
-                null,
-                { headers: { 'workbook-session-id': sessionId } }
-            )
-        }
+        const labels = computeDofPeriodLabels({ dateRange, year, month, billingPeriod })
 
         async function setupTimekeepingFile(fileId, category) {
             const sourceSheet = DOF_SOURCE_SHEETS.timekeeping[category]
@@ -2420,7 +2525,7 @@ export async function setupDofBilling(req, res) {
                 throw new Error(`Worksheet '${sourceSheet}' not found in timekeeping file`)
             }
 
-            const periodLabel = categoryPeriodLabels[category]
+            const periodLabel = labels.categoryPeriodLabels[category]
             const periodSheetCandidates = ['Summary of Timekeep', 'BUDGET UTILIZATION']
             if (category === 'jan') {
                 periodSheetCandidates.push('TARDINESS REPORT')
@@ -2463,7 +2568,7 @@ export async function setupDofBilling(req, res) {
             )
         }
 
-        await setupBillingFile(billingId)
+        await applyDofBillingSetup(billingId, { dateRange, year, month, billingPeriod })
 
         if (timekeepingFiles) {
             for (const [category, fileId] of Object.entries(timekeepingFiles)) {
@@ -2471,10 +2576,6 @@ export async function setupDofBilling(req, res) {
                 await setupTimekeepingFile(fileId, category)
             }
         }
-
-        // Replace {billingPeriod} tokens across the billing workbook. Runs after
-        // the renames above since the helper lists worksheets fresh.
-        await replaceDofPlaceholders(billingId, { [DOF_PLACEHOLDERS.billingPeriod]: billingPeriodLabel })
 
         res.json({ message: 'DOF billing setup complete' })
 
@@ -2518,6 +2619,194 @@ export async function getDofTables(req, res) {
     }
 }
 
+/**
+ * Writes one DOF table target (a timekeeping table or a billing
+ * aggregate table) back to its workbook.
+ *
+ * Formula-protected columns are nulled so Excel recomputes them,
+ * rows flagged `unmatched` are appended via rows/add, duplicate row
+ * indices collapse to a single write, and — with diffWrite — rows
+ * whose current values already match are skipped. The workbook is
+ * saved in one persistChanges session with requests batched 20 at a
+ * time, a 1s pause between chunks and a session refresh every 30s,
+ * followed by a full recalculation.
+ *
+ * Files are saved strictly sequentially. Measured on a 3,884-row
+ * save, running the files concurrently produced 68 FileOpenHost
+ * throttles, pinned the limiter at concurrency 1 and took 2,573s -
+ * worse than the serialized version. The workbook host has a hard
+ * write ceiling that does not self-regulate, so pacing here is
+ * load-bearing, not wasteful.
+ *
+ * @param {string} SITE_ID
+ * @param {{ fileId: string, tableName: string, rows: any[], formulaIndices: number[], dayFormulaIndices: number[] | null }} target
+ * @param {boolean} [diffWrite]
+ * @returns {Promise<{ written: number, unmatchedAdded: number, skipped: number, ms: number }>}
+ */
+async function writeDofTableRows(SITE_ID, target, diffWrite = false) {
+    const { fileId, tableName, rows, formulaIndices, dayFormulaIndices } = target
+    const startedAt = Date.now()
+
+    const createSession = async () => {
+        const session = await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/createSession`,
+            { persistChanges: true }
+        )
+        return session.data.id
+    }
+
+    const refreshSession = async sessionId => {
+        try {
+            await graphRequest(
+                'POST',
+                `/sites/${SITE_ID}/drive/items/${fileId}/workbook/closeSession`,
+                null,
+                { headers: { 'workbook-session-id': sessionId } }
+            )
+        } catch (err) {
+            console.warn('Failed to close expired DOF workbook session:', err?.response?.data || err.message)
+        }
+        return createSession()
+    }
+
+    // Batch ids must be unique: a repeated id makes Graph reject the whole
+    // $batch, which would lose every row in that chunk. Two employees
+    // resolving to the same billing row would otherwise collide here.
+    const seenIds = new Set()
+    let duplicateRequestsCollapsed = 0
+    let unmatchedAdded = 0
+    let skipped = 0
+    const requests = []
+
+    /**
+     * Current on-disk values by row index. Read fresh at save time
+     * rather than reusing the frontend's load-time snapshot: a save
+     * that fails part-way leaves rows written that the snapshot knows
+     * nothing about, and diffing against it would skip those rows and
+     * silently keep the wrong values.
+     *
+     * Null when the read fails, which disables diffing entirely rather
+     * than diffing against a partial map - a row missing from a partial
+     * map would otherwise look unchanged.
+     */
+    let currentRows = null
+    if (diffWrite && rows.length > 0) {
+        try {
+            currentRows = new Map(
+                (await readTableRows(fileId, tableName, SITE_ID)).map(r => [r.index, r.values?.[0] ?? []])
+            )
+        } catch (err) {
+            console.warn('DOF diff baseline read failed; writing every row instead of diffing:', err?.response?.data || err.message)
+            currentRows = null
+        }
+    }
+
+    for (const row of rows) {
+        const protectedIndices = row.type === 'day' && dayFormulaIndices
+            ? dayFormulaIndices
+            : formulaIndices
+        const values = row.values.map((val, i) =>
+            protectedIndices.includes(i) ? null : val
+        )
+
+        // Unmatched employees have no template row; append them instead so
+        // their hours survive into the file for manual reconciliation.
+        if (row.unmatched) {
+            requests.push({
+                id: `${tableName}-unmatched-${unmatchedAdded++}`,
+                method: 'POST',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/tables('${tableName}')/rows/add`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [values] }
+            })
+            continue
+        }
+
+        const id = `${tableName}-${row.index}`
+        if (seenIds.has(id)) {
+            duplicateRequestsCollapsed++
+            continue
+        }
+        seenIds.add(id)
+
+        // Skip the write when the row already holds these values.
+        //
+        // Only compared outside formula-protected indices: those are
+        // nulled above and recomputed by Excel, so the computed side is
+        // meaningless there and would compare unequal every time.
+        //
+        // An index missing from the baseline means "cannot prove it is
+        // unchanged", so it is written - never treat unknown as unchanged.
+        if (currentRows) {
+            const existing = currentRows.get(row.index)
+            const comparable = values.map((val, i) =>
+                protectedIndices.includes(i) ? existing?.[i] ?? null : val
+            )
+            if (existing && valuesEqual(comparable, existing)) {
+                skipped++
+                continue
+            }
+        }
+
+        requests.push({
+            id,
+            method: 'PATCH',
+            url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/tables('${tableName}')/rows/itemAt(index=${row.index})`,
+            headers: { 'Content-Type': 'application/json' },
+            body: { values: [values] }
+        })
+    }
+
+    if (duplicateRequestsCollapsed > 0) {
+        console.warn(`DOF save: collapsed ${duplicateRequestsCollapsed} duplicate row request(s) - two employees resolved to the same billing row`)
+    }
+
+    let sessionId = await createSession()
+    let lastRefresh = Date.now()
+
+    const onRefresh = async () => {
+        sessionId = await refreshSession(sessionId)
+        lastRefresh = Date.now()
+        return sessionId
+    }
+
+    try {
+        for (let i = 0; i < requests.length; i += 20) {
+            if (Date.now() - lastRefresh > 30000) {
+                await onRefresh()
+            }
+
+            const chunk = requests.slice(i, i + 20)
+            await graphBatchRequest(chunk, sessionId, { refreshSession: onRefresh })
+
+            if (i + 20 < requests.length) {
+                await new Promise(r => setTimeout(r, 1000))
+            }
+        }
+
+        await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/application/calculate`,
+            { calculationType: 'Full' },
+            { headers: { 'workbook-session-id': sessionId } }
+        )
+    } finally {
+        try {
+            await graphRequest(
+                'POST',
+                `/sites/${SITE_ID}/drive/items/${fileId}/workbook/closeSession`,
+                null,
+                { headers: { 'workbook-session-id': sessionId } }
+            )
+        } catch (err) {
+            console.warn('Failed to close DOF workbook session:', err?.response?.data || err.message)
+        }
+    }
+
+    return { written: requests.length, unmatchedAdded, skipped, ms: Date.now() - startedAt }
+}
+
 export async function saveDofTables(req, res) {
     try {
         const SITE_ID = process.env.SHAREPOINT_SITE_ID
@@ -2535,208 +2824,32 @@ export async function saveDofTables(req, res) {
             { rows: manBillingRows, tableName: DOF_BILLING_TABLES.man, fileId: billingId, formulaIndices: DOF_BILLING_FORMULA_INDICES.man, dayFormulaIndices: null },
         ]
 
-        const createSession = async fileId => {
-            const session = await graphRequest(
-                'POST',
-                `/sites/${SITE_ID}/drive/items/${fileId}/workbook/createSession`,
-                { persistChanges: true }
-            )
-            return session.data.id
-        }
-
-        const refreshSession = async (fileId, sessionId) => {
-            try {
-                await graphRequest(
-                    'POST',
-                    `/sites/${SITE_ID}/drive/items/${fileId}/workbook/closeSession`,
-                    null,
-                    { headers: { 'workbook-session-id': sessionId } }
-                )
-            } catch (err) {
-                console.warn('Failed to close expired DOF workbook session:', err?.response?.data || err.message)
-            }
-            return createSession(fileId)
-        }
-
-        // Group row writes by target file so each file is saved in one session
-        const requestsByFile = new Map()
-        // Batch ids must be unique: a repeated id makes Graph reject the whole
-        // $batch, which would lose every row in that chunk. Two employees
-        // resolving to the same billing row would otherwise collide here.
-        const seenIds = new Set()
-        let duplicateRequestsCollapsed = 0
         let unmatchedRowsAdded = 0
         let skippedRows = 0
-
-        /**
-         * Current on-disk values per table, keyed `${fileId}::${tableName}` then by
-         * row index. Read fresh at save time rather than reusing the frontend's
-         * load-time snapshot: a save that fails part-way leaves rows written that
-         * the snapshot knows nothing about, and diffing against it would skip
-         * those rows and silently keep the wrong values.
-         *
-         * Null when the read fails, which disables diffing entirely rather than
-         * diffing against a partial map - a row missing from a partial map would
-         * otherwise look unchanged.
-         */
-        let currentState = null
-        if (diffWrite) {
-            const targets = [...new Map(
-                categories
-                    .filter(c => c.fileId && c.rows && c.rows.length > 0)
-                    .map(c => [`${c.fileId}::${c.tableName}`, c])
-            ).values()]
-
-            try {
-                const entries = await Promise.all(
-                    targets.map(async c => [
-                        `${c.fileId}::${c.tableName}`,
-                        new Map((await readTableRows(c.fileId, c.tableName, SITE_ID)).map(r => [r.index, r.values?.[0] ?? []])),
-                    ])
-                )
-                currentState = new Map(entries)
-            } catch (err) {
-                console.warn('DOF diff baseline read failed; writing every row instead of diffing:', err?.response?.data || err.message)
-                currentState = null
-            }
-        }
+        const saveStartedAt = Date.now()
+        const fileTimings = []
 
         for (const category of categories) {
             if (!category.fileId || !category.rows || category.rows.length === 0) {
                 continue
             }
 
-            const tableKey = `${category.fileId}::${category.tableName}`
-            const currentRows = currentState?.get(tableKey) ?? null
-
-            const requests = []
-            for (const row of category.rows) {
-                const protectedIndices = row.type === 'day' && category.dayFormulaIndices
-                    ? category.dayFormulaIndices
-                    : category.formulaIndices
-                const values = row.values.map((val, i) =>
-                    protectedIndices.includes(i) ? null : val
-                )
-
-                // Unmatched employees have no template row; append them instead so
-                // their hours survive into the file for manual reconciliation.
-                if (row.unmatched) {
-                    requests.push({
-                        id: `${category.tableName}-unmatched-${unmatchedRowsAdded++}`,
-                        method: 'POST',
-                        url: `/sites/${SITE_ID}/drive/items/${category.fileId}/workbook/tables('${category.tableName}')/rows/add`,
-                        headers: { 'Content-Type': 'application/json' },
-                        body: { values: [values] }
-                    })
-                    continue
-                }
-
-                const id = `${category.tableName}-${row.index}`
-                if (seenIds.has(id)) {
-                    duplicateRequestsCollapsed++
-                    continue
-                }
-                seenIds.add(id)
-
-                // Skip the write when the row already holds these values.
-                //
-                // Only compared outside formula-protected indices: those are
-                // nulled above and recomputed by Excel, so the computed side is
-                // meaningless there and would compare unequal every time.
-                //
-                // An index missing from the baseline means "cannot prove it is
-                // unchanged", so it is written - never treat unknown as unchanged.
-                if (currentRows) {
-                    const existing = currentRows.get(row.index)
-                    const comparable = values.map((val, i) =>
-                        protectedIndices.includes(i) ? existing?.[i] ?? null : val
-                    )
-                    if (existing && valuesEqual(comparable, existing)) {
-                        skippedRows++
-                        continue
-                    }
-                }
-
-                requests.push({
-                    id,
-                    method: 'PATCH',
-                    url: `/sites/${SITE_ID}/drive/items/${category.fileId}/workbook/tables('${category.tableName}')/rows/itemAt(index=${row.index})`,
-                    headers: { 'Content-Type': 'application/json' },
-                    body: { values: [values] }
-                })
-            }
-
-            const existing = requestsByFile.get(category.fileId) ?? []
-            requestsByFile.set(category.fileId, existing.concat(requests))
+            const result = await writeDofTableRows(SITE_ID, category, diffWrite)
+            unmatchedRowsAdded += result.unmatchedAdded
+            skippedRows += result.skipped
+            fileTimings.push({
+                fileId: category.fileId,
+                tableName: category.tableName,
+                rows: result.written,
+                ms: result.ms,
+            })
         }
 
-        if (duplicateRequestsCollapsed > 0) {
-            console.warn(`DOF save: collapsed ${duplicateRequestsCollapsed} duplicate row request(s) - two employees resolved to the same billing row`)
-        }
-
-        // Files are saved strictly sequentially. Measured on a 3,884-row save,
-        // running the four files concurrently produced 68 FileOpenHost throttles,
-        // pinned the limiter at concurrency 1 and took 2,573s - worse than the
-        // serialized version. The workbook host has a hard write ceiling that
-        // does not self-regulate, so pacing here is load-bearing, not wasteful.
-        const saveStartedAt = Date.now()
-        const fileTimings = []
-
-        for (const [fileId, requests] of requestsByFile) {
-            const fileStartedAt = Date.now()
-            let sessionId = await createSession(fileId)
-            let lastRefresh = Date.now()
-
-            const onRefresh = async () => {
-                sessionId = await refreshSession(fileId, sessionId)
-                lastRefresh = Date.now()
-                return sessionId
-            }
-
-            try {
-                for (let i = 0; i < requests.length; i += 20) {
-                    if (Date.now() - lastRefresh > 30000) {
-                        await onRefresh()
-                    }
-
-                    const chunk = requests.slice(i, i + 20)
-                    await graphBatchRequest(chunk, sessionId, { refreshSession: onRefresh })
-
-                    if (i + 20 < requests.length) {
-                        await new Promise(r => setTimeout(r, 1000))
-                    }
-                }
-
-                await graphRequest(
-                    'POST',
-                    `/sites/${SITE_ID}/drive/items/${fileId}/workbook/application/calculate`,
-                    { calculationType: 'Full' },
-                    { headers: { 'workbook-session-id': sessionId } }
-                )
-
-                fileTimings.push({
-                    fileId,
-                    rows: requests.length,
-                    chunks: Math.ceil(requests.length / 20),
-                    ms: Date.now() - fileStartedAt,
-                })
-            } finally {
-                try {
-                    await graphRequest(
-                        'POST',
-                        `/sites/${SITE_ID}/drive/items/${fileId}/workbook/closeSession`,
-                        null,
-                        { headers: { 'workbook-session-id': sessionId } }
-                    )
-                } catch (err) {
-                    console.warn('Failed to close DOF workbook session:', err?.response?.data || err.message)
-                }
-            }
-        }
+        const totalWritten = fileTimings.reduce((n, t) => n + t.rows, 0)
 
         console.info(
-            `DOF save: ${[...requestsByFile.values()].reduce((n, r) => n + r.length, 0)} row(s) across ${requestsByFile.size} file(s) in ${Date.now() - saveStartedAt}ms; ` +
-            `written: ${[...requestsByFile.values()].reduce((n, r) => n + r.length, 0)}, skipped unchanged: ${skippedRows}${diffWrite ? '' : ' (diff off)'}; ` +
+            `DOF save: ${totalWritten} row(s) across ${new Set(fileTimings.map(t => t.fileId)).size} file(s) in ${Date.now() - saveStartedAt}ms; ` +
+            `written: ${totalWritten}, skipped unchanged: ${skippedRows}${diffWrite ? '' : ' (diff off)'}; ` +
             `per-file: ${JSON.stringify(fileTimings)}`
         )
 
@@ -2752,6 +2865,202 @@ export async function saveDofTables(req, res) {
             message: 'Failed to save DOF billing data',
             // Surface the failing request ids so a rejected batch (e.g. duplicate
             // or out-of-range row index) can be traced instead of guessed at.
+            failedRequests: err?.failedRequests ?? null,
+        })
+    }
+}
+
+/**
+ * Parses a DOF billing file name
+ * ({CODE}-BILLING-{Month} {start}-{end}, {year}-{HHMMSS}.xlsm)
+ * into its period parts. Returns the raw label even when the
+ * label itself cannot be parsed, so callers can still compare
+ * labels as strings. Returns null when the name is not a DOF
+ * billing draft at all.
+ */
+function parseDofBillingFileName(name) {
+    const match = String(name ?? '').match(/^(.*)-BILLING-(.+)-[^-]+\.xlsm$/)
+    if (!match) return null
+
+    const labelMatch = match[2].match(/^([A-Za-z]+) (\d{1,2})-(\d{1,2}), (\d{4})$/)
+    if (!labelMatch) return { code: match[1], label: match[2], period: null }
+
+    return {
+        code: match[1],
+        label: match[2],
+        period: {
+            month: labelMatch[1],
+            period: `${labelMatch[2]}-${labelMatch[3]}`,
+            year: labelMatch[4],
+        },
+    }
+}
+
+/**
+ * Parses a DOF timekeeping file name
+ * ({PREFIX}-{Month}-{start}-{end}-{year}-{HHMMSS}.xlsx, e.g.
+ * A_JAN-October-1-15-2025-143022.xlsx) into its period parts.
+ * The prefix identifies the category (A_JAN/B_OMS/C_MAN).
+ * Returns null when the name is not a DOF timekeeping draft.
+ */
+function parseDofTimekeepingFileName(name) {
+    const match = String(name ?? '').match(
+        /^(A_JAN|B_OMS|C_MAN)-([A-Za-z]+)-(\d{1,2})-(\d{1,2})-(\d{4})-\d+\.xlsx$/
+    )
+    if (!match) return null
+
+    return {
+        prefix: match[1],
+        month: match[2],
+        period: `${match[3]}-${match[4]}`,
+        year: match[5],
+    }
+}
+
+/** Fetches a drive item's metadata (name, webUrl, ...) by id. */
+async function getDofDriveItem(fileId) {
+    const SITE_ID = process.env.SHAREPOINT_SITE_ID
+    const response = await graphRequest(
+        'GET',
+        `/sites/${SITE_ID}/drive/items/${fileId}`
+    )
+    return response.data
+}
+
+/**
+ * Resolves the billing file that owns the requested billing
+ * period.
+ *
+ * The current billing file is kept when its period - parsed from
+ * its period-stamped file name - matches the requested one.
+ * Otherwise the newest existing draft for that period is reused,
+ * and only when no draft exists yet is a new billing file
+ * generated (template copy plus full setup: sheet renames,
+ * period labels, {billingPeriod} token replacement).
+ *
+ * @param {{ code: string, currentBillingId: string, dateRange: { label: string }, year: number, month: string, billingPeriod: string }} args
+ * @returns {Promise<{ documentId: string, editUrl: string, fileName: string, created: boolean }>}
+ */
+async function resolveDofBillingFile({ code, currentBillingId, dateRange, year, month, billingPeriod }) {
+    const SITE_ID = process.env.SHAREPOINT_SITE_ID
+
+    const samePeriod = (a, b) =>
+        a && b &&
+        a.month.toLowerCase() === b.month.toLowerCase() &&
+        a.period === b.period &&
+        a.year === String(b.year)
+
+    const wanted = { month, period: billingPeriod, year }
+
+    const currentItem = await getDofDriveItem(currentBillingId)
+    const parsed = parseDofBillingFileName(currentItem?.name)
+
+    if (samePeriod(parsed?.period, wanted) || parsed?.label === dateRange.label) {
+        return { documentId: currentBillingId, editUrl: currentItem.webUrl, fileName: currentItem.name, created: false }
+    }
+
+    const children = await graphRequest(
+        'GET',
+        `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts/${code}:/children`
+    )
+
+    const prefix = `${code.toUpperCase()}-BILLING-${dateRange.label}-`
+    const existing = children.data.value
+        .filter(f => f.name.startsWith(prefix))
+        .sort((a, b) => new Date(b.lastModifiedDateTime) - new Date(a.lastModifiedDateTime))[0]
+
+    if (existing) {
+        return { documentId: existing.id, editUrl: existing.webUrl, fileName: existing.name, created: false }
+    }
+
+    const billing = await copyDofBillingTemplate(code, dateRange)
+    await applyDofBillingSetup(billing.documentId, { dateRange, year, month, billingPeriod })
+
+    return { ...billing, created: true }
+}
+
+const DOF_CATEGORIES = ['jan', 'oms', 'man']
+
+/**
+ * Saves ONE DOF timekeeping category (jan, oms or man): the
+ * category's rows to its timekeeping workbook, and the
+ * category's billing aggregates to the billing file that owns
+ * the requested billing period - generating (or reusing) a
+ * billing file for that period when the current billing file
+ * was generated for a different one.
+ */
+export async function saveDofCategoryTables(req, res) {
+    try {
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+        const { fileId, category } = req.params
+        const {
+            rows, billingRows, timekeepingFileId, code,
+            dateRange, year, month, billingPeriod, diffWrite,
+        } = req.body
+
+        if (!DOF_CATEGORIES.includes(category)) {
+            return res.status(400).json({ message: `Unknown DOF category: ${category}` })
+        }
+
+        if (Array.isArray(rows) && rows.length > 0 && !timekeepingFileId) {
+            return res.status(400).json({ message: 'timekeepingFileId is required when timekeeping rows are present' })
+        }
+
+        if (Array.isArray(billingRows) && billingRows.length > 0 && (!dateRange?.label || !year || !month || !billingPeriod)) {
+            return res.status(400).json({ message: 'dateRange, year, month and billingPeriod are required when billing rows are present' })
+        }
+
+        let unmatchedRowsAdded = 0
+        let skippedRows = 0
+        let billingFile = null
+
+        // Timekeeping rows first, then the billing aggregates - the
+        // same file order the combined save used.
+        if (Array.isArray(rows) && rows.length > 0) {
+            const result = await writeDofTableRows(SITE_ID, {
+                fileId: timekeepingFileId,
+                tableName: DOF_TABLES[category],
+                rows,
+                formulaIndices: DOF_FORMULA_INDICES[category],
+                dayFormulaIndices: DOF_DAY_FORMULA_INDICES[category],
+            }, diffWrite)
+            unmatchedRowsAdded += result.unmatchedAdded
+            skippedRows += result.skipped
+        }
+
+        if (Array.isArray(billingRows) && billingRows.length > 0) {
+            billingFile = await resolveDofBillingFile({
+                code: code || 'DOF',
+                currentBillingId: fileId,
+                dateRange, year, month, billingPeriod,
+            })
+
+            const result = await writeDofTableRows(SITE_ID, {
+                fileId: billingFile.documentId,
+                tableName: DOF_BILLING_TABLES[category],
+                rows: billingRows,
+                formulaIndices: DOF_BILLING_FORMULA_INDICES[category],
+                dayFormulaIndices: null,
+            }, diffWrite)
+            unmatchedRowsAdded += result.unmatchedAdded
+            skippedRows += result.skipped
+        }
+
+        res.json({
+            message: `${category.toUpperCase()} timekeeping data saved successfully`,
+            ...(billingFile ? { billingFile: { documentId: billingFile.documentId, editUrl: billingFile.editUrl, fileName: billingFile.fileName } } : {}),
+            ...(billingFile?.created ? { billingFileCreated: true } : {}),
+            ...(unmatchedRowsAdded > 0 ? { unmatchedRowsAdded } : {}),
+            ...(skippedRows > 0 ? { skippedRows } : {}),
+        })
+
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({
+            message: `Failed to save DOF ${req.params.category} timekeeping data`,
+            // Surface the failing request ids so a rejected batch (e.g.
+            // duplicate or out-of-range row index) can be traced instead
+            // of guessed at.
             failedRequests: err?.failedRequests ?? null,
         })
     }
