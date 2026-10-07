@@ -862,3 +862,12 @@
   "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:155.0) Gecko/20100101 Firefox/155.0",
   "userId": "695f4b3fc9882594236f3394"
 }
+2026-10-05 11:08:21 [warn]: HTTP Request {
+  "method": "PATCH",
+  "path": "/editor/dof/01O6RSSIZEYPBPRPK7PFGYYYDL6PLYOUTT/tables",
+  "status": 500,
+  "duration": "2573466ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:156.0) Gecko/20100101 Firefox/156.0",
+  "userId": "695f4b3fc9882594236f3394"
+}

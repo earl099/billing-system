@@ -287,7 +287,7 @@
                                   <mat-form-field appearance="outline">
                                     <mat-label>Type</mat-label>
                                     <mat-select [(ngModel)]="ot.type">
-                                      @for (type of ['Regular OT', 'Regular Rest Day OT', 'Special Holiday OT', 'Special Holiday Excess OT', 'Legal Holiday OT', 'Legal Holiday Excess OT']; track type) {
+                                      @for (type of overtimeTypesFor(category.key); track type) {
                                         <mat-option [value]="type">{{ type }}</mat-option>
                                       }
                                     </mat-select>
@@ -310,7 +310,7 @@
                           }
                         </div>
 
-                        @if (category.key !== 'man') {
+                        @if (nightDifferentialTypesFor(category.key).length > 0) {
                           <div class="section">
                             <h4 class="section-title">Night Differential</h4>
                             <mat-checkbox [(ngModel)]="emp.hasNightDifferential">
@@ -324,7 +324,7 @@
                                     <mat-form-field appearance="outline">
                                       <mat-label>Type</mat-label>
                                       <mat-select [(ngModel)]="nd.type">
-                                        @for (type of ['Night Differential', 'Night Differential Overtime', 'Night Differential Rest Day Overtime', 'Night Differential Special Holiday Overtime', 'Night Differential Special Holiday Overtime Excess', 'Night Differential Legal Holiday Overtime', 'Night Differential Legal Holiday Overtime Excess']; track type) {
+                                        @for (type of nightDifferentialTypesFor(category.key); track type) {
                                           <mat-option [value]="type">{{ type }}</mat-option>
                                         }
                                       </mat-select>
@@ -362,6 +362,25 @@
               </mat-tab>
             }
           </mat-tab-group>
+
+          @if (unmatchedEmployees().length > 0) {
+            <div class="unmatched-panel" role="alert">
+              <div class="unmatched-head">
+                <strong>{{ unmatchedEmployees().length }} employee(s) had no row in the billing template.</strong>
+                <button mat-button (click)="dismissUnmatched()">Dismiss</button>
+              </div>
+              <p class="unmatched-note">
+                Their hours were appended to the billing sheet as rows marked
+                <code>UNMATCHED</code>. Add them to the template (or correct the employee
+                details) and regenerate to fold them into the right rows.
+              </p>
+              <ul class="unmatched-list">
+                @for (entry of unmatchedEmployees(); track entry) {
+                  <li>{{ entry }}</li>
+                }
+              </ul>
+            </div>
+          }
 
           <div class="actions">
             <button mat-raised-button color="primary" (click)="saveTimekeeperData()">Save Timekeeper Data</button>

@@ -58,6 +58,11 @@ export interface DofTableRow {
 export interface DofBillingTableRow {
   index: number
   values: any[]
+  /**
+   * Set when the employee had no row in the template's billing table. The backend
+   * appends these via rows/add so their hours are not lost, flagged for review.
+   */
+  unmatched?: boolean
 }
 
 export interface DofBillingDraft {
@@ -75,6 +80,13 @@ interface SaveTablesPayload {
   omsBillingRows: DofBillingTableRow[]
   manBillingRows: DofBillingTableRow[]
   timekeepingFiles: { jan: string; oms: string; man: string }
+  /**
+   * When true the backend compares each row against the workbook's current values
+   * and skips rows that already match, instead of rewriting every row. Opt-in and
+   * off by default; the backend reads the live table state rather than trusting a
+   * client-side snapshot, so it stays correct after a failed save.
+   */
+  diffWrite?: boolean
 }
 
 interface SignatoryInput {
