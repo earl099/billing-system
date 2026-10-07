@@ -4,7 +4,7 @@
  * Redirects already-authenticated users to dashboard.
  */
 
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { Router, RouterLink } from '@angular/router';
@@ -34,6 +34,7 @@ export class Signup implements OnInit {
   router = inject(Router)
 
   clients = signal<ClientDTO[]>([])
+  clientSearch = signal('')
 
   form = this.fb.group({
     name: ['', [Validators.required, Validators.maxLength(100)]],
@@ -45,6 +46,13 @@ export class Signup implements OnInit {
 
   loading = signal(false)
   error = signal<string | null>(null)
+
+  readonly filteredClients = computed(() => {
+    const search = this.clientSearch().trim().toLowerCase()
+    return this.clients().filter((client) =>
+      !search || `${client.code} ${client.name}`.toLowerCase().includes(search)
+    )
+  })
 
   /** Redirects to dashboard if user already has a valid token, otherwise loads selectable clients */
   async ngOnInit() {
@@ -99,5 +107,53 @@ export class Signup implements OnInit {
     } finally {
       this.loading.set(false)
     }
+  }
+
+  /** Updates the visible client options without changing the selected clients. */
+  updateClientSearch(event: Event): void {
+    if (event.target instanceof HTMLInputElement) {
+      this.clientSearch.set(event.target.value)
+    }
+  }
+
+  /** Returns the currently selected client ids from the registration form. */
+  selectedClientIds(): string[] {
+    return this.form.controls.handledClients.value ?? []
+  }
+
+  /** Reports whether a valid client is currently selected. */
+  isClientSelected(clientId: string | undefined): boolean {
+    return clientId !== undefined && this.selectedClientIds().includes(clientId)
+  }
+
+  /** Selects or removes one client from the registration form. */
+  toggleClient(clientId: string | undefined, selected: boolean): void {
+    if (!clientId) {
+      return
+    }
+    const current = this.selectedClientIds()
+    const next = selected
+      ? [...new Set([...current, clientId])]
+      : current.filter((id) => id !== clientId)
+
+    this.form.controls.handledClients.setValue(next)
+    this.form.controls.handledClients.markAsTouched()
+  }
+
+  /** Applies a checkbox change to the selected clients. */
+  updateClientSelection(clientId: string | undefined, event: Event): void {
+    if (event.target instanceof HTMLInputElement) {
+      this.toggleClient(clientId, event.target.checked)
+    }
+  }
+
+  /** Selects every available client, or clears the current selection. */
+  toggleAllClients(): void {
+    const allClientIds = this.clients()
+      .map((client) => client._id)
+      .filter((id): id is string => Boolean(id))
+    const hasEveryClient = allClientIds.length > 0 && allClientIds.every((id) => this.selectedClientIds().includes(id))
+    this.form.controls.handledClients.setValue(hasEveryClient ? [] : allClientIds)
+    this.form.controls.handledClients.markAsTouched()
   }
 }

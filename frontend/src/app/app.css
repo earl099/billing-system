@@ -48,3 +48,188 @@ mat-toolbar {
 mat-sidenav {
   border-right: 1px solid var(--mat-sys-outline-variant);
 }
+
+/* Guest navigation: a compact branded drawer for visitors who are not signed in. */
+.guest-nav {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  padding: 1.25rem 0.75rem;
+  background: var(--mat-sys-surface);
+}
+
+.guest-nav__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem 1.5rem;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+}
+
+.guest-nav__mark {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border-radius: 0.75rem;
+  color: #07334a;
+  background: #58d8eb;
+}
+
+.guest-nav__mark .mat-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  font-size: 1.25rem;
+}
+
+.guest-nav__eyebrow,
+.guest-nav__label {
+  display: block;
+  margin: 0;
+  color: #21b9d2;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.guest-nav__brand h2 {
+  margin: 0.125rem 0 0;
+  color: var(--mat-sys-on-surface);
+  font-size: 1rem;
+  font-weight: 750;
+}
+
+.guest-nav__label {
+  padding: 1.5rem 0.75rem 0.5rem;
+}
+
+.guest-nav nav {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.guest-nav__link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 3rem;
+  padding: 0 0.75rem;
+  border: 1px solid transparent;
+  border-radius: 0.625rem;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.9375rem;
+  font-weight: 650;
+  text-decoration: none;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.guest-nav__link .mat-icon {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.guest-nav__link:hover {
+  background: var(--mat-sys-surface-variant);
+  color: var(--mat-sys-on-surface);
+}
+
+.guest-nav__link:focus-visible {
+  outline: 3px solid #58d8eb;
+  outline-offset: 2px;
+}
+
+.guest-nav__link--active {
+  border-color: color-mix(in srgb, #21b9d2 45%, var(--mat-sys-outline-variant));
+  color: var(--mat-sys-on-surface);
+  background: color-mix(in srgb, #21b9d2 16%, var(--mat-sys-surface));
+}
+
+.guest-nav__link--active .mat-icon {
+  color: #21b9d2;
+}
+
+.guest-nav__help {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  margin: auto 0.25rem 0;
+  padding: 0.875rem;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 0.75rem;
+  color: var(--mat-sys-on-surface-variant);
+  background: var(--mat-sys-surface-variant);
+}
+
+.guest-nav__help .mat-icon {
+  flex: 0 0 auto;
+  color: #21b9d2;
+  font-size: 1.125rem;
+}
+
+.guest-nav__help p {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+/* MatMenu is rendered in the overlay container, so these selectors intentionally cross component encapsulation. */
+::ng-deep .user-menu.mat-mdc-menu-panel {
+  min-width: 17rem;
+  overflow: hidden;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 0.875rem;
+  background: var(--mat-sys-surface);
+  box-shadow: 0 1rem 2.5rem rgb(0 0 0 / 18%);
+}
+
+::ng-deep .user-menu .mat-mdc-menu-content {
+  padding: 0.5rem;
+}
+
+::ng-deep .user-menu__summary {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: -0.5rem -0.5rem 0.5rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  background: color-mix(in srgb, #21b9d2 10%, var(--mat-sys-surface));
+}
+
+::ng-deep .user-menu__summary > .mat-icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  color: #21b9d2;
+  font-size: 2.25rem;
+}
+
+::ng-deep .user-menu__summary strong,
+::ng-deep .user-menu__summary span {
+  display: block;
+}
+
+::ng-deep .user-menu__summary strong {
+  color: var(--mat-sys-on-surface);
+  font-size: 0.875rem;
+}
+
+::ng-deep .user-menu__summary span {
+  margin-top: 0.15rem;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.75rem;
+}
+
+::ng-deep .user-menu .mat-mdc-menu-item {
+  min-height: 2.75rem;
+  border-radius: 0.5rem;
+  color: var(--mat-sys-on-surface);
+  font-size: 0.875rem;
+}
+
+::ng-deep .user-menu .mat-mdc-menu-item:hover {
+  background: var(--mat-sys-surface-variant);
+}
+
+::ng-deep .user-menu .mat-mdc-menu-item .mat-icon {
+  color: #21b9d2;
+}

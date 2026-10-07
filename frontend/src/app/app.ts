@@ -13,9 +13,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { ClientDTO } from '@models/client';
 import { LogDTO } from '@models/log';
 import { Auth } from '@services/auth';
@@ -40,14 +40,15 @@ interface MenuItem {
     RouterOutlet,
     NgxSonnerToaster,
     RouterLink,
-    MatSlideToggleModule,
+    RouterLinkActive,
     MatToolbarModule,
     MatSidenavModule,
     MatListModule,
     MatIconModule,
     MatExpansionModule,
     MatButtonModule,
-    MatMenuModule
+    MatMenuModule,
+    MatTooltipModule
   ],
   templateUrl: './app.html',
   changeDetection: ChangeDetectionStrategy.Eager,

@@ -1,48 +1,52 @@
-<section class="w-full bg-gray-50 py-16 sm:py-24 px-4 sm:px-6 hero-animate">
-  <div class="max-w-5xl mx-auto text-center">
-    <h1 class="text-4xl sm:text-5xl font-bold text-gray-800 mb-4 sm:mb-6">
-      Welcome to LBS
-    </h1>
+<section class="home-page hero-animate" aria-labelledby="home-title">
+  <div class="hero-panel">
+    <div class="hero-copy">
+      <p class="eyebrow">LBRDC Billing System</p>
+      <h1 id="home-title">Billing operations,<br /><span>made easier.</span></h1>
+      <p class="hero-description">
+        A secure workspace for managing clients, billing rates, and documents without losing track of the details.
+      </p>
 
-    <p class="text-lg text-gray-600 mb-6 sm:mb-8">Where billing is made easier.</p>
+      <div class="hero-actions">
+        <a mat-flat-button routerLink="/login" class="primary-action">Sign in <mat-icon>arrow_forward</mat-icon></a>
+        <a mat-stroked-button routerLink="/signup" class="secondary-action">Create an account</a>
+      </div>
+    </div>
+
+    <div class="hero-visual" aria-hidden="true">
+      <div class="visual-header"><span></span><span></span><span></span></div>
+      <div class="visual-content">
+        <div class="visual-title"><span class="visual-icon"><mat-icon>receipt_long</mat-icon></span><div><b>Billing overview</b><small>Organized and ready</small></div></div>
+        <div class="visual-lines"><span></span><span></span><span></span></div>
+        <div class="visual-stats"><div><strong>Clients</strong><span>Manage records</span></div><div><strong>Rates</strong><span>Configure billing</span></div></div>
+      </div>
+      <div class="visual-badge"><mat-icon>verified_user</mat-icon> Secure workspace</div>
+    </div>
   </div>
 
-  <div class="flex flex-col sm:flex-row justify-center gap-4">
-    <button
-      mat-raised-button
-      color="primary"
-      routerLink="/signup"
-      class="px-6 py-2.5 text-base sm:px-8 sm:py-3 sm:text-lg motion-smooth"
-    >
-      Sign up
-    </button>
+  <section class="feature-section" aria-labelledby="features-title">
+    <div class="section-heading">
+      <p class="eyebrow">Everything in one place</p>
+      <h2 id="features-title">Built for billing teams</h2>
+      <p>Simple tools for the daily work that keeps billing accurate and moving.</p>
+    </div>
 
-    <button
-      mat-raised-button
-      color="primary"
-      routerLink="/login"
-      class="px-6 py-2.5 text-base sm:px-8 sm:py-3 sm:text-lg motion-smooth"
-    >
-      Login
-    </button>
-  </div>
-</section>
-
-<section class="py-16 sm:py-20 px-4 sm:px-6">
-  <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
-    <mat-card class="p-4 sm:p-6 card-animate motion-smooth">
-      <h3 class="text-xl font-semibold mb-4">Fast</h3>
-      <p class="text-gray-500">Experience blazing-fast loading with Angular 21.</p>
-    </mat-card>
-
-    <mat-card class="p-4 sm:p-6 card-animate motion-smooth delay-200">
-      <h3 class="text-xl font-semibold mb-4">Secure</h3>
-      <p class="text-gray-500">Robust JWT authentication and role-based access.</p>
-    </mat-card>
-
-    <mat-card class="p-4 sm:p-6 card-animate motion-smooth delay-300">
-      <h3 class="text-xl font-semibold mb-4">Modern</h3>
-      <p class="text-gray-500">Tailwind + Material UI with clean minimalist styling.</p>
-    </mat-card>
-  </div>
+    <div class="feature-grid">
+      <article class="feature-card card-animate">
+        <span class="feature-icon"><mat-icon>groups</mat-icon></span>
+        <h3>Client management</h3>
+        <p>Keep client records organized and easy to find when you need them.</p>
+      </article>
+      <article class="feature-card card-animate delay-200">
+        <span class="feature-icon"><mat-icon>request_quote</mat-icon></span>
+        <h3>Rates and billing</h3>
+        <p>Set billing rates and produce the documents your operations require.</p>
+      </article>
+      <article class="feature-card card-animate delay-300">
+        <span class="feature-icon"><mat-icon>lock</mat-icon></span>
+        <h3>Protected access</h3>
+        <p>Role-based access helps the right people work with the right information.</p>
+      </article>
+    </div>
+  </section>
 </section>

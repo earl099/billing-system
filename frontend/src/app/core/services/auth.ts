@@ -5,9 +5,9 @@
 
 import { inject, Injectable, signal } from '@angular/core';
 import { UserAuthDTO, UserDTO } from '@models/user';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { environment } from '@env/environment.prod';
+import { environment } from '@env/environment';
 import { Router } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
 
@@ -49,8 +49,22 @@ export class Auth {
       localStorage.setItem(this.tokenKey, res.token)
       localStorage.setItem(this.user, res.user.name)
       return res
-    } catch (error) {
-      throw new Error(`Login failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    } catch (error: unknown) {
+      if (error instanceof HttpErrorResponse) {
+        if (error.status === 400 || error.status === 401) {
+          throw new Error('Incorrect username, email, or password.')
+        }
+
+        if (error.status === 0) {
+          throw new Error('Cannot reach the server. Please try again in a moment.')
+        }
+
+        if (error.status === 429) {
+          throw new Error('Too many sign-in attempts. Please wait a moment and try again.')
+        }
+      }
+
+      throw new Error('Unable to sign in right now. Please try again.')
     }
   }
 

@@ -5,7 +5,7 @@
  * Logs successful login operations for audit trail.
  */
 
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
@@ -37,8 +37,8 @@ export class Login {
     password: ['', Validators.required]
   })
 
-  loading = false
-  error: string | null = null
+  loading = signal(false)
+  error = signal<string | null>(null)
 
   /** Redirects to dashboard if user already has a valid token */
   ngOnInit() {
@@ -50,13 +50,13 @@ export class Login {
   /** Submits login credentials, stores JWT token, and logs the operation */
   async submit() {
     if (this.form.invalid) return
-    this.loading = true
-    this.error = null
+    this.loading.set(true)
+    this.error.set(null)
 
     const { identifier, password } = this.form.value
     if (!identifier || !password) {
-      this.error = 'Please fill in all fields'
-      this.loading = false
+      this.error.set('Please fill in all fields')
+      this.loading.set(false)
       return
     }
 
@@ -69,16 +69,18 @@ export class Login {
         operation: 'Logged In'
       }
 
-      await this.logService.create(logObject)
+      // Audit logging must not delay a successful sign-in or leave the form loading.
+      void this.logService.create(logObject).catch((error) => {
+        console.error('Unable to record login audit event:', error)
+      })
 
-      this.router.navigate(['/dashboard'])
+      await this.router.navigate(['/dashboard'])
       toast.success('Logged in successfully.')
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : 'Login failed'
-      this.error = `Error: ${errorMessage}`
-      toast.error(this.error)
+      this.error.set(errorMessage)
     } finally {
-      this.loading = false
+      this.loading.set(false)
     }
   }
 }
