@@ -36,6 +36,7 @@ export class List implements OnInit, OnDestroy {
   router = inject(Router)
 
   clients = signal<any[]>([])
+  loading = signal(true)
   searchInput = signal('')
   searchQuery = signal('')
   currentPage = signal(1)
@@ -84,12 +85,15 @@ export class List implements OnInit, OnDestroy {
 
   /** Fetches all clients from the API */
   async load() {
+    this.loading.set(true)
     try {
       const clientList = await this.clientService.list()
       this.clients.set(clientList)
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : 'Failed to load clients'
       toast.error(errorMessage)
+    } finally {
+      this.loading.set(false)
     }
   }
 
@@ -112,13 +116,23 @@ export class List implements OnInit, OnDestroy {
   }
 
   /** Deletes a client with confirmation and audit logging */
-  async delete(c: any) {
+  pendingDeletion = signal<any | null>(null)
+  deleting = signal(false)
+
+  requestDelete(c: any) {
     if (!c?._id) {
       toast.error('Invalid client record')
       return
     }
-    if(!confirm('Are you sure you want to delete this Client? This action is permanent.')) return;
-    
+    this.pendingDeletion.set(c)
+  }
+
+  cancelDelete() { if (!this.deleting()) this.pendingDeletion.set(null) }
+
+  async confirmDelete() {
+    const c = this.pendingDeletion()
+    if (!c?._id || this.deleting()) return
+    this.deleting.set(true)
     try {
       await this.clientService.delete(c._id)
       toast.success('Client deleted successfully')
@@ -129,10 +143,13 @@ export class List implements OnInit, OnDestroy {
       }
 
       await this.logService.create(log)
+      this.pendingDeletion.set(null)
       await this.load()
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : 'Failed to delete client'
       toast.error(errorMessage)
+    } finally {
+      this.deleting.set(false)
     }
   }
 

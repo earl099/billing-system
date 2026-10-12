@@ -348,3 +348,70 @@ mat-tab-group {
   overflow-y: auto;
   font-size: 0.875rem;
 }
+
+.dof-workspace { max-width: 72rem; margin: 0 auto; color: #173a63; }.dof-workspace__header { display: flex; align-items: end; justify-content: space-between; gap: 1.5rem; margin-bottom: 1.5rem; }.dof-workspace__eyebrow { margin: 0 0 .375rem; color: #2187a7; font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }.dof-workspace h1 { margin: 0; color: #102f53; font-size: clamp(2rem, 4vw, 2.5rem); font-weight: 750; line-height: 1.15; letter-spacing: -.04em; }.dof-workspace__header p:not(.dof-workspace__eyebrow) { margin: .5rem 0 0; color: #58708c; font-size: .9375rem; line-height: 1.5; }.dof-workspace__header button { min-height: 2.875rem; border-color: #8fb0cb; border-radius: .625rem; color: #1b5b82; font-weight: 700; }.dof-panel { overflow: hidden; border: 1px solid #d7e3ef; border-radius: .875rem; background: #fff; box-shadow: 0 .375rem 1.5rem rgb(18 59 104 / 7%); }.dof-panel mat-card-header { padding: 1.25rem; border-bottom: 1px solid #d7e3ef; background: #f6faff; }.dof-panel mat-card-content { display: block; padding: 1.25rem; }.dof-panel mat-card-title { color: #173a63; font-size: 1.125rem; font-weight: 700; }.dof-panel--setup { width: min(100%, 48rem); }.dof-panel--setup .form-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin: 0; }.dof-panel--setup .form-row mat-form-field { min-width: 0; width: 100%; }.period-display { display: grid; gap: .2rem; margin: 1.25rem 0; padding: .875rem 1rem; border-radius: .625rem; color: #315f80; background: #eaf5fa; }.period-display span { font-size: .75rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }.period-display strong { color: #173a63; font-size: .9375rem; }.dof-panel .actions { padding-top: 1.25rem; border-top: 1px solid #d7e3ef; }.dof-panel .actions button[mat-raised-button] { min-height: 2.625rem; border-radius: .625rem; color: #083047 !important; background: #36bcd2 !important; font-weight: 700; box-shadow: none; }.dof-panel .actions button:not([mat-raised-button]) { border-color: #8fb0cb; border-radius: .625rem; color: #1b5b82; font-weight: 700; }.loading-state { width: min(100%, 32rem); min-height: 10rem; margin: 0; border: 1px solid #d7e3ef; border-radius: .875rem; background: #fff; box-shadow: 0 .375rem 1.5rem rgb(18 59 104 / 7%); }.entry-view-toggle .active-view { border-color: #36bcd2; color: #1b5b82; background: #eaf5fa; }
+:host-context(html.dark) .dof-workspace { color: #dbe9f3; }:host-context(html.dark) .dof-workspace h1, :host-context(html.dark) .dof-panel mat-card-title, :host-context(html.dark) .period-display strong { color: #f1f7fb; }:host-context(html.dark) .dof-workspace__eyebrow { color: #55d3e5; }:host-context(html.dark) .dof-workspace__header p:not(.dof-workspace__eyebrow) { color: #aac0d1; }:host-context(html.dark) .dof-workspace__header button, :host-context(html.dark) .dof-panel .actions button:not([mat-raised-button]) { border-color: #365973; color: #b9d8e9; }:host-context(html.dark) .dof-panel, :host-context(html.dark) .loading-state { border-color: #315168; background: #152536; box-shadow: 0 .5rem 1.5rem rgb(0 0 0 / 18%); }:host-context(html.dark) .dof-panel mat-card-header { border-color: #315168; background: #102131; }:host-context(html.dark) .period-display { color: #c2d7e5; background: #203c51; }:host-context(html.dark) .period-display strong { color: #f1f7fb; }:host-context(html.dark) .dof-panel .actions { border-color: #315168; }:host-context(html.dark) .dof-panel .actions button[mat-raised-button] { color: #072c40 !important; background: #55d3e5 !important; }:host-context(html.dark) .entry-view-toggle .active-view { border-color: #53bdd0; color: #b9d8e9; background: #203c51; }
+@media (max-width: 42rem) { .dof-workspace__header { align-items: stretch; flex-direction: column; }.dof-workspace__header button, .dof-panel .actions button { width: 100%; justify-content: center; }.dof-panel--setup .form-row { grid-template-columns: 1fr; }.dof-panel .actions { flex-direction: column; } }
+
+/* Timekeeper entry screen: visual-only treatment for the existing tabs and employee panels. */
+.dof-panel--timekeeping { width: 100%; }
+.dof-panel--timekeeping .category-panel { padding: 1.5rem 0 0; }
+.dof-panel--timekeeping .category-title { margin: 0 0 1rem; color: #173a63; font-size: 1.125rem; line-height: 1.35; }
+.dof-panel--timekeeping .entry-view-toggle { gap: .75rem; margin: 0 0 1rem; }
+.dof-panel--timekeeping .entry-view-toggle button { min-height: 2.5rem; border-radius: .625rem; font-weight: 700; }
+.dof-panel--timekeeping .category-actions { margin: 0 0 1rem; }
+.dof-panel--timekeeping .category-actions button { min-height: 2.625rem; border-radius: .625rem; color: #083047; background: #36bcd2; font-weight: 700; box-shadow: none; }
+.dof-panel--timekeeping .grid-help { margin: 0 0 1rem; padding: .75rem 1rem; border-left: .25rem solid #36bcd2; border-radius: 0 .5rem .5rem 0; color: #58708c; background: #f6faff; }
+:host ::ng-deep .timekeeping-tabs .mat-mdc-tab-header { margin: 0 -1.25rem; padding: 0 1.25rem; border-bottom: 1px solid #d7e3ef; }
+:host ::ng-deep .timekeeping-tabs .mat-mdc-tab { min-width: 7.5rem; font-weight: 700; }
+:host ::ng-deep .timekeeping-tabs .mat-mdc-tab .mdc-tab__text-label { color: #315f80; font-size: .8125rem; }
+:host ::ng-deep .timekeeping-tabs .mat-expansion-panel { margin: 0 0 .75rem; overflow: hidden; border: 1px solid #d7e3ef; border-radius: .625rem; box-shadow: none; }
+:host ::ng-deep .timekeeping-tabs .mat-expansion-panel-header { min-height: 3.5rem; padding: 0 1rem; background: #f6faff; }
+:host ::ng-deep .timekeeping-tabs .mat-expansion-panel-header:hover { background: #eaf5fa; }
+:host ::ng-deep .timekeeping-tabs .mat-expansion-panel-header-title { color: #173a63; font-size: .9375rem; font-weight: 700; }
+:host ::ng-deep .timekeeping-tabs .mat-expansion-panel-body { padding: 0 1rem 1rem; }
+.dof-panel--timekeeping .employee-form { gap: 1rem; padding-top: 1rem; }
+.dof-panel--timekeeping .section { border-color: #d7e3ef; border-radius: .625rem; background: #fff; }
+.dof-panel--timekeeping .section-title { color: #173a63; }
+:host-context(html.dark) .dof-panel--timekeeping .category-title, :host-context(html.dark) .dof-panel--timekeeping .section-title { color: #f1f7fb; }
+:host-context(html.dark) .dof-panel--timekeeping .category-actions button { color: #072c40; background: #55d3e5; }
+:host-context(html.dark) .dof-panel--timekeeping .grid-help { border-color: #55d3e5; color: #c2d7e5; background: #102131; }
+:host-context(html.dark) ::ng-deep .timekeeping-tabs .mat-mdc-tab-header { border-color: #315168; }
+:host-context(html.dark) ::ng-deep .timekeeping-tabs .mat-mdc-tab .mdc-tab__text-label { color: #c2d7e5; }
+:host-context(html.dark) ::ng-deep .timekeeping-tabs .mat-expansion-panel { border-color: #315168; background: #152536; }
+:host-context(html.dark) ::ng-deep .timekeeping-tabs .mat-expansion-panel-header { background: #102131; }
+:host-context(html.dark) ::ng-deep .timekeeping-tabs .mat-expansion-panel-header:hover { background: #203c51; }
+:host-context(html.dark) ::ng-deep .timekeeping-tabs .mat-expansion-panel-header-title { color: #e7f1f7; }
+:host-context(html.dark) .dof-panel--timekeeping .section { border-color: #315168; background: #102131; }
+@media (max-width: 42rem) { .dof-panel--timekeeping .category-panel { padding-top: 1rem; }.dof-panel--timekeeping .entry-view-toggle { flex-direction: column; }.dof-panel--timekeeping .entry-view-toggle button, .dof-panel--timekeeping .category-actions button { width: 100%; }:host ::ng-deep .timekeeping-tabs .mat-mdc-tab { min-width: 6.25rem; } }
+
+/* Wide attendance grid: keep the first column visible and confine the remaining columns to an intentional horizontal scroll area. */
+.dof-panel--timekeeping .grid-scroll { max-width: 100%; overflow: auto; border-color: #bfd1df; border-radius: .625rem; background: #fff; scrollbar-color: #6f9ab6 #edf4f8; scrollbar-width: thin; }
+.dof-panel--timekeeping .grid-scroll::-webkit-scrollbar { height: .75rem; }
+.dof-panel--timekeeping .grid-scroll::-webkit-scrollbar-track { background: #edf4f8; }
+.dof-panel--timekeeping .grid-scroll::-webkit-scrollbar-thumb { border: .1875rem solid #edf4f8; border-radius: .75rem; background: #6f9ab6; }
+.dof-panel--timekeeping .timekeeping-grid { color: #173a63; }
+.dof-panel--timekeeping .timekeeping-grid th, .dof-panel--timekeeping .timekeeping-grid td { border-color: #d7e3ef; }
+.dof-panel--timekeeping .timekeeping-grid thead th { min-width: 6.25rem; padding: .625rem .5rem; white-space: normal; color: #173a63; background: #eaf5fa; font-size: .6875rem; line-height: 1.25; }
+.dof-panel--timekeeping .timekeeping-grid .grid-date-column { min-width: 7.75rem; color: #173a63; background: #f6faff; }
+.dof-panel--timekeeping .timekeeping-grid thead .grid-date-column { background: #dcecf5; }
+.dof-panel--timekeeping .grid-time-input { border-color: #8fb0cb; border-radius: .375rem; color: #173a63; background: #fff; }
+.dof-panel--timekeeping .grid-time-input:focus { border-color: #2187a7; outline-color: rgb(54 188 210 / 30%); }
+.dof-panel--timekeeping .grid-time-input:disabled { color: #7991a3; background: #edf4f8; }
+:host-context(html.dark) .dof-panel--timekeeping .grid-scroll { border-color: #365973; background: #102131; scrollbar-color: #4d7b99 #102131; }
+:host-context(html.dark) .dof-panel--timekeeping .grid-scroll::-webkit-scrollbar-track { background: #102131; }
+:host-context(html.dark) .dof-panel--timekeeping .grid-scroll::-webkit-scrollbar-thumb { border-color: #102131; background: #4d7b99; }
+:host-context(html.dark) .dof-panel--timekeeping .timekeeping-grid { color: #e7f1f7; }
+:host-context(html.dark) .dof-panel--timekeeping .timekeeping-grid th, :host-context(html.dark) .dof-panel--timekeeping .timekeeping-grid td { border-color: #315168; }
+:host-context(html.dark) .dof-panel--timekeeping .timekeeping-grid thead th { color: #dbe9f3; background: #203c51; }
+:host-context(html.dark) .dof-panel--timekeeping .timekeeping-grid .grid-date-column { color: #dbe9f3; background: #152536; }
+:host-context(html.dark) .dof-panel--timekeeping .timekeeping-grid thead .grid-date-column { background: #203c51; }
+:host-context(html.dark) .dof-panel--timekeeping .grid-time-input { border-color: #587a91; color: #e7f1f7; background: #152536; }
+:host-context(html.dark) .dof-panel--timekeeping .grid-time-input:disabled { color: #8ca8bc; background: #203c51; }
+
+/* Rest days are highlighted with a low-contrast amber surface in dark mode, not a light-theme row. */
+:host-context(html.dark) .dof-panel--timekeeping .timekeeping-grid tbody .grid-rest-day > td { background: #302c20; }
+:host-context(html.dark) .dof-panel--timekeeping .timekeeping-grid tbody .grid-rest-day > .grid-date-column { color: #f2dfaa; background: #302c20; }
+:host-context(html.dark) .dof-panel--timekeeping .timekeeping-grid tbody .grid-rest-day .grid-date-column small { color: #d7c38a; }
+:host-context(html.dark) .dof-panel--timekeeping .timekeeping-grid tbody .grid-rest-day .grid-date-column em { color: #f5c85e; }
+:host-context(html.dark) .dof-panel--timekeeping .timekeeping-grid tbody .grid-rest-day .grid-time-input:disabled { border-color: #6e6546; color: #cbbf96; background: #373222; }

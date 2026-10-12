@@ -57,7 +57,7 @@ export class Update implements OnInit {
   error = signal<string | null>(null)
   userId = signal<string | null>(null)
 
-  /** Loads user data, client list, and patches the form. Disables client selection for Admin role. */
+  /** Loads user data, client list, and applies role-based workspace access. */
   async ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id')
     if (!id) {
@@ -69,14 +69,16 @@ export class Update implements OnInit {
     this.userId.set(id)
 
     try {
-      const user = await this.userService.get(id)
+      const [user, clients] = await Promise.all([
+        this.userService.get(id),
+        this.clientService.list(),
+      ])
       if (!user) {
         toast.error('User not found')
         this.router.navigate(['/admin/user/list'])
         return
       }
 
-      const clients = await this.clientService.list()
       this.clientList.set(clients)
 
       this.form.patchValue({
@@ -87,13 +89,8 @@ export class Update implements OnInit {
         handledClients: user.handledClients ?? []
       })
 
-      if(this.form.get('role')?.value !== 'Admin') {
-        const allClient = this.clientList().find(c => c.code === 'ALL')
-        if(allClient) {
-          this.form.get('handledClients')?.setValue([allClient._id])
-          this.form.get('handledClients')?.disable()
-        }
-      }
+      this.syncHandledClients(false)
+      this.form.controls.role.valueChanges.subscribe(() => this.syncHandledClients())
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : 'Failed to load user'
       toast.error(errorMessage)
@@ -102,23 +99,20 @@ export class Update implements OnInit {
   }
 
   /**
-   * Handles role change logic for client assignment
-   * Non-admin users are auto-assigned to "ALL" client and the field is disabled.
-   * Admin users get full client selection control.
+   * Admin access is granted by role. User accounts select their assigned clients.
    */
-  isAdmin() {
+  private syncHandledClients(clearSelection = true): void {
     const role = this.form.get('role')?.value
     const handledClientsControl = this.form.get('handledClients')
 
-    if(role !== 'Admin') {
-      const allClient = this.clientList().find(c => c.code === 'ALL')
-      if(allClient) {
-        handledClientsControl?.setValue([allClient._id])
-        handledClientsControl?.disable()
-      }
+    if (role === 'Admin') {
+      handledClientsControl?.setValue([])
+      handledClientsControl?.disable()
+      return
     }
-    else {
-      handledClientsControl?.enable()
+
+    handledClientsControl?.enable()
+    if (clearSelection) {
       handledClientsControl?.setValue([])
     }
   }
@@ -126,7 +120,10 @@ export class Update implements OnInit {
   /** Submits updated user data with confirmation and audit logging. Only includes password if provided. */
   async submit() {
     if(!this.userId()) return
-    if(this.form.invalid) return
+    if(this.form.invalid) {
+      this.form.markAllAsTouched()
+      return
+    }
     if(!confirm('Are you sure you want to update this User?')) return
     this.loading.set(true)
 
@@ -161,5 +158,10 @@ export class Update implements OnInit {
     } finally {
       this.loading.set(false)
     }
+  }
+
+  /** Returns to the user list without saving changes. */
+  backToUsers(): void {
+    void this.router.navigate(['/admin/user/list'])
   }
 }

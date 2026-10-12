@@ -1,39 +1,78 @@
-<div class="max-w-6xl mx-auto p-4 sm:p-6 fade-in">
-  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
-    <h2 class="text-2xl font-semibold">User Management</h2>
-    <button mat-raised-button color="primary" routerLink="/admin/user/create" class="w-full sm:w-auto motion-smooth">Add User</button>
-  </div>
+<section class="user-management fade-in" aria-labelledby="user-management-title">
+  <header class="user-management__header">
+    <div>
+      <p class="user-management__eyebrow">Administration</p>
+      <h1 id="user-management-title">User management</h1>
+      <p class="user-management__description">Manage user accounts and access.</p>
+    </div>
 
-  <div class="mb-4">
-    <input
-      type="text"
-      [value]="searchInput()"
-      (input)="searchInput.set($any($event.target).value)"
-      placeholder="Search users"
-      class="border rounded px-3 py-2 w-full md:w-1/3 motion-smooth"
-    />
-  </div>
+    <div class="user-management__header-actions">
+      <a mat-stroked-button routerLink="/dashboard" class="dashboard-button">
+        <mat-icon>arrow_back</mat-icon>
+        Dashboard
+      </a>
+      <a mat-raised-button routerLink="/admin/user/create" class="add-user-button">
+        <mat-icon>person_add</mat-icon>
+        Add user
+      </a>
+    </div>
+  </header>
 
-  <mat-card class="p-4 card-animate">
-    <div class="overflow-x-auto">
-      <table mat-table [dataSource]="paginatedUsers()" class="min-w-full w-max md:w-full">
+  <section class="user-table-card" aria-label="User accounts">
+    <div class="user-table-card__toolbar">
+      <label class="search-field" for="user-search">
+        <mat-icon aria-hidden="true">search</mat-icon>
+        <input
+          id="user-search"
+          type="search"
+          [value]="searchInput()"
+          (input)="searchInput.set($any($event.target).value)"
+          placeholder="Search by name or role"
+        />
+      </label>
+    </div>
+
+    @if (loading()) {
+      <div class="user-table-loading" role="status" aria-live="polite">
+        <mat-icon aria-hidden="true">sync</mat-icon>
+        <div>
+          <strong>Loading users</strong>
+          <span>Retrieving user accounts and access details.</span>
+        </div>
+      </div>
+    } @else {
+    <div class="table-scroll">
+      <table mat-table [dataSource]="paginatedUsers()" class="user-table">
         <ng-container matColumnDef="name">
           <th mat-header-cell *matHeaderCellDef>Name</th>
-          <td mat-cell *matCellDef="let u">{{ u.name }}</td>
+          <td mat-cell *matCellDef="let u">
+            <div class="user-name">
+              <span class="user-name__avatar" aria-hidden="true">{{ u.name?.charAt(0) || '?' }}</span>
+              <span>{{ u.name }}</span>
+            </div>
+          </td>
         </ng-container>
 
         <ng-container matColumnDef="role">
           <th mat-header-cell *matHeaderCellDef>Role</th>
-          <td mat-cell *matCellDef="let u">{{ u.role }}</td>
+          <td mat-cell *matCellDef="let u">
+            <span class="role-badge" [class.role-badge--admin]="u.role === 'Admin'">{{ u.role }}</span>
+          </td>
         </ng-container>
 
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef>Actions</th>
           <td mat-cell *matCellDef="let u">
-            <div class="flex flex-wrap gap-2">
-              <button mat-icon-button (click)="view(u)" title="View" matTooltip="View User" class="min-w-[44px] min-h-[44px] flex items-center justify-center"><mat-icon>visibility</mat-icon></button>
-              <button mat-icon-button (click)="edit(u)" title="Edit" matTooltip="Edit User" class="min-w-[44px] min-h-[44px] flex items-center justify-center"><mat-icon>edit</mat-icon></button>
-              <button mat-icon-button color="warn" (click)="delete(u)" title="Delete" matTooltip="Delete User" class="min-w-[44px] min-h-[44px] flex items-center justify-center"><mat-icon>delete</mat-icon></button>
+            <div class="user-actions">
+              <button mat-icon-button (click)="view(u)" matTooltip="View user" aria-label="View {{ u.name }}">
+                <mat-icon>visibility</mat-icon>
+              </button>
+              <button mat-icon-button (click)="edit(u)" matTooltip="Edit user" aria-label="Edit {{ u.name }}">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button (click)="requestDelete(u)" matTooltip="Delete user" aria-label="Delete {{ u.name }}" class="user-actions__delete">
+                <mat-icon>delete</mat-icon>
+              </button>
             </div>
           </td>
         </ng-container>
@@ -43,10 +82,45 @@
       </table>
     </div>
 
-    <div class="flex flex-wrap justify-start sm:justify-end gap-2 mt-4">
-      <button mat-stroked-button (click)="gotoPage(currentPage()-1)" [disabled]="currentPage()===1">Prev</button>
-      <span class="px-2 py-1 bg-gray-100 rounded self-center">{{currentPage()}} / {{totalPages()}}</span>
-      <button mat-stroked-button (click)="gotoPage(currentPage()+1)" [disabled]="currentPage()===totalPages()">Next</button>
+    <footer class="user-table-card__footer">
+      <p>{{ filteredUsers().length }} user{{ filteredUsers().length === 1 ? '' : 's' }}</p>
+      <div class="pagination" aria-label="Pagination">
+        <button mat-stroked-button (click)="gotoPage(currentPage() - 1)" [disabled]="currentPage() === 1">Previous</button>
+        <span aria-live="polite">{{ currentPage() }} / {{ totalPages() || 1 }}</span>
+        <button mat-stroked-button (click)="gotoPage(currentPage() + 1)" [disabled]="currentPage() === totalPages() || totalPages() === 0">Next</button>
+      </div>
+    </footer>
+    }
+  </section>
+
+  @if (pendingDeletion(); as user) {
+    <div class="delete-dialog-backdrop" (click)="cancelDelete()" (keydown.escape)="cancelDelete()">
+      <section
+        class="delete-dialog"
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="delete-dialog-title"
+        aria-describedby="delete-dialog-description"
+        (click)="$event.stopPropagation()">
+        <div class="delete-dialog__icon" aria-hidden="true">
+          <mat-icon>delete_forever</mat-icon>
+        </div>
+        <div>
+          <p class="delete-dialog__eyebrow">Permanent action</p>
+          <h2 id="delete-dialog-title">Delete user?</h2>
+          <p id="delete-dialog-description">
+            You are about to permanently delete <strong>{{ user.name || 'this user' }}</strong>.
+            This action cannot be undone.
+          </p>
+        </div>
+        <div class="delete-dialog__actions">
+          <button mat-stroked-button type="button" (click)="cancelDelete()" [disabled]="deleting()">Cancel</button>
+          <button mat-raised-button type="button" class="delete-dialog__confirm" (click)="confirmDelete()" [disabled]="deleting()">
+            <mat-icon aria-hidden="true">delete</mat-icon>
+            {{ deleting() ? 'Deleting…' : 'Delete user' }}
+          </button>
+        </div>
+      </section>
     </div>
-  </mat-card>
-</div>
+  }
+</section>

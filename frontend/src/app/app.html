@@ -1,40 +1,46 @@
 <mat-sidenav-container class="h-screen">
   <mat-sidenav
     [mode]="isMobile() ? 'over' : 'side'"
-    [opened]="sidenavOpened()"
+    [opened]="shouldShowAppNavigation() && sidenavOpened()"
     (openedChange)="sidenavOpened.set($event)"
-    class="w-72 bg-[var(--mat-sys-surface)] text-[var(--mat-sys-on-surface)] border-r border-[var(--mat-sys-outline-variant)]">
+    class="app-sidenav">
 
-    @if (authService.token() !== null) {
-      <div class="p-4 border-b border-[var(--mat-sys-outline-variant)]">
-        <h2 class="text-lg font-semibold">{{ user()?.name }}</h2>
-        <p class="text-sm opacity-70">{{ user()?.role }}</p>
-      </div>
+    @if (shouldShowAppNavigation()) {
+      <aside class="app-nav" aria-label="Application navigation">
+        <header class="app-nav__account">
+          <span class="app-nav__avatar" aria-hidden="true">{{ user()?.name?.charAt(0) || 'U' }}</span>
+          <div>
+            <p>Signed in as</p>
+            <h2>{{ user()?.name || 'Your account' }}</h2>
+            <span>{{ user()?.role || 'Authorized user' }}</span>
+          </div>
+        </header>
 
-      <mat-nav-list>
-        <mat-accordion multi class="sidenav-accordion">
+        <p class="app-nav__label">Workspace</p>
+        <mat-nav-list class="app-nav__list">
+          <mat-accordion multi class="sidenav-accordion app-nav__accordion">
           @for (item of menuItems(); track item.label) {
             @if (item.children) {
-              <mat-expansion-panel>
+              <mat-expansion-panel class="app-nav__panel">
                 <mat-expansion-panel-header>
-                  <mat-panel-title class="flex items-center gap-2">
+                  <mat-panel-title class="app-nav__panel-title">
                     @if (item.icon) {
-                      <mat-icon class="text-[20px]">{{ item.icon }}</mat-icon>
+                      <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
                     }
                     {{ item.label }}
                   </mat-panel-title>
                 </mat-expansion-panel-header>
-                <div class="pl-2">
+                <div class="app-nav__panel-content">
                   @for (child of item.children; track child.label) { 
                     @if (child.children) {
-                      <mat-accordion multi class="sidenav-accordion">
-                        <mat-expansion-panel>
+                      <mat-accordion multi class="sidenav-accordion app-nav__nested-accordion">
+                        <mat-expansion-panel class="app-nav__nested-panel">
                           <mat-expansion-panel-header>
-                            <mat-panel-title>{{ child.label }}</mat-panel-title>
+                            <mat-panel-title class="app-nav__nested-title">{{ child.label }}</mat-panel-title>
                           </mat-expansion-panel-header>
-                          <div class="pl-2">
+                          <div class="app-nav__nested-content">
                             @for (grandchild of child.children; track grandchild.label) {
-                              <a mat-list-item [routerLink]="grandchild.route" (click)="closeSidenavOnMobile()">
+                              <a mat-list-item class="app-nav__sublink" [routerLink]="grandchild.route" routerLinkActive="app-nav__sublink--active" (click)="closeSidenavOnMobile()">
                                 @if (grandchild.icon) {
                                   <mat-icon matListItemIcon>{{ grandchild.icon }}</mat-icon>
                                 }
@@ -45,7 +51,7 @@
                         </mat-expansion-panel>
                       </mat-accordion>
                     } @else {
-                      <a mat-list-item [routerLink]="child.route" (click)="closeSidenavOnMobile()">
+                      <a mat-list-item class="app-nav__sublink" [routerLink]="child.route" routerLinkActive="app-nav__sublink--active" (click)="closeSidenavOnMobile()">
                         @if (child.icon) {
                           <mat-icon matListItemIcon>{{ child.icon }}</mat-icon>
                         }
@@ -56,7 +62,7 @@
                 </div>
               </mat-expansion-panel>
             } @else {
-              <a mat-list-item [routerLink]="item.route" (click)="closeSidenavOnMobile()">
+              <a mat-list-item class="app-nav__link" [routerLink]="item.route" routerLinkActive="app-nav__link--active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeSidenavOnMobile()">
                 @if (item.icon) {
                   <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
                 }
@@ -64,9 +70,15 @@
               </a>
             }
           }
-        </mat-accordion>
-      </mat-nav-list>
-    } @else {
+          </mat-accordion>
+        </mat-nav-list>
+
+        <div class="app-nav__security">
+          <mat-icon aria-hidden="true">verified_user</mat-icon>
+          <span>Secure staff workspace</span>
+        </div>
+      </aside>
+    } @else if (!isPublicRoute()) {
       <div class="guest-nav">
         <div class="guest-nav__brand">
           <div class="guest-nav__mark" aria-hidden="true">
@@ -106,9 +118,11 @@
     <mat-toolbar class="bg-[var(--mat-sys-surface)] text-[var(--mat-sys-on-surface)] shadow">
       <div class="container mx-auto px-4 md:px-6 py-2 flex flex-wrap justify-between items-center gap-4 w-full">
         <div class="flex items-center gap-2">
-          <button mat-icon-button (click)="toggleSidenav()" aria-label="Toggle menu">
-            <mat-icon>menu</mat-icon>
-          </button>
+          @if (shouldShowAppNavigation()) {
+            <button mat-icon-button (click)="toggleSidenav()" aria-label="Toggle menu">
+              <mat-icon>menu</mat-icon>
+            </button>
+          }
           <a [routerLink]="home()" class="text-xl sm:text-2xl font-semibold">{{ title() }}</a>
         </div>
         <div class="flex items-center gap-2">
@@ -119,11 +133,13 @@
             [matTooltip]="themeService.darkMode() ? 'Switch to light mode' : 'Switch to dark mode'">
             <mat-icon>{{ themeService.darkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
           </button>
-          <button mat-icon-button [matMenuTriggerFor]="userMenu" aria-label="User menu">
-            <mat-icon>account_circle</mat-icon>
-          </button>
+          @if (!isPublicRoute()) {
+            <button mat-icon-button [matMenuTriggerFor]="userMenu" aria-label="User menu">
+              <mat-icon>account_circle</mat-icon>
+            </button>
+          }
           <mat-menu #userMenu="matMenu" class="user-menu">
-            @if (authService.token() !== null) {
+            @if (authService.isLoggedIn()) {
               <div class="user-menu__summary">
                 <mat-icon aria-hidden="true">account_circle</mat-icon>
                 <div>
@@ -167,7 +183,11 @@
     </mat-toolbar>
 
     <main class="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
-      <ngx-sonner-toaster />
+    <ngx-sonner-toaster
+      [theme]="themeService.darkMode() ? 'dark' : 'light'"
+      [richColors]="true"
+      position="bottom-right"
+      [duration]="4000" />
       <router-outlet />
     </main>
   </mat-sidenav-content>

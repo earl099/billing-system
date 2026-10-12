@@ -20,6 +20,14 @@ export const roleGuard: CanActivateFn = async (route, state) => {
   const router = inject(Router)
   const authService = inject(Auth)
 
+  const currentUser = authService.currentUser()
+  if (currentUser) {
+    if (currentUser.role === 'Admin') return true
+
+    router.navigate(['/dashboard'])
+    return false
+  }
+
   try {
     const user = await authService.getProfile()
     

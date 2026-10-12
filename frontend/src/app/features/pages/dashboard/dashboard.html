@@ -1,164 +1,147 @@
-<div class="max-w-5xl mx-auto px-4 py-6 sm:p-4 sm:p-6 fade-in">
-  <h2 class="text-2xl sm:text-3xl font-semibold mb-4 sm:mb-6">Dashboard</h2>
-  <mat-card class="p-4 sm:p-4 sm:p-6 mb-4 sm:mb-6 motion-smooth scale-in">
-    <h3 class="text-lg sm:text-xl font-semibold mb-2">Welcome, {{ user().name }}</h3>
-    <p class="text-gray-600">Email: {{ user().email }}</p>
-    <p class="text-gray-600">Role: {{ user().role }}</p>
-  </mat-card>
-
-  @if (user().role === 'Admin') {
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-4 sm:p-6">
-      <mat-card class="p-4 sm:p-4 sm:p-6 card-animate motion-smooth">
-        <h4 class="text-lg font-semibold mb-2">Admin</h4>
-        <button mat-button routerLink="/admin/user/list">Manage Users</button>
-        <button mat-button routerLink="/admin/payfreq/list">Manage Pay Frequencies</button>
-        <button mat-button routerLink="/admin/client/list">Manage Clients</button>
-        <button mat-button routerLink="/admin/log/list">View Logs</button>
-      </mat-card>
-
-      <mat-card class="p-4 sm:p-6 card-animate motion-smooth">
-        <h4 class="text-lg font-semibold mb-2">Manpower Management</h4>
-        <mat-accordion multi>
-          <mat-expansion-panel>
-            <mat-expansion-panel-header>
-              <mat-panel-title>BTR</mat-panel-title>
-            </mat-expansion-panel-header>
-            <div class="flex flex-col">
-              <button mat-button routerLink="/manpower/btr/add">Add Employee</button>
-              <button mat-button routerLink="/manpower/btr/list">Manage Manpower Details</button>
-              <button mat-button routerLink="/rates/btr/list">Manage Billing Rates</button>
-            </div>
-          </mat-expansion-panel>
-
-          <mat-expansion-panel>
-            <mat-expansion-panel-header>
-              <mat-panel-title>OFBANK</mat-panel-title>
-            </mat-expansion-panel-header>
-            <div class="flex flex-col">
-              <button mat-button routerLink="/manpower/ofbank/add">Add Employee</button>
-              <button mat-button routerLink="/manpower/ofbank/list">Manage Manpower Details</button>
-              <button mat-button routerLink="/rates/ofbank/list">Manage Billing Rates</button>
-            </div>
-          </mat-expansion-panel>
-        </mat-accordion>
-      </mat-card>
-
-      <mat-card class="p-4 sm:p-6 card-animate motion-smooth delay-200">
-        <h4 class="text-lg font-semibold mb-2">Billing</h4>
-
-        <mat-accordion multi>
-          <mat-expansion-panel>
-            <mat-expansion-panel-header>
-              <mat-panel-title>ACID</mat-panel-title>
-            </mat-expansion-panel-header>
-            <div class="flex flex-col">
-              <button mat-button routerLink="/billing/letter/editor/acid">Create Billing Letter</button>
-              <button mat-button routerLink="/billing/acid/generate">Generate Billing</button>
-              <button mat-button routerLink="/billing/acid/list">Billing List</button>
-            </div>
-          </mat-expansion-panel>
-
-          <mat-expansion-panel>
-            <mat-expansion-panel-header>
-              <mat-panel-title>JSS</mat-panel-title>
-            </mat-expansion-panel-header>
-            <div class="flex flex-col">
-              <button mat-button routerLink="/billing/letter/editor/jss">Create Billing Letter</button>
-              <button mat-button routerLink="/billing/jss/generate">Generate Billing</button>
-              <button mat-button routerLink="/billing/jss/list">Billing List</button>
-            </div>
-          </mat-expansion-panel>
-
-          <mat-expansion-panel>
-            <mat-expansion-panel-header>
-              <mat-panel-title>SPAD</mat-panel-title>
-            </mat-expansion-panel-header>
-            <div class="flex flex-col">
-              <button mat-button routerLink="/billing/letter/editor/spad">Create Billing Letter</button>
-              <button mat-button routerLink="/billing/spad/generate">Generate Billing</button>
-              <button mat-button routerLink="/billing/spad/list">Billing List</button>
-            </div>
-          </mat-expansion-panel>
-
-          <mat-expansion-panel>
-            <mat-expansion-panel-header>
-              <mat-panel-title>BTR</mat-panel-title>
-            </mat-expansion-panel-header>
-            <div class="flex flex-col">
-              <button mat-button routerLink="/billing/soa/btr/create/miss">Create MISS SOA</button>
-              <button mat-button routerLink="/billing/soa/btr/create/janitorial">Create Janitorial SOA</button>
-              <button mat-button routerLink="/billing/soa/btr/create/supplies">Create Monthly Supplies SOA</button>
-              <button mat-button routerLink="/billing/btr/list">Billing List</button>
-            </div>
-          </mat-expansion-panel>
-
-          <mat-expansion-panel>
-            <mat-expansion-panel-header>
-              <mat-panel-title>OFBANK</mat-panel-title>
-            </mat-expansion-panel-header>
-            <div class="flex flex-col">
-              <button mat-button routerLink="/billing/soa/ofbank/create/manpower">Create SOA</button>
-              <button mat-button routerLink="/billing/soa/ofbank/create/monthly-supplies">Create Monthly Supplies Billing</button>
-              <button mat-button routerLink="/billing/letter/editor/ofbank">Create Billing Letter</button>
-              <button mat-button routerLink="/billing/ofbank/generate">Generate Billing</button>
-              <button mat-button routerLink="/billing/soa/ofbank/list">Billing List</button>
-            </div>
-          </mat-expansion-panel>
-
-          <mat-expansion-panel>
-            <mat-expansion-panel-header>
-              <mat-panel-title>DOF</mat-panel-title>
-            </mat-expansion-panel-header>
-            <div class="flex flex-col">
-              <button mat-button routerLink="/billing/soa/dof/timekeeping">Create DOF Timekeeping</button>
-              <button mat-button routerLink="/billing/soa/dof/billing">Create DOF Billing</button>
-            </div>
-          </mat-expansion-panel>
-        </mat-accordion>
-      </mat-card>
+<section class="dashboard" aria-labelledby="dashboard-title">
+  <header class="dashboard__header">
+    <div>
+      <p class="dashboard__eyebrow">Workspace</p>
+      <h1 id="dashboard-title">Dashboard</h1>
     </div>
-  }
-  @else {
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:p-6">
-      <mat-card class="p-4 sm:p-6 card-animate motion-smooth delay-200">
-        <h4 class="text-lg font-semibold mb-2">Manpower Management</h4>
-        @for (client of clients(); track client) {
-          @for (handledClient of user().handledClients; track handledClient) {
-            <!-- CREATE A CONDITION WHERE IF HANDLED CLIENT IS A MANPOWER TYPE OF BILLING, THEN CREATE THIS -->
-            @if (handledClient === client._id) {
-              <mat-accordion multi>
-                <mat-expansion-panel>
 
-                </mat-expansion-panel>
-              </mat-accordion>
-            }
-          }
+    @if (user(); as currentUser) {
+      <div class="profile-card" aria-label="Current user">
+        <div class="profile-card__avatar" aria-hidden="true">
+          <mat-icon>person</mat-icon>
+        </div>
+        <div class="profile-card__details">
+          <strong>{{ currentUser.name || 'Your account' }}</strong>
+          <span>{{ currentUser.email || 'No email available' }}</span>
+          <small>{{ currentUser.role || 'Authorized user' }}</small>
+        </div>
+      </div>
+    }
+  </header>
+
+  @if (loading()) {
+    <section class="dashboard-panel dashboard-loading" role="status" aria-live="polite">
+      <mat-icon aria-hidden="true">sync</mat-icon>
+      <div>
+        <h2>Preparing your workspace</h2>
+        <p>Loading your account access and client workspaces.</p>
+      </div>
+    </section>
+  } @else {
+  @if (isAdmin()) {
+    <section class="dashboard-panel administration" aria-labelledby="administration-title">
+      <div class="dashboard-panel__heading">
+        <div>
+          <p class="section-eyebrow">System controls</p>
+          <h2 id="administration-title">Administration</h2>
+        </div>
+      </div>
+
+      <div class="administration__grid">
+        @for (action of adminActions; track action.route) {
+          <button class="action-link" type="button" (click)="openAction(action.route)">
+            <mat-icon aria-hidden="true">{{ action.icon }}</mat-icon>
+            <span>{{ action.label }}</span>
+            <mat-icon class="action-link__arrow" aria-hidden="true">chevron_right</mat-icon>
+          </button>
         }
-      </mat-card>
-
-
-      <mat-card class="p-4 sm:p-6 card-animate motion-smooth delay-200">
-        <h4 class="text-lg font-semibold mb-2">Billing</h4>
-        @for (client of clients(); track client) {
-          @for (handledClient of user().handledClients; track handledClient) {
-            @if (handledClient === client._id) {
-              <mat-accordion multi>
-                <mat-expansion-panel>
-                  <mat-expansion-panel-header>
-                    <mat-panel-title>{{ client.code }}</mat-panel-title>
-                  </mat-expansion-panel-header>
-                  <div class="flex flex-col">
-                    <button mat-button [routerLink]="['/billing/letter/editor', client.code]">Create Billing Letter</button>
-                    <button mat-button [routerLink]="['/billing', client.code.toLowerCase(), 'generate']">Generate Billing</button>
-                    <button mat-button [routerLink]="['/billing', client.code.toLowerCase(),'list']">Billing List</button>
-                  </div>
-
-                </mat-expansion-panel>
-              </mat-accordion>
-            }
-          }
-        }
-      </mat-card>
-    </div>
+      </div>
+    </section>
   }
-</div>
+
+  <div class="workspace-grid">
+    <section class="dashboard-panel workspace-panel" aria-labelledby="manpower-title">
+      <div class="dashboard-panel__heading">
+        <div>
+          <p class="section-eyebrow">Client workspaces</p>
+          <h2 id="manpower-title">Manpower management</h2>
+        </div>
+      </div>
+
+      @if (manpowerClients().length) {
+        <div class="workspace-list">
+          @for (client of manpowerClients(); track client._id ?? client.code) {
+            @let key = workspaceKey('manpower', client);
+            <div class="workspace-item">
+              <button
+                class="workspace-button"
+                type="button"
+                [attr.aria-expanded]="expandedWorkspace() === key"
+                [attr.aria-controls]="key"
+                (click)="toggleWorkspace(key)">
+                <mat-icon aria-hidden="true">account_balance</mat-icon>
+                <span>{{ client.code }}</span>
+                <mat-icon class="workspace-button__arrow" aria-hidden="true">
+                  {{ expandedWorkspace() === key ? 'expand_less' : 'chevron_right' }}
+                </mat-icon>
+              </button>
+
+              @if (expandedWorkspace() === key) {
+                <div class="workspace-actions" [id]="key">
+                  @for (action of manpowerActions(client); track action.route) {
+                    <a [routerLink]="action.route">
+                      <mat-icon aria-hidden="true">{{ action.icon }}</mat-icon>
+                      {{ action.label }}
+                    </a>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="empty-state">No manpower workspaces are assigned to your account.</p>
+      }
+    </section>
+
+    <section class="dashboard-panel workspace-panel" aria-labelledby="billing-title">
+      <div class="dashboard-panel__heading">
+        <div>
+          <p class="section-eyebrow">Client workspaces</p>
+          <h2 id="billing-title">Billing</h2>
+        </div>
+      </div>
+
+      @if (billingClients().length) {
+        <div class="billing-grid">
+          @for (client of billingClients(); track client._id ?? client.code) {
+            @let key = workspaceKey('billing', client);
+            <div class="workspace-item">
+              <button
+                class="workspace-button"
+                type="button"
+                [attr.aria-expanded]="expandedWorkspace() === key"
+                [attr.aria-controls]="key"
+                (click)="toggleWorkspace(key)">
+                <mat-icon aria-hidden="true">account_balance</mat-icon>
+                <span>{{ client.code }}</span>
+                <mat-icon class="workspace-button__arrow" aria-hidden="true">
+                  {{ expandedWorkspace() === key ? 'expand_less' : 'chevron_right' }}
+                </mat-icon>
+              </button>
+
+              @if (expandedWorkspace() === key) {
+                <div class="workspace-actions" [id]="key">
+                  @for (action of billingActions(client); track action.route) {
+                    <a [routerLink]="action.route">
+                      <mat-icon aria-hidden="true">{{ action.icon }}</mat-icon>
+                      {{ action.label }}
+                    </a>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="empty-state">No billing workspaces are assigned to your account.</p>
+      }
+    </section>
+  </div>
+
+  <p class="dashboard__hint">
+    <mat-icon aria-hidden="true">touch_app</mat-icon>
+    Select a workspace to continue.
+  </p>
+  }
+</section>

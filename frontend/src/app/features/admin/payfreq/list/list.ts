@@ -40,6 +40,7 @@ export class List implements OnInit, OnDestroy {
 
   clients = signal<any[]>([])
   payFreqs = signal<any[]>([])
+  loading = signal(true)
   searchInput = signal('')
   searchQuery = signal('')
   currentPage = signal(1)
@@ -87,14 +88,19 @@ export class List implements OnInit, OnDestroy {
 
   /** Fetches pay frequencies and clients (needed for usage check) */
   async load() {
+    this.loading.set(true)
     try {
-      const payFreqList = await this.payFreqService.list()
+      const [payFreqList, clientList] = await Promise.all([
+        this.payFreqService.list(),
+        this.clientService.list(),
+      ])
       this.payFreqs.set(payFreqList)
-      const clientList = await this.clientService.list()
       this.clients.set(clientList)
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : 'Failed to load data'
       toast.error(errorMessage)
+    } finally {
+      this.loading.set(false)
     }
   }
 

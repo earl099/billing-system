@@ -1,10 +1,4 @@
-/**
- * @fileoverview Admin audit log list component
- * Displays a paginated, searchable table of audit log entries
- * with view action for inspecting individual log details
- */
-
-import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -14,35 +8,28 @@ import { Log } from '@services/log';
 
 @Component({
   selector: 'app-log-list',
-  imports: [
-    ...MATERIAL_MODULES,
-    MatTableModule,
-    MatIconModule,
-    MatTooltipModule
-  ],
+  imports: [...MATERIAL_MODULES, MatTableModule, MatIconModule, MatTooltipModule, RouterLink],
   templateUrl: './list.html',
   styleUrl: './list.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class List implements OnInit {
-  logService = inject(Log)
-  router = inject(Router)
-
-  logs = signal<any[]>([])
-  searchInput = signal('')
-  searchQuery = signal('')
-  currentPage = signal(1)
-  pageSize = signal(5)
-
-  /** Debounce timer for search input */
-  private debounceTimer: any
-  columns = ['user', 'operation', 'view']
+export class List implements OnInit, OnDestroy {
+  private readonly logService = inject(Log)
+  readonly router = inject(Router)
+  readonly logs = signal<any[]>([])
+  readonly loading = signal(true)
+  readonly loadError = signal<string | null>(null)
+  readonly searchInput = signal('')
+  readonly searchQuery = signal('')
+  readonly currentPage = signal(1)
+  readonly pageSize = signal(10)
+  readonly columns = ['user', 'operation', 'date', 'actions']
+  private debounceTimer: ReturnType<typeof setTimeout> | null = null
 
   constructor() {
     effect(() => {
       const value = this.searchInput()
-
-      clearTimeout(this.debounceTimer)
+      if (this.debounceTimer) clearTimeout(this.debounceTimer)
       this.debounceTimer = setTimeout(() => {
         this.searchQuery.set(value)
         this.currentPage.set(1)
@@ -50,45 +37,49 @@ export class List implements OnInit {
     })
   }
 
-  /** Computed filtered log list based on search query (operation or user) */
-  filteredLogs = computed(() => {
-    const q = this.searchQuery().toLowerCase().trim()
-    if(!q) return this.logs();
-
-    return this.logs().filter(l =>
-      l.operation.toLowerCase().includes(q) ||
-      l.user.toLowerCase().includes(q)
+  readonly filteredLogs = computed(() => {
+    const query = this.searchQuery().trim().toLowerCase()
+    if (!query) return this.logs()
+    return this.logs().filter((log) =>
+      String(log?.operation ?? '').toLowerCase().includes(query) ||
+      String(log?.user ?? '').toLowerCase().includes(query)
     )
   })
 
-  /** Computed paginated subset of filtered logs */
-  paginatedLogs = computed(() => {
+  readonly paginatedLogs = computed(() => {
     const start = (this.currentPage() - 1) * this.pageSize()
     return this.filteredLogs().slice(start, start + this.pageSize())
   })
 
-  async ngOnInit() {
-    await this.load()
+  async ngOnInit(): Promise<void> { await this.load() }
+
+  ngOnDestroy(): void { if (this.debounceTimer) clearTimeout(this.debounceTimer) }
+
+  async load(): Promise<void> {
+    this.loading.set(true)
+    this.loadError.set(null)
+    try {
+      const logList = await this.logService.list()
+      this.logs.set(Array.isArray(logList) ? logList : [])
+    } catch {
+      this.logs.set([])
+      this.loadError.set('We could not load the audit history. Please try again.')
+    } finally {
+      this.loading.set(false)
+    }
   }
 
-  /** Fetches all audit logs from the API */
-  async load() {
-    const logList = await this.logService.list()
-    this.logs.set(logList)
+  view(log: any): void { if (log?._id) this.router.navigate(['/admin/log', log._id]) }
+
+  totalPages(): number { return Math.ceil(this.filteredLogs().length / this.pageSize()) }
+
+  gotoPage(page: number): void {
+    this.currentPage.set(Math.min(Math.max(page, 1), Math.max(this.totalPages(), 1)))
   }
 
-  /** Navigates to the log detail view */
-  view(l: any) {
-    this.router.navigate(['/admin/log', l._id])
-  }
-
-  totalPages() {
-    return Math.ceil(this.filteredLogs().length / this.pageSize())
-  }
-
-  gotoPage(page: number) {
-    this.currentPage.set(
-      Math.min(Math.max(page, 1), this.totalPages())
-    )
+  formatDate(value: unknown): string {
+    if (!value) return 'Not recorded'
+    const date = new Date(String(value))
+    return Number.isNaN(date.getTime()) ? 'Not recorded' : date.toLocaleString()
   }
 }

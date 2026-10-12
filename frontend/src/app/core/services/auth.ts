@@ -7,7 +7,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { UserAuthDTO, UserDTO } from '@models/user';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { environment } from '@env/environment';
+import { environment } from '@env/environment.prod';
 import { Router } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
 
@@ -35,6 +35,10 @@ export class Auth {
 
   /** Reactive signal indicating whether the user has a valid, non-expired token */
   isLoggedIn = signal<boolean>(this.hasValidToken())
+  /** Verified profile for the active session, reused by route guards after it is loaded. */
+  currentUser = signal<any | null>(null)
+  /** In-progress profile request, shared by the shell, dashboard, and route guards. */
+  private profileRequest: Promise<UserDTO> | null = null
 
   /**
    * Authenticates a user with username/email and password
@@ -48,6 +52,8 @@ export class Auth {
       const res = await firstValueFrom(this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, payload))
       localStorage.setItem(this.tokenKey, res.token)
       localStorage.setItem(this.user, res.user.name)
+      this.currentUser.set(null)
+      this.isLoggedIn.set(true)
       return res
     } catch (error: unknown) {
       if (error instanceof HttpErrorResponse) {
@@ -90,6 +96,9 @@ export class Auth {
   async logout() {
     this.clearTokenWatcher()
     localStorage.clear()
+    this.isLoggedIn.set(false)
+    this.currentUser.set(null)
+    this.profileRequest = null
     this.router.navigate(['/'])
   }
 
@@ -104,13 +113,25 @@ export class Auth {
    * 
    * @returns User profile data (without password)
    */
-  async getProfile() {
-    try {
-      const res = await firstValueFrom(this.http.get<{ user: any }>(`${this.apiUrl}/auth/me`))
-      return res.user
-    } catch (error) {
-      throw new Error(`Failed to fetch profile: ${error instanceof Error ? error.message : 'Unknown error'}`)
+  async getProfile(): Promise<UserDTO> {
+    const cachedProfile = this.currentUser()
+    if (cachedProfile) return cachedProfile as UserDTO
+
+    if (!this.profileRequest) {
+      this.profileRequest = firstValueFrom(this.http.get<{ user: UserDTO }>(`${this.apiUrl}/auth/me`))
+        .then((res) => {
+          this.currentUser.set(res.user)
+          return res.user
+        })
+        .catch((error: unknown) => {
+          throw new Error(`Failed to fetch profile: ${error instanceof Error ? error.message : 'Unknown error'}`)
+        })
+        .finally(() => {
+          this.profileRequest = null
+        })
     }
+
+    return this.profileRequest
   }
 
   /**

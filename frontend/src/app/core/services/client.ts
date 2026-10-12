@@ -25,6 +25,9 @@ interface ClientListResponse {
 export class Client {
   private apiUrl = environment.apiUrl
   private http = inject(HttpClient)
+  /** Reused by the shell and dashboard when they load at the same time. */
+  private allClients: ClientDTO[] | null = null
+  private allClientsRequest: Promise<ClientDTO[]> | null = null
 
   /**
    * Fetches all clients (admin-only endpoint)
@@ -61,6 +64,7 @@ export class Client {
   async create(payload: ClientDTO): Promise<ClientDTO> {
     try {
       const res = await firstValueFrom(this.http.post<ClientResponse>(`${this.apiUrl}/client`, payload))
+      this.clearAllClientsCache()
       return res.client
     } catch (error) {
       throw new Error(`Failed to create client: ${error instanceof Error ? error.message : 'Unknown error'}`)
@@ -76,6 +80,7 @@ export class Client {
   async update(id: string, payload: Partial<ClientDTO>): Promise<ClientDTO> {
     try {
       const res = await firstValueFrom(this.http.put<ClientResponse>(`${this.apiUrl}/client/${id}`, payload))
+      this.clearAllClientsCache()
       return res.client
     } catch (error) {
       throw new Error(`Failed to update client: ${error instanceof Error ? error.message : 'Unknown error'}`)
@@ -90,6 +95,7 @@ export class Client {
   async delete(id: string): Promise<any> {
     try {
       const res = await firstValueFrom(this.http.delete<any>(`${this.apiUrl}/client/${id}`))
+      this.clearAllClientsCache()
       return res
     } catch (error) {
       throw new Error(`Failed to delete client: ${error instanceof Error ? error.message : 'Unknown error'}`)
@@ -102,11 +108,27 @@ export class Client {
    * @returns Array of all client records
    */
   async allList(): Promise<ClientDTO[]> {
-    try {
-      const res = await firstValueFrom(this.http.get<ClientListResponse>(`${this.apiUrl}/client/list`))
-      return res.clients
-    } catch (error) {
-      throw new Error(`Failed to fetch all clients: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    if (this.allClients) return this.allClients
+
+    if (!this.allClientsRequest) {
+      this.allClientsRequest = firstValueFrom(this.http.get<ClientListResponse>(`${this.apiUrl}/client/list`))
+        .then((res) => {
+          this.allClients = res.clients
+          return res.clients
+        })
+        .catch((error: unknown) => {
+          throw new Error(`Failed to fetch all clients: ${error instanceof Error ? error.message : 'Unknown error'}`)
+        })
+        .finally(() => {
+          this.allClientsRequest = null
+        })
     }
+
+    return this.allClientsRequest
+  }
+
+  private clearAllClientsCache(): void {
+    this.allClients = null
+    this.allClientsRequest = null
   }
 }

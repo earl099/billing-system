@@ -1,82 +1,49 @@
-<div class="max-w-7xl mx-auto p-4 sm:p-6">
-  <h2 class="text-2xl font-semibold mb-4 sm:mb-6">OFBANK Manpower Billing</h2>
+<section class="ofbank-billing fade-in" aria-labelledby="ofbank-billing-title">
+  <header class="ofbank-billing__header">
+    <div>
+      <p class="ofbank-billing__eyebrow">Billing workspace</p>
+      <h1 id="ofbank-billing-title">OFBANK manpower billing</h1>
+      <p class="ofbank-billing__description">Create and review a manpower billing workbook for the selected period.</p>
+    </div>
+    <button mat-stroked-button type="button" (click)="goToDashboard()"><mat-icon aria-hidden="true">arrow_back</mat-icon>Dashboard</button>
+  </header>
 
   @switch (step()) {
     @case ('setup') {
-      <mat-card class="p-4 sm:p-6 w-full max-w-full sm:max-w-lg">
-        <h3 class="text-lg font-semibold mb-4">Select Template & Date Range</h3>
+      <section class="ofbank-card" aria-labelledby="billing-setup-title">
+        <div class="ofbank-card__intro"><span aria-hidden="true"><mat-icon>calendar_month</mat-icon></span><div><h2 id="billing-setup-title">Set up billing period</h2><p>Select a workbook template, date range, and SOA number.</p></div></div>
 
-        <mat-form-field appearance="outline" class="w-full mb-4">
-          <mat-label>Template</mat-label>
-          <mat-select [(value)]="selectedTemplateId">
-            @for (t of templates(); track t.id) {
-              <mat-option [value]="t.id">{{ t.name }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
+        @if (templatesLoading()) {
+          <div class="ofbank-state" role="status" aria-live="polite"><mat-icon aria-hidden="true">sync</mat-icon><div><strong>Loading templates</strong><span>Retrieving available billing workbooks.</span></div></div>
+        } @else if (templatesError()) {
+          <div class="ofbank-state ofbank-state--error" role="alert"><mat-icon aria-hidden="true">error_outline</mat-icon><div><strong>Templates unavailable</strong><span>{{ templatesError() }}</span></div><button mat-stroked-button type="button" (click)="loadTemplates()">Try again</button></div>
+        } @else if (!templates().length) {
+          <div class="ofbank-state" role="status"><mat-icon aria-hidden="true">folder_off</mat-icon><div><strong>No templates available</strong><span>Add an OFBANK manpower workbook template before creating billing.</span></div></div>
+        } @else {
+          <div class="ofbank-form">
+            <mat-form-field appearance="outline" class="ofbank-form__wide"><mat-label>Workbook template</mat-label><mat-select [(value)]="selectedTemplateId">@for (t of templates(); track t.id) { <mat-option [value]="t.id">{{ t.name }}</mat-option> }</mat-select></mat-form-field>
 
-        <div class="flex flex-col sm:flex-row gap-4 mb-4">
-          <mat-form-field appearance="outline" class="flex-1 w-full">
-            <mat-label>Year</mat-label>
-            <mat-select [value]="selectedYear()" (selectionChange)="selectedYear.set($event.value); updateDateRange()">
-              @for (y of yearOptions; track y) {
-                <mat-option [value]="y">{{ y }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
+            <mat-form-field appearance="outline"><mat-label>Year</mat-label><mat-select [value]="selectedYear()" (selectionChange)="selectedYear.set($event.value); updateDateRange()">@for (y of yearOptions; track y) { <mat-option [value]="y">{{ y }}</mat-option> }</mat-select></mat-form-field>
+            <mat-form-field appearance="outline"><mat-label>Month</mat-label><mat-select [value]="selectedMonth()" (selectionChange)="selectedMonth.set($event.value); updateDateRange()">@for (m of monthOptions; track m.value) { <mat-option [value]="m.value">{{ m.label }}</mat-option> }</mat-select></mat-form-field>
 
-          <mat-form-field appearance="outline" class="flex-1 w-full">
-            <mat-label>Month</mat-label>
-            <mat-select [value]="selectedMonth()" (selectionChange)="selectedMonth.set($event.value); updateDateRange()">
-              @for (m of monthOptions; track m.value) {
-                <mat-option [value]="m.value">{{ m.label }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-        </div>
+            <fieldset class="period-options ofbank-form__wide"><legend>Billing period</legend><label><input type="radio" name="period" value="first" [checked]="selectedPeriod() === 'first'" (change)="selectedPeriod.set('first'); updateDateRange()"><span>1st – 15th</span></label><label><input type="radio" name="period" value="second" [checked]="selectedPeriod() === 'second'" (change)="selectedPeriod.set('second'); updateDateRange()"><span>16th – end of month</span></label></fieldset>
 
-        <div class="flex flex-wrap gap-4 mb-4">
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input type="radio" name="period" value="first"
-                   [checked]="selectedPeriod() === 'first'"
-                   (change)="selectedPeriod.set('first'); updateDateRange()">
-            1st – 15th
-          </label>
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input type="radio" name="period" value="second"
-                   [checked]="selectedPeriod() === 'second'"
-                   (change)="selectedPeriod.set('second'); updateDateRange()">
-            16th – End
-          </label>
-        </div>
+            <mat-form-field appearance="outline" class="ofbank-form__wide"><mat-label>SOA number</mat-label><input matInput [value]="soaNo()" (input)="soaNo.set($any($event.target).value)" placeholder="Enter SOA number"></mat-form-field>
+          </div>
 
-        <mat-form-field appearance="outline" class="w-full mb-4">
-          <mat-label>SOA Number</mat-label>
-          <input matInput [value]="soaNo()" (input)="soaNo.set($any($event.target).value)" placeholder="Enter SOA number">
-        </mat-form-field>
-
-        <p class="text-sm text-gray-600 mb-4">
-          Date range: <strong>{{ dateRange().label }}</strong>
-        </p>
-
-        <button class="w-full sm:w-auto" mat-raised-button color="primary" (click)="createBilling()">
-          Create Billing File
-        </button>
-      </mat-card>
+          <div class="ofbank-period-summary"><mat-icon aria-hidden="true">date_range</mat-icon><span>Billing period</span><strong>{{ dateRange().label }}</strong></div>
+          <footer class="ofbank-card__actions"><button mat-raised-button type="button" (click)="createBilling()"><mat-icon aria-hidden="true">description</mat-icon>Create billing file</button></footer>
+        }
+      </section>
     }
 
     @case ('loading') {
-      <div class="flex flex-col items-center gap-4 py-16">
-        <mat-spinner diameter="48"></mat-spinner>
-        <p class="text-gray-600">Creating billing file and loading tables...</p>
-      </div>
+      <section class="ofbank-state-card" role="status" aria-live="polite"><mat-spinner diameter="40"></mat-spinner><div><h2>Preparing billing workbook</h2><p>Creating the file and loading its billing tables.</p></div>
+      </section>
     }
 
     @case ('editing') {
-      <div>
-        <p class="text-sm text-gray-600 mb-4">
-          File: <strong>{{ fileName() }}</strong>
-        </p>
+      <section class="ofbank-editor"><header class="ofbank-editor__header"><div><p class="ofbank-billing__eyebrow">Billing workbook</p><h2>{{ fileName() }}</h2><p>Review the two billing sheets, then save your updates to Excel.</p></div><button mat-stroked-button type="button" (click)="openInSharePoint()"><mat-icon aria-hidden="true">open_in_new</mat-icon>Open in SharePoint</button></header>
 
         <mat-tab-group>
           <mat-tab label="Janitorial">
@@ -101,37 +68,15 @@
           </mat-tab>
         </mat-tab-group>
 
-        <div class="mt-6 flex flex-col sm:flex-row gap-4">
-          <button class="w-full sm:w-auto" mat-raised-button color="primary" (click)="saveBilling()">
-            Save to Excel
-          </button>
-          <button class="w-full sm:w-auto" mat-button (click)="openInSharePoint()">
-            Open in SharePoint
-          </button>
-        </div>
-      </div>
+        <footer class="ofbank-editor__actions"><button mat-raised-button type="button" (click)="saveBilling()"><mat-icon aria-hidden="true">save</mat-icon>Save to Excel</button></footer></section>
     }
 
     @case ('saving') {
-      <div class="flex flex-col items-center gap-4 py-16">
-        <mat-spinner diameter="48"></mat-spinner>
-        <p class="text-gray-600">Saving billing data...</p>
-      </div>
+      <section class="ofbank-state-card" role="status" aria-live="polite"><mat-spinner diameter="40"></mat-spinner><div><h2>Saving billing data</h2><p>Your changes are being written to the workbook.</p></div></section>
     }
 
     @case ('done') {
-      <mat-card class="p-4 sm:p-6 max-w-full sm:max-w-lg text-center">
-        <h3 class="text-lg font-semibold mb-2">Billing data saved successfully</h3>
-        <p class="text-sm text-gray-600 mb-6">File: {{ fileName() }}</p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <button class="w-full sm:w-auto" mat-raised-button color="primary" (click)="openInSharePoint()">
-            Open in SharePoint
-          </button>
-          <button class="w-full sm:w-auto" mat-button (click)="goToDashboard()">
-            Back to Dashboard
-          </button>
-        </div>
-      </mat-card>
+      <section class="ofbank-complete"><span aria-hidden="true"><mat-icon>check_circle</mat-icon></span><h2>Billing data saved</h2><p>{{ fileName() }} is ready in SharePoint.</p><div><button mat-raised-button type="button" (click)="openInSharePoint()"><mat-icon aria-hidden="true">open_in_new</mat-icon>Open in SharePoint</button><button mat-stroked-button type="button" (click)="goToDashboard()">Back to dashboard</button></div></section>
     }
   }
-</div>
+</section>

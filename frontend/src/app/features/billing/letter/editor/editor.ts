@@ -63,6 +63,8 @@ interface FieldConfig {
 })
 export class Editor implements OnInit {
   templates = signal<any[]>([])
+  templatesLoading = signal(true)
+  templatesError = signal<string | null>(null)
   selectedTemplate = signal<any>(null)
   isBlankSelected = signal(false)
   isGenerating = signal(false)
@@ -184,6 +186,8 @@ export class Editor implements OnInit {
 
   /** Fetches template list from SharePoint for the current client */
   async loadTemplates() {
+    this.templatesLoading.set(true)
+    this.templatesError.set(null)
     try {
       const code = this.code()
       if (!code) {
@@ -191,10 +195,13 @@ export class Editor implements OnInit {
         return
       }
       const templateList = await this.fileEditorService.getTemplates(code)
-      this.templates.set(templateList)
+      this.templates.set(Array.isArray(templateList) ? templateList : [])
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : 'Failed to load templates'
+      this.templatesError.set(errorMessage)
       toast.error(errorMessage)
+    } finally {
+      this.templatesLoading.set(false)
     }
   }
 
@@ -207,6 +214,14 @@ export class Editor implements OnInit {
   selectTemplate(t: any) {
     if (!t || !t.name) {
       toast.error('Invalid template')
+      return
+    }
+
+    if (this.selectedTemplate()?.id === t.id) {
+      this.selectedTemplate.set(null)
+      this.isBlankSelected.set(false)
+      this.formConfig.set([])
+      this.step.set(1)
       return
     }
 
@@ -264,13 +279,17 @@ export class Editor implements OnInit {
       return
     }
 
+    const code = this.code()
+    if (!code) {
+      toast.error('Invalid client code')
+      return
+    }
+
+    const documentTab = this.openDocumentTab()
+    if (!documentTab) return
+
     try {
       this.isGenerating.set(true)
-      const code = this.code()
-      if (!code) {
-        toast.error('Invalid client code')
-        return
-      }
 
       const doc = await this.fileEditorService.createBillingDocument(
         this.selectedTemplate().id,
@@ -280,8 +299,9 @@ export class Editor implements OnInit {
         this.fileType()!
       )
 
-      window.open(doc.editUrl, '_blank')
+      documentTab.location.assign(doc.editUrl)
     } catch (e) {
+      documentTab.close()
       const errorMessage = e instanceof Error ? e.message : 'Failed to create document'
       toast.error(errorMessage)
     } finally {
@@ -301,15 +321,19 @@ export class Editor implements OnInit {
       return
     }
 
+    const code = this.code()
+    if (!code) {
+      toast.error('Invalid client code')
+      return
+    }
+
+    const documentTab = this.openDocumentTab()
+    if (!documentTab) return
+
     try {
       this.isGenerating.set(true)
 
       const formValue = this.transformFormValues(this.fileType()!)
-      const code = this.code()
-      if (!code) {
-        toast.error('Invalid client code')
-        return
-      }
 
       const bLetter = await this.fileEditorService.createBillingDocument(
         this.selectedTemplate().id,
@@ -319,8 +343,9 @@ export class Editor implements OnInit {
         this.fileType()!
       )
 
-      window.open(bLetter.editUrl, '_blank')
+      documentTab.location.assign(bLetter.editUrl)
     } catch (e) {
+      documentTab.close()
       const errorMessage = e instanceof Error ? e.message : 'Failed to create billing letter'
       toast.error(errorMessage)
     } finally {
@@ -332,6 +357,19 @@ export class Editor implements OnInit {
         'generate'
       ])
     }
+  }
+
+  /** Opens a browser-approved placeholder tab before the async document request begins. */
+  private openDocumentTab(): Window | null {
+    const documentTab = window.open('', '_blank')
+    if (!documentTab) {
+      toast.error('Your browser blocked the document tab. Please allow pop-ups for this site and try again.')
+      return null
+    }
+
+    documentTab.document.title = 'Preparing billing document'
+    documentTab.document.body.innerHTML = '<p style="font-family:Arial,sans-serif;padding:24px">Preparing your billing document…</p>'
+    return documentTab
   }
 
   /** Restricts input to decimal numbers */

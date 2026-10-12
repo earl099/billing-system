@@ -1,15 +1,8 @@
-/**
- * @fileoverview Billing operations list component
- * Displays a paginated, searchable table of generated billing records
- * with view, download, and delete actions. Logs delete operations.
- */
-
-import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, OnDestroy, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
 import { LogDTO } from '@models/log';
 import { Auth } from '@services/auth';
@@ -19,41 +12,35 @@ import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-list',
-  imports: [
-    ...MATERIAL_MODULES,
-    MatTableModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatTooltipModule
-  ],
+  imports: [...MATERIAL_MODULES, MatTableModule, MatIconModule, MatTooltipModule, RouterLink],
   templateUrl: './list.html',
   styleUrl: './list.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class List implements OnInit, OnDestroy {
-  billingService = inject(Billing)
-  authService = inject(Auth)
-  logService = inject(Log)
-  router = inject(Router)
-  route = inject(ActivatedRoute)
+  private readonly billingService = inject(Billing)
+  private readonly authService = inject(Auth)
+  private readonly logService = inject(Log)
+  readonly router = inject(Router)
+  private readonly route = inject(ActivatedRoute)
 
-  code = signal(this.route.snapshot.paramMap.get('code') ?? '')
-  billingList = signal<any[]>([])
-  searchInput = signal('')
-  searchQuery = signal('')
-  currentPage = signal(1)
-  pageSize = signal(5)
-  loading = signal(true)
-  user = signal<any>({})
-
-  /** Debounce timer for search input */
+  readonly code = signal(this.route.snapshot.paramMap.get('code') ?? '')
+  readonly billingList = signal<any[]>([])
+  readonly loading = signal(true)
+  readonly loadError = signal<string | null>(null)
+  readonly pendingDeletion = signal<any | null>(null)
+  readonly deleting = signal(false)
+  readonly user = signal<any>({})
+  readonly searchInput = signal('')
+  readonly searchQuery = signal('')
+  readonly currentPage = signal(1)
+  readonly pageSize = signal(5)
+  readonly columns = ['billingLetter', 'createdBy', 'createdAt', 'actions']
   private debounceTimer: ReturnType<typeof setTimeout> | null = null
-  columns = ['billingLetter', 'createdBy', 'createdAt', 'actions']
 
   constructor() {
     effect(() => {
       const value = this.searchInput()
-
       if (this.debounceTimer) clearTimeout(this.debounceTimer)
       this.debounceTimer = setTimeout(() => {
         this.searchQuery.set(value)
@@ -62,25 +49,22 @@ export class List implements OnInit, OnDestroy {
     })
   }
 
-  /** Computed filtered billing list based on search query */
-  filteredBillings = computed(() => {
-    const q = this.searchQuery().toLowerCase().trim()
-    if(!q) return this.billingList();
-
-    return this.billingList().filter(b =>
-      b.createdAt?.toLowerCase().includes(q) ||
-      b.createdBy?.name?.toLowerCase().includes(q) ||
-      b.billingLetter?.toLowerCase().includes(q)
+  readonly filteredBillings = computed(() => {
+    const query = this.searchQuery().trim().toLowerCase()
+    if (!query) return this.billingList()
+    return this.billingList().filter((billing) =>
+      String(billing?.createdAt ?? '').toLowerCase().includes(query) ||
+      String(billing?.createdBy?.name ?? '').toLowerCase().includes(query) ||
+      String(billing?.billingLetter ?? '').toLowerCase().includes(query)
     )
   })
 
-  /** Computed paginated subset of filtered billings */
-  paginatedBillings = computed(() => {
+  readonly paginatedBillings = computed(() => {
     const start = (this.currentPage() - 1) * this.pageSize()
     return this.filteredBillings().slice(start, start + this.pageSize())
   })
 
-  async ngOnInit() {
+  async ngOnInit(): Promise<void> {
     if (!this.code()) {
       toast.error('Invalid client code')
       this.router.navigate(['/'])
@@ -89,73 +73,66 @@ export class List implements OnInit, OnDestroy {
     await this.load()
   }
 
-  ngOnDestroy() {
-    if (this.debounceTimer) clearTimeout(this.debounceTimer)
-  }
+  ngOnDestroy(): void { if (this.debounceTimer) clearTimeout(this.debounceTimer) }
 
-  /** Fetches billing records and formats dates for display */
-  async load() {
+  async load(): Promise<void> {
+    this.loading.set(true)
+    this.loadError.set(null)
     try {
-      this.loading.set(true)
-      const billingListData = await this.billingService.billingList(this.code())
-      
-      const processedList = billingListData.map((item: any) => ({
+      const [billingListData, userDetails] = await Promise.all([
+        this.billingService.billingList(this.code()),
+        this.authService.getProfile(),
+      ])
+      this.billingList.set((Array.isArray(billingListData) ? billingListData : []).map((item: any) => ({
         ...item,
-        createdAt: item.createdAt ? new Date(item.createdAt).toDateString() : 'N/A'
-      }))
-      
-      this.billingList.set(processedList)
-      const userDetails = await this.authService.getProfile()
-      this.user.set(userDetails)
-    } catch (e) {
-      const errorMessage = e instanceof Error ? e.message : 'Failed to load billings'
-      toast.error(errorMessage)
+        createdAt: item.createdAt ? new Date(item.createdAt).toDateString() : 'Not recorded',
+      })))
+      this.user.set(userDetails ?? {})
+    } catch {
+      this.billingList.set([])
+      this.loadError.set('We could not load this billing history. Please try again.')
     } finally {
       this.loading.set(false)
     }
   }
 
-  /** Navigates to the billing detail view */
-  view(b: any) {
-    if (!b?._id) {
+  view(billing: any): void {
+    if (!billing?._id) {
       toast.error('Invalid billing record')
       return
     }
-    this.router.navigate(['billing', this.code(), 'view', b._id])
+    this.router.navigate(['billing', this.code(), 'view', billing._id])
   }
 
-  /** Deletes a billing record with confirmation and audit logging */
-  async delete(b: any) {
-    if (!b?._id) {
+  requestDelete(billing: any): void {
+    if (!billing?._id) {
       toast.error('Invalid billing record')
       return
     }
-    if(!confirm('Are you sure you want to delete this billing? This action is permanent.')) return;
-    
+    this.pendingDeletion.set(billing)
+  }
+
+  cancelDelete(): void { if (!this.deleting()) this.pendingDeletion.set(null) }
+
+  async confirmDelete(): Promise<void> {
+    const billing = this.pendingDeletion()
+    if (!billing?._id || this.deleting()) return
+    this.deleting.set(true)
     try {
-      await this.billingService.deleteBilling(b._id, this.code())
-      toast.success('Deleted billing successfully')
-      
-      const log: LogDTO = {
-        operation: 'Deleted Billing'
-      }
-      await this.logService.create(log)
+      await this.billingService.deleteBilling(billing._id, this.code())
+      await this.logService.create({ operation: 'Deleted Billing' } as LogDTO)
+      toast.success('Billing record deleted successfully')
+      this.pendingDeletion.set(null)
       await this.load()
-    } catch (e) {
-      const errorMessage = e instanceof Error ? e.message : 'Failed to delete billing'
-      toast.error(errorMessage)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to delete billing record'
+      toast.error(message)
+    } finally {
+      this.deleting.set(false)
     }
   }
 
-  totalPages() { return Math.ceil(this.filteredBillings().length / this.pageSize()) }
-
-  gotoPage(page: number) {
-    if(this.totalPages() < 1) { this.currentPage.set(0) }
-    else { this.currentPage.set(Math.min(Math.max(page, 1), this.totalPages())) }
-  }
-
-  /** Navigates to the billing generation form */
-  generate() {
-    this.router.navigate(['billing', this.code(), 'generate'])
-  }
+  totalPages(): number { return Math.ceil(this.filteredBillings().length / this.pageSize()) }
+  gotoPage(page: number): void { this.currentPage.set(Math.min(Math.max(page, 1), Math.max(this.totalPages(), 1))) }
+  generate(): void { this.router.navigate(['billing', this.code(), 'generate']) }
 }

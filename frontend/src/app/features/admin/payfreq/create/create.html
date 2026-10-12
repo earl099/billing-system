@@ -1,24 +1,47 @@
-<div class="max-w-full md:max-w-2xl mx-auto p-4 sm:p-6 fade-in">
-  <mat-card class="p-4 sm:p-6 card-animate">
-    <h3 class="text-xl font-semibold mb-4">Create Pay Frequency</h3>
+<section class="pay-frequency-create fade-in" aria-labelledby="pay-frequency-create-title">
+  <header class="pay-frequency-create__header">
+    <div>
+      <p class="pay-frequency-create__eyebrow">Administration</p>
+      <h1 id="pay-frequency-create-title">Create pay frequency</h1>
+      <p class="pay-frequency-create__description">Add a payment schedule for use with client accounts.</p>
+    </div>
 
-    <form [formGroup]="form" class="grid gap-4">
-      <mat-form-field class="w-full" appearance="fill">
-        <mat-label>Pay Type</mat-label>
-        <input matInput formControlName="payType" />
-        @if (form.get('payType')?.invalid) {
-          <mat-error>Please input a valid Pay Type.</mat-error>
+    <a mat-stroked-button routerLink="/admin/payfreq/list" class="back-button">
+      <mat-icon>arrow_back</mat-icon>
+      Back to frequencies
+    </a>
+  </header>
+
+  <section class="pay-frequency-form-card" aria-labelledby="pay-frequency-form-title">
+    <div class="pay-frequency-form-card__intro">
+      <span class="pay-frequency-form-card__icon" aria-hidden="true"><mat-icon>calendar_month</mat-icon></span>
+      <div>
+        <h2 id="pay-frequency-form-title">Frequency details</h2>
+        <p>Enter a clear, recognizable payment schedule name.</p>
+      </div>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <mat-form-field appearance="outline" class="pay-type-field">
+        <mat-label>Pay type</mat-label>
+        <mat-icon matPrefix>calendar_month</mat-icon>
+        <input matInput formControlName="payType" autocomplete="off" />
+        @if (form.get('payType')?.invalid && form.get('payType')?.touched) {
+          <mat-error>Please enter a pay type.</mat-error>
         }
       </mat-form-field>
 
-      <div class="flex flex-col sm:flex-row gap-3">
-        <button class="w-full sm:w-auto" mat-raised-button color="primary" [disabled]="loading" (click)="submit()">Create Pay Frequency</button>
-        <button class="w-full sm:w-auto" mat-stroked-button routerLink="/admin/payfreq/list">Cancel</button>
-      </div>
-
       @if (error) {
-        <p class="text-red-600 mt-2">{{error}}</p>
+        <p class="form-error" role="alert">{{ error }}</p>
       }
+
+      <div class="pay-frequency-form-card__actions">
+        <button mat-raised-button type="submit" class="create-button" [disabled]="loading">
+          <mat-icon>add</mat-icon>
+          {{ loading ? 'Creating…' : 'Create frequency' }}
+        </button>
+        <a mat-stroked-button routerLink="/admin/payfreq/list" class="cancel-button">Cancel</a>
+      </div>
     </form>
-  </mat-card>
-</div>
+  </section>
+</section>

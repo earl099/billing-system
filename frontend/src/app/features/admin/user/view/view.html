@@ -1,27 +1,86 @@
-<div class="max-w-full md:max-w-2xl mx-auto p-4 sm:p-6 fade-in">
-  <mat-card class="p-4 sm:p-6 card-animate">
-    <h3 class="text-xl font-semibold mb-4">User Details</h3>
-
-    @if (user()) {
-      <p><strong>Name:</strong> {{ user().name }}</p>
-      <p><strong>Username:</strong> {{ user().username }}</p>
-      <p><strong>Email:</strong> {{ user().email }}</p>
-      <p><strong>Role:</strong> {{ user().role }}</p>
-      <p>
-        <strong>Handled Clients:</strong>
-        @for (client of user().handledClients; track client) {
-          @for (c of clients(); track c) {
-            @if(c._id === client) {
-              {{ c.code }}
-            }
-          }
-        }
-      </p>
-    }
-
-    <div class="flex flex-col sm:flex-row sm:justify-evenly gap-3 mt-4">
-      <button class="w-full sm:w-auto" mat-raised-button color="primary" (click)="edit()">Edit</button>
-      <button class="w-full sm:w-auto" mat-stroked-button (click)="router.navigate(['/admin/user/list'])">Back</button>
+<section class="user-details-page" aria-labelledby="user-details-title">
+  <header class="user-details-page__header">
+    <div>
+      <p class="user-details-page__eyebrow">Administration</p>
+      <h1 id="user-details-title">User details</h1>
+      <p class="user-details-page__description">Review the account information and workspace access.</p>
     </div>
-  </mat-card>
-</div>
+
+    <button mat-stroked-button type="button" class="back-link" (click)="backToUsers()">
+      <mat-icon aria-hidden="true">arrow_back</mat-icon>
+      Back to users
+    </button>
+  </header>
+
+  @if (loading()) {
+    <section class="user-details-card user-details-loading" role="status" aria-live="polite">
+      <mat-icon aria-hidden="true">sync</mat-icon>
+      <div>
+        <h2>Loading user details</h2>
+        <p>Retrieving account information and access settings.</p>
+      </div>
+    </section>
+  } @else if (user(); as currentUser) {
+    <section class="user-details-card">
+      <div class="user-details-card__heading">
+        <div class="user-details-card__icon" aria-hidden="true">
+          <mat-icon>person</mat-icon>
+        </div>
+        <div>
+          <p class="section-eyebrow">Account profile</p>
+          <h2>{{ currentUser.name || 'Unnamed user' }}</h2>
+          <span>{{ currentUser.username || 'No username available' }}</span>
+        </div>
+        <span class="role-badge">{{ currentUser.role || 'User' }}</span>
+      </div>
+
+      <dl class="user-details-grid">
+        <div class="detail-item">
+          <dt><mat-icon aria-hidden="true">person</mat-icon>Full name</dt>
+          <dd>{{ currentUser.name || 'Not provided' }}</dd>
+        </div>
+        <div class="detail-item">
+          <dt><mat-icon aria-hidden="true">alternate_email</mat-icon>Username</dt>
+          <dd>{{ currentUser.username || 'Not provided' }}</dd>
+        </div>
+        <div class="detail-item detail-item--wide">
+          <dt><mat-icon aria-hidden="true">mail</mat-icon>Email address</dt>
+          <dd>{{ currentUser.email || 'Not provided' }}</dd>
+        </div>
+      </dl>
+
+      <section class="access-summary" aria-labelledby="workspace-access-title">
+        <mat-icon aria-hidden="true">business</mat-icon>
+        <div>
+          <p id="workspace-access-title">Workspace access</p>
+          @if (currentUser.role === 'Admin') {
+            <strong>All client workspaces</strong>
+            <span>Access is provided by the Administrator role.</span>
+          } @else if (handledClientNames().length) {
+            <strong>{{ handledClientNames().join(', ') }}</strong>
+            <span>Assigned client workspaces.</span>
+          } @else {
+            <strong>No client workspaces assigned</strong>
+            <span>Assign client access by editing this user.</span>
+          }
+        </div>
+      </section>
+
+      <div class="user-details-card__actions">
+        <button mat-raised-button type="button" class="edit-button" (click)="edit()">
+          <mat-icon aria-hidden="true">edit</mat-icon>
+          Edit user
+        </button>
+        <button mat-stroked-button type="button" class="cancel-button" (click)="backToUsers()">Back</button>
+      </div>
+    </section>
+  } @else {
+    <section class="user-details-card user-details-loading" role="status">
+      <mat-icon aria-hidden="true">person_off</mat-icon>
+      <div>
+        <h2>User unavailable</h2>
+        <p>This user could not be loaded. Return to the user list and try again.</p>
+      </div>
+    </section>
+  }
+</section>

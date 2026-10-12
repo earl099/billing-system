@@ -35,6 +35,7 @@ import { toast } from 'ngx-sonner';
 })
 export class Create implements OnInit {
   payFreqs = signal<any[]>([])
+  optionsLoading = signal(true)
 
   fb = inject(FormBuilder)
   clientService = inject(Client)
@@ -59,16 +60,15 @@ export class Create implements OnInit {
 
   /** Fetches pay frequency options from the API */
   async loadPayFreqs() {
-    const payFreqList = await this.payFreqService.list()
-    this.payFreqs.set(payFreqList)
+    this.optionsLoading.set(true)
+    try { this.payFreqs.set(await this.payFreqService.list()) } finally { this.optionsLoading.set(false) }
   }
 
   /** Submits the client creation form with confirmation and audit logging */
   async submit() {
-    if(this.form.invalid) return
-    this.loading = true
-
+    if(this.form.invalid) { this.form.markAllAsTouched(); return }
     if(!confirm('Are you sure you want to create this Client?')) return
+    this.loading = true
 
     try {
       const clientObject = this.form.getRawValue() as ClientDTO

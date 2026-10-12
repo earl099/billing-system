@@ -1,1 +1,24 @@
-mat-card { border-radius: 14px; }
+:host { display: block; }
+.log-detail { max-width: 62rem; margin: 0 auto; color: #173a63; }
+.log-detail__header { display: flex; align-items: end; justify-content: space-between; gap: 1.5rem; margin-bottom: 1.5rem; }
+.log-detail__eyebrow { margin: 0 0 .375rem; color: #2187a7; font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+h1 { margin: 0; color: #102f53; font-size: clamp(2rem, 4vw, 2.5rem); font-weight: 750; line-height: 1.15; letter-spacing: -.04em; }
+.log-detail__description { margin: .5rem 0 0; color: #58708c; font-size: .9375rem; line-height: 1.5; }
+.back-button { display: inline-flex; min-height: 2.875rem; align-items: center; gap: .5rem; padding: 0 1rem; border-color: #8fb0cb !important; border-radius: .625rem; color: #1b5b82 !important; font-weight: 700; }
+.log-detail-card { max-width: 42rem; padding: 1.5rem; border: 1px solid #d7e3ef; border-radius: .875rem; background: #fff; box-shadow: 0 .375rem 1.5rem rgb(18 59 104 / 7%); }
+.log-detail-card__intro { display: flex; align-items: center; gap: .875rem; padding-bottom: 1.25rem; border-bottom: 1px solid #d7e3ef; }
+.log-detail-card__intro > .mat-icon { padding: .625rem; border-radius: .625rem; color: #2187a7; background: #e7f3fb; }
+.log-detail-card h2 { margin: 0; color: #102f53; font-size: 1.125rem; }
+.log-detail-card__intro span { color: #58708c; font-size: .875rem; }
+.log-detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; margin: 1.5rem 0; }
+.log-detail-grid div { min-height: 6.5rem; padding: 1rem; border: 1px solid #cdddeb; border-radius: .625rem; background: #f6faff; }
+.log-detail-grid__wide { grid-column: 1 / -1; }
+dt { display: flex; align-items: center; gap: .375rem; color: #376d94; font-size: .75rem; font-weight: 700; }
+dt .mat-icon { width: 1rem; height: 1rem; font-size: 1rem; } dd { margin: .625rem 0 0; color: #173a63; font-weight: 650; line-height: 1.45; }
+.log-detail-card__actions { padding-top: 1.25rem; border-top: 1px solid #d7e3ef; }
+.log-detail-card__actions button { display: inline-flex; align-items: center; gap: .5rem; min-height: 2.625rem; border-radius: .625rem; color: #083047 !important; background: #36bcd2 !important; font-weight: 700; box-shadow: none; }
+.log-detail-state { display: flex; min-height: 12rem; align-items: center; justify-content: center; gap: .875rem; color: #58708c; }
+.log-detail-state > .mat-icon { width: 2rem; height: 2rem; color: #2187a7; font-size: 2rem; }
+.log-detail-state div { display: grid; gap: .2rem; }.log-detail-state strong { color: #173a63; font-size: .9375rem; }.log-detail-state span { font-size: .8125rem; }.log-detail-state--error > .mat-icon { color: #b74853; }
+:host-context(html.dark) .log-detail { color: #dbe9f3; }:host-context(html.dark) h1, :host-context(html.dark) .log-detail-card h2, :host-context(html.dark) dd, :host-context(html.dark) .log-detail-state strong { color: #f1f7fb; }:host-context(html.dark) .log-detail__eyebrow { color: #55d3e5; }:host-context(html.dark) .log-detail__description, :host-context(html.dark) .log-detail-card__intro span, :host-context(html.dark) .log-detail-state { color: #aac0d1; }:host-context(html.dark) .back-button { border-color: #365973 !important; color: #b9d8e9 !important; }:host-context(html.dark) .log-detail-card { border-color: #315168; background: #152536; box-shadow: 0 .5rem 1.5rem rgb(0 0 0 / 18%); }:host-context(html.dark) .log-detail-card__intro, :host-context(html.dark) .log-detail-card__actions { border-color: #315168; }:host-context(html.dark) .log-detail-card__intro > .mat-icon { color: #7ce1ef; background: #203d52; }:host-context(html.dark) .log-detail-grid div { border-color: #365973; background: #1a3043; }:host-context(html.dark) dt { color: #72d8e7; }:host-context(html.dark) .log-detail-card__actions button { color: #072c40 !important; background: #55d3e5 !important; }:host-context(html.dark) .log-detail-state > .mat-icon { color: #72d8e7; }:host-context(html.dark) .log-detail-state--error > .mat-icon { color: #f3abb2; }
+@media (max-width: 38rem) { .log-detail__header { align-items: stretch; flex-direction: column; }.back-button, .log-detail-card__actions button { width: 100%; justify-content: center; }.log-detail-card { padding: 1rem; }.log-detail-grid { grid-template-columns: 1fr; }.log-detail-grid__wide { grid-column: auto; } }

@@ -6,7 +6,7 @@
  */
 
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { Component, computed, inject, OnDestroy, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, effect, inject, OnDestroy, OnInit, signal, untracked, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,7 +15,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { ClientDTO } from '@models/client';
 import { LogDTO } from '@models/log';
 import { Auth } from '@services/auth';
@@ -24,7 +24,7 @@ import { Log } from '@services/log';
 import { ThemeService } from '@services/theme';
 import { NgxSonnerToaster, toast } from 'ngx-sonner';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { filter, takeUntil } from 'rxjs/operators';
 
 /** Single item in the sidenav menu */
 interface MenuItem {
@@ -72,6 +72,32 @@ export class App implements OnInit, OnDestroy {
   sidenavOpened = signal(false);
   /** Whether the viewport is a mobile handset */
   isMobile = signal(false);
+  /** True for pages that should use the public landing/authentication shell. */
+  readonly isPublicRoute = signal(this.isPublicUrl(this.router.url));
+  /** Shows the authenticated sidebar only within protected application pages. */
+  readonly shouldShowAppNavigation = computed(() =>
+    this.authService.isLoggedIn() && !this.isPublicRoute(),
+  );
+
+  /** Keeps shell navigation in sync when authentication changes without recreating the app shell. */
+  private readonly sessionEffect = effect(() => {
+    if (this.authService.isLoggedIn()) {
+      this.authService.startTokenWatcher();
+      if (!untracked(this.user)) {
+        void this.loadData();
+      }
+      if (!this.isPublicRoute()) {
+        this.sidenavOpened.set(!untracked(this.isMobile));
+      } else {
+        this.sidenavOpened.set(false);
+      }
+      return;
+    }
+
+    this.user.set(null);
+    this.clients.set([]);
+    this.sidenavOpened.set(false);
+  });
 
   private destroy$ = new Subject<void>();
 
@@ -143,20 +169,26 @@ export class App implements OnInit, OnDestroy {
   /** Starts token expiration watcher, loads user profile/clients, and sets up responsive sidenav */
   ngOnInit(): void {
     this.isMobile.set(this.breakpointObserver.isMatched(Breakpoints.Handset));
-    this.sidenavOpened.set(!this.isMobile() && this.authService.hasValidToken());
+    this.sidenavOpened.set(!this.isMobile() && this.authService.isLoggedIn());
 
     this.breakpointObserver
       .observe([Breakpoints.Handset])
       .pipe(takeUntil(this.destroy$))
       .subscribe((result) => {
         this.isMobile.set(result.matches);
-        this.sidenavOpened.update(() => !result.matches && this.authService.hasValidToken());
+        this.sidenavOpened.update(() => !result.matches && this.shouldShowAppNavigation());
       });
 
-    if (this.authService.hasValidToken()) {
-      this.authService.startTokenWatcher();
-      this.loadData();
-    }
+    this.router.events
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((event) => {
+        const isPublic = this.isPublicUrl(event.urlAfterRedirects);
+        this.isPublicRoute.set(isPublic);
+        this.sidenavOpened.set(!isPublic && !this.isMobile() && this.authService.isLoggedIn());
+      });
   }
 
   /** Cleans up token watcher timeout and breakpoint subscription to prevent memory leaks */
@@ -182,12 +214,18 @@ export class App implements OnInit, OnDestroy {
 
   /** Returns the appropriate home route based on authentication state */
   home() {
-    if (this.authService.hasValidToken()) {
+    if (this.authService.isLoggedIn()) {
       return '/dashboard';
     }
     else {
       return '/';
     }
+  }
+
+  /** Identifies routes that must not display authenticated navigation. */
+  private isPublicUrl(url: string): boolean {
+    const path = url.split('?')[0].split('#')[0];
+    return path === '/' || path === '/home' || path === '/login' || path === '/signup';
   }
 
   /** Toggles the sidenav open/closed state */

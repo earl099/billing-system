@@ -45,6 +45,7 @@ describe('App', () => {
 
   const authStub = {
     token: signal<string | null>(null),
+    isLoggedIn: signal(false),
     hasValidToken: vi.fn(() => false),
     startTokenWatcher: vi.fn(),
     clearTokenWatcher: vi.fn(),
@@ -67,6 +68,7 @@ describe('App', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     authStub.token.set(null);
+    authStub.isLoggedIn.set(false);
     authStub.hasValidToken.mockReturnValue(false);
     authStub.getProfile.mockResolvedValue({ role: 'User', handledClients: [] } as any);
     clientStub.allList.mockResolvedValue([]);
@@ -135,6 +137,7 @@ describe('App', () => {
 
     it('hides client menus the user does not handle', async () => {
       authStub.hasValidToken.mockReturnValue(true);
+      authStub.isLoggedIn.set(true);
       authStub.getProfile.mockResolvedValue({ role: 'User', handledClients: ['c1'] } as any);
       clientStub.allList.mockResolvedValue([
         { _id: 'c1', code: 'DOF', name: 'DOF' },
@@ -153,6 +156,7 @@ describe('App', () => {
 
     it('omits rate and manpower menus for the excluded clients', async () => {
       authStub.hasValidToken.mockReturnValue(true);
+      authStub.isLoggedIn.set(true);
       authStub.getProfile.mockResolvedValue({ role: 'User', handledClients: ['c1'] } as any);
       clientStub.allList.mockResolvedValue([{ _id: 'c1', code: 'ACID', name: 'ACID' }]);
 
@@ -166,6 +170,7 @@ describe('App', () => {
 
     it('exposes admin sections for an admin user', async () => {
       authStub.hasValidToken.mockReturnValue(true);
+      authStub.isLoggedIn.set(true);
       authStub.getProfile.mockResolvedValue({ role: 'Admin', handledClients: [] } as any);
       clientStub.allList.mockResolvedValue([{ _id: 'c1', code: 'DOF', name: 'DOF' }]);
 
@@ -180,6 +185,7 @@ describe('App', () => {
 
     it('always offers a Dashboard entry once signed in', async () => {
       authStub.hasValidToken.mockReturnValue(true);
+      authStub.isLoggedIn.set(true);
       authStub.getProfile.mockResolvedValue({ role: 'User', handledClients: [] } as any);
 
       await fixture.whenStable();
@@ -188,6 +194,32 @@ describe('App', () => {
 
       expect(items[0].label).toBe('Dashboard');
       expect(items[0].route).toBe('/dashboard');
+    });
+
+    it('hides application navigation on a public route, even with an active session', async () => {
+      authStub.isLoggedIn.set(true);
+      fixture.componentInstance.isPublicRoute.set(true);
+
+      await fixture.whenStable();
+
+      expect(fixture.componentInstance.shouldShowAppNavigation()).toBe(false);
+    });
+
+    it('loads the navigation when a user signs in after the shell has started', async () => {
+      await fixture.whenStable();
+
+      authStub.token.set('valid-token');
+      authStub.isLoggedIn.set(true);
+      authStub.hasValidToken.mockReturnValue(true);
+      authStub.getProfile.mockResolvedValue({ role: 'Admin', handledClients: [] } as any);
+      clientStub.allList.mockResolvedValue([{ _id: 'c1', code: 'DOF', name: 'DOF' }]);
+
+      fixture.detectChanges();
+      await Promise.resolve();
+      await fixture.whenStable();
+
+      expect(fixture.componentInstance.menuItems().map((item: any) => item.label)).toContain('Dashboard');
+      expect(fixture.componentInstance.menuItems().map((item: any) => item.label)).toContain('Admin');
     });
   });
 });

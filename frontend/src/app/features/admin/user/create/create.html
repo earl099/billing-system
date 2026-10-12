@@ -1,75 +1,109 @@
-<div class="max-w-full md:max-w-2xl mx-auto p-4 sm:p-6 fade-in">
-  <mat-card class="p-4 sm:p-6 card-animate">
-    <h3 class="text-xl font-semibold mb-4">Create User</h3>
+<section class="user-form-page fade-in" aria-labelledby="create-user-title">
+  <header class="user-form-page__header">
+    <div>
+      <p class="user-form-page__eyebrow">Administration</p>
+      <h1 id="create-user-title">Create user</h1>
+      <p class="user-form-page__description">Create an account and assign the appropriate access.</p>
+    </div>
+    <a mat-stroked-button routerLink="/admin/user/list" class="back-link">
+      <mat-icon aria-hidden="true">arrow_back</mat-icon>
+      Back to users
+    </a>
+  </header>
 
-    <form [formGroup]="form" class="grid gap-4">
-      <mat-form-field class="w-full" appearance="fill">
-        <mat-label>Name</mat-label>
-        <input matInput formControlName="name" />
-        @if (form.get('name')?.invalid) {
-          <mat-error>Please input your name.</mat-error>
-        }
-      </mat-form-field>
+  <section class="user-form-card" aria-label="Create user form">
+    <div class="user-form-card__heading">
+      <span class="user-form-card__icon" aria-hidden="true"><mat-icon>person_add</mat-icon></span>
+      <div>
+        <h2>Account details</h2>
+        <p>Fields marked with an asterisk are required.</p>
+      </div>
+    </div>
 
-      <mat-form-field class="w-full" appearance="fill">
-        <mat-label>Username</mat-label>
-        <input matInput formControlName="username" />
-        @if (form.get('username')?.invalid) {
-          <mat-error>Please input your username.</mat-error>
-        }
-      </mat-form-field>
-
-      <mat-form-field class="w-full" appearance="fill">
-        <mat-label>Email</mat-label>
-        <input type="email" matInput formControlName="email" />
-        @if (form.get('email')?.invalid) {
-          <mat-error>Please input a valid email.</mat-error>
-        }
-      </mat-form-field>
-
-      <mat-form-field class="w-full" appearance="fill">
-        <mat-label>Password</mat-label>
-        <input type="password" matInput formControlName="password" />
-        @if (form.get('password')?.invalid) {
-          <mat-error>Please input your password.</mat-error>
-        }
-      </mat-form-field>
-
-      <mat-form-field class="w-full" appearance="fill">
-        <mat-label>Role</mat-label>
-        <mat-select formControlName="role" (valueChange)="isAdmin()">
-          <mat-option value="Admin">Admin</mat-option>
-          <mat-option value="User">User</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field class="w-full" appearance="fill">
-        <mat-label>Handled Clients</mat-label>
-        <mat-select formControlName="handledClients" multiple>
-          @for (client of clients(); track client) {
-            @if (form.get('role')?.value === 'User') {
-              @if (client.code !== 'ALL' && client.code !== 'NONE') {
-                <mat-option [value]="client._id">{{ client.code }} ({{ client.name }})</mat-option>
-              }
-            }
-            @else {
-              @if (client.code === 'ALL') {
-                <mat-option [value]="client._id">{{ client.code }} ({{ client.name }})</mat-option>
-              }
-            }
-
+    <form [formGroup]="form" class="user-form" (ngSubmit)="submit()">
+      <div class="user-form__grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Name</mat-label>
+          <mat-icon matPrefix>person</mat-icon>
+          <input matInput formControlName="name" />
+          @if (form.get('name')?.invalid && form.get('name')?.touched) {
+            <mat-error>Please input your name.</mat-error>
           }
-        </mat-select>
-      </mat-form-field>
+        </mat-form-field>
 
-      <div class="flex flex-col sm:flex-row gap-3">
-        <button class="w-full sm:w-auto" mat-raised-button color="primary" [disabled]="loading()" (click)="submit()">Create User</button>
-        <button class="w-full sm:w-auto" mat-stroked-button routerLink="/admin/user/list">Cancel</button>
+        <mat-form-field appearance="outline">
+          <mat-label>Username</mat-label>
+          <mat-icon matPrefix>alternate_email</mat-icon>
+          <input matInput formControlName="username" />
+          @if (form.get('username')?.invalid && form.get('username')?.touched) {
+            <mat-error>Please input your username.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <mat-icon matPrefix>mail</mat-icon>
+          <input type="email" matInput formControlName="email" />
+          @if (form.get('email')?.invalid && form.get('email')?.touched) {
+            <mat-error>Please input a valid email.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Password</mat-label>
+          <mat-icon matPrefix>lock</mat-icon>
+          <input type="password" matInput formControlName="password" />
+          @if (form.get('password')?.invalid && form.get('password')?.touched) {
+            <mat-error>Please input your password.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Role</mat-label>
+          <mat-icon matPrefix>admin_panel_settings</mat-icon>
+          <mat-select formControlName="role" panelClass="user-select-panel">
+            <mat-option value="Admin">Admin</mat-option>
+            <mat-option value="User">User</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        @if (form.get('role')?.value === 'Admin') {
+          <div class="role-access-summary" aria-label="Administrator client access">
+            <mat-icon aria-hidden="true">business</mat-icon>
+            <div>
+              <span>Client access</span>
+              <strong>All client workspaces</strong>
+              <small>Access is provided by the Administrator role.</small>
+            </div>
+          </div>
+        } @else {
+          <mat-form-field appearance="outline">
+            <mat-label>Handled clients</mat-label>
+            <mat-icon matPrefix>business</mat-icon>
+            <mat-select formControlName="handledClients" multiple panelClass="user-select-panel">
+              @for (client of clients(); track client) {
+              @if (form.get('role')?.value === 'User') {
+                @if (client.code !== 'ALL' && client.code !== 'NONE') {
+                    <mat-option [value]="client._id">{{ client.code }} ({{ client.name }})</mat-option>
+                  }
+                }
+              }
+            </mat-select>
+          </mat-form-field>
+        }
+      </div>
+
+      <div class="user-form__actions">
+        <button type="submit" mat-raised-button [disabled]="loading()" class="create-user-button">
+          <mat-icon aria-hidden="true">person_add</mat-icon>
+          {{ loading() ? 'Creating user…' : 'Create user' }}
+        </button>
+        <a mat-stroked-button routerLink="/admin/user/list" class="cancel-button">Cancel</a>
       </div>
 
       @if (error()) {
-        <p class="text-red-600 mt-2">{{error()}}</p>
+        <p class="form-error" role="alert">{{ error() }}</p>
       }
     </form>
-  </mat-card>
-</div>
+  </section>
+</section>

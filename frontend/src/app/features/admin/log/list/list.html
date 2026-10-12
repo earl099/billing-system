@@ -1,49 +1,73 @@
-<div class="max-w-6xl mx-auto p-4 sm:p-6 fade-in">
-  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
-    <h2 class="text-2xl font-semibold">Logs</h2>
-  </div>
+<section class="audit-logs fade-in" aria-labelledby="audit-logs-title">
+  <header class="audit-logs__header">
+    <div>
+      <p class="audit-logs__eyebrow">Administration</p>
+      <h1 id="audit-logs-title">Audit logs</h1>
+      <p class="audit-logs__description">Review recorded account and workspace activity.</p>
+    </div>
+    <a mat-stroked-button routerLink="/dashboard" class="dashboard-button">
+      <mat-icon aria-hidden="true">arrow_back</mat-icon>
+      Dashboard
+    </a>
+  </header>
 
-  <div class="mb-4">
-    <input
-      type="text"
-      [value]="searchInput()"
-      (input)="searchInput.set($any($event.target).value)"
-      placeholder="Search users..."
-      class="border rounded px-3 py-2 w-full md:w-1/3 motion-smooth"
-    />
-  </div>
-
-  <mat-card class="p-4 card-animate">
-    <div class="overflow-x-auto">
-      <table mat-table [dataSource]="paginatedLogs()" class="min-w-full w-max md:w-full">
-        <ng-container matColumnDef="user">
-          <th mat-header-cell *matHeaderCellDef>User</th>
-          <td mat-cell *matCellDef="let l">{{ l.user }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="operation">
-          <th mat-header-cell *matHeaderCellDef>Operation</th>
-          <td mat-cell *matCellDef="let l">{{ l.operation }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="view">
-          <th mat-header-cell *matHeaderCellDef>View</th>
-          <td mat-cell *matCellDef="let l">
-            <div class="flex flex-wrap gap-2">
-              <button mat-icon-button (click)="view(l)" title="View" matTooltip="View Log" class="min-w-[44px] min-h-[44px] flex items-center justify-center"><mat-icon>visibility</mat-icon></button>
-            </div>
-          </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="columns"></tr>
-        <tr mat-row *matRowDef="let row; columns: columns;"></tr>
-      </table>
+  <section class="audit-table-card" aria-label="Audit history">
+    <div class="audit-table-card__toolbar">
+      <label class="search-field" for="log-search">
+        <mat-icon aria-hidden="true">search</mat-icon>
+        <input id="log-search" type="search" [value]="searchInput()"
+          (input)="searchInput.set($any($event.target).value)" placeholder="Search by user or activity" />
+      </label>
     </div>
 
-    <div class="flex flex-wrap justify-start sm:justify-end gap-2 mt-4">
-      <button mat-stroked-button (click)="gotoPage(currentPage()-1)" [disabled]="currentPage()===1">Prev</button>
-      <span class="px-2 py-1 bg-gray-100 rounded self-center">{{currentPage()}} / {{totalPages()}}</span>
-      <button mat-stroked-button (click)="gotoPage(currentPage()+1)" [disabled]="currentPage()===totalPages()">Next</button>
-    </div>
-  </mat-card>
-</div>
+    @if (loading()) {
+      <div class="audit-table-state" role="status" aria-live="polite">
+        <mat-icon aria-hidden="true">sync</mat-icon>
+        <div><strong>Loading audit logs</strong><span>Retrieving recorded activity.</span></div>
+      </div>
+    } @else if (loadError()) {
+      <div class="audit-table-state audit-table-state--error" role="alert">
+        <mat-icon aria-hidden="true">error_outline</mat-icon>
+        <div><strong>Audit logs are unavailable</strong><span>{{ loadError() }}</span></div>
+        <button mat-stroked-button type="button" (click)="load()">Try again</button>
+      </div>
+    } @else if (paginatedLogs().length) {
+      <div class="table-scroll">
+        <table mat-table [dataSource]="paginatedLogs()" class="audit-table">
+          <ng-container matColumnDef="user">
+            <th mat-header-cell *matHeaderCellDef>User</th>
+            <td mat-cell *matCellDef="let log"><div class="log-user"><span aria-hidden="true">{{ log.user?.charAt(0) || '?' }}</span>{{ log.user || 'System' }}</div></td>
+          </ng-container>
+          <ng-container matColumnDef="operation">
+            <th mat-header-cell *matHeaderCellDef>Activity</th>
+            <td mat-cell *matCellDef="let log">{{ log.operation || 'No activity details' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef>Date recorded</th>
+            <td mat-cell *matCellDef="let log">{{ formatDate(log.createdAt) }}</td>
+          </ng-container>
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let log"><button mat-icon-button type="button" (click)="view(log)" matTooltip="View log details" aria-label="View log details" [disabled]="!log._id"><mat-icon>visibility</mat-icon></button></td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="columns"></tr>
+          <tr mat-row *matRowDef="let row; columns: columns;"></tr>
+        </table>
+      </div>
+    } @else {
+      <div class="audit-table-state" role="status">
+        <mat-icon aria-hidden="true">history</mat-icon>
+        <div><strong>No audit logs found</strong><span>{{ searchQuery() ? 'Try a different search term.' : 'Recorded activity will appear here.' }}</span></div>
+      </div>
+    }
+
+    <footer class="audit-table-card__footer">
+      <p>{{ filteredLogs().length }} log{{ filteredLogs().length === 1 ? '' : 's' }}</p>
+      <div class="pagination" aria-label="Pagination">
+        <button mat-stroked-button type="button" (click)="gotoPage(currentPage() - 1)" [disabled]="currentPage() === 1">Previous</button>
+        <span aria-live="polite">{{ currentPage() }} / {{ totalPages() || 1 }}</span>
+        <button mat-stroked-button type="button" (click)="gotoPage(currentPage() + 1)" [disabled]="currentPage() === totalPages() || totalPages() === 0">Next</button>
+      </div>
+    </footer>
+  </section>
+</section>
