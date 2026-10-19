@@ -82,8 +82,8 @@ export class List implements OnInit, OnDestroy {
     if(!q) return this.data();
 
     return this.data().filter(d =>
-      d.posCode?.toLowerCase().includes(q) ||
-      d.posName?.toLowerCase().includes(q)
+      String(d.posCode ?? '').toLowerCase().includes(q) ||
+      String(d.posName ?? '').toLowerCase().includes(q)
     )
   })
 
@@ -161,13 +161,14 @@ export class List implements OnInit, OnDestroy {
     }
   }
 
-  /** Navigates to the billing rate detail view */
   view(d: any) {
     if (!d?.index && d?.index !== 0) {
       toast.error('Invalid record')
       return
     }
-    this.router.navigate(['rates', this.code(), d.index, 'view'])
+    this.router.navigate(['rates', this.code(), d.index, 'view'], {
+      queryParams: { fileName: this.selectedTemplate()?.name ?? '' }
+    })
   }
 
   /** Navigates to the billing rate edit form */
@@ -176,7 +177,9 @@ export class List implements OnInit, OnDestroy {
       toast.error('Invalid record')
       return
     }
-    this.router.navigate(['rates', this.code(), d.index, 'edit'])
+    this.router.navigate(['rates', this.code(), d.index, 'edit'], {
+      queryParams: { fileName: this.selectedTemplate()?.name ?? '' }
+    })
   }
 
   /** Deletes a billing rate from the SharePoint PositionTable with confirmation and audit logging */
@@ -187,7 +190,7 @@ export class List implements OnInit, OnDestroy {
     }
     if (!confirm('Are you sure you want to delete this billing rate?')) return
     try {
-      await this.ratesService.delete(this.code(), d.index)
+      await this.ratesService.delete(this.code(), d.index, this.selectedTemplate()?.name ?? '')
       toast.success('Billing rate deleted successfully')
 
       const log: LogDTO = {

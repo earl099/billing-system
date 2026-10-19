@@ -1034,6 +1034,120 @@ export async function getFromTable(req, res) {
 }
 
 /**
+ * Fetches the column headers of a SharePoint Excel table and detects formula columns
+ *
+ * @param {import('express').Request} req - Request with params: { code }, query: { fileName, tableName }
+ * @param {import('express').Response} res - Response with { columns: string[], formulaColumns: string[] }
+ */
+export async function getTableColumns(req, res) {
+    try {
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+        const { code } = req.params
+        const { fileName, tableName } = req.query
+
+        const colRes = await graphRequest(
+            'GET',
+            `/sites/${SITE_ID}/drive/root:/Templates/${code}/${fileName}:/workbook/tables/${tableName}/columns`
+        )
+
+        const columns = (colRes.data.value ?? []).map(c => c.name)
+
+        // Detect formula columns by inspecting the first data row's formulas
+        let formulaColumns = []
+        try {
+            const rangeRes = await graphRequest(
+                'GET',
+                `/sites/${SITE_ID}/drive/root:/Templates/${code}/${fileName}:/workbook/tables/${tableName}/dataBodyRange?$select=formulas`
+            )
+            const formulas = rangeRes.data?.formulas?.[0] ?? []
+            columns.forEach((name, idx) => {
+                const f = formulas[idx]
+                if (typeof f === 'string' && f.trim().startsWith('=')) {
+                    formulaColumns.push(name)
+                }
+            })
+            // Fallback: try rows endpoint if dataBodyRange returned nothing
+            if (formulaColumns.length === 0 && columns.length > 0) {
+                try {
+                    const rowRes = await graphRequest(
+                        'GET',
+                        `/sites/${SITE_ID}/drive/root:/Templates/${code}/${fileName}:/workbook/tables/${tableName}/rows?$top=1`
+                    )
+                    const firstRow = rowRes.data.value?.[0]
+                    // rows endpoint doesn't include formulas by default; try $select
+                    const rowRes2 = await graphRequest(
+                        'GET',
+                        `/sites/${SITE_ID}/drive/root:/Templates/${code}/${fileName}:/workbook/tables/${tableName}/rows?$top=1&$select=formulas`
+                    )
+                    const formulas2 = rowRes2.data.value?.[0]?.formulas?.[0] ?? []
+                    columns.forEach((name, idx) => {
+                        const f = formulas2[idx]
+                        if (typeof f === 'string' && f.trim().startsWith('=')) {
+                            formulaColumns.push(name)
+                        }
+                    })
+                } catch (e2) {
+                    // ignore
+                }
+            }
+        } catch (e) {
+            // Fall back to known formula columns matched by index against canonical order
+            formulaColumns = []
+        }
+
+        // Fallback: match formula columns by name (case-insensitive) plus any column
+        // not in the known input set (so unmatched formula columns are still caught).
+        {
+            const variants = {
+                'posname': ['position name', 'pos name', 'positionname'],
+                'endorsed': ['endorsed'],
+                'difference': ['difference'],
+                'dbillingrate': ['daily billing rate', 'dbillingrate', 'dailybillingrate'],
+                'mbillingrate': ['monthly billing rate', 'mbillingrate', 'monthlybillingrate'],
+                'semimonthlyrate': ['semi monthly rate', 'semimonthlyrate', 'semi-monthly rate'],
+            }
+            columns.forEach(c => {
+                const norm = c.toLowerCase().replace(/\s+/g, '')
+                for (const key of Object.keys(variants)) {
+                    if (variants[key].includes(c.toLowerCase()) || variants[key].includes(norm)) {
+                        if (!formulaColumns.includes(c)) formulaColumns.push(c)
+                    }
+                }
+            })
+            const knownInputs = new Set([
+                'empno', 'employeeno', 'employeenumber',
+                'name', 'employeename',
+                'poscode', 'positioncode',
+                'dept', 'department',
+                'status',
+                'type',
+                'paytype',
+                'payfreq', 'payfrequency',
+                'tin',
+                'sssno', 'sssnumber',
+                'phicno', 'phicnumber',
+                'hdmfno', 'hdmfnumber',
+                'hd',
+                'mfopt', 'mfoptamount',
+                'salary',
+                'bankno', 'bankaccountno', 'bankaccountnumber'
+            ])
+            const normCol = (c) => c.toLowerCase().replace(/[^a-z0-9]/g, '')
+            columns.forEach(c => {
+                if (!knownInputs.has(normCol(c)) && !formulaColumns.includes(c)) {
+                    formulaColumns.push(c)
+                }
+            })
+        }
+
+        res.json({ columns, formulaColumns })
+    } catch (error) {
+        console.log(error?.response?.data || error)
+        res.status(500).json({ message: 'Failed to get table columns' })
+    }
+}
+
+/**
  * Adds a new row to a SharePoint Excel table
  * Maps the form data to a row array using the columnMap, respecting formula columns
  * that should remain null (calculated by Excel formulas, not written by the API)
