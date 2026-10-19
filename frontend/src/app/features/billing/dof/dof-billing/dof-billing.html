@@ -1,14 +1,15 @@
-<div class="dof-billing-container">
+<section class="dof-billing-container dof-workspace fade-in" aria-labelledby="dof-signatories-title">
+  <header class="dof-workspace__header"><div><p class="dof-workspace__eyebrow">Billing workspace</p><h1 id="dof-signatories-title">DOF billing signatories</h1><p>Select a billing draft and apply the required signatories to every sheet.</p></div><button mat-stroked-button type="button" (click)="goToDashboard()">Dashboard</button></header>
   @switch (step()) {
     @case ('loading') {
-      <div class="loading-state">
+      <div class="loading-state dof-state-card" role="status" aria-live="polite">
         <mat-spinner diameter="48"></mat-spinner>
         <p>Loading DOF billing drafts...</p>
       </div>
     }
 
     @case ('editing') {
-      <mat-card>
+      <mat-card class="dof-panel">
         <mat-card-header>
           <mat-card-title>DOF Billing - Signatories</mat-card-title>
         </mat-card-header>
@@ -22,13 +23,15 @@
             </mat-select>
           </mat-form-field>
 
-          @if (drafts().length === 0) {
-            <p>No DOF billing drafts found. Create one from the timekeeping wizard first.</p>
+          @if (draftsError()) {
+            <div class="dof-inline-state dof-inline-state--error" role="alert"><strong>Billing drafts unavailable</strong><span>{{ draftsError() }}</span><button mat-stroked-button type="button" (click)="loadDrafts()">Try again</button></div>
+          } @else if (drafts().length === 0) {
+            <div class="dof-inline-state" role="status"><strong>No billing drafts found</strong><span>Create a file from the timekeeping workspace first.</span></div>
           }
 
           <mat-tab-group>
             @for (sheet of sheets; track sheet) {
-              <mat-tab [label]="sheet">
+              <mat-tab [label]="sheetLabel(sheet)">
                 <div class="signatory-form">
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>SOA Number</mat-label>
@@ -56,14 +59,14 @@
     }
 
     @case ('saving') {
-      <div class="loading-state">
+      <div class="loading-state dof-state-card" role="status" aria-live="polite">
         <mat-spinner diameter="48"></mat-spinner>
         <p>Saving signatories...</p>
       </div>
     }
 
     @case ('done') {
-      <mat-card>
+      <mat-card class="dof-panel dof-panel--complete">
         <mat-card-header>
           <mat-card-title>DOF Signatories Complete</mat-card-title>
         </mat-card-header>
@@ -79,4 +82,4 @@
       </mat-card>
     }
   }
-</div>
+</section>

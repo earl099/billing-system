@@ -1,8 +1,3 @@
-/**
- * @fileoverview Admin audit log detail view component
- * Displays a single audit log entry with operation, user, and timestamp
- */
-
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
@@ -16,17 +11,33 @@ import { Log } from '@services/log';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class View implements OnInit {
-  route = inject(ActivatedRoute)
-  router = inject(Router)
-  logService = inject(Log)
-  log = signal<any>({})
-  /** Parsed Date object from the log's createdAt timestamp */
-  logDate!: Date
+  readonly router = inject(Router)
+  private readonly route = inject(ActivatedRoute)
+  private readonly logService = inject(Log)
+  readonly log = signal<any | null>(null)
+  readonly loading = signal(true)
+  readonly loadError = signal<string | null>(null)
 
-  /** Loads the audit log entry by ID and parses the creation date */
-  async ngOnInit() {
-    const id = this.route.snapshot.paramMap.get('id')!
-    this.log.set(await this.logService.get(id))
-    this.logDate = new Date(this.log().createdAt)
+  async ngOnInit(): Promise<void> {
+    const id = this.route.snapshot.paramMap.get('id')
+    if (!id) {
+      this.loadError.set('The requested audit log could not be found.')
+      this.loading.set(false)
+      return
+    }
+
+    try {
+      this.log.set(await this.logService.get(id))
+    } catch {
+      this.loadError.set('We could not load this audit log. Please return to the audit log list and try again.')
+    } finally {
+      this.loading.set(false)
+    }
+  }
+
+  formatDate(value: unknown): string {
+    if (!value) return 'Not recorded'
+    const date = new Date(String(value))
+    return Number.isNaN(date.getTime()) ? 'Not recorded' : date.toLocaleString()
   }
 }

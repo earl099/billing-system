@@ -1,7 +1,8 @@
-<div class="dof-billing-container">
+<section class="dof-billing-container dof-workspace fade-in" aria-labelledby="dof-timekeeping-title">
+  <header class="dof-workspace__header"><div><p class="dof-workspace__eyebrow">Billing workspace</p><h1 id="dof-timekeeping-title">DOF timekeeping</h1><p>Generate timekeeping files and complete attendance details for each service category.</p></div><button mat-stroked-button type="button" (click)="goToDashboard()">Dashboard</button></header>
   @switch (step()) {
     @case ('setup') {
-      <mat-card>
+      <mat-card class="dof-panel dof-panel--setup">
         <mat-card-header>
           <mat-card-title>DOF Timekeeping - File Generation</mat-card-title>
         </mat-card-header>
@@ -34,7 +35,7 @@
             </mat-form-field>
           </div>
 
-          <p class="period-display">{{ dateRange().label }}</p>
+          <div class="period-display"><span>Selected billing period</span><strong>{{ dateRange().label }}</strong></div>
 
           <button mat-raised-button color="primary" (click)="createBilling()">Generate Files</button>
         </mat-card-content>
@@ -49,12 +50,12 @@
     }
 
     @case ('editing') {
-      <mat-card>
+      <mat-card class="dof-panel dof-panel--timekeeping">
         <mat-card-header>
           <mat-card-title>Timekeeper Data Input</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <mat-tab-group>
+          <mat-tab-group class="timekeeping-tabs">
             @for (category of categories(); track category.key) {
               <mat-tab [label]="category.label">
                 <div class="category-panel">
@@ -426,4 +427,4 @@
       </mat-card>
     }
   }
-</div>
+</section>

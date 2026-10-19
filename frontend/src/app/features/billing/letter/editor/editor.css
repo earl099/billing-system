@@ -1,29 +1,34 @@
-@keyframes fade-in {
-  from { opacity: 0; transform: scale(.98); }
-  to   { opacity: 1; transform: scale(1); }
-}
+:host { display: block; }
+.letter-editor { max-width: 72rem; margin: 0 auto; color: #173a63; }
+.letter-editor__header { display: flex; align-items: end; justify-content: space-between; gap: 1.5rem; margin-bottom: 1.5rem; }
+.letter-editor__eyebrow { margin: 0 0 .375rem; color: #2187a7; font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+h1 { margin: 0; color: #102f53; font-size: clamp(2rem, 4vw, 2.5rem); font-weight: 750; line-height: 1.15; letter-spacing: -.04em; }
+.letter-editor__description { margin: .5rem 0 0; color: #58708c; font-size: .9375rem; line-height: 1.5; }
+.letter-editor__back { display: inline-flex; align-items: center; gap: .5rem; min-height: 2.875rem; padding: 0 1rem; border-color: #8fb0cb !important; border-radius: .625rem; color: #1b5b82 !important; font-weight: 700; }
+.letter-editor__card { display: block; padding: 1.5rem; border: 1px solid #d7e3ef; border-radius: .875rem; background: #fff; box-shadow: 0 .375rem 1.5rem rgb(18 59 104 / 7%); }
+.letter-editor__card mat-card-content { display: block; padding: 0; }
+.template-picker { padding-bottom: 1.5rem; border-bottom: 1px solid #d7e3ef; }
+.template-picker__intro { display: flex; align-items: center; gap: .875rem; }
+.template-picker__intro > .mat-icon { padding: .625rem; border-radius: .625rem; color: #2187a7; background: #e7f3fb; }
+.template-picker__intro h2 { margin: 0; color: #102f53; font-size: 1.125rem; }.template-picker__intro p { margin: .25rem 0 0; color: #58708c; font-size: .875rem; }
+.template-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; margin-top: 1.5rem; }
+.template-option { display: flex; min-height: 5.5rem; align-items: center; gap: .875rem; padding: 1rem; border: 1px solid #cdddeb; border-radius: .625rem; color: #173a63; background: #f6faff; text-align: left; transition: border-color .15s ease, background .15s ease; }
+.template-option:hover { border-color: #4ea4c1; background: #eaf5fa; }.template-option--selected { border-color: #36bcd2; background: #e4f6fa; }.template-option:focus-visible { outline: 3px solid rgb(54 188 210 / 22%); outline-offset: 2px; }
+.template-option__icon { display: grid; flex: 0 0 auto; width: 2.5rem; height: 2.5rem; place-items: center; border-radius: .625rem; color: #2187a7; background: #dceff8; }.template-option__copy { min-width: 0; }.template-option__copy strong, .template-option__copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }.template-option__copy strong { font-size: .875rem; }.template-option__copy small { margin-top: .25rem; color: #58708c; font-size: .75rem; }.template-option__arrow { margin-left: auto; color: #2187a7; }
+.template-picker__state { display: flex; min-height: 10rem; align-items: center; justify-content: center; gap: .875rem; padding: 1.5rem; color: #58708c; }.template-picker__state > .mat-icon { width: 2rem; height: 2rem; color: #2187a7; font-size: 2rem; }.template-picker__state div { display: grid; gap: .2rem; }.template-picker__state strong { color: #173a63; font-size: .9375rem; }.template-picker__state span { font-size: .8125rem; }.template-picker__state--error { justify-content: flex-start; }.template-picker__state--error > .mat-icon { color: #b74853; }.template-picker__state button { min-height: 2.25rem; margin-left: auto; border-color: #b8cde0; border-radius: .5rem; color: #1b5b82; font-weight: 700; }
+.letter-editor form { margin-top: 1.5rem; }.letter-editor h3 { color: #102f53; font-weight: 700; }.letter-editor .mat-mdc-form-field { height: auto !important; margin: 0; width: 100% !important; }.letter-editor .mdc-text-field__input { width: 100%; }.letter-editor .month-picker .mat-calendar-period-button { pointer-events: none; }.letter-editor .month-picker .mat-calendar-arrow { display: none; }
+:host-context(html.dark) .letter-editor { color: #dbe9f3; }:host-context(html.dark) h1, :host-context(html.dark) .template-picker__intro h2, :host-context(html.dark) .template-picker__state strong, :host-context(html.dark) .letter-editor h3 { color: #f1f7fb; }:host-context(html.dark) .letter-editor__eyebrow { color: #55d3e5; }:host-context(html.dark) .letter-editor__description, :host-context(html.dark) .template-picker__intro p, :host-context(html.dark) .template-picker__state { color: #aac0d1; }:host-context(html.dark) .letter-editor__back { border-color: #365973 !important; color: #b9d8e9 !important; }:host-context(html.dark) .letter-editor__card { border-color: #315168; background: #152536; box-shadow: 0 .5rem 1.5rem rgb(0 0 0 / 18%); }:host-context(html.dark) .template-picker { border-color: #315168; }:host-context(html.dark) .template-picker__intro > .mat-icon { color: #7ce1ef; background: #203d52; }:host-context(html.dark) .template-option { border-color: #365973; color: #e7f1f8; background: #1a3043; }:host-context(html.dark) .template-option:hover { border-color: #53bdd0; background: #203c51; }:host-context(html.dark) .template-option__icon { color: #7ce1ef; background: #203d52; }:host-context(html.dark) .template-option__copy small { color: #aac0d1; }:host-context(html.dark) .template-option__arrow, :host-context(html.dark) .template-picker__state > .mat-icon { color: #72d8e7; }:host-context(html.dark) .template-picker__state--error > .mat-icon { color: #f3abb2; }:host-context(html.dark) .template-picker__state button { border-color: #365973; color: #b9d8e9; }
+@media (max-width: 38rem) { .letter-editor__header, .template-picker__state--error { align-items: stretch; flex-direction: column; }.letter-editor__back, .template-picker__state--error button { width: 100%; justify-content: center; margin-left: 0; }.letter-editor__card { padding: 1rem; }.template-grid { grid-template-columns: 1fr; } }
 
-.animate-fade-in {
-  animation: fade-in 250ms ease-out;
-}
+.blank-document-action, .billing-information { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #d7e3ef; }
+.blank-document-action { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }.blank-document-action h2, .billing-information h2 { margin: 0; color: #102f53; font-size: 1.125rem; }.blank-document-action p, .billing-information p { margin: .25rem 0 0; color: #58708c; font-size: .875rem; }.blank-document-action button, .billing-form__actions button:last-child { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 2.625rem; border-radius: .625rem; color: #083047 !important; background: #36bcd2 !important; font-weight: 700; box-shadow: none; }
+.billing-information__heading { margin-bottom: 1.25rem; }.billing-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin: 0 !important; }.billing-form__field { min-width: 0; }.billing-form__field--wide { grid-column: 1 / -1; }.billing-form__field mat-form-field { width: 100%; }
+.billing-form__actions { display: flex; justify-content: flex-end; gap: .75rem; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid #d7e3ef; }.billing-form__actions button { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 2.625rem; border-radius: .625rem; font-weight: 700; }.billing-form__actions button:first-child { border-color: #8fb0cb; color: #1b5b82; }
+:host ::ng-deep .billing-form .mat-mdc-form-field-subscript-wrapper { margin-top: .25rem; }:host ::ng-deep .billing-form .mdc-text-field--filled { border-radius: .5rem .5rem 0 0; background: #f6faff; }:host ::ng-deep .billing-form .mdc-line-ripple::before { border-bottom-color: #b8cde0; }:host ::ng-deep .billing-form .mat-mdc-form-field-focus-overlay { background: #e7f3fb; }:host ::ng-deep .billing-form .mat-mdc-form-field-infix { min-height: 3.5rem; }:host ::ng-deep .billing-form textarea.mat-mdc-input-element { min-height: 4rem; padding-top: .75rem; }
+:host-context(html.dark) .blank-document-action, :host-context(html.dark) .billing-information, :host-context(html.dark) .billing-form__actions { border-color: #315168; }:host-context(html.dark) .blank-document-action h2, :host-context(html.dark) .billing-information h2 { color: #f1f7fb; }:host-context(html.dark) .blank-document-action p, :host-context(html.dark) .billing-information p { color: #aac0d1; }:host-context(html.dark) .blank-document-action button, :host-context(html.dark) .billing-form__actions button:last-child { color: #072c40 !important; background: #55d3e5 !important; }:host-context(html.dark) .billing-form__actions button:first-child { border-color: #365973; color: #b9d8e9; }:host-context(html.dark) ::ng-deep .billing-form .mdc-text-field--filled { background: #1a3043; }:host-context(html.dark) ::ng-deep .billing-form .mdc-line-ripple::before { border-bottom-color: #58748a; }:host-context(html.dark) ::ng-deep .billing-form .mat-mdc-form-field-focus-overlay { background: #203c51; }
+@media (max-width: 38rem) { .blank-document-action, .billing-form__actions { align-items: stretch; flex-direction: column; }.blank-document-action button, .billing-form__actions button { width: 100%; }.billing-form { grid-template-columns: 1fr; }.billing-form__field--wide { grid-column: auto; } }
 
-.mat-mdc-form-field {
-  height: auto !important;
-  width: auto !important;
-}
-
-.mat-mdc-form-field {
-  margin: 0;
-}
-
-.mdc-text-field__input {
-  width: 86%;
-}
-
-.month-picker .mat-calendar-period-button {
-  pointer-events: none;
-}
-
-.month-picker .mat-calendar-arrow {
-  display: none;
-}
+:host-context(html.dark) .template-option--selected { border-color: #53bdd0; background: #203c51; }
+.transmittal-section { display: grid; gap: 1rem; padding: 1.25rem; border: 1px solid #d7e3ef; border-radius: .75rem; background: #f6faff; }.transmittal-section__heading h3 { margin: 0; font-size: 1rem; }.transmittal-section__heading p { margin: .25rem 0 0; color: #58708c; font-size: .8125rem; }.transmittal-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin-top: .75rem; padding: 1rem; border: 1px solid #d7e3ef; border-radius: .625rem; background: #fff; }.transmittal-row > * { min-width: 0; }.transmittal-section__actions { display: flex; gap: .75rem; }.transmittal-section__actions button { display: inline-flex; align-items: center; gap: .375rem; min-height: 2.5rem; border-color: #8fb0cb; border-radius: .5rem; color: #1b5b82; font-weight: 700; }.transmittal-total { margin-right: auto; color: #173a63; font-size: 1rem; font-weight: 700; }.billing-information--excel .billing-form__actions { align-items: center; }
+:host-context(html.dark) .transmittal-section { border-color: #315168; background: #102131; }:host-context(html.dark) .transmittal-section__heading p { color: #aac0d1; }:host-context(html.dark) .transmittal-row { border-color: #365973; background: #1a3043; }:host-context(html.dark) .transmittal-section__actions button { border-color: #365973; color: #b9d8e9; }:host-context(html.dark) .transmittal-total { color: #f1f7fb; }
+@media (max-width: 56rem) { .transmittal-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } } @media (max-width: 38rem) { .transmittal-row { grid-template-columns: 1fr; }.transmittal-section__actions { flex-direction: column; }.transmittal-section__actions button { justify-content: center; }.transmittal-total { margin-right: 0; text-align: center; } }

@@ -92,6 +92,8 @@ export class ManpowerBilling {
 
   step = signal<'setup' | 'loading' | 'editing' | 'saving' | 'done'>('setup')
   templates = signal<any[]>([])
+  templatesLoading = signal(true)
+  templatesError = signal<string | null>(null)
   selectedTemplateId = signal<string>('')
   fileId = signal<string | null>(null)
   editUrl = signal<string | null>(null)
@@ -124,14 +126,19 @@ export class ManpowerBilling {
     this.updateDateRange()
   }
 
-  private async loadTemplates() {
+  async loadTemplates(): Promise<void> {
+    this.templatesLoading.set(true)
+    this.templatesError.set(null)
     try {
       const all = await this.fileEditor.getTemplates(this.code)
       this.templates.set(all.filter((t: any) =>
         t.type === 'excel' && t.name.endsWith('.xlsm')
       ))
-    } catch (e) {
-      toast.error('Failed to load templates')
+    } catch {
+      this.templates.set([])
+      this.templatesError.set('We could not load billing templates. Please try again.')
+    } finally {
+      this.templatesLoading.set(false)
     }
   }
 

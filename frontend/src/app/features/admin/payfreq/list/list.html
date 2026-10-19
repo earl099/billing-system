@@ -1,23 +1,56 @@
-<div class="max-w-6xl mx-auto p-4 sm:p-6 fade-in">
-  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
-    <h2 class="text-2xl font-semibold">Pay Frequency Management</h2>
-    <button mat-raised-button color="primary" routerLink="/admin/payfreq/create" class="w-full sm:w-auto motion-smooth">Add Pay Frequency</button>
-  </div>
+<section class="pay-frequency-management fade-in" aria-labelledby="pay-frequency-title">
+  <header class="pay-frequency-management__header">
+    <div>
+      <p class="pay-frequency-management__eyebrow">Administration</p>
+      <h1 id="pay-frequency-title">Pay frequency management</h1>
+      <p class="pay-frequency-management__description">Maintain the payment schedules available to client accounts.</p>
+    </div>
 
-  <mat-card class="p-4 card-animate">
-    <div class="overflow-x-auto">
-      <table mat-table [dataSource]="paginatedPayFreqs()" class="min-w-full w-max md:w-full">
+    <div class="pay-frequency-management__header-actions">
+      <a mat-stroked-button routerLink="/dashboard" class="dashboard-button">
+        <mat-icon>arrow_back</mat-icon>
+        Dashboard
+      </a>
+      <a mat-raised-button routerLink="/admin/payfreq/create" class="add-pay-frequency-button">
+        <mat-icon>add</mat-icon>
+        Add frequency
+      </a>
+    </div>
+  </header>
+
+  <section class="pay-frequency-table-card" aria-label="Pay frequencies">
+    <div class="pay-frequency-table-card__toolbar">
+      <label class="search-field" for="pay-frequency-search">
+        <mat-icon aria-hidden="true">search</mat-icon>
+        <input id="pay-frequency-search" type="search" [value]="searchInput()" (input)="searchInput.set($any($event.target).value)" placeholder="Search pay frequencies" />
+      </label>
+    </div>
+
+    @if (loading()) {
+      <div class="pay-frequency-table-loading" role="status" aria-live="polite">
+        <mat-icon aria-hidden="true">sync</mat-icon>
+        <div>
+          <strong>Loading pay frequencies</strong>
+          <span>Retrieving payment schedule details.</span>
+        </div>
+      </div>
+    } @else {
+    <div class="table-scroll">
+      <table mat-table [dataSource]="paginatedPayFreqs()" class="pay-frequency-table">
         <ng-container matColumnDef="payType">
           <th mat-header-cell *matHeaderCellDef>Pay Type</th>
-          <td mat-cell *matCellDef="let p">{{ p.payType }}</td>
+          <td mat-cell *matCellDef="let p">
+            <div class="pay-type">
+              <span class="pay-type__icon" aria-hidden="true"><mat-icon>calendar_month</mat-icon></span>
+              <span>{{ p.payType }}</span>
+            </div>
+          </td>
         </ng-container>
 
         <ng-container matColumnDef="delete">
-          <th mat-header-cell *matHeaderCellDef>Delete</th>
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
           <td mat-cell *matCellDef="let p">
-            <div class="flex flex-wrap gap-2">
-              <button mat-icon-button color="warn" (click)="deletePayFreq(p)" title="Delete" matTooltip="Delete Pay Frequency" [disabled]="isUsed(p)" class="min-w-[44px] min-h-[44px] flex items-center justify-center"><mat-icon>delete</mat-icon></button>
-            </div>
+            <button mat-icon-button class="delete-button" (click)="deletePayFreq(p)" [disabled]="isUsed(p)" [matTooltip]="isUsed(p) ? 'Used by a client and cannot be deleted' : 'Delete pay frequency'" [attr.aria-label]="isUsed(p) ? p.payType + ' is used by a client' : 'Delete ' + p.payType"><mat-icon>delete</mat-icon></button>
           </td>
         </ng-container>
 
@@ -25,5 +58,15 @@
         <tr mat-row *matRowDef="let row; columns: columns;"></tr>
       </table>
     </div>
-  </mat-card>
-</div>
+
+    <footer class="pay-frequency-table-card__footer">
+      <p>{{ filteredPayFreqs().length }} pay frequenc{{ filteredPayFreqs().length === 1 ? 'y' : 'ies' }}</p>
+      <div class="pagination" aria-label="Pagination">
+        <button mat-stroked-button (click)="gotoPage(currentPage() - 1)" [disabled]="currentPage() === 1">Previous</button>
+        <span aria-live="polite">{{ currentPage() }} / {{ totalPages() || 1 }}</span>
+        <button mat-stroked-button (click)="gotoPage(currentPage() + 1)" [disabled]="currentPage() === totalPages() || totalPages() === 0">Next</button>
+      </div>
+    </footer>
+    }
+  </section>
+</section>

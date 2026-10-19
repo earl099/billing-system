@@ -49,6 +49,7 @@ export class DofBillingComponent {
   step = signal<'loading' | 'editing' | 'saving' | 'done'>('loading')
 
   drafts = signal<DofBillingDraft[]>([])
+  draftsError = signal<string | null>(null)
   selectedFileId = signal<string>('')
 
   readonly sheets = SOA_SHEETS
@@ -65,20 +66,26 @@ export class DofBillingComponent {
     this.loadDrafts()
   }
 
-  private async loadDrafts() {
+  async loadDrafts(): Promise<void> {
+    this.step.set('loading')
+    this.draftsError.set(null)
     try {
       const drafts = await this.dofBilling.listBillingDrafts()
       this.drafts.set(drafts)
       this.step.set('editing')
-    } catch (e) {
-      console.error(e)
-      toast.error('Failed to load DOF billing drafts')
+    } catch {
+      this.drafts.set([])
+      this.draftsError.set('We could not load the available DOF billing drafts.')
       this.step.set('editing')
     }
   }
 
   formatModified(iso: string): string {
     return DateTime.fromISO(iso).toFormat('MMMM d, yyyy h:mm a')
+  }
+
+  sheetLabel(sheet: string): string {
+    return sheet.replace('&', ' & ')
   }
 
   updateSignatory(sheet: string, field: keyof SignatoryInput, value: string) {

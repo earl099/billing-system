@@ -36,6 +36,9 @@ export class List implements OnInit, OnDestroy {
   router = inject(Router)
 
   users = signal<any[]>([])
+  loading = signal(true)
+  pendingDeletion = signal<any | null>(null)
+  deleting = signal(false)
   searchInput = signal('')
   searchQuery = signal('')
   currentPage = signal(1)
@@ -84,12 +87,15 @@ export class List implements OnInit, OnDestroy {
 
   /** Fetches all users from the API */
   async load() {
+    this.loading.set(true)
     try {
       const userList = await this.userService.list()
       this.users.set(userList)
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : 'Failed to load users'
       toast.error(errorMessage)
+    } finally {
+      this.loading.set(false)
     }
   }
 
@@ -111,16 +117,29 @@ export class List implements OnInit, OnDestroy {
     this.router.navigate(['/admin/user', u._id, 'edit'])
   }
 
-  /** Deletes a user with confirmation and audit logging */
-  async delete(u: any) {
+  /** Opens the in-app confirmation dialog for a user deletion. */
+  requestDelete(u: any): void {
     if (!u?._id) {
       toast.error('Invalid user record')
       return
     }
-    if(!confirm(`Delete ${u.name ?? 'this user'}? This action is permanent.`)) return
-    
+
+    this.pendingDeletion.set(u)
+  }
+
+  /** Dismisses the deletion confirmation without changing the account. */
+  cancelDelete(): void {
+    if (!this.deleting()) this.pendingDeletion.set(null)
+  }
+
+  /** Deletes the selected user after confirmation and records the action. */
+  async confirmDelete(): Promise<void> {
+    const user = this.pendingDeletion()
+    if (!user?._id || this.deleting()) return
+
+    this.deleting.set(true)
     try {
-      await this.userService.delete(u._id)
+      await this.userService.delete(user._id)
       toast.success('User deleted successfully')
 
       const log: LogDTO = {
@@ -129,10 +148,13 @@ export class List implements OnInit, OnDestroy {
       }
 
       await this.logService.create(log)
+      this.pendingDeletion.set(null)
       await this.load()
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : 'Failed to delete user'
       toast.error(errorMessage)
+    } finally {
+      this.deleting.set(false)
     }
   }
 

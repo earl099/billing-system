@@ -1,12 +1,4 @@
-<div class="max-w-full md:max-w-2xl mx-auto p-4 sm:p-6 fade-in">
-  <mat-card class="p-4 sm:p-6 card-animate">
-    <h3 class="text-xl font-semibold mb-4">Client Details</h3>
-
-    @if(client()) {
-      <p><strong>Code:</strong> {{ client().code }}</p>
-      <p><strong>Name:</strong> {{ client().name }}</p>
-      <p>
-        <strong>Pay Frequency:</strong>
+<section class="client-view fade-in"><header><div><p>Administration</p><h1>Client details</h1><span>Review the client profile and payment schedule.</span></div><a mat-stroked-button (click)="router.navigate(['/admin/client/list'])"><mat-icon>arrow_back</mat-icon>Back to clients</a></header>@if(loading()){<div class="loading"><mat-icon>sync</mat-icon>Loading client details…</div>}@else if(client()){<section class="detail-card"><div class="intro"><mat-icon>business</mat-icon><div><p>Client profile</p><h2>{{client()?.name}}</h2></div></div><div class="details"><div><small>Client code</small><strong>{{client()?.code}}</strong></div><div><small>Payment schedule</small><strong>
         @for (payFreq of client().payFreq; track payFreq) {
           @for (p of payFreqs(); track p) {
             @if(p._id === payFreq) {
@@ -14,12 +6,4 @@
             }
           }
         }
-      </p>
-    }
-
-    <div class="flex flex-col sm:flex-row sm:justify-evenly gap-3 mt-4">
-      <button class="w-full sm:w-auto" mat-raised-button color="primary" (click)="edit()">Edit</button>
-      <button class="w-full sm:w-auto" mat-stroked-button (click)="router.navigate(['/admin/client/list'])">Back</button>
-    </div>
-  </mat-card>
-</div>
+      </strong></div></div><div class="actions"><button mat-raised-button (click)="edit()"><mat-icon>edit</mat-icon>Edit client</button><button mat-stroked-button (click)="router.navigate(['/admin/client/list'])">Back</button></div></section>}</section>

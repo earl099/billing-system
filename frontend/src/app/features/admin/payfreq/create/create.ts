@@ -45,10 +45,13 @@ export class Create {
 
   /** Submits the pay frequency creation form with confirmation and audit logging */
   async submit() {
-    if(this.form.invalid) return
-    this.loading = true
+    if(this.form.invalid) {
+      this.form.markAllAsTouched()
+      return
+    }
 
     if(!confirm('Are you sure you want to create this Pay Frequency?')) return
+    this.loading = true
     try {
       const payFreq = this.form.getRawValue() as PayFreqDTO
       await this.payFreqService.create(payFreq)

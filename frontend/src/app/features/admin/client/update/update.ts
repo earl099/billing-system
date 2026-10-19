@@ -48,24 +48,22 @@ export class Update implements OnInit {
   })
 
   loading = signal(false)
+  initializing = signal(true)
   error = signal<string | null>(null)
   clientId = signal<string | null>(null)
 
   /** Loads client data and pay frequency options, then patches the form */
   async ngOnInit() {
     this.clientId.set(this.route.snapshot.paramMap.get('id')!)
-    if(!this.clientId()) return
-    const client = signal(await this.clientService.get(this.clientId() ?? ''))
-
-    const payFreqs = await this.payFreqService.list()
-    this.payFreqList.set(payFreqs)
-
-    const payFreq = client().payFreq
-    this.form.patchValue({
-      code: client().code,
-      name: client().name,
-      payFreq: Array.isArray(payFreq) ? payFreq : []
-    })
+    if(!this.clientId()) {
+      this.initializing.set(false)
+      return
+    }
+    try {
+      const [client, payFreqs] = await Promise.all([this.clientService.get(this.clientId() ?? ''), this.payFreqService.list()])
+      this.payFreqList.set(payFreqs)
+      this.form.patchValue({ code: client.code, name: client.name, payFreq: Array.isArray(client.payFreq) ? client.payFreq : [] })
+    } finally { this.initializing.set(false) }
   }
 
   /** Submits updated client data with confirmation and audit logging */

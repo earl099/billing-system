@@ -1,15 +1,38 @@
-<div class="max-w-full md:max-w-2xl mx-auto p-4 sm:p-6 fade-in">
-  <mat-card class="p-4 sm:p-6 card-animate">
-    <h3 class="text-xl font-semibold mb-4">Log Details</h3>
-
-    @if (log()) {
-      <p><strong>User:</strong> {{ log().user }}</p>
-      <p><strong>Operation:</strong> {{ log().operation }}</p>
-      <p><strong>Date Logged:</strong> {{ logDate }}</p>
-    }
-
-    <div class="flex mt-4">
-      <button mat-stroked-button (click)="router.navigate(['/admin/log/list'])" class="w-full">Back</button>
+<section class="log-detail fade-in" aria-labelledby="log-detail-title">
+  <header class="log-detail__header">
+    <div>
+      <p class="log-detail__eyebrow">Administration</p>
+      <h1 id="log-detail-title">Audit log details</h1>
+      <p class="log-detail__description">Review the recorded activity and its source.</p>
     </div>
-  </mat-card>
-</div>
+    <button mat-stroked-button type="button" (click)="router.navigate(['/admin/log/list'])" class="back-button">
+      <mat-icon aria-hidden="true">arrow_back</mat-icon>
+      Back to logs
+    </button>
+  </header>
+
+  @if (loading()) {
+    <section class="log-detail-card log-detail-state" role="status" aria-live="polite">
+      <mat-icon aria-hidden="true">sync</mat-icon>
+      <div><strong>Loading audit log</strong><span>Retrieving activity details.</span></div>
+    </section>
+  } @else if (loadError()) {
+    <section class="log-detail-card log-detail-state log-detail-state--error" role="alert">
+      <mat-icon aria-hidden="true">error_outline</mat-icon>
+      <div><strong>Audit log unavailable</strong><span>{{ loadError() }}</span></div>
+    </section>
+  } @else if (log(); as entry) {
+    <section class="log-detail-card">
+      <div class="log-detail-card__intro">
+        <mat-icon aria-hidden="true">history</mat-icon>
+        <div><h2>Activity record</h2><span>Captured system activity for accountability.</span></div>
+      </div>
+      <dl class="log-detail-grid">
+        <div><dt><mat-icon aria-hidden="true">person</mat-icon>User</dt><dd>{{ entry.user || 'System' }}</dd></div>
+        <div><dt><mat-icon aria-hidden="true">schedule</mat-icon>Date recorded</dt><dd>{{ formatDate(entry.createdAt) }}</dd></div>
+        <div class="log-detail-grid__wide"><dt><mat-icon aria-hidden="true">description</mat-icon>Activity</dt><dd>{{ entry.operation || 'No activity details were recorded.' }}</dd></div>
+      </dl>
+      <div class="log-detail-card__actions"><button mat-raised-button type="button" (click)="router.navigate(['/admin/log/list'])"><mat-icon aria-hidden="true">arrow_back</mat-icon>Back to logs</button></div>
+    </section>
+  }
+</section>

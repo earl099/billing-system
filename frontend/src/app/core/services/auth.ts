@@ -5,7 +5,7 @@
 
 import { inject, Injectable, signal } from '@angular/core';
 import { UserAuthDTO, UserDTO } from '@models/user';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '@env/environment.prod';
 import { Router } from '@angular/router';
@@ -35,6 +35,10 @@ export class Auth {
 
   /** Reactive signal indicating whether the user has a valid, non-expired token */
   isLoggedIn = signal<boolean>(this.hasValidToken())
+  /** Verified profile for the active session, reused by route guards after it is loaded. */
+  currentUser = signal<any | null>(null)
+  /** In-progress profile request, shared by the shell, dashboard, and route guards. */
+  private profileRequest: Promise<UserDTO> | null = null
 
   /**
    * Authenticates a user with username/email and password
@@ -48,9 +52,25 @@ export class Auth {
       const res = await firstValueFrom(this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, payload))
       localStorage.setItem(this.tokenKey, res.token)
       localStorage.setItem(this.user, res.user.name)
+      this.currentUser.set(null)
+      this.isLoggedIn.set(true)
       return res
-    } catch (error) {
-      throw new Error(`Login failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    } catch (error: unknown) {
+      if (error instanceof HttpErrorResponse) {
+        if (error.status === 400 || error.status === 401) {
+          throw new Error('Incorrect username, email, or password.')
+        }
+
+        if (error.status === 0) {
+          throw new Error('Cannot reach the server. Please try again in a moment.')
+        }
+
+        if (error.status === 429) {
+          throw new Error('Too many sign-in attempts. Please wait a moment and try again.')
+        }
+      }
+
+      throw new Error('Unable to sign in right now. Please try again.')
     }
   }
 
@@ -76,6 +96,9 @@ export class Auth {
   async logout() {
     this.clearTokenWatcher()
     localStorage.clear()
+    this.isLoggedIn.set(false)
+    this.currentUser.set(null)
+    this.profileRequest = null
     this.router.navigate(['/'])
   }
 
@@ -90,13 +113,25 @@ export class Auth {
    * 
    * @returns User profile data (without password)
    */
-  async getProfile() {
-    try {
-      const res = await firstValueFrom(this.http.get<{ user: any }>(`${this.apiUrl}/auth/me`))
-      return res.user
-    } catch (error) {
-      throw new Error(`Failed to fetch profile: ${error instanceof Error ? error.message : 'Unknown error'}`)
+  async getProfile(): Promise<UserDTO> {
+    const cachedProfile = this.currentUser()
+    if (cachedProfile) return cachedProfile as UserDTO
+
+    if (!this.profileRequest) {
+      this.profileRequest = firstValueFrom(this.http.get<{ user: UserDTO }>(`${this.apiUrl}/auth/me`))
+        .then((res) => {
+          this.currentUser.set(res.user)
+          return res.user
+        })
+        .catch((error: unknown) => {
+          throw new Error(`Failed to fetch profile: ${error instanceof Error ? error.message : 'Unknown error'}`)
+        })
+        .finally(() => {
+          this.profileRequest = null
+        })
     }
+
+    return this.profileRequest
   }
 
   /**

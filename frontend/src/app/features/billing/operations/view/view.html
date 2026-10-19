@@ -1,30 +1,44 @@
-<div class="max-w-full md:max-w-2xl mx-auto p-4 sm:p-6 fade-in">
-  <mat-card class="p-4 sm:p-6 card-animate">
-    <h3 class="text-xl font-semibold mb-4">ACID Billing Details</h3>
-
-    @if(billing()) {
-      <div>
-        <p class="mb-1.5"><strong>Billing Letter:</strong> {{ billing().billingLetter }}</p>
-        <p class="mb-1.5">
-          <strong>Supporting Documents:</strong>
-          @for (attachment of billing().attachments; track attachment) {
-            @if($index === billing().attachments.length - 1) {
-              {{ attachment }}
-            }
-            @else {
-              {{ attachment }},
-            }
-          }
-        </p>
-        <p class="mb-1.5"><strong>Created By:</strong> {{ billing().createdBy.name }}</p>
-        <p class="mb-1.5"><strong>Created At:</strong> {{ createdDate }}</p>
-        <p><strong>Final PDF: </strong> <button class="w-full sm:w-auto" mat-raised-button (click)="downloadFinalPdf()" ><mat-icon>download</mat-icon> Download</button></p>
-      </div>
-
-    }
-
-    <div class="flex flex-col sm:flex-row justify-evenly gap-3 mt-4">
-      <button class="w-full sm:w-auto" mat-stroked-button (click)="router.navigate(['/billing/acid/list'])">Back</button>
+<section class="billing-details fade-in" aria-labelledby="billing-details-title">
+  <header class="billing-details__header">
+    <div>
+      <p class="billing-details__eyebrow">Billing workspace</p>
+      <h1 id="billing-details-title">Billing details</h1>
+      <p class="billing-details__description">Review the generated document and its supporting files.</p>
     </div>
-  </mat-card>
-</div>
+    <a mat-stroked-button [routerLink]="['/billing', code(), 'list']"><mat-icon aria-hidden="true">arrow_back</mat-icon>Back to billing</a>
+  </header>
+
+  <section class="billing-details-card" aria-label="Billing record details">
+    @if (loading()) {
+      <div class="billing-details-state" role="status" aria-live="polite">
+        <mat-icon aria-hidden="true">sync</mat-icon>
+        <div><strong>Loading billing record</strong><span>Retrieving document details and attachments.</span></div>
+      </div>
+    } @else if (loadError()) {
+      <div class="billing-details-state billing-details-state--error" role="alert">
+        <mat-icon aria-hidden="true">error_outline</mat-icon>
+        <div><strong>Billing record unavailable</strong><span>{{ loadError() }}</span></div>
+        <button mat-stroked-button type="button" (click)="load()">Try again</button>
+      </div>
+    } @else if (billing(); as record) {
+      <header class="billing-details-card__intro">
+        <span class="billing-details-card__icon" aria-hidden="true"><mat-icon>description</mat-icon></span>
+        <div><h2>{{ record.billingLetter || 'Billing document' }}</h2><p>Generated billing document</p></div>
+      </header>
+
+      <dl class="billing-details-grid">
+        <div><dt>Created by</dt><dd>{{ record.createdBy?.name || 'System' }}</dd></div>
+        <div><dt>Date created</dt><dd>{{ formattedDate(record.createdAt) }}</dd></div>
+        <div class="billing-details-grid__wide"><dt>Supporting documents</dt><dd>
+          @if (record.attachments?.length) { <ul>@for (attachment of record.attachments; track attachment) { <li><mat-icon aria-hidden="true">attach_file</mat-icon><span>{{ attachment }}</span></li> }</ul> }
+          @else { <span class="billing-details-empty">No supporting documents attached.</span> }
+        </dd></div>
+      </dl>
+
+      <footer class="billing-details-card__footer">
+        <div><strong>Final PDF</strong><span>{{ record.finalPdf?.secure_url ? 'Ready for download' : 'Not available' }}</span></div>
+        <button mat-raised-button type="button" (click)="downloadFinalPdf()" [disabled]="!record.finalPdf?.secure_url || downloading()"><mat-icon aria-hidden="true">download</mat-icon>{{ downloading() ? 'Preparing download…' : 'Download PDF' }}</button>
+      </footer>
+    }
+  </section>
+</section>

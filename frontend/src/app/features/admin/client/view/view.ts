@@ -23,17 +23,17 @@ export class View implements OnInit{
   clientService = inject(Client)
   payFreqService = inject(Payfreq)
   payFreqs = signal<any[]>([])
-  client = signal<any>({})
+  client = signal<any | null>(null)
+  loading = signal(true)
 
   /** Loads client data and all pay frequencies for display */
   async ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id')!
-    this.client.set(await this.clientService.get(id))
-    this.payFreqs.set(await this.payFreqService.list())
+    try { const [client, payFreqs] = await Promise.all([this.clientService.get(id), this.payFreqService.list()]); this.client.set(client); this.payFreqs.set(payFreqs) } finally { this.loading.set(false) }
   }
 
   /** Navigates to the client edit form */
   edit() {
-    this.router.navigate(['admin/client', this.client()._id, 'edit'])
+    this.router.navigate(['admin/client', this.client()?._id, 'edit'])
   }
 }

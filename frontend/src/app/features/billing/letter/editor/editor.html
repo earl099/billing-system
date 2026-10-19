@@ -1,53 +1,66 @@
-<div class="p-4 sm:p-6 fade-in max-w-full lg:max-w-5xl mx-auto">
-  <mat-card class="shadow-xl rounded-2xl p-4 sm:p-6">
-    <mat-card-header>
-      <mat-card-title class="text-xl font-semibold mb-4">
-        Billing Letter Editor
-      </mat-card-title>
-    </mat-card-header>
+<section class="letter-editor fade-in" aria-labelledby="letter-editor-title">
+  <header class="letter-editor__header">
+    <div>
+      <p class="letter-editor__eyebrow">Billing workspace</p>
+      <h1 id="letter-editor-title">Billing letter editor</h1>
+      <p class="letter-editor__description">Select a template to prepare a billing document for {{ code().toUpperCase() }}.</p>
+    </div>
+    <button mat-stroked-button type="button" class="letter-editor__back" (click)="router.navigate(['/dashboard'])">
+      <mat-icon aria-hidden="true">arrow_back</mat-icon>
+      Dashboard
+    </button>
+  </header>
 
-
+  <mat-card class="letter-editor__card">
     <mat-card-content>
-      <div>
-        <h2 class="text-md">Choose your template:</h2>
-        <br>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-          @for (t of templates(); track t.id) {
-            <button class="w-full" mat-raised-button color="primary" (click)="selectTemplate(t)">
-              {{ t.name }}
-            </button>
-          }
+      <section class="template-picker" aria-labelledby="template-picker-title">
+        <div class="template-picker__intro">
+          <mat-icon aria-hidden="true">description</mat-icon>
+          <div><h2 id="template-picker-title">Choose a template</h2><p>Choose a prepared or blank document template to continue.</p></div>
         </div>
-      </div>
+
+        @if (templatesLoading()) {
+          <div class="template-picker__state" role="status" aria-live="polite"><mat-icon aria-hidden="true">sync</mat-icon><div><strong>Loading templates</strong><span>Retrieving available billing documents.</span></div></div>
+        } @else if (templatesError()) {
+          <div class="template-picker__state template-picker__state--error" role="alert"><mat-icon aria-hidden="true">error_outline</mat-icon><div><strong>Templates are unavailable</strong><span>{{ templatesError() }}</span></div><button mat-stroked-button type="button" (click)="loadTemplates()">Try again</button></div>
+        } @else if (templates().length) {
+          <div class="template-grid">
+            @for (t of templates(); track t.id) {
+              <button type="button" class="template-option" [class.template-option--selected]="selectedTemplate()?.id === t.id" [attr.aria-expanded]="selectedTemplate()?.id === t.id" (click)="selectTemplate(t)">
+                <span class="template-option__icon" aria-hidden="true"><mat-icon>{{ t.name?.toLowerCase().includes('.xlsx') ? 'table_chart' : 'description' }}</mat-icon></span>
+                <span class="template-option__copy"><strong>{{ t.name }}</strong><small>{{ t.name?.toLowerCase().includes('blank') ? 'Blank document' : 'Prepared billing template' }}</small></span>
+                <mat-icon class="template-option__arrow" aria-hidden="true">{{ selectedTemplate()?.id === t.id ? 'expand_less' : 'arrow_forward' }}</mat-icon>
+              </button>
+            }
+          </div>
+        } @else {
+          <div class="template-picker__state" role="status"><mat-icon aria-hidden="true">folder_off</mat-icon><div><strong>No templates available</strong><span>There are no billing templates available for this client yet.</span></div></div>
+        }
+      </section>
 
       @if (isBlankSelected()) {
-        <div class="mt-4">
-          <h2 class="text-md">Generate Billing Letter File:</h2>
-          <br>
-          <button class="w-full sm:w-auto" mat-raised-button class="mb-6" (click)="createBlank()" [disabled]="isGenerating()">
+        <section class="blank-document-action">
+          <div><h2>Blank document selected</h2><p>Create a blank billing letter that you can complete manually.</p></div>
+          <button mat-raised-button type="button" (click)="createBlank()" [disabled]="isGenerating()">
             @if(isGenerating()) {
-              <mat-progress-spinner
-                diameter="20"
-                mode="indeterminate">
-              </mat-progress-spinner>
+              <mat-progress-spinner diameter="20" mode="indeterminate"></mat-progress-spinner>
             }
             @else {
-              Create Billing Letter
+              Create billing letter
             }
-
           </button>
-        </div>
+        </section>
       }
 
       <!-- TEMPLATED WORD BILLING STARTS HERE -->
       @if (step() === 2) {
-        <h3 class="mt-4">Enter Billing Information</h3>
+        <section class="billing-information">
+        <div class="billing-information__heading"><div><h2>Enter billing information</h2><p>Fields marked with an asterisk are required.</p></div></div>
 
-        <form [formGroup]="form" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+        <form [formGroup]="form" class="billing-form">
           @for (field of formConfig(); track field.key) {
             @if (field.type !== 'monthYear' && field.type !== 'date' && field.type !== 'dateMonthYear' && field.type !== 'month') {
-              <mat-form-field
-                class="w-full">
+              <mat-form-field class="billing-form__field" [class.billing-form__field--wide]="field.colSpan === 2">
                 <mat-label>{{field.label}}</mat-label>
 
                 @switch (field.type) {
@@ -82,7 +95,7 @@
             }
 
             @else if(field.type === 'monthYear') {
-              <div>
+              <div class="billing-form__field" [class.billing-form__field--wide]="field.colSpan === 2">
                 <app-month-year-picker
                   [control]="form.get(field.key)!"
                   [label]="field.label">
@@ -91,7 +104,7 @@
             }
 
             @else if (field.type === 'date') {
-              <div>
+              <div class="billing-form__field" [class.billing-form__field--wide]="field.colSpan === 2">
                 <app-month-date-year-picker
                   [control]="form.get(field.key)!"
                   [label]="field.label"
@@ -100,7 +113,7 @@
             }
 
             @else if (field.type === 'dateMonthYear') {
-              <div>
+              <div class="billing-form__field" [class.billing-form__field--wide]="field.colSpan === 2">
                 <app-date-month-year-picker
                   [control]="form.get(field.key)!"
                   [label]="field.label"></app-date-month-year-picker>
@@ -109,10 +122,10 @@
           }
         </form>
 
-        <div class="flex flex-col sm:flex-row justify-end gap-3 mt-6">
-          <button class="w-full sm:w-auto" mat-stroked-button (click)="step.set(1)">Back</button>
+        <div class="billing-form__actions">
+          <button mat-stroked-button type="button" (click)="step.set(1)"><mat-icon aria-hidden="true">arrow_back</mat-icon>Back</button>
 
-          <button class="w-full sm:w-auto" mat-raised-button color="primary"
+          <button mat-raised-button type="button"
             (click)="createBillingLetter()"
             [disabled]="form.invalid || isGenerating()">
               @if (isGenerating()) {
@@ -122,23 +135,23 @@
                 </mat-progress-spinner>
               }
               @else {
-                Generate Document
+              Generate document
               }
-
           </button>
         </div>
+        </section>
       }
       <!-- TEMPLATED WORD BILLING ENDS HERE -->
 
-      <!-- TEMPLATED EXCEL BILLING STARTS HERE -->
       @if(step() === 3) {
-        <h3 class="mt-4">{{code()!.toUpperCase()}} Billing Information</h3>
+        <section class="billing-information billing-information--excel">
+        <div class="billing-information__heading"><div><h2>{{ code().toUpperCase() }} billing information</h2><p>Enter the billing information and the items to include in the transmittal.</p></div></div>
 
-        <form [formGroup]="form" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+        <form [formGroup]="form" class="billing-form">
           <!-- MAIN BILLING FIELDS -->
           @for (field of formConfig(); track field.key) {
             @if (field.type !== 'monthYear' && field.type !== 'date' && field.type !== 'dateMonthYear' && field.type !== 'month' && field.type !== 'year') {
-              <mat-form-field class="w-full">
+              <mat-form-field class="billing-form__field" [class.billing-form__field--wide]="field.colSpan === 2">
                 <mat-label>{{field.label}}</mat-label>
 
                 @switch (field.type) {
@@ -169,7 +182,7 @@
               </mat-form-field>
             }
             @else if (field.type === 'monthYear') {
-              <div>
+              <div class="billing-form__field" [class.billing-form__field--wide]="field.colSpan === 2">
                 <app-month-year-picker
                   [control]="form.get(field.key)!"
                   [label]="field.label">
@@ -181,7 +194,7 @@
               </div>
             }
             @else if (field.type === 'date') {
-              <div>
+              <div class="billing-form__field" [class.billing-form__field--wide]="field.colSpan === 2">
                 <app-month-date-year-picker
                   [control]="form.get(field.key)!"
                   [label]="field.label">
@@ -193,7 +206,7 @@
               </div>
             }
             @else if (field.type === 'dateMonthYear') {
-              <div>
+              <div class="billing-form__field" [class.billing-form__field--wide]="field.colSpan === 2">
                 <app-date-month-year-picker
                   [control]="form.get(field.key)!"
                   [label]="field.label">
@@ -205,7 +218,7 @@
               </div>
             }
             @else if (field.type === 'month') {
-              <div>
+              <div class="billing-form__field" [class.billing-form__field--wide]="field.colSpan === 2">
                 <app-month-picker
                   [control]="form.get(field.key)!"
                   [label]="field.label">
@@ -217,7 +230,7 @@
               </div>
             }
             @else if (field.type === 'year') {
-              <div>
+              <div class="billing-form__field" [class.billing-form__field--wide]="field.colSpan === 2">
                 <app-year-picker
                   [control]="form.get(field.key)!"
                   [label]="field.label">
@@ -230,16 +243,13 @@
             }
           }
 
-          <!-- TRANSMITTAL TABLE -->
-          <div class="mt-6 col-span-1 sm:col-span-2">
-            <h3 class="text-lg font-semibold mb-3">Transmittal Items</h3>
+          <section class="transmittal-section billing-form__field--wide">
+            <div class="transmittal-section__heading"><div><h3>Transmittal items</h3><p>Add each property to include in this billing document.</p></div></div>
 
             <div formArrayName="transmittalItems">
               @for (row of transmittalControls; track $index; let i = $index) {
-                <div
-                    [formGroupName]="i"
-                    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4 border p-4 rounded-xl">
-                  <mat-form-field class="w-full">
+                <div [formGroupName]="i" class="transmittal-row">
+                  <mat-form-field>
                     <mat-label>Property</mat-label>
                     <input matInput formControlName="property">
                   </mat-form-field>
@@ -249,13 +259,13 @@
                     label="Month and Year">
                   </app-month-year-picker>
 
-                  <mat-form-field class="w-full">
+                  <mat-form-field>
                     <mat-label>Amount</mat-label>
                     <input matInput type="number" formControlName="amount">
 
                   </mat-form-field>
 
-                  <mat-form-field class="w-full">
+                  <mat-form-field>
                     <mat-label>PMC Number</mat-label>
                     <input matInput formControlName="pmcNo">
                   </mat-form-field>
@@ -263,27 +273,23 @@
               }
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-              <button class="w-full" mat-stroked-button (click)="createTransmittalRow()">
-                Add Row
+            <div class="transmittal-section__actions">
+              <button type="button" mat-stroked-button (click)="createTransmittalRow()">
+                <mat-icon aria-hidden="true">add</mat-icon>Add row
               </button>
 
-              <button class="w-full" mat-stroked-button (click)="removeTransmittalRow()" [disabled]="transmittalItems.length === 1">
-                Remove Row
+              <button type="button" mat-stroked-button (click)="removeTransmittalRow()" [disabled]="transmittalItems.length === 1">
+                <mat-icon aria-hidden="true">remove</mat-icon>Remove row
               </button>
             </div>
-
-          </div>
+          </section>
         </form>
 
 
 
-        <div class="mt-6 text-right font-semibold text-lg">
-          Total: {{ transmittalTotal | number:'1.2-2' }}
-        </div>
-
-        <div class="flex flex-col sm:flex-row justify-end gap-3 mt-6">
-          <button class="w-full sm:w-auto" mat-raised-button color="primary"
+        <div class="billing-form__actions">
+          <span class="transmittal-total">Total: {{ transmittalTotal | number:'1.2-2' }}</span>
+          <button type="button" mat-raised-button
               (click)="createBillingLetter()"
               [disabled]="form.invalid || isGenerating()">
             @if(isGenerating()) {
@@ -293,12 +299,13 @@
               </mat-progress-spinner>
             }
             @else {
-              Generate Excel File
+              Generate document
             }
 
           </button>
         </div>
+        </section>
       }
     </mat-card-content>
   </mat-card>
-</div>
+</section>

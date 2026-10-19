@@ -33,6 +33,7 @@ export class Generate implements OnDestroy {
   mode = signal<'preview' | 'direct' | null>(null)
   isPreviewClicked = signal(false)
   loading = signal(false);
+  processingAction = signal<'preview' | 'generate' | null>(null)
   downloadUrl = signal<string | null>(null);
   finalFileName = signal<string>(`${this.code().toUpperCase()}-Billing.pdf`)
   /** Flag to prevent duplicate cleanup calls */
@@ -64,7 +65,10 @@ export class Generate implements OnDestroy {
 
   /** Uploads billing letter and attachments for PDF preview */
   async preview() {
-    if(!this.billingLetter()) return alert('Billing Letter required');
+    if(!this.billingLetter()) {
+      toast.error('Upload a billing letter before previewing files')
+      return
+    }
 
     const fd = new FormData
     fd.append('billingLetter', this.billingLetter()!)
@@ -73,19 +77,32 @@ export class Generate implements OnDestroy {
 
     this.isPreviewClicked.set(true)
     this.loading.set(true)
+    this.processingAction.set('preview')
     this.mode.set('preview')
-    this.previews.set(await this.billingService.billingPreview(this.code(), fd))
-    this.loading.set(false)
+    try {
+      this.previews.set(await this.billingService.billingPreview(this.code(), fd))
+    } catch (error) {
+      this.isPreviewClicked.set(false)
+      toast.error('Unable to prepare the file preview')
+      console.log(error)
+    } finally {
+      this.loading.set(false)
+      this.processingAction.set(null)
+    }
   }
 
   /** Generates the final merged billing PDF and provides download URL */
   async generate() {
-    if(!this.billingLetter()) return alert('Billing Letter required')
+    if(!this.billingLetter()) {
+      toast.error('Upload a billing letter before generating the PDF')
+      return
+    }
     if(!confirm('Are you sure you want to generate this Billing?')) return
 
     try {
       this.isPreviewClicked.set(false)
       this.loading.set(true)
+      this.processingAction.set('generate')
 
       const formData = new FormData
       formData.append('billingLetter', this.billingLetter()!)
@@ -110,8 +127,6 @@ export class Generate implements OnDestroy {
       )
 
       this.downloadUrl.set(billing['downloadUrl'])
-      this.loading.set(false)
-
       const logObject: LogDTO = {
         operation: `Generated Billing for ${this.code().toUpperCase()}`
       }
@@ -126,6 +141,9 @@ export class Generate implements OnDestroy {
     } catch (error: any) {
       toast.error('Error: ' + error)
       console.log(error)
+    } finally {
+      this.loading.set(false)
+      this.processingAction.set(null)
     }
   }
 

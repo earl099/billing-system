@@ -2,3 +2,37 @@
 
 @import url('@styles/animations.css');
 @import "tailwindcss";
+
+/* Application notifications: keep status feedback aligned with the corporate navy/cyan UI. */
+[data-sonner-toaster] {
+  --ngx-sonner-border-radius: 0.75rem;
+  --ngx-sonner-font-family: Inter, Roboto, "Helvetica Neue", sans-serif;
+}
+
+[data-sonner-toaster][data-theme='light'] {
+  --ngx-sonner-toast-success-background: #e7f3fb;
+  --ngx-sonner-toast-success-border: #b8ddea;
+  --ngx-sonner-toast-success-color: #12395c;
+}
+
+[data-sonner-toaster][data-theme='dark'] {
+  --ngx-sonner-toast-dark-success-background: #152536;
+  --ngx-sonner-toast-dark-success-border: #315168;
+  --ngx-sonner-toast-dark-success-color: #e7f1f8;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type='success'] {
+  box-shadow: 0 0.75rem 1.75rem rgb(18 59 104 / 16%);
+}
+
+[data-sonner-toaster][data-theme='dark'] [data-sonner-toast][data-type='success'] {
+  box-shadow: 0 0.75rem 1.75rem rgb(0 0 0 / 28%);
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type='success'] [data-icon] {
+  color: #2187a7;
+}
+
+[data-sonner-toaster][data-theme='dark'] [data-sonner-toast][data-type='success'] [data-icon] {
+  color: #72d8e7;
+}

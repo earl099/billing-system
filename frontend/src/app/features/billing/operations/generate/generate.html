@@ -1,67 +1,48 @@
-<mat-card class="p-4 sm:p-6 card-animate max-w-full sm:max-w-3xl mx-auto">
-  <h2 class="text-2xl font-semibold mb-4">Generate {{code().toUpperCase()}} Billing</h2>
+<section class="billing-generator fade-in" aria-labelledby="billing-generator-title">
+  <header class="billing-generator__header">
+    <div>
+      <p class="billing-generator__eyebrow">Billing workspace</p>
+      <h1 id="billing-generator-title">Generate {{ code().toUpperCase() }} billing</h1>
+      <p class="billing-generator__description">Upload the billing letter and supporting files, then preview or generate the final PDF.</p>
+    </div>
+    <button mat-stroked-button type="button" class="dashboard-button" (click)="router.navigate(['/dashboard'])"><mat-icon aria-hidden="true">arrow_back</mat-icon>Dashboard</button>
+  </header>
 
-  <div class="flex flex-col sm:flex-row gap-4 mb-6">
-    <div class="flex flex-col w-full sm:w-auto">
-      <input type="file" #fileInput accept=".pdf, .docx" hidden (change)="selectBillingLetter($event)" />
-      <button mat-raised-button (click)="fileInput.click()" class="mb-4 w-full sm:w-auto">Upload Billing Letter</button>
-      <span>{{ billingLetter()?.name }}</span>
+  <section class="generator-card">
+    <div class="generator-card__intro"><mat-icon aria-hidden="true">picture_as_pdf</mat-icon><div><h2>Document files</h2><p>Supported files: PDF and DOCX.</p></div></div>
+
+    <div class="upload-grid">
+      <article class="upload-card" [class.upload-card--complete]="billingLetter()">
+        <div class="upload-card__icon"><mat-icon aria-hidden="true">description</mat-icon></div>
+        <div><h3>Billing letter</h3><p>Required document to generate the billing PDF.</p></div>
+        <input type="file" #fileInput accept=".pdf,.docx" hidden (change)="selectBillingLetter($event)" />
+        <button mat-stroked-button type="button" (click)="fileInput.click()"><mat-icon aria-hidden="true">upload_file</mat-icon>{{ billingLetter() ? 'Replace letter' : 'Upload letter' }}</button>
+        @if (billingLetter(); as file) { <p class="file-status"><mat-icon aria-hidden="true">check_circle</mat-icon>{{ file.name }}</p> } @else { <p class="file-status file-status--muted">No file selected</p> }
+      </article>
+
+      <article class="upload-card" [class.upload-card--complete]="attachments().length">
+        <div class="upload-card__icon"><mat-icon aria-hidden="true">attach_file</mat-icon></div>
+        <div><h3>Supporting files</h3><p>Optional files to append after the billing letter.</p></div>
+        <input type="file" #fileInput1 multiple accept=".pdf,.docx" hidden (change)="selectAttachments($event)" />
+        <button mat-stroked-button type="button" (click)="fileInput1.click()"><mat-icon aria-hidden="true">upload_file</mat-icon>Upload files</button>
+        @if (attachments().length) { <ul class="attachment-list">@for (file of attachments(); track file.name) { <li><mat-icon aria-hidden="true">attach_file</mat-icon>{{ file.name }}</li> }</ul> } @else { <p class="file-status file-status--muted">No supporting files selected</p> }
+      </article>
     </div>
 
-    <div class="flex flex-col w-full sm:w-auto">
-      <input type="file" #fileInput1 multiple accept=".pdf, .docx" hidden (change)="selectAttachments($event)" />
-      <button mat-raised-button (click)="fileInput1.click()" class="mb-4 w-full sm:w-auto">Upload Supporting Files</button>
-      @for (file of attachments(); track file) {
-        <span>{{ file.name }}</span>
-      }
-    </div>
-
-  </div>
-
-  @if (loading()) {
-    <div class="text-center py-10">
-      <mat-spinner></mat-spinner>
-    </div>
-  }
-  @else {
-    @if (isPreviewClicked()) {
-      <div class="mt-8 space-y-6 fade-in">
-        <h3 class="text-xl font-semibold">Preview (Order Included)</h3>
-        @for (p of previews(); track p.public_id) {
-          <h4 class="font-medium mb-2">{{ p.label }}</h4>
-          <iframe [src]="p.safeUrl" title="test" [attr.aria-label]="p.label" class="w-full h-64 sm:h-96 border rounded"></iframe>
-        }
+    <div class="generator-actions">
+      <div><h2>Review and generate</h2><p>Preview the order first, then create the final downloadable document.</p></div>
+      <div class="generator-actions__buttons">
+        <button mat-stroked-button type="button" (click)="preview()" [disabled]="loading()"><mat-icon aria-hidden="true">visibility</mat-icon>{{ processingAction() === 'preview' ? 'Preparing preview…' : 'Preview files' }}</button>
+        <button mat-raised-button type="button" (click)="generate()" [disabled]="loading()"><mat-icon aria-hidden="true">picture_as_pdf</mat-icon>{{ processingAction() === 'generate' ? 'Generating PDF…' : 'Generate PDF' }}</button>
       </div>
-    }
-  }
+    </div>
 
-  <div class="flex flex-col sm:flex-row gap-3 mt-4">
-    <button mat-raised-button color="primary"
-            class="motion-smooth w-full sm:w-auto"
-            [disabled]="loading()"
-            (click)="preview()">
-      Preview Files
-    </button>
-
-    <button mat-raised-button color="primary"
-            class="motion-smooth w-full sm:w-auto"
-            [disabled]="loading()"
-            (click)="generate()">
-      Generate PDF
-    </button>
-  </div>
-
-  <div class="flex flex-col sm:flex-row justify-evenly gap-3 mt-4">
-    @if(downloadUrl()) {
-      <button
-        mat-raised-button
-        (click)="downloadFinalPdf()"
-        class="motion-smooth w-full sm:w-auto">
-        Download PDF File
-      </button>
+    @if (loading()) {
+      <section class="generator-state" role="status" aria-live="polite"><mat-icon aria-hidden="true">sync</mat-icon><div><strong>{{ processingAction() === 'generate' ? 'Generating final PDF' : 'Preparing preview' }}</strong><span>This may take a moment. Please keep this page open.</span></div></section>
+    } @else if (isPreviewClicked()) {
+      <section class="preview-section"><div class="preview-section__heading"><div><h2>Preview</h2><p>Files appear in the order used for the final PDF.</p></div></div>@for (preview of previews(); track preview.public_id) { <article class="preview-file"><h3>{{ preview.label }}</h3><iframe [src]="preview.safeUrl" [title]="preview.label" [attr.aria-label]="preview.label"></iframe></article> }</section>
     }
 
-    <button class="w-full sm:w-auto" mat-stroked-button (click)="router.navigate(['/dashboard'])">Back to Dashboard</button>
-  </div>
-
-</mat-card>
+    @if (downloadUrl()) { <section class="download-ready"><mat-icon aria-hidden="true">task_alt</mat-icon><div><strong>Your billing PDF is ready</strong><span>Download the finished document when you are ready.</span></div><button mat-raised-button type="button" (click)="downloadFinalPdf()"><mat-icon aria-hidden="true">download</mat-icon>Download PDF</button></section> }
+  </section>
+</section>

@@ -57,6 +57,8 @@ export class Create implements OnInit {
   /** Loads available clients for the handledClients multi-select on init */
   async ngOnInit() {
     await this.loadClient()
+    this.form.controls.role.valueChanges.subscribe(() => this.syncHandledClients())
+    this.syncHandledClients()
   }
 
   /** Fetches client list for assignment dropdown */
@@ -70,31 +72,27 @@ export class Create implements OnInit {
     }
   }
 
-  /**
-   * Handles role change logic for client assignment
-   * Non-admin users are auto-assigned to "ALL" client and the field is disabled.
-   * Admin users get full client selection control.
-   */
-  isAdmin() {
+  /** Keeps client assignment aligned with the selected role. */
+  syncHandledClients() {
     const role = this.form.get('role')?.value
     const handledClientsControl = this.form.get('handledClients')
 
-    if(role !== 'Admin') {
-      const allClient = this.clients().find(c => c.code === 'ALL')
-      if(allClient) {
-        handledClientsControl?.setValue([allClient._id])
-        handledClientsControl?.disable()
-      }
-    }
-    else {
+    if (role !== 'User') {
       handledClientsControl?.setValue([])
-      handledClientsControl?.enable()
+      handledClientsControl?.disable()
+      return
     }
+
+    handledClientsControl?.setValue([])
+    handledClientsControl?.enable()
   }
 
   /** Submits the user creation form with confirmation and audit logging */
   async submit() {
-    if(this.form.invalid) return
+    if(this.form.invalid) {
+      this.form.markAllAsTouched()
+      return
+    }
     if(!confirm('Are you sure you want to create this User?')) return
     this.loading.set(true)
 
