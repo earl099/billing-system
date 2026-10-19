@@ -39,6 +39,7 @@ export class Update implements OnInit {
 
   code = this.route.snapshot.paramMap.get('code')
   index = Number(this.route.snapshot.paramMap.get('index'))
+  fileName = this.route.snapshot.queryParamMap.get('fileName')
 
   form = this.fb.group({
     posCode: ['', Validators.required],
@@ -55,7 +56,7 @@ export class Update implements OnInit {
 
   /** Loads the existing billing rate data and patches the form values */
   async ngOnInit() {
-    const data = await this.ratesService.get(this.code ?? '', this.index)
+    const data = await this.ratesService.get(this.code ?? '', this.index, this.fileName)
     this.form.patchValue({
       posCode: data.posCode,
       posName: data.posName,
@@ -83,8 +84,8 @@ export class Update implements OnInit {
         Object.entries(formValue).filter(([_, value]) => value !== null)
       ) as unknown as BillingRate
 
-      await this.ratesService.update(this.code ?? '', this.index, payload)
-      await this.router.navigate(['/rates', this.code, 'list'])
+      await this.ratesService.update(this.code ?? '', this.index, payload, this.fileName)
+      await this.router.navigate(['/rates', this.code, 'list'], { queryParams: { fileName: this.fileName } })
 
       const log: LogDTO = {
         user: this.authService.fetchUser() ?? '',

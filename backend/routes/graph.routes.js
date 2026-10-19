@@ -14,6 +14,7 @@ import {
     exportToPdf,
     getFromTable,
     getOfbankTables,
+    getTableColumns,
     listData,
     listTemplates,
     saveOfbankTables,
@@ -60,6 +61,8 @@ graphRouter.get('/editor/export/:id', exportToPdf)
 
 // MANPOWER/RATES TABLE FUNCTIONS
 
+/** GET /manpower/:code/columns - Get column headers of a SharePoint Excel table */
+graphRouter.get('/manpower/:code/columns', getTableColumns)
 /** GET /manpower/:code/list - List all rows from a SharePoint Excel table */
 graphRouter.get('/manpower/:code/list', listData)
 /** GET /manpower/:code/:index - Get single row by index from table */

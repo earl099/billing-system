@@ -28,6 +28,23 @@ export class Manpower {
   private apiUrl = environment.apiUrl
 
   /**
+   * Fetches the column headers of a SharePoint Excel table
+   *
+   * @param code - Client code for the template folder
+   * @param fileName - Excel workbook filename
+   * @param tableName - Table name within the workbook
+   * @returns Object containing the column names and detected formula columns
+   */
+  async getColumns(code: string, fileName: string, tableName: string): Promise<{ columns: string[]; formulaColumns: string[] }> {
+    try {
+      const res: any = await firstValueFrom(this.http.get<any>(`${this.apiUrl}/manpower/${code}/columns?fileName=${fileName}&tableName=${tableName}`))
+      return { columns: res.columns ?? [], formulaColumns: res.formulaColumns ?? [] }
+    } catch (error) {
+      throw new Error(`Failed to fetch table columns: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    }
+  }
+
+  /**
    * Lists all rows from a SharePoint Excel table
    * 
    * @param code - Client code for the template folder

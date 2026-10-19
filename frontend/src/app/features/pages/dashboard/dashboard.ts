@@ -16,7 +16,7 @@ interface DashboardAction {
   icon: string;
 }
 
-const MANPOWER_CLIENT_CODES = new Set(['BTR', 'OFBANK']);
+const MANPOWER_CLIENT_CODES = new Set(['BTR', 'OFBANK', 'DOF']);
 const EXCLUDED_CLIENT_CODES = new Set(['ALL', 'NONE']);
 
 @Component({
