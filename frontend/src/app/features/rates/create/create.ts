@@ -69,8 +69,8 @@ export class Create implements OnInit, OnDestroy {
 
     try {
       const payload = this.form.getRawValue() as BillingRate
-      await this.ratesService.create(this.code ?? '', payload)
-      await this.router.navigate(['/rates', this.code, 'list'])
+      await this.ratesService.create(this.code ?? '', payload, this.fileName)
+      await this.router.navigate(['/rates', this.code, 'list'], { queryParams: { fileName: this.fileName } })
 
       const log: LogDTO = {
         user: this.authService.fetchUser() ?? '',

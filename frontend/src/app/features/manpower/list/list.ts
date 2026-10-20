@@ -80,11 +80,11 @@ export class List implements OnInit, OnDestroy {
     if(!q) return this.data();
 
     return this.data().filter(d =>
-      d.empNo?.toLowerCase().includes(q) ||
-      d.name?.toLowerCase().includes(q) ||
-      d.posCode?.toLowerCase().includes(q) ||
-      d.posName?.toLowerCase().includes(q) ||
-      d.dept?.toLowerCase().includes(q)
+      String(d.empNo ?? '').toLowerCase().includes(q) ||
+      String(d.name ?? '').toLowerCase().includes(q) ||
+      String(d.posCode ?? '').toLowerCase().includes(q) ||
+      String(d.posName ?? '').toLowerCase().includes(q) ||
+      String(d.dept ?? '').toLowerCase().includes(q)
     )
   })
 

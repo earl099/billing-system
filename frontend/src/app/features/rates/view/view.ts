@@ -30,17 +30,18 @@ export class View implements OnInit {
 
   code = this.route.snapshot.paramMap.get('code')?.toLowerCase() ?? ''
   index = Number(this.route.snapshot.paramMap.get('index'))
+  fileName = this.route.snapshot.queryParamMap.get('fileName')
   rate = signal<BillingRate>({} as BillingRate)
 
   /** Loads the billing rate data by index from the SharePoint PositionTable */
   async ngOnInit() {
-    const data = await this.ratesService.get(this.code ?? '', this.index)
+    const data = await this.ratesService.get(this.code ?? '', this.index, this.fileName)
     this.rate.set(data)
   }
 
   /** Navigates to the billing rate edit form */
   edit() {
-    this.router.navigate(['/rates', this.code, this.index, 'edit'])
+    this.router.navigate(['/rates', this.code, this.index, 'edit'], { queryParams: { fileName: this.fileName } })
   }
 
   /** Navigates back to the billing rate list */
