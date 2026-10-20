@@ -92,35 +92,4 @@
     </footer>
     }
   </section>
-
-  @if (pendingDeletion(); as user) {
-    <div class="delete-dialog-backdrop" (click)="cancelDelete()" (keydown.escape)="cancelDelete()">
-      <section
-        class="delete-dialog"
-        role="alertdialog"
-        aria-modal="true"
-        aria-labelledby="delete-dialog-title"
-        aria-describedby="delete-dialog-description"
-        (click)="$event.stopPropagation()">
-        <div class="delete-dialog__icon" aria-hidden="true">
-          <mat-icon>delete_forever</mat-icon>
-        </div>
-        <div>
-          <p class="delete-dialog__eyebrow">Permanent action</p>
-          <h2 id="delete-dialog-title">Delete user?</h2>
-          <p id="delete-dialog-description">
-            You are about to permanently delete <strong>{{ user.name || 'this user' }}</strong>.
-            This action cannot be undone.
-          </p>
-        </div>
-        <div class="delete-dialog__actions">
-          <button mat-stroked-button type="button" (click)="cancelDelete()" [disabled]="deleting()">Cancel</button>
-          <button mat-raised-button type="button" class="delete-dialog__confirm" (click)="confirmDelete()" [disabled]="deleting()">
-            <mat-icon aria-hidden="true">delete</mat-icon>
-            {{ deleting() ? 'Deleting…' : 'Delete user' }}
-          </button>
-        </div>
-      </section>
-    </div>
-  }
 </section>

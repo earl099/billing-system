@@ -1033,6 +1033,13 @@ export class DofTimekeepingComponent {
     return Math.max(total, 0)
   }
 
+  /** Number of JAN dates with a completed full-day or rendered-hours entry. */
+  completedDayCount(emp: EmployeeTimekeep, category: CategoryKey): number {
+    if (category !== 'jan') return 0
+
+    return emp.janitorialDays.filter(day => day.checked || Boolean(day.hours?.trim())).length
+  }
+
   buildDayPreview(emp: EmployeeTimekeep, category: CategoryKey): DayPreview[] {
     const dates = this.getPeriodDates()
     const periodDates = new Set(dates.map(d => d.toISODate()))

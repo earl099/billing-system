@@ -1,0 +1,22 @@
+<section class="confirmation-dialog" aria-labelledby="confirmation-dialog-title">
+  <header class="confirmation-dialog__header">
+    <span class="confirmation-dialog__icon" aria-hidden="true">
+      <mat-icon>warning_amber</mat-icon>
+    </span>
+    <div>
+      <p>Confirmation required</p>
+      <h2 id="confirmation-dialog-title">{{ data.title || 'Continue with this action?' }}</h2>
+    </div>
+  </header>
+
+  <div class="confirmation-dialog__content">
+    <p>{{ data.message }}</p>
+  </div>
+
+  <footer class="confirmation-dialog__actions">
+    <button mat-stroked-button type="button" cdkFocusInitial (click)="cancel()">Cancel</button>
+    <button mat-raised-button color="warn" type="button" (click)="confirm()">
+      {{ data.confirmLabel || 'Confirm' }}
+    </button>
+  </footer>
+</section>

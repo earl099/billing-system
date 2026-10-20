@@ -205,9 +205,40 @@ mat-sidenav-container {
   height: 100vh;
 }
 
+/* Give the authenticated workspace a quiet, corporate canvas rather than a
+   flat dark surface. The low-contrast grid helps define the work area without
+   competing with forms, tables, or billing records. */
+:host-context(html.dark) mat-sidenav-content {
+  background-color: #0b151b;
+  background-image:
+    radial-gradient(circle at 18% -10%, rgb(50 151 184 / 16%), transparent 30rem),
+    radial-gradient(circle at 92% 88%, rgb(29 129 148 / 12%), transparent 26rem),
+    repeating-linear-gradient(90deg, transparent 0, transparent 7.9375rem, rgb(94 174 195 / 4%) 8rem),
+    repeating-linear-gradient(0deg, transparent 0, transparent 7.9375rem, rgb(94 174 195 / 4%) 8rem),
+    linear-gradient(145deg, #0c171d 0%, #101b21 52%, #0b151a 100%);
+  background-attachment: fixed;
+}
+
 /* Toolbar height consistency */
 mat-toolbar {
   min-height: 64px;
+}
+
+:host-context(html.dark) mat-toolbar {
+  position: relative;
+  z-index: 2;
+  border-bottom: 1px solid rgb(83 189 208 / 28%);
+  background-color: #0e1c25 !important;
+  background-image:
+    linear-gradient(90deg, rgb(33 185 210 / 10%), transparent 25rem),
+    linear-gradient(180deg, #132633 0%, #0e1c25 100%) !important;
+  box-shadow: 0 .5rem 1.5rem rgb(0 0 0 / 14%);
+}
+
+:host-context(html.dark) mat-toolbar a {
+  color: #f1f8fc;
+  letter-spacing: -.02em;
+  text-shadow: 0 .0625rem 0 rgb(0 0 0 / 28%);
 }
 
 /* Dark mode sidebar */

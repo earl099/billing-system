@@ -28,7 +28,7 @@ export class View implements OnInit {
   route = inject(ActivatedRoute)
   router = inject(Router)
 
-  code = this.route.snapshot.paramMap.get('code')
+  code = this.route.snapshot.paramMap.get('code')?.toLowerCase() ?? ''
   index = Number(this.route.snapshot.paramMap.get('index'))
   rate = signal<BillingRate>({} as BillingRate)
 

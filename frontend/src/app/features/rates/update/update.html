@@ -1,69 +1,98 @@
-<div class="max-w-full md:max-w-2xl mx-auto p-4 sm:p-6 fade-in">
-  <mat-card class="p-4 sm:p-6 card-animate">
-    <h3 class="text-xl font-semibold mb-4">Edit Billing Rate</h3>
+<section class="rate-form-page fade-in" aria-labelledby="rate-form-title">
+  <header class="rate-form-page__header">
+    <div>
+      <p class="rate-form-page__eyebrow">Rates workspace</p>
+      <h1 id="rate-form-title">Edit billing rate</h1>
+      <p class="rate-form-page__description">Update salary and billing rates for this position.</p>
+    </div>
 
-    <form [formGroup]="form" class="grid gap-4">
-      <mat-form-field class="w-full" appearance="fill">
-        <mat-label>Position Code</mat-label>
-        <input matInput formControlName="posCode" />
-        @if (form.get('posCode')?.invalid) {
-          <mat-error>Please input a valid position code.</mat-error>
-        }
-      </mat-form-field>
+    <button mat-stroked-button type="button" (click)="cancel()">
+      <mat-icon aria-hidden="true">arrow_back</mat-icon>
+      Back to rates
+    </button>
+  </header>
 
-      <mat-form-field class="w-full" appearance="fill">
-        <mat-label>Position Name</mat-label>
-        <input matInput formControlName="posName" />
-      </mat-form-field>
+  <section class="rate-form-card" aria-label="Edit billing rate form">
+    <div class="rate-form-card__heading">
+      <span class="rate-form-card__icon" aria-hidden="true">
+        <mat-icon>edit_note</mat-icon>
+      </span>
+      <div>
+        <h2>Rate information</h2>
+        <p>Fields marked with an asterisk are required.</p>
+      </div>
+    </div>
 
-      <mat-form-field class="w-full" appearance="fill">
-        <mat-label>Salary/Wage</mat-label>
-        <input matInput type="number" formControlName="salaryWage" />
-        @if (form.get('salaryWage')?.invalid) {
-          <mat-error>Please input a valid salary amount.</mat-error>
-        }
-      </mat-form-field>
+    <form [formGroup]="form" class="rate-form">
+      <div class="rate-form__grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Position Code</mat-label>
+          <input matInput formControlName="posCode" />
+          @if (form.controls.posCode.touched && form.controls.posCode.invalid) {
+            <mat-error>Position code is required.</mat-error>
+          }
+        </mat-form-field>
 
-      <mat-form-field class="w-full" appearance="fill">
-        <mat-label>Daily Rate</mat-label>
-        <input matInput formControlName="dailyRate" />
-        @if (form.get('dailyRate')?.invalid) {
-          <mat-error>Please input a valid daily rate.</mat-error>
-        }
-      </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Position Name</mat-label>
+          <input matInput formControlName="posName" />
+          @if (form.controls.posName.touched && form.controls.posName.invalid) {
+            <mat-error>Position name is required.</mat-error>
+          }
+        </mat-form-field>
 
-      <mat-form-field class="w-full" appearance="fill">
-        <mat-label>Monthly Rate</mat-label>
-        <input matInput type="number" formControlName="monthlyRate" step="0.01" />
-        @if (form.get('monthlyRate')?.invalid) {
-          <mat-error>Please input a valid monthly rate.</mat-error>
-        }
-      </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Salary/Wage</mat-label>
+          <input matInput type="number" formControlName="salaryWage" />
+          @if (form.controls.salaryWage.touched && form.controls.salaryWage.invalid) {
+            <mat-error>Enter a valid salary or wage.</mat-error>
+          }
+        </mat-form-field>
 
-      <mat-form-field class="w-full" appearance="fill">
-        <mat-label>Semi-Monthly Rate</mat-label>
-        <input matInput type="number" formControlName="semiMonthlyRate" />
-        @if (form.get('semiMonthlyRate')?.invalid) {
-          <mat-error>Please input a valid semi-monthly rate.</mat-error>
-        }
-      </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Daily Rate</mat-label>
+          <input matInput type="number" formControlName="dailyRate" />
+          @if (form.controls.dailyRate.touched && form.controls.dailyRate.invalid) {
+            <mat-error>Enter a valid daily rate.</mat-error>
+          }
+        </mat-form-field>
 
-      <mat-form-field class="w-full" appearance="fill">
-        <mat-label>Salary Type</mat-label>
-        <input matInput formControlName="salaryType" />
-        @if (form.get('salaryType')?.invalid) {
-          <mat-error>Please input a valid salary type.</mat-error>
-        }
-      </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Monthly Rate</mat-label>
+          <input matInput type="number" formControlName="monthlyRate" />
+          @if (form.controls.monthlyRate.touched && form.controls.monthlyRate.invalid) {
+            <mat-error>Enter a valid monthly rate.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Semi-Monthly Rate</mat-label>
+          <input matInput type="number" formControlName="semiMonthlyRate" />
+          @if (form.controls.semiMonthlyRate.touched && form.controls.semiMonthlyRate.invalid) {
+            <mat-error>Enter a valid semi-monthly rate.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="rate-form__field--wide">
+          <mat-label>Salary Type</mat-label>
+          <input matInput formControlName="salaryType" />
+          @if (form.controls.salaryType.touched && form.controls.salaryType.invalid) {
+            <mat-error>Salary type is required.</mat-error>
+          }
+        </mat-form-field>
+      </div>
 
       @if (error) {
-        <p class="text-red-600 mt-2">{{ error }}</p>
+        <p class="rate-form__error" role="alert">{{ error }}</p>
       }
 
-      <div class="flex flex-col sm:flex-row gap-3">
-        <button class="w-full sm:w-auto" mat-raised-button color="primary" [disabled]="loading" (click)="submit()">Update Rate</button>
-        <button class="w-full sm:w-auto" mat-stroked-button (click)="cancel()">Cancel</button>
+      <div class="rate-form__actions">
+        <button mat-raised-button color="primary" [disabled]="loading" (click)="submit()">
+          <mat-icon aria-hidden="true">save</mat-icon>
+          Update rate
+        </button>
+        <button mat-stroked-button type="button" (click)="cancel()">Cancel</button>
       </div>
     </form>
-  </mat-card>
-</div>
+  </section>
+</section>

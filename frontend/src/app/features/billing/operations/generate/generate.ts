@@ -12,6 +12,7 @@ import { environment } from '@env/environment.prod';
 import { MATERIAL_MODULES } from '@material';
 import { LogDTO } from '@models/log';
 import { Auth } from '@services/auth';
+import { Confirmation } from '@services/confirmation';
 import { Billing } from '@services/billing';
 import { Log } from '@services/log';
 import { toast } from 'ngx-sonner';
@@ -24,6 +25,7 @@ import { toast } from 'ngx-sonner';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Generate implements OnDestroy {
+  confirmation = inject(Confirmation)
   route = inject(ActivatedRoute)
 
   code = signal(this.route.snapshot.paramMap.get('code')!)
@@ -97,7 +99,7 @@ export class Generate implements OnDestroy {
       toast.error('Upload a billing letter before generating the PDF')
       return
     }
-    if(!confirm('Are you sure you want to generate this Billing?')) return
+    if(!(await this.confirmation.confirm('Are you sure you want to generate this Billing?'))) return
 
     try {
       this.isPreviewClicked.set(false)

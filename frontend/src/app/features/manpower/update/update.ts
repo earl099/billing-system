@@ -13,6 +13,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
 import { Manpower } from '@services/manpower';
+import { Confirmation } from '@services/confirmation';
 import { toast } from 'ngx-sonner';
 
 type FieldType = 'text' | 'number'
@@ -40,6 +41,7 @@ interface FieldConfig {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Update implements OnInit {
+  confirmation = inject(Confirmation)
   route = inject(ActivatedRoute)
   router = inject(Router)
   fb = inject(UntypedFormBuilder)
@@ -48,7 +50,7 @@ export class Update implements OnInit {
   formConfig = signal<FieldConfig[]>([])
   form: UntypedFormGroup = this.fb.group({})
 
-  code = signal(this.route.snapshot.paramMap.get('code'))
+  code = signal(this.route.snapshot.paramMap.get('code')?.toLowerCase() ?? '')
   index = signal(this.route.snapshot.paramMap.get('index'))
 
   /** Client-specific form field schemas (same as create component) */
@@ -183,7 +185,7 @@ export class Update implements OnInit {
       return
     }
 
-    if(confirm('Are you sure you want to update this data?')) {
+    if (await this.confirmation.confirm('Are you sure you want to update this data?')) {
       try {
         await this.manpowerService.updateRow(
           this.code()!,

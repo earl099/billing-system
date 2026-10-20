@@ -62,7 +62,25 @@ export class Create implements OnInit {
       { key: 'mfopt', label: 'MFOPT Amount', type: 'text'},
       { key: 'salary', label: 'Salary', type: 'text' },
       { key: 'bankNo', label: 'Bank Account No.',  type: 'text' },
-    ]
+    ],
+    btr: [
+      { key: 'empNo', label: 'Employee No', type: 'text', required: true },
+      { key: 'name', label: 'Name', type: 'text', required: true },
+      { key: 'posCode', label: 'Position Code', type: 'text', required: true },
+      { key: 'dept', label: 'Department', type: 'text', required: true },
+      { key: 'status', label: 'Status', type: 'text', required: true },
+      { key: 'type', label: 'Type', type: 'text' },
+      { key: 'payType', label: 'Pay type', type: 'text' },
+      { key: 'payFreq', label: 'Pay Frequency', type: 'text' },
+      { key: 'tin', label: 'TIN', type: 'text' },
+      { key: 'sssNo', label: 'SSS No.', type: 'text' },
+      { key: 'phicNo', label: 'PHIC No.', type: 'text' },
+      { key: 'hdmfNo', label: 'HDMF No.', type: 'text' },
+      { key: 'hd', label: 'HD', type: 'text' },
+      { key: 'mfopt', label: 'MFOPT Amount', type: 'text' },
+      { key: 'salary', label: 'Salary', type: 'text' },
+      { key: 'bankNo', label: 'Bank Account No.', type: 'text' },
+    ],
   }
 
   /** Input columns sent to the backend for form-to-row mapping */
@@ -84,7 +102,25 @@ export class Create implements OnInit {
       'mfopt',
       'salary',
       'bankNo',
-    ]
+    ],
+    btr: [
+      'empNo',
+      'name',
+      'posCode',
+      'dept',
+      'status',
+      'type',
+      'payType',
+      'payFreq',
+      'tin',
+      'sssNo',
+      'phicNo',
+      'hdmfNo',
+      'hd',
+      'mfopt',
+      'salary',
+      'bankNo',
+    ],
   }
 
   /** Full column map including formula-derived columns in the Excel table */
@@ -111,14 +147,37 @@ export class Create implements OnInit {
       'difference',
       'dBillingRate',
       'mBillingRate'
-    ]
+    ],
+    btr: [
+      'empNo',
+      'name',
+      'posCode',
+      'posName',
+      'dept',
+      'status',
+      'type',
+      'payType',
+      'payFreq',
+      'tin',
+      'sssNo',
+      'phicNo',
+      'hdmfNo',
+      'hd',
+      'mfopt',
+      'salary',
+      'bankNo',
+      'endorsed',
+      'difference',
+      'dBillingRate',
+      'mBillingRate'
+    ],
   }
 
   route = inject(ActivatedRoute)
   router = inject(Router)
   fb = inject(UntypedFormBuilder)
 
-  readonly code = signal(this.route.snapshot.paramMap.get('code'))
+  readonly code = signal(this.route.snapshot.paramMap.get('code')?.toLowerCase() ?? '')
 
   form: UntypedFormGroup = this.fb.group({})
 
@@ -154,6 +213,11 @@ export class Create implements OnInit {
 
   /** Submits the employee form data to add a new row to the SharePoint EmployeeTable */
   async addData() {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched()
+      return
+    }
+
     try {
       await this.manpowerService.addToTable(
         this.code() ?? '',

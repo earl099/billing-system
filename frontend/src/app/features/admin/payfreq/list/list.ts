@@ -12,6 +12,7 @@ import { Router, RouterLink } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
 import { LogDTO } from '@models/log';
 import { Auth } from '@services/auth';
+import { Confirmation } from '@services/confirmation';
 import { Client } from '@services/client';
 import { Log } from '@services/log';
 import { Payfreq } from '@services/payfreq';
@@ -31,6 +32,7 @@ import { toast } from 'ngx-sonner';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class List implements OnInit, OnDestroy {
+  confirmation = inject(Confirmation)
   clientService = inject(Client)
   payFreqService = inject(Payfreq)
   authService = inject(Auth)
@@ -130,7 +132,7 @@ export class List implements OnInit, OnDestroy {
       return
     }
 
-    if(!confirm('Are you sure you want to delete this Pay Frequency? This action is permanent.')) return;
+    if(!(await this.confirmation.confirm('Are you sure you want to delete this Pay Frequency? This action is permanent.'))) return;
     
     try {
       await this.payFreqService.delete(p._id)

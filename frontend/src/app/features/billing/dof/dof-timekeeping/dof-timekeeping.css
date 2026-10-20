@@ -415,3 +415,104 @@ mat-tab-group {
 :host-context(html.dark) .dof-panel--timekeeping .timekeeping-grid tbody .grid-rest-day .grid-date-column small { color: #d7c38a; }
 :host-context(html.dark) .dof-panel--timekeeping .timekeeping-grid tbody .grid-rest-day .grid-date-column em { color: #f5c85e; }
 :host-context(html.dark) .dof-panel--timekeeping .timekeeping-grid tbody .grid-rest-day .grid-time-input:disabled { border-color: #6e6546; color: #cbbf96; background: #373222; }
+
+/* Detailed entry keeps one date, its completion state, and its input on one scan-friendly row. */
+.dof-panel--timekeeping .employee-panel--detailed .mat-expansion-panel-header-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.employee-progress {
+  flex: 0 0 auto;
+  padding: .25rem .5rem;
+  border-radius: 999px;
+  color: #315f80;
+  background: #eaf5fa;
+  font-size: .75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.dof-panel--timekeeping .category-actions--sticky {
+  position: sticky;
+  z-index: 3;
+  bottom: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  margin: 1rem 0;
+  padding: .75rem;
+  border: 1px solid #d7e3ef;
+  border-radius: .75rem;
+  background: rgb(255 255 255 / 94%);
+  box-shadow: 0 .5rem 1.25rem rgb(18 59 104 / 12%);
+  backdrop-filter: blur(.5rem);
+}
+
+.dof-panel--timekeeping .category-actions--sticky button {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: .875rem;
+}
+
+.section-heading .section-title { margin-bottom: .25rem; }
+.section-heading p { margin: 0; color: #58708c; font-size: .8125rem; line-height: 1.45; }
+.section-heading strong { padding: .375rem .625rem; border-radius: .5rem; color: #315f80; background: #eaf5fa; font-size: .8125rem; white-space: nowrap; }
+
+.dof-panel--timekeeping .date-row--detailed {
+  display: grid;
+  grid-template-columns: auto minmax(8rem, 1fr) auto minmax(13rem, 18rem);
+  align-items: center;
+  gap: .75rem;
+  min-height: 4.25rem;
+  padding: .5rem .75rem;
+  border: 1px solid #d7e3ef;
+  border-radius: .625rem;
+  background: #f6faff;
+}
+
+.dof-panel--timekeeping .date-row--detailed.date-row--complete { border-color: #b7dbe6; background: #eef8fb; }
+.date-row__date { color: #173a63; font-size: .875rem; font-weight: 700; }
+.date-row__status { padding: .25rem .5rem; border-radius: 999px; color: #15527c; background: #dceef8; font-size: .75rem; font-weight: 700; white-space: nowrap; }
+.dof-panel--timekeeping .date-row--detailed .hours-field { width: 100%; margin: 0; }
+.dof-panel--timekeeping .date-row--detailed .mat-mdc-form-field-subscript-wrapper { display: none; }
+
+.rest-day-badge {
+  display: inline-flex;
+  width: fit-content;
+  margin-top: .25rem;
+  padding: .15rem .4rem;
+  border-radius: 999px;
+  font-size: .6875rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+:host-context(html.dark) .employee-progress { color: #b9d8e9; background: #203c51; }
+:host-context(html.dark) .dof-panel--timekeeping .category-actions--sticky { border-color: #315168; background: rgb(16 33 49 / 94%); box-shadow: 0 .5rem 1.25rem rgb(0 0 0 / 26%); }
+:host-context(html.dark) .section-heading p { color: #aac0d1; }
+:host-context(html.dark) .section-heading strong { color: #b9d8e9; background: #203c51; }
+:host-context(html.dark) .dof-panel--timekeeping .date-row--detailed { border-color: #315168; background: #152536; }
+:host-context(html.dark) .dof-panel--timekeeping .date-row--detailed.date-row--complete { border-color: #3e6d85; background: #1a3648; }
+:host-context(html.dark) .date-row__date { color: #e7f1f7; }
+:host-context(html.dark) .date-row__status { color: #7ce1ef; background: #203d52; }
+
+@media (max-width: 42rem) {
+  .dof-panel--timekeeping .category-actions--sticky { bottom: .5rem; justify-content: stretch; }
+  .dof-panel--timekeeping .category-actions--sticky button { width: 100%; justify-content: center; }
+  .dof-panel--timekeeping .date-row--detailed { grid-template-columns: auto minmax(0, 1fr); }
+  .date-row__status { justify-self: start; }
+  .dof-panel--timekeeping .date-row--detailed .hours-field { grid-column: 1 / -1; }
+  .section-heading { align-items: stretch; flex-direction: column; }
+  .section-heading strong { width: fit-content; }
+}

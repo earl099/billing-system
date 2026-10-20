@@ -1,42 +1,51 @@
-<div class="p-4 sm:p-6 fade-in max-w-full lg:max-w-5xl mx-auto">
-  <mat-card class="shadow-xl rounded-2xl p-4 sm:p-6">
-    <mat-card-header>
-      <mat-card-title class="text-xl font-semibold mb-4">
-        Add Employee
-      </mat-card-title>
-    </mat-card-header>
+<section class="employee-create-workspace fade-in" aria-labelledby="employee-create-title">
+  <header class="employee-create-workspace__header">
+    <div>
+      <p class="employee-create-workspace__eyebrow">Manpower workspace</p>
+      <h1 id="employee-create-title">Add employee</h1>
+      <p>Create an employee record for the selected billing unit.</p>
+    </div>
+    <button mat-stroked-button type="button" (click)="backToList()">Back to list</button>
+  </header>
 
+  <mat-card class="employee-create-panel">
     <mat-card-content>
-      <h3 class="mt-4">Enter Employee Information</h3>
-      <form [formGroup]="form" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+      <section class="employee-create-information" aria-labelledby="employee-information-title">
+        <div class="employee-create-information__heading">
+          <h2 id="employee-information-title">Employee information</h2>
+          <p>Complete the employee details for this billing unit.</p>
+        </div>
 
-        @for (field of formConfig(); track field.key) {
-          <mat-form-field class="w-full">
-            <mat-label>{{field.label}}</mat-label>
-            @switch (field.type) {
-              @case ('text') {
-                <input matInput [formControlName]="field.key">
+        <form [formGroup]="form" class="employee-create-form">
+
+          @for (field of formConfig(); track field.key) {
+            <mat-form-field class="employee-create-form__field">
+              <mat-label>{{field.label}}</mat-label>
+              @switch (field.type) {
+                @case ('text') {
+                  <input matInput [formControlName]="field.key">
+                }
+                @case ('number') {
+                  <input type="number" matInput (keypress)="decimalFilter($event)">
+                }
               }
-              @case ('number') {
-                <input type="number" matInput (keypress)="decimalFilter($event)">
+
+              @if(form.get(field.key)?.invalid && form.get(field.key)?.touched) {
+                <mat-error>{{field.label}} is required</mat-error>
               }
-            }
+            </mat-form-field>
+          }
+        </form>
 
-            @if(form.get(field.key)?.invalid && form.get(field.key)?.touched) {
-              <mat-error>{{field.label}} is required</mat-error>
-            }
-          </mat-form-field>
-        }
-      </form>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-        <button mat-stroked-button (click)="addData()">
-          Add Employee
-        </button>
-        <button mat-stroked-button (click)="backToList()">
-          Back to List
-        </button>
-      </div>
+        <div class="employee-create-actions">
+        <button mat-raised-button color="primary" type="button" [disabled]="form.invalid" (click)="addData()">
+            Add Employee
+          </button>
+          <button mat-stroked-button type="button" (click)="backToList()">
+            Back to List
+          </button>
+        </div>
+      </section>
     </mat-card-content>
   </mat-card>
-</div>
+</section>

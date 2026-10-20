@@ -1,1 +1,89 @@
-mat-card { border-radius: 14px; }
+:host { display: block; }
+
+.manpower-list-workspace { max-width: 72rem; margin: 0 auto; padding: 1rem; color: #173a63; }
+.manpower-list-workspace__header { display: flex; align-items: end; justify-content: space-between; gap: 1.5rem; margin-bottom: 1.5rem; }
+.manpower-list-workspace__eyebrow { margin: 0 0 .375rem; color: #2187a7; font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.manpower-list-workspace h1 { margin: 0; color: #102f53; font-size: clamp(2rem, 4vw, 2.5rem); font-weight: 750; line-height: 1.15; letter-spacing: -.04em; }
+.manpower-list-workspace__header p:not(.manpower-list-workspace__eyebrow) { margin: .5rem 0 0; color: #58708c; font-size: .9375rem; }
+.manpower-list-workspace__header-actions { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+.manpower-list-workspace__header-actions button { display: inline-flex; align-items: center; gap: .5rem; min-height: 2.875rem; padding: 0 1rem; border-radius: .625rem; font-weight: 700; box-shadow: none; }
+.manpower-list-workspace__header-actions [mat-raised-button] { color: #083047 !important; background: #36bcd2 !important; }
+.manpower-list-workspace__header-actions [mat-stroked-button] { border-color: #5b87a8; color: #1b5b82; background: transparent; }
+.manpower-list-panel { overflow: hidden; border: 1px solid #d7e3ef; border-radius: .875rem; background: #fff; box-shadow: 0 .375rem 1.5rem rgb(18 59 104 / 7%); }
+.manpower-list-panel--template { width: min(100%, 42rem); }
+.manpower-list-panel mat-card-header { padding: 1.25rem; border-bottom: 1px solid #d7e3ef; background: #f6faff; }
+.manpower-list-panel mat-card-title { color: #173a63; font-size: 1.125rem; font-weight: 700; }
+.manpower-list-panel mat-card-subtitle { margin: .25rem 0 0; color: #58708c; }
+.manpower-list-panel mat-card-content { display: block; padding: 1.25rem; }
+.manpower-list-field { width: 100%; }
+.manpower-list-toolbar { display: flex; align-items: center; gap: .625rem; padding: 1rem 1.25rem; border-bottom: 1px solid #d7e3ef; background: #f6faff; color: #2187a7; }
+.manpower-list-search { box-sizing: border-box; width: min(100%, 26rem); min-height: 2.75rem; padding: 0 .875rem; border: 1px solid #8fb0cb; border-radius: .625rem; color: #173a63; background: #fff; font: inherit; }
+.manpower-list-search:focus { border-color: #2187a7; outline: .1875rem solid rgb(54 188 210 / 20%); outline-offset: 0; }
+.manpower-list-state { display: flex; align-items: center; gap: .75rem; min-height: 8rem; padding: 1.25rem; border: 1px solid #d7e3ef; border-radius: .875rem; color: #58708c; background: #f6faff; }
+.manpower-list-table-scroll { overflow-x: auto; }
+.manpower-list-table { width: 100%; min-width: 48rem; border-collapse: collapse; }
+.manpower-list-table th.mat-mdc-header-cell { padding: 1rem; color: #315f80; background: #f6faff; font-size: .75rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; }
+.manpower-list-table td.mat-mdc-cell { padding: 1rem; border-bottom-color: #d7e3ef; color: #173a63; font-size: .875rem; }
+.manpower-list-table tr.mat-mdc-row:hover { background: #f6faff; }
+.manpower-list-actions { display: flex; align-items: center; gap: .5rem; }
+.manpower-list-action { display: inline-flex; align-items: center; justify-content: center; width: 2.5rem; height: 2.5rem; border: 1px solid #bcd3e5; border-radius: .5rem; color: #1b5b82; }
+.manpower-list-action--danger { border-color: #e2b5ba; color: #b04455; }
+.manpower-list-pagination { display: flex; align-items: center; justify-content: flex-end; gap: .75rem; padding: 1rem 1.25rem; border-top: 1px solid #d7e3ef; }
+.manpower-list-pagination button { min-height: 2.5rem; border-radius: .625rem; border-color: #8fb0cb; color: #1b5b82; font-weight: 700; }
+.manpower-list-pagination__count { min-width: 3.5rem; padding: .5rem .75rem; border-radius: .5rem; color: #315f80; background: #eaf5fa; font-size: .875rem; font-weight: 700; text-align: center; }
+:host-context(html.dark) .manpower-list-workspace { color: #dbe9f3; }
+:host-context(html.dark) .manpower-list-workspace h1, :host-context(html.dark) .manpower-list-panel mat-card-title { color: #f1f7fb; }
+:host-context(html.dark) .manpower-list-workspace__eyebrow { color: #55d3e5; }
+:host-context(html.dark) .manpower-list-workspace__header p:not(.manpower-list-workspace__eyebrow), :host-context(html.dark) .manpower-list-panel mat-card-subtitle, :host-context(html.dark) .manpower-list-state { color: #aac0d1; }
+:host-context(html.dark) .manpower-list-workspace__header-actions [mat-raised-button] { color: #072c40 !important; background: #55d3e5 !important; }
+:host-context(html.dark) .manpower-list-workspace__header-actions [mat-stroked-button] { border-color: #365973; color: #c2d7e5; }
+:host-context(html.dark) .manpower-list-panel { border-color: #315168; background: #152536; box-shadow: 0 .5rem 1.5rem rgb(0 0 0 / 18%); }
+:host-context(html.dark) .manpower-list-panel mat-card-header, :host-context(html.dark) .manpower-list-table th.mat-mdc-header-cell { border-color: #315168; color: #c2d7e5; background: #102131; }
+:host-context(html.dark) .manpower-list-panel mat-card-content { background: #152536; }
+:host-context(html.dark) .manpower-list-toolbar { border-color: #315168; color: #55d3e5; background: #102131; }
+:host-context(html.dark) .manpower-list-search { border-color: #365973; color: #e7f1f7; background: #102131; }
+:host-context(html.dark) .manpower-list-state { border-color: #315168; background: #102131; }
+:host-context(html.dark) .manpower-list-panel--table .manpower-list-table,
+:host-context(html.dark) .manpower-list-panel--table .manpower-list-table tr.mat-mdc-row,
+:host-context(html.dark) .manpower-list-panel--table .manpower-list-table td.mat-mdc-cell { border-color: #315168; color: #e7f1f7; background-color: #1a3043 !important; }
+:host-context(html.dark) .manpower-list-table tr.mat-mdc-row:hover,
+:host-context(html.dark) .manpower-list-table tr.mat-mdc-row:hover td.mat-mdc-cell { background-color: #203c51 !important; }
+:host-context(html.dark) .manpower-list-action { border-color: #365973; color: #b9d8e9; }
+:host-context(html.dark) .manpower-list-action--danger { border-color: #8d4c58; color: #f0a5b0; }
+:host-context(html.dark) .manpower-list-pagination { border-color: #315168; }
+:host-context(html.dark) .manpower-list-pagination button { border-color: #365973; color: #b9d8e9; }
+:host-context(html.dark) .manpower-list-pagination__count { color: #c2d7e5; background: #203c51; }
+
+/* MatSelect options render in the overlay container, so these selectors intentionally cross component encapsulation. */
+::ng-deep .manpower-template-select-panel.mat-mdc-select-panel {
+  border: 1px solid #cdddeb;
+  border-radius: .625rem;
+  background: #fff;
+  box-shadow: 0 .75rem 1.5rem rgb(18 59 104 / 14%);
+}
+
+::ng-deep .manpower-template-select-panel .mat-mdc-option {
+  min-height: 3rem;
+  color: #173a63;
+  font-size: .875rem;
+}
+
+::ng-deep .manpower-template-select-panel .mat-mdc-option:hover,
+::ng-deep .manpower-template-select-panel .mat-mdc-option.mdc-list-item--selected {
+  background: #e7f3fb;
+}
+
+::ng-deep html.dark .manpower-template-select-panel.mat-mdc-select-panel {
+  border-color: #365973;
+  background: #1a3043;
+  box-shadow: 0 .75rem 1.5rem rgb(0 0 0 / 28%);
+}
+
+::ng-deep html.dark .manpower-template-select-panel .mat-mdc-option { color: #e7f1f8; }
+
+::ng-deep html.dark .manpower-template-select-panel .mat-mdc-option:hover,
+::ng-deep html.dark .manpower-template-select-panel .mat-mdc-option.mdc-list-item--selected {
+  background: #203c51;
+}
+
+@media (max-width: 42rem) { .manpower-list-workspace__header { align-items: stretch; flex-direction: column; }.manpower-list-workspace__header-actions { width: 100%; }.manpower-list-workspace__header-actions button { flex: 1; }.manpower-list-search { width: 100%; }.manpower-list-pagination { justify-content: stretch; flex-wrap: wrap; }.manpower-list-pagination button { flex: 1; } }

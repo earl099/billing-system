@@ -7,6 +7,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { KeyValuePipe } from '@angular/common';
 import { MATERIAL_MODULES } from '@material';
 import { Backup, BackupRestoreResult } from '@services/backup';
+import { Confirmation } from '@services/confirmation';
 import { toast } from 'ngx-sonner';
 
 @Component({
@@ -20,6 +21,7 @@ import { toast } from 'ngx-sonner';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BackupComponent {
+  confirmation = inject(Confirmation)
   private backupService = inject(Backup)
 
   /** Whether an export/import operation is in progress */
@@ -66,7 +68,7 @@ export class BackupComponent {
       return
     }
 
-    if (!confirm('Restoring will replace all current data with the backup contents. This action cannot be undone. Continue?')) {
+    if (!(await this.confirmation.confirm('Restoring will replace all current data with the backup contents. This action cannot be undone. Continue?', { title: 'Restore backup?' }))) {
       return
     }
 

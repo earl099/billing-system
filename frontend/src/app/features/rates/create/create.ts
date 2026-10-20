@@ -14,6 +14,7 @@ import { MATERIAL_MODULES } from '@material'
 import { BillingRate } from '@models/billing-rate'
 import { LogDTO } from '@models/log'
 import { Auth } from '@services/auth'
+import { Confirmation } from '@services/confirmation'
 import { Log } from '@services/log'
 import { Rates } from '@services/rates'
 import { toast } from 'ngx-sonner'
@@ -31,6 +32,7 @@ import { toast } from 'ngx-sonner'
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Create implements OnInit, OnDestroy {
+  confirmation = inject(Confirmation)
   fb = inject(FormBuilder)
   ratesService = inject(Rates)
   authService = inject(Auth)
@@ -38,7 +40,7 @@ export class Create implements OnInit, OnDestroy {
   router = inject(Router)
   route = inject(ActivatedRoute)
 
-  code = this.route.snapshot.paramMap.get('code')
+  code = this.route.snapshot.paramMap.get('code')?.toLowerCase() ?? ''
 
   form = this.fb.group({
     posCode: ['', Validators.required],
@@ -60,7 +62,7 @@ export class Create implements OnInit, OnDestroy {
     if(this.form.invalid) return
     this.loading = true
 
-    if(!confirm('Are you sure you want to create this billing rate?')) {
+    if(!(await this.confirmation.confirm('Are you sure you want to create this billing rate?'))) {
       this.loading = false
       return
     }
