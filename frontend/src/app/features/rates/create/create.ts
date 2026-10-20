@@ -41,6 +41,7 @@ export class Create implements OnInit, OnDestroy {
   route = inject(ActivatedRoute)
 
   code = this.route.snapshot.paramMap.get('code')?.toLowerCase() ?? ''
+  fileName = this.route.snapshot.queryParamMap.get('fileName')
 
   form = this.fb.group({
     posCode: ['', Validators.required],

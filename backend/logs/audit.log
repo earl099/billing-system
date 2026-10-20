@@ -871,3 +871,12 @@
   "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:156.0) Gecko/20100101 Firefox/156.0",
   "userId": "695f4b3fc9882594236f3394"
 }
+2026-10-20 11:07:24 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/auth/me",
+  "status": 401,
+  "duration": "8ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:158.0) Gecko/20100101 Firefox/158.0",
+  "userId": "anonymous"
+}

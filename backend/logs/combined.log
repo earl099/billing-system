@@ -1563,3 +1563,16 @@
 2026-10-19 10:57:27 [info]: Server running on port 3000 
 2026-10-19 10:57:36 [info]: Connected to MongoDB 
 2026-10-19 10:57:36 [info]: Server running on port 3000 
+2026-10-20 10:54:42 [info]: Connected to MongoDB 
+2026-10-20 10:54:42 [info]: Server running on port 3000 
+2026-10-20 11:07:24 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/auth/me",
+  "status": 401,
+  "duration": "8ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:158.0) Gecko/20100101 Firefox/158.0",
+  "userId": "anonymous"
+}
+2026-10-20 11:21:33 [info]: Connected to MongoDB 
+2026-10-20 11:21:33 [info]: Server running on port 3000 
