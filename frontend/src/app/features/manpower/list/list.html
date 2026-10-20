@@ -1,47 +1,63 @@
-<div class="max-w-6xl mx-auto p-4 sm:p-6 fade-in">
-  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
-    <h2 class="text-2xl font-semibold">
-      {{code()!.toUpperCase()}} Manpower List
-    </h2>
-    @if (!needsTemplateSelection() || selectedTemplate()) {
-      <button mat-raised-button color="primary" (click)="generate()" class="w-full sm:w-auto motion-smooth">Generate Employee</button>
-    }
-  </div>
+<section class="manpower-list-workspace fade-in" aria-labelledby="manpower-list-title">
+  <header class="manpower-list-workspace__header">
+    <div>
+      <p class="manpower-list-workspace__eyebrow">Manpower workspace</p>
+      <h1 id="manpower-list-title">{{code()!.toUpperCase()}} Manpower List</h1>
+      <p>Review and manage employee records for this billing unit.</p>
+    </div>
+    <div class="manpower-list-workspace__header-actions">
+      <button mat-stroked-button type="button" (click)="router.navigate(['/dashboard'])">
+        <mat-icon aria-hidden="true">arrow_back</mat-icon>
+        Dashboard
+      </button>
+      @if (!needsTemplateSelection() || selectedTemplate()) {
+        <button mat-raised-button color="primary" type="button" (click)="generate()">
+          <mat-icon aria-hidden="true">person_add</mat-icon>
+          Add employee
+        </button>
+      }
+    </div>
+  </header>
 
   @if (needsTemplateSelection() && !selectedTemplate()) {
-    <mat-card class="p-4 sm:p-6 max-w-full md:max-w-lg mb-4 sm:mb-6">
-      <h3 class="text-lg font-semibold mb-4">Select Template</h3>
-      <mat-form-field appearance="outline" class="w-full">
+    <mat-card class="manpower-list-panel manpower-list-panel--template">
+      <mat-card-header>
+        <mat-card-title>Select a template</mat-card-title>
+        <mat-card-subtitle>Choose the workbook that contains the employee records.</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+      <mat-form-field appearance="outline" class="manpower-list-field">
         <mat-label>Template</mat-label>
-        <mat-select (selectionChange)="onTemplateSelected($event.value)">
+        <mat-select [value]="selectedTemplate()" panelClass="manpower-template-select-panel" (selectionChange)="onTemplateSelected($event.value)">
           @for (t of templates(); track t.id) {
             <mat-option [value]="t">{{ t.name }}</mat-option>
           }
         </mat-select>
       </mat-form-field>
+      </mat-card-content>
     </mat-card>
   } @else {
-    <div class="mb-4">
-      <input
-        type="text"
-        [value]="searchInput()"
-        (input)="searchInput.set($any($event.target).value)"
-        placeholder="Search {{code()!.toUpperCase()}} Manpower"
-        class="border rounded px-3 py-2 w-full md:w-1/3 motion-smooth"
-      />
-    </div>
-
     @if (loading()) {
-      <mat-progress-spinner
-        diameter="20"
-        mode="indeterminate"
-        class="w-auto h-auto">
-      </mat-progress-spinner>
+      <div class="manpower-list-state" role="status" aria-live="polite">
+        <mat-progress-spinner diameter="36" mode="indeterminate"></mat-progress-spinner>
+        <span>Loading employee records...</span>
+      </div>
     }
     @else {
-      <mat-card class="p-4 card-animate">
-        <div class="overflow-x-auto">
-          <table mat-table [dataSource]="paginatedManpower()" class="min-w-full w-max md:w-full">
+      <mat-card class="manpower-list-panel manpower-list-panel--table">
+        <div class="manpower-list-toolbar">
+          <mat-icon aria-hidden="true">search</mat-icon>
+          <input
+            type="text"
+            [value]="searchInput()"
+            (input)="searchInput.set($any($event.target).value)"
+            placeholder="Search {{code()!.toUpperCase()}} Manpower"
+            class="manpower-list-search"
+            aria-label="Search employee records"
+          />
+        </div>
+        <div class="manpower-list-table-scroll">
+          <table mat-table [dataSource]="paginatedManpower()" class="manpower-list-table">
             <ng-container matColumnDef="empNo">
               <th mat-header-cell *matHeaderCellDef>Employee Number</th>
               <td mat-cell *matCellDef="let b">{{ b.empNo }}</td>
@@ -70,10 +86,10 @@
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef>Actions</th>
               <td mat-cell *matCellDef="let b">
-                <div class="flex flex-wrap gap-2">
-                  <button mat-icon-button (click)="view(b)" title="View" matTooltip="View Employee Details" class="min-w-[44px] min-h-[44px] flex items-center justify-center"><mat-icon>visibility</mat-icon></button>
-                  <button mat-icon-button (click)="edit(b)" title="Edit" matTooltip="Edit Employee Details" class="min-w-[44px] min-h-[44px] flex items-center justify-center"><mat-icon>edit</mat-icon></button>
-                  <button mat-icon-button color="warn" (click)="delete(b)" title="Delete" matTooltip="Delete Employee" class="min-w-[44px] min-h-[44px] flex items-center justify-center"><mat-icon>delete</mat-icon></button>
+                <div class="manpower-list-actions">
+                  <button mat-icon-button (click)="view(b)" title="View" matTooltip="View Employee Details" class="manpower-list-action" aria-label="View employee details"><mat-icon>visibility</mat-icon></button>
+                  <button mat-icon-button (click)="edit(b)" title="Edit" matTooltip="Edit Employee Details" class="manpower-list-action" aria-label="Edit employee details"><mat-icon>edit</mat-icon></button>
+                  <button mat-icon-button color="warn" (click)="delete(b)" title="Delete" matTooltip="Delete Employee" class="manpower-list-action manpower-list-action--danger" aria-label="Delete employee"><mat-icon>delete</mat-icon></button>
                 </div>
               </td>
             </ng-container>
@@ -83,13 +99,13 @@
           </table>
         </div>
 
-        <div class="flex flex-wrap justify-start sm:justify-end gap-2 mt-4">
+        <div class="manpower-list-pagination">
           <button mat-stroked-button (click)="gotoPage(currentPage()-1)" [disabled]="currentPage()===1 || currentPage()===0">Prev</button>
-          <span class="px-2 py-1 bg-gray-100 rounded self-center">{{currentPage()}} / {{totalPages()}}</span>
+          <span class="manpower-list-pagination__count">{{currentPage()}} / {{totalPages()}}</span>
           <button mat-stroked-button (click)="gotoPage(currentPage()+1)" [disabled]="currentPage()===totalPages() || totalPages()===0">Next</button>
         </div>
       </mat-card>
     }
   }
 
-</div>
+</section>

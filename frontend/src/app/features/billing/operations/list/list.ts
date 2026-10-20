@@ -7,6 +7,7 @@ import { MATERIAL_MODULES } from '@material';
 import { LogDTO } from '@models/log';
 import { Auth } from '@services/auth';
 import { Billing } from '@services/billing';
+import { Confirmation } from '@services/confirmation';
 import { Log } from '@services/log';
 import { toast } from 'ngx-sonner';
 
@@ -20,6 +21,7 @@ import { toast } from 'ngx-sonner';
 export class List implements OnInit, OnDestroy {
   private readonly billingService = inject(Billing)
   private readonly authService = inject(Auth)
+  private readonly confirmation = inject(Confirmation)
   private readonly logService = inject(Log)
   readonly router = inject(Router)
   private readonly route = inject(ActivatedRoute)
@@ -28,7 +30,6 @@ export class List implements OnInit, OnDestroy {
   readonly billingList = signal<any[]>([])
   readonly loading = signal(true)
   readonly loadError = signal<string | null>(null)
-  readonly pendingDeletion = signal<any | null>(null)
   readonly deleting = signal(false)
   readonly user = signal<any>({})
   readonly searchInput = signal('')
@@ -104,25 +105,23 @@ export class List implements OnInit, OnDestroy {
     this.router.navigate(['billing', this.code(), 'view', billing._id])
   }
 
-  requestDelete(billing: any): void {
+  async requestDelete(billing: any): Promise<void> {
     if (!billing?._id) {
       toast.error('Invalid billing record')
       return
     }
-    this.pendingDeletion.set(billing)
-  }
 
-  cancelDelete(): void { if (!this.deleting()) this.pendingDeletion.set(null) }
+    const confirmed = await this.confirmation.confirm(
+      `You are about to permanently delete ${billing.billingLetter || 'this billing record'}. This action cannot be undone.`,
+      { title: 'Delete billing record?', confirmLabel: 'Delete billing' },
+    )
+    if (!confirmed || this.deleting()) return
 
-  async confirmDelete(): Promise<void> {
-    const billing = this.pendingDeletion()
-    if (!billing?._id || this.deleting()) return
     this.deleting.set(true)
     try {
       await this.billingService.deleteBilling(billing._id, this.code())
       await this.logService.create({ operation: 'Deleted Billing' } as LogDTO)
       toast.success('Billing record deleted successfully')
-      this.pendingDeletion.set(null)
       await this.load()
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to delete billing record'

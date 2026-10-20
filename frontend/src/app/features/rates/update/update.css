@@ -1,3 +1,186 @@
 :host {
   display: block;
 }
+
+.rate-form-page {
+  width: min(100%, 64rem);
+  margin: 0 auto;
+  padding: 2.25rem 1.5rem 3rem;
+}
+
+.rate-form-page__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.rate-form-page__eyebrow {
+  margin: 0 0 0.375rem;
+  color: #087f9f;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.rate-form-page h1,
+.rate-form-card h2,
+.rate-form-card p {
+  margin: 0;
+}
+
+.rate-form-page h1 {
+  color: #152232;
+  font-size: clamp(1.9rem, 3vw, 2.45rem);
+  font-weight: 750;
+  letter-spacing: -0.04em;
+  line-height: 1.08;
+}
+
+.rate-form-page__description {
+  margin: 0.5rem 0 0;
+  color: #526579;
+}
+
+.rate-form-page__header button mat-icon,
+.rate-form__actions button mat-icon {
+  margin-right: 0.25rem;
+}
+
+.rate-form-card {
+  overflow: hidden;
+  border: 1px solid #b9d8e7;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 1rem 2rem rgb(15 44 66 / 8%);
+}
+
+.rate-form-card__heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #c8e1eb;
+  background: linear-gradient(110deg, #eaf8fb, #f7fcfd);
+}
+
+.rate-form-card__icon {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 0.65rem;
+  background: #c7f2f7;
+  color: #047b99;
+}
+
+.rate-form-card h2 {
+  color: #152232;
+  font-size: 1.1rem;
+  font-weight: 750;
+}
+
+.rate-form-card__heading p {
+  margin-top: 0.25rem;
+  color: #526579;
+  font-size: 0.9rem;
+}
+
+.rate-form {
+  padding: 1.5rem;
+}
+
+.rate-form__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem 1rem;
+}
+
+.rate-form mat-form-field {
+  width: 100%;
+}
+
+.rate-form__field--wide {
+  grid-column: 1 / -1;
+}
+
+.rate-form__error {
+  margin: 0.5rem 0 0;
+  color: #b4233b;
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+.rate-form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #d9e6ec;
+}
+
+:host-context(html.dark) .rate-form-page h1,
+:host-context(html.dark) .rate-form-card h2 {
+  color: #edf7fb;
+}
+
+:host-context(html.dark) .rate-form-page__eyebrow {
+  color: #59d8e9;
+}
+
+:host-context(html.dark) .rate-form-page__description,
+:host-context(html.dark) .rate-form-card__heading p {
+  color: #b3c9d7;
+}
+
+:host-context(html.dark) .rate-form-card {
+  border-color: #315b78;
+  background: #142b3d;
+  box-shadow: 0 1rem 2.5rem rgb(0 0 0 / 20%);
+}
+
+:host-context(html.dark) .rate-form-card__heading {
+  border-bottom-color: #315b78;
+  background: #10263a;
+}
+
+:host-context(html.dark) .rate-form-card__icon {
+  background: #1d4d6a;
+  color: #65e1ef;
+}
+
+:host-context(html.dark) .rate-form__actions {
+  border-top-color: #315b78;
+}
+
+@media (max-width: 42rem) {
+  .rate-form-page {
+    padding: 1.5rem 1rem 2.5rem;
+  }
+
+  .rate-form-page__header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .rate-form-page__header button {
+    align-self: flex-start;
+  }
+
+  .rate-form-card__heading,
+  .rate-form {
+    padding: 1rem;
+  }
+
+  .rate-form__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rate-form__field--wide {
+    grid-column: auto;
+  }
+}

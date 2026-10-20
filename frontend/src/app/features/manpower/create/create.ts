@@ -97,58 +97,100 @@ export class Create implements OnInit {
       { key: 'phicNo', label: 'PHIC No.', type: 'text' },
       { key: 'hdmfNo', label: 'HDMF No.', type: 'text' },
       { key: 'hd', label: 'HD', type: 'text' },
-      { key: 'mfopt', label: 'MFOPT Amount', type: 'text'},
+      { key: 'mfopt', label: 'MFOPT Amount', type: 'text' },
       { key: 'salary', label: 'Salary', type: 'text' },
-      { key: 'bankNo', label: 'Bank Account No.',  type: 'text' },
+      { key: 'bankNo', label: 'Bank Account No.', type: 'text' },
     ],
-    dof: [
-      { key: 'empNo', label: 'Employee No', type: 'text', required: true },
-      { key: 'name', label: 'Name', type: 'text', required: true },
-      { key: 'posCode', label: 'Position Code', type: 'text', required: true },
-      { key: 'dept', label: 'Department', type: 'text', required: true },
-      { key: 'status', label: 'Status', type: 'text', required: true },
-      { key: 'type', label: 'Type', type: 'text' },
-      { key: 'payType', label: 'Pay type', type: 'text' },
-      { key: 'payFreq', label: 'Pay Frequency', type: 'text' },
-      { key: 'tin', label: 'TIN', type: 'text' },
-      { key: 'sssNo', label: 'SSS No.', type: 'text' },
-      { key: 'phicNo', label: 'PHIC No.', type: 'text' },
-      { key: 'hdmfNo', label: 'HDMF No.', type: 'text' },
-      { key: 'hd', label: 'HD', type: 'text' },
-      { key: 'mfopt', label: 'MFOPT Amount', type: 'text'},
-      { key: 'salary', label: 'Salary', type: 'text' },
-      { key: 'bankNo', label: 'Bank Account No.',  type: 'text' },
-    ]
   }
 
   /** Fallback full column map including formula-derived columns */
   private fullColumnMap: Record<string, string[]> = {
     ofbank: [
-      'empNo', 'name', 'posCode', 'posName', 'dept', 'status', 'type',
-      'payType', 'payFreq', 'tin', 'sssNo', 'phicNo', 'hdmfNo', 'hd',
-      'mfopt', 'salary', 'bankNo', 'endorsed', 'difference', 'dBillingRate', 'mBillingRate'
+      'empNo',
+      'name',
+      'posCode',
+      'dept',
+      'status',
+      'type',
+      'payType',
+      'payFreq',
+      'tin',
+      'sssNo',
+      'phicNo',
+      'hdmfNo',
+      'hd',
+      'mfopt',
+      'salary',
+      'bankNo',
     ],
     btr: [
-      'empNo', 'name', 'posCode', 'posName', 'dept', 'status', 'type',
-      'payType', 'payFreq', 'tin', 'sssNo', 'phicNo', 'hdmfNo', 'hd',
-      'mfopt', 'salary', 'bankNo', 'endorsed', 'difference', 'dBillingRate', 'mBillingRate'
+      'empNo',
+      'name',
+      'posCode',
+      'dept',
+      'status',
+      'type',
+      'payType',
+      'payFreq',
+      'tin',
+      'sssNo',
+      'phicNo',
+      'hdmfNo',
+      'hd',
+      'mfopt',
+      'salary',
+      'bankNo',
     ],
-    dof: [
-      'empNo', 'name', 'posCode', 'posName', 'dept', 'status', 'type',
-      'payType', 'payFreq', 'tin', 'sssNo', 'phicNo', 'hdmfNo', 'hd',
-      'mfopt', 'salary', 'bankNo', 'endorsed', 'difference', 'dBillingRate', 'mBillingRate'
-    ]
   }
 
-  async ngOnInit() {
-    const code = this.code()
-    if (!code) {
-      toast.error('Invalid client code')
-      this.router.navigate(['/'])
-      return
-    }
-
-    await this.loadTemplates()
+  /** Full column map including formula-derived columns in the Excel table */
+  fullColumnMap: Record<string, string[]> = {
+    ofbank: [
+      'empNo',
+      'name',
+      'posCode',
+      'posName',
+      'dept',
+      'status',
+      'type',
+      'payType',
+      'payFreq',
+      'tin',
+      'sssNo',
+      'phicNo',
+      'hdmfNo',
+      'hd',
+      'mfopt',
+      'salary',
+      'bankNo',
+      'endorsed',
+      'difference',
+      'dBillingRate',
+      'mBillingRate'
+    ],
+    btr: [
+      'empNo',
+      'name',
+      'posCode',
+      'posName',
+      'dept',
+      'status',
+      'type',
+      'payType',
+      'payFreq',
+      'tin',
+      'sssNo',
+      'phicNo',
+      'hdmfNo',
+      'hd',
+      'mfopt',
+      'salary',
+      'bankNo',
+      'endorsed',
+      'difference',
+      'dBillingRate',
+      'mBillingRate'
+    ],
   }
 
   private buildDynamicForm(columns: string[], formulaSet: Set<string>) {
@@ -161,9 +203,7 @@ export class Create implements OnInit {
       required: false
     }))
 
-    // Mark common required fields
-    const requiredKeys = new Set(['empNo', 'name', 'posCode', 'dept', 'status'])
-    fields.forEach(f => { if (requiredKeys.has(f.key)) f.required = true })
+  readonly code = signal(this.route.snapshot.paramMap.get('code')?.toLowerCase() ?? '')
 
     this.formConfig.set(fields)
 
@@ -311,20 +351,10 @@ export class Create implements OnInit {
   }
 
   async addData() {
-    const code = this.code()
-    const templateName = this.selectedTemplate()?.name ?? this.fileName()
-
-    if (!code) {
-      toast.error('Invalid client code')
+    if (this.form.invalid) {
+      this.form.markAllAsTouched()
       return
     }
-
-    if (!templateName) {
-      toast.error('Please select a template')
-      return
-    }
-
-    const columnMap = this.tableColumns().length > 0 ? this.tableColumns() : (this.fullColumnMap[code] ?? [])
 
     try {
       await this.manpowerService.addToTable(

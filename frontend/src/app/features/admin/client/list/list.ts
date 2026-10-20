@@ -13,6 +13,7 @@ import { MATERIAL_MODULES } from '@material';
 import { LogDTO } from '@models/log';
 import { Auth } from '@services/auth';
 import { Client } from '@services/client';
+import { Confirmation } from '@services/confirmation';
 import { Log } from '@services/log';
 import { toast } from 'ngx-sonner';
 
@@ -32,6 +33,7 @@ import { toast } from 'ngx-sonner';
 export class List implements OnInit, OnDestroy {
   clientService = inject(Client)
   authService = inject(Auth)
+  confirmation = inject(Confirmation)
   logService = inject(Log)
   router = inject(Router)
 
@@ -116,22 +118,20 @@ export class List implements OnInit, OnDestroy {
   }
 
   /** Deletes a client with confirmation and audit logging */
-  pendingDeletion = signal<any | null>(null)
   deleting = signal(false)
 
-  requestDelete(c: any) {
+  async requestDelete(c: any): Promise<void> {
     if (!c?._id) {
       toast.error('Invalid client record')
       return
     }
-    this.pendingDeletion.set(c)
-  }
 
-  cancelDelete() { if (!this.deleting()) this.pendingDeletion.set(null) }
+    const confirmed = await this.confirmation.confirm(
+      `You are about to permanently delete ${c.name || 'this client'}. This action cannot be undone.`,
+      { title: 'Delete client?', confirmLabel: 'Delete client' },
+    )
+    if (!confirmed || this.deleting()) return
 
-  async confirmDelete() {
-    const c = this.pendingDeletion()
-    if (!c?._id || this.deleting()) return
     this.deleting.set(true)
     try {
       await this.clientService.delete(c._id)
@@ -143,7 +143,6 @@ export class List implements OnInit, OnDestroy {
       }
 
       await this.logService.create(log)
-      this.pendingDeletion.set(null)
       await this.load()
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : 'Failed to delete client'

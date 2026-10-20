@@ -62,11 +62,11 @@
                     <h3 class="category-title">{{ category.label }} {{ dateRange().sheetLabel }}</h3>
 
                     <div class="entry-view-toggle">
-                      <button mat-stroked-button [class.active-view]="entryView() === 'grid'" (click)="setEntryView('grid')">Grid</button>
-                      <button mat-stroked-button [class.active-view]="entryView() === 'form'" (click)="setEntryView('form')">Detailed form</button>
+                      <button mat-stroked-button [class.active-view]="entryView() === 'grid'" (click)="setEntryView('grid')">Grid entry</button>
+                      <button mat-stroked-button [class.active-view]="entryView() === 'form'" (click)="setEntryView('form')">Per-day entry</button>
                     </div>
 
-                    <div class="category-actions">
+                    <div class="category-actions category-actions--sticky">
                       <button mat-raised-button color="primary"
                               [disabled]="savingCategory() !== null"
                               (click)="saveCategoryData(category.key)">
@@ -114,7 +114,7 @@
                                       <th class="grid-date-column">
                                         <span>{{ row.dateIso || '—' }}</span>
                                         <small>{{ row.dayShort }}</small>
-                                        @if (row.isRestDay) { <em>Rest</em> }
+                                        @if (row.isRestDay) { <em class="rest-day-badge">Rest day</em> }
                                       </th>
                                       @for (column of gridColumns(category.key); track column.key; let columnIndex = $index) {
                                         <td>
@@ -169,9 +169,14 @@
                       }
                     } @else {
                       @for (emp of category.employees; track emp.index) {
-                    <mat-expansion-panel class="employee-panel">
+                    <mat-expansion-panel class="employee-panel employee-panel--detailed">
                       <mat-expansion-panel-header>
-                        <mat-panel-title>{{ emp.empNo }} - {{ emp.empName }}</mat-panel-title>
+                        <mat-panel-title>
+                          <span>{{ emp.empNo }} - {{ emp.empName }}</span>
+                          @if (category.key === 'jan') {
+                            <small class="employee-progress">{{ completedDayCount(emp, category.key) }} / {{ emp.janitorialDays.length }} days entered</small>
+                          }
+                        </mat-panel-title>
                       </mat-expansion-panel-header>
 
                       <div class="employee-form">
@@ -192,15 +197,22 @@
 
                         @if (category.key === 'jan') {
                           <div class="section">
-                            <h4 class="section-title">Regular Hours</h4>
+                            <div class="section-heading">
+                              <div>
+                                <h4 class="section-title">Per-day entry</h4>
+                                <p>Mark a full day or enter the hours worked for each date.</p>
+                              </div>
+                              <strong>{{ completedDayCount(emp, category.key) }} / {{ emp.janitorialDays.length }}</strong>
+                            </div>
                             <div class="date-list">
                               @for (day of emp.janitorialDays; track day.date) {
-                                <div class="date-row">
+                                <div class="date-row date-row--detailed" [class.date-row--complete]="day.checked || day.hours">
                                   <mat-checkbox
                                     [checked]="day.checked"
-                                    (change)="toggleJanitorialDay(emp, day)">
-                                    {{ day.date }}
-                                  </mat-checkbox>
+                                    [attr.aria-label]="'Mark ' + day.date + ' as a full day'"
+                                    (change)="toggleJanitorialDay(emp, day)"></mat-checkbox>
+                                  <span class="date-row__date">{{ day.date }}</span>
+                                  @if (day.checked) { <span class="date-row__status">Full day</span> }
                                   <mat-form-field appearance="outline" class="hours-field">
                                     <mat-label>Rendered Hours</mat-label>
                                     <input matInput

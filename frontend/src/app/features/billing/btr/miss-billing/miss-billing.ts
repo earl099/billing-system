@@ -207,6 +207,11 @@ export class MissBilling {
     this.router.navigate(['/dashboard'])
   }
 
+  /** Returns to the BTR manpower workspace without using the dashboard. */
+  goToBtr() {
+    this.router.navigate(['/manpower/btr/list'])
+  }
+
   retry() {
     this.step.set('setup')
   }

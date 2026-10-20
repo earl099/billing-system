@@ -13,6 +13,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
 import { Manpower } from '@services/manpower';
+import { Confirmation } from '@services/confirmation';
 import { FileEditor } from '@services/file-editor';
 import { toast } from 'ngx-sonner';
 import { MatSelectModule } from '@angular/material/select';
@@ -32,12 +33,13 @@ import { MatSelectModule } from '@angular/material/select';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class List implements OnInit, OnDestroy {
+  confirmation = inject(Confirmation)
   manpowerService = inject(Manpower)
   fileEditor = inject(FileEditor)
   route = inject(ActivatedRoute)
   router = inject(Router)
 
-  readonly code = signal(this.route.snapshot.paramMap.get('code') ?? '')
+  readonly code = signal(this.route.snapshot.paramMap.get('code')?.toLowerCase() ?? '')
   data = signal<any[]>([])
   searchInput = signal('')
   searchQuery = signal('')
@@ -189,7 +191,7 @@ export class List implements OnInit, OnDestroy {
       toast.error('Invalid record')
       return
     }
-    if(!confirm('Are you sure you want to delete this employee? This action is permanent.')) return
+    if(!(await this.confirmation.confirm('Are you sure you want to delete this employee? This action is permanent.'))) return
 
     try {
       const fileName = this.selectedTemplate()?.name ?? ''

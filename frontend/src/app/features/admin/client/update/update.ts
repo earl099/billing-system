@@ -13,6 +13,7 @@ import { MATERIAL_MODULES } from '@material';
 import { ClientDTO } from '@models/client';
 import { LogDTO } from '@models/log';
 import { Auth } from '@services/auth';
+import { Confirmation } from '@services/confirmation';
 import { Client } from '@services/client';
 import { Log } from '@services/log';
 import { Payfreq } from '@services/payfreq';
@@ -31,6 +32,7 @@ import { toast } from 'ngx-sonner';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Update implements OnInit {
+  confirmation = inject(Confirmation)
   payFreqList = signal<any[]>([])
 
   fb = inject(FormBuilder)
@@ -70,7 +72,7 @@ export class Update implements OnInit {
   async submit() {
     if(!this.clientId()) return
     if(this.form.invalid) return
-    if(!confirm('Are you sure you want to update this client?')) return
+    if(!(await this.confirmation.confirm('Are you sure you want to update this client?'))) return
     this.loading.set(true)
 
     try {

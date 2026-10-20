@@ -1,3 +1,140 @@
 :host {
   display: block;
 }
+
+.employee-create-workspace {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 1rem;
+  color: #173a63;
+}
+
+.employee-create-workspace__header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.employee-create-workspace__eyebrow {
+  margin: 0 0 .375rem;
+  color: #2187a7;
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.employee-create-workspace h1 {
+  margin: 0;
+  color: #102f53;
+  font-size: clamp(2rem, 4vw, 2.5rem);
+  font-weight: 750;
+  line-height: 1.15;
+  letter-spacing: -.04em;
+}
+
+.employee-create-workspace__header p:not(.employee-create-workspace__eyebrow) {
+  margin: .5rem 0 0;
+  color: #58708c;
+  font-size: .9375rem;
+}
+
+.employee-create-workspace__header button,
+.employee-create-actions button {
+  min-height: 2.625rem;
+  border-radius: .625rem;
+  font-weight: 700;
+}
+
+.employee-create-workspace__header button,
+.employee-create-actions button[mat-stroked-button] {
+  border-color: #8fb0cb;
+  color: #1b5b82;
+}
+
+.employee-create-panel {
+  display: block;
+  border: 1px solid #d7e3ef;
+  border-radius: .875rem;
+  background: #fff;
+  box-shadow: 0 .375rem 1.5rem rgb(18 59 104 / 7%);
+}
+
+.employee-create-panel mat-card-content {
+  display: block;
+  padding: 1.5rem;
+}
+
+.employee-create-information__heading {
+  margin-bottom: 1.25rem;
+}
+
+.employee-create-information__heading h2 {
+  margin: 0;
+  color: #173a63;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.employee-create-information__heading p {
+  margin: .25rem 0 0;
+  color: #58708c;
+  font-size: .875rem;
+}
+
+.employee-create-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.employee-create-form__field {
+  width: 100%;
+}
+
+.employee-create-actions {
+  display: flex;
+  gap: .75rem;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #d7e3ef;
+}
+
+.employee-create-actions button[mat-raised-button] {
+  color: #083047 !important;
+  background: #36bcd2 !important;
+  box-shadow: none;
+}
+
+:host-context(html.dark) .employee-create-workspace { color: #dbe9f3; }
+:host-context(html.dark) .employee-create-workspace h1,
+:host-context(html.dark) .employee-create-information__heading h2 { color: #f1f7fb; }
+:host-context(html.dark) .employee-create-workspace__eyebrow { color: #55d3e5; }
+:host-context(html.dark) .employee-create-workspace__header p:not(.employee-create-workspace__eyebrow),
+:host-context(html.dark) .employee-create-information__heading p { color: #aac0d1; }
+:host-context(html.dark) .employee-create-workspace__header button,
+:host-context(html.dark) .employee-create-actions button[mat-stroked-button] { border-color: #365973; color: #b9d8e9; }
+:host-context(html.dark) .employee-create-panel { border-color: #315168; background: #152536; box-shadow: 0 .5rem 1.5rem rgb(0 0 0 / 18%); }
+:host-context(html.dark) .employee-create-actions { border-color: #315168; }
+:host-context(html.dark) .employee-create-actions button[mat-raised-button] { color: #072c40 !important; background: #55d3e5 !important; }
+:host ::ng-deep .employee-create-form .mdc-text-field--filled { border-radius: .5rem .5rem 0 0; background: #f6faff; }
+:host ::ng-deep .employee-create-form .mdc-line-ripple::before { border-bottom-color: #b8cde0; }
+:host ::ng-deep .employee-create-form .mat-mdc-form-field-focus-overlay { background: #e7f3fb; }
+:host ::ng-deep .employee-create-form .mat-mdc-form-field-infix { min-height: 3.5rem; }
+:host-context(html.dark) ::ng-deep .employee-create-form .mdc-text-field--filled { background: #1a3043; }
+:host-context(html.dark) ::ng-deep .employee-create-form .mdc-line-ripple::before { border-bottom-color: #58748a; }
+:host-context(html.dark) ::ng-deep .employee-create-form .mat-mdc-form-field-focus-overlay { background: #203c51; }
+
+@media (max-width: 52rem) {
+  .employee-create-form { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 42rem) {
+  .employee-create-workspace__header { align-items: stretch; flex-direction: column; }
+  .employee-create-workspace__header button,
+  .employee-create-actions button { width: 100%; justify-content: center; }
+  .employee-create-form { grid-template-columns: 1fr; }
+  .employee-create-actions { flex-direction: column; }
+}

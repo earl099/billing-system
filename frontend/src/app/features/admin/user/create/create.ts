@@ -14,6 +14,7 @@ import { MATERIAL_MODULES } from '@material';
 import { LogDTO } from '@models/log';
 import { UserDTO } from '@models/user';
 import { Auth } from '@services/auth';
+import { Confirmation } from '@services/confirmation';
 import { Client } from '@services/client';
 import { Log } from '@services/log';
 import { User } from '@services/user';
@@ -33,6 +34,7 @@ import { toast } from 'ngx-sonner';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Create implements OnInit {
+  confirmation = inject(Confirmation)
   clients = signal<any[]>([])
 
   fb = inject(FormBuilder)
@@ -93,7 +95,7 @@ export class Create implements OnInit {
       this.form.markAllAsTouched()
       return
     }
-    if(!confirm('Are you sure you want to create this User?')) return
+    if(!(await this.confirmation.confirm('Are you sure you want to create this User?'))) return
     this.loading.set(true)
 
     try {

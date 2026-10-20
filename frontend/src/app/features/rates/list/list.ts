@@ -15,6 +15,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
 import { LogDTO } from '@models/log';
 import { Auth } from '@services/auth';
+import { Confirmation } from '@services/confirmation';
 import { FileEditor } from '@services/file-editor';
 import { Log } from '@services/log';
 import { Manpower } from '@services/manpower';
@@ -36,6 +37,7 @@ import { toast } from 'ngx-sonner';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class List implements OnInit, OnDestroy {
+  confirmation = inject(Confirmation)
   manpowerService = inject(Manpower)
   ratesService = inject(Rates)
   fileEditor = inject(FileEditor)
@@ -44,7 +46,7 @@ export class List implements OnInit, OnDestroy {
   route = inject(ActivatedRoute)
   router = inject(Router)
 
-  readonly code = signal(this.route.snapshot.paramMap.get('code') ?? '')
+  readonly code = signal(this.route.snapshot.paramMap.get('code')?.toLowerCase() ?? '')
   data = signal<any[]>([])
   searchInput = signal('')
   searchQuery = signal('')
@@ -188,7 +190,7 @@ export class List implements OnInit, OnDestroy {
       toast.error('Invalid record')
       return
     }
-    if (!confirm('Are you sure you want to delete this billing rate?')) return
+    if (!(await this.confirmation.confirm('Are you sure you want to delete this billing rate?'))) return
     try {
       await this.ratesService.delete(this.code(), d.index, this.selectedTemplate()?.name ?? '')
       toast.success('Billing rate deleted successfully')
@@ -217,5 +219,10 @@ export class List implements OnInit, OnDestroy {
     this.router.navigate(['rates', this.code(), 'add'], {
       queryParams: { fileName: this.selectedTemplate()?.name ?? '' }
     })
+  }
+
+  /** Returns to the BTR manpower workspace without requiring dashboard navigation. */
+  backToBtr() {
+    this.router.navigate(['/manpower/btr/list'])
   }
 }

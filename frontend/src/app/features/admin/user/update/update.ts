@@ -15,6 +15,7 @@ import { MATERIAL_MODULES } from '@material';
 import { LogDTO } from '@models/log';
 import { UserDTO } from '@models/user';
 import { Auth } from '@services/auth';
+import { Confirmation } from '@services/confirmation';
 import { Client } from '@services/client';
 import { Log } from '@services/log';
 import { User } from '@services/user';
@@ -34,6 +35,7 @@ import { toast } from 'ngx-sonner';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Update implements OnInit {
+  confirmation = inject(Confirmation)
   fb = inject(FormBuilder)
   userService = inject(User)
   clientService = inject(Client)
@@ -124,7 +126,7 @@ export class Update implements OnInit {
       this.form.markAllAsTouched()
       return
     }
-    if(!confirm('Are you sure you want to update this User?')) return
+    if(!(await this.confirmation.confirm('Are you sure you want to update this User?'))) return
     this.loading.set(true)
 
     try {

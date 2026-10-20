@@ -168,6 +168,21 @@ describe('App', () => {
       expect(items.find((item: any) => item.label === 'Manpower')).toBeUndefined();
     });
 
+    it('uses normalized lowercase client codes for billing-rate links', () => {
+      fixture.componentInstance.user.set({ role: 'Admin', handledClients: [] } as any);
+      fixture.componentInstance.clients.set([
+        { _id: 'ofbank', code: 'OFBANK', name: 'OFBANK', payFreq: 'monthly' },
+      ]);
+
+      const rates = fixture.componentInstance.menuItems().find((item: any) => item.label === 'Rates');
+
+      expect(rates?.children).toContainEqual({
+        label: 'OFBANK',
+        route: '/rates/ofbank/list',
+        icon: 'attach_money',
+      });
+    });
+
     it('exposes admin sections for an admin user', async () => {
       authStub.hasValidToken.mockReturnValue(true);
       authStub.isLoggedIn.set(true);

@@ -228,4 +228,12 @@ describe('DofTimekeepingComponent overtime/day output', () => {
     component.onGridFullDayToggle(emp, janRows[0], true);
     expect(emp.janitorialDays[0]).toEqual({ date: '2026-09-01', checked: true, hours: '8:00' });
   });
+
+  it('counts completed JAN dates for the detailed-entry progress summary', () => {
+    const emp = component.categories()[1].employees[0] ?? component.categories()[0].employees[0];
+    emp.janitorialDays[0].checked = true;
+    emp.janitorialDays[1].hours = '04:00';
+
+    expect(component.completedDayCount(emp, 'jan')).toBe(2);
+  });
 });

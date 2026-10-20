@@ -32,5 +32,4 @@
     <footer><p>{{ filteredClients().length }} client{{ filteredClients().length === 1 ? '' : 's' }}</p><div class="pagination"><button mat-stroked-button (click)="gotoPage(currentPage()-1)" [disabled]="currentPage()===1 || currentPage()===0">Previous</button><span>{{currentPage()}} / {{totalPages() || 1}}</span>
       <button mat-stroked-button (click)="gotoPage(currentPage()+1)" [disabled]="currentPage()===totalPages() || totalPages()===0">Next</button>
     </div></footer> }</section>
-  @if (pendingDeletion(); as client) { <div class="dialog-backdrop" (click)="cancelDelete()"><section class="dialog" role="alertdialog" (click)="$event.stopPropagation()"><mat-icon>delete_forever</mat-icon><div><p>Permanent action</p><h2>Delete client?</h2><span>You are about to permanently delete <strong>{{client.name}}</strong>.</span></div><div class="dialog-actions"><button mat-stroked-button (click)="cancelDelete()">Cancel</button><button mat-raised-button (click)="confirmDelete()" [disabled]="deleting()">{{ deleting() ? 'Deleting…' : 'Delete client' }}</button></div></section></div> }
 </section>

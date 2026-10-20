@@ -12,6 +12,7 @@ import { Router, RouterLink } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
 import { LogDTO } from '@models/log';
 import { Auth } from '@services/auth';
+import { Confirmation } from '@services/confirmation';
 import { Log } from '@services/log';
 import { User } from '@services/user';
 import { toast } from 'ngx-sonner';
@@ -32,12 +33,12 @@ import { toast } from 'ngx-sonner';
 export class List implements OnInit, OnDestroy {
   userService = inject(User)
   authService = inject(Auth)
+  confirmation = inject(Confirmation)
   logService = inject(Log)
   router = inject(Router)
 
   users = signal<any[]>([])
   loading = signal(true)
-  pendingDeletion = signal<any | null>(null)
   deleting = signal(false)
   searchInput = signal('')
   searchQuery = signal('')
@@ -117,29 +118,22 @@ export class List implements OnInit, OnDestroy {
     this.router.navigate(['/admin/user', u._id, 'edit'])
   }
 
-  /** Opens the in-app confirmation dialog for a user deletion. */
-  requestDelete(u: any): void {
+  /** Confirms and deletes a user through the app-wide dialog layer. */
+  async requestDelete(u: any): Promise<void> {
     if (!u?._id) {
       toast.error('Invalid user record')
       return
     }
 
-    this.pendingDeletion.set(u)
-  }
-
-  /** Dismisses the deletion confirmation without changing the account. */
-  cancelDelete(): void {
-    if (!this.deleting()) this.pendingDeletion.set(null)
-  }
-
-  /** Deletes the selected user after confirmation and records the action. */
-  async confirmDelete(): Promise<void> {
-    const user = this.pendingDeletion()
-    if (!user?._id || this.deleting()) return
+    const confirmed = await this.confirmation.confirm(
+      `You are about to permanently delete ${u.name || 'this user'}. This action cannot be undone.`,
+      { title: 'Delete user?', confirmLabel: 'Delete user' },
+    )
+    if (!confirmed || this.deleting()) return
 
     this.deleting.set(true)
     try {
-      await this.userService.delete(user._id)
+      await this.userService.delete(u._id)
       toast.success('User deleted successfully')
 
       const log: LogDTO = {
@@ -148,7 +142,6 @@ export class List implements OnInit, OnDestroy {
       }
 
       await this.logService.create(log)
-      this.pendingDeletion.set(null)
       await this.load()
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : 'Failed to delete user'

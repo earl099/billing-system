@@ -23,8 +23,4 @@
     }
     <footer class="billing-table-card__footer"><p>{{ filteredBillings().length }} billing document{{ filteredBillings().length === 1 ? '' : 's' }}</p><div class="pagination" aria-label="Pagination"><button mat-stroked-button type="button" (click)="gotoPage(currentPage() - 1)" [disabled]="currentPage() === 1">Previous</button><span aria-live="polite">{{ currentPage() }} / {{ totalPages() || 1 }}</span><button mat-stroked-button type="button" (click)="gotoPage(currentPage() + 1)" [disabled]="currentPage() === totalPages() || totalPages() === 0">Next</button></div></footer>
   </section>
-
-  @if (pendingDeletion(); as billing) {
-    <div class="delete-dialog-backdrop" (click)="cancelDelete()" (keydown.escape)="cancelDelete()"><section class="delete-dialog" role="alertdialog" aria-modal="true" aria-labelledby="delete-billing-title" (click)="$event.stopPropagation()"><div class="delete-dialog__icon" aria-hidden="true"><mat-icon>delete_forever</mat-icon></div><div><p class="delete-dialog__eyebrow">Permanent action</p><h2 id="delete-billing-title">Delete billing record?</h2><p>You are about to permanently delete <strong>{{ billing.billingLetter || 'this billing record' }}</strong>. This action cannot be undone.</p></div><div class="delete-dialog__actions"><button mat-stroked-button type="button" (click)="cancelDelete()" [disabled]="deleting()">Cancel</button><button mat-raised-button type="button" class="delete-dialog__confirm" (click)="confirmDelete()" [disabled]="deleting()"><mat-icon aria-hidden="true">delete</mat-icon>{{ deleting() ? 'Deleting…' : 'Delete billing' }}</button></div></section></div>
-  }
 </section>

@@ -53,7 +53,7 @@ export class View implements OnInit {
   /** Loads the employee data by index from the SharePoint EmployeeTable */
   async ngOnInit() {
     this.index = this.route.snapshot.paramMap.get('index')
-    this.code = this.route.snapshot.paramMap.get('code')
+    this.code = this.route.snapshot.paramMap.get('code')?.toLowerCase() ?? ''
     this.fileName = this.route.snapshot.queryParamMap.get('fileName')
 
     if (!this.fileName) {

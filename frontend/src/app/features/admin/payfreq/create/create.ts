@@ -13,6 +13,7 @@ import { MATERIAL_MODULES } from '@material';
 import { LogDTO } from '@models/log';
 import { PayFreqDTO } from '@models/payfreq';
 import { Auth } from '@services/auth';
+import { Confirmation } from '@services/confirmation';
 import { Log } from '@services/log';
 import { Payfreq } from '@services/payfreq';
 import { toast } from 'ngx-sonner';
@@ -32,6 +33,7 @@ import { toast } from 'ngx-sonner';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Create {
+  confirmation = inject(Confirmation)
   fb = inject(FormBuilder)
   payFreqService = inject(Payfreq)
   authService = inject(Auth)
@@ -50,7 +52,7 @@ export class Create {
       return
     }
 
-    if(!confirm('Are you sure you want to create this Pay Frequency?')) return
+    if(!(await this.confirmation.confirm('Are you sure you want to create this Pay Frequency?'))) return
     this.loading = true
     try {
       const payFreq = this.form.getRawValue() as PayFreqDTO

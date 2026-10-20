@@ -146,14 +146,14 @@ export class App implements OnInit, OnDestroy {
     const manpowerChildren = rateManpowerClients.map((c) => ({
       label: c.code,
       children: [
-        { label: 'Add Employee', route: `/manpower/${c.code}/add`, icon: 'person_add' },
-        { label: 'Manage Manpower', route: `/manpower/${c.code}/list`, icon: 'people' }
+        { label: 'Add Employee', route: `/manpower/${c.code.toLowerCase()}/add`, icon: 'person_add' },
+        { label: 'Manage Manpower', route: `/manpower/${c.code.toLowerCase()}/list`, icon: 'people' }
       ]
     }));
 
     const ratesChildren = rateManpowerClients.map((c) => ({
       label: c.code,
-      route: `/rates/${c.code}/list`,
+      route: `/rates/${c.code.toLowerCase()}/list`,
       icon: 'attach_money'
     }));
 

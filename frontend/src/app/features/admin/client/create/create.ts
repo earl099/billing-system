@@ -14,6 +14,7 @@ import { MATERIAL_MODULES } from '@material';
 import { ClientDTO } from '@models/client';
 import { LogDTO } from '@models/log';
 import { Auth } from '@services/auth';
+import { Confirmation } from '@services/confirmation';
 import { Client } from '@services/client';
 import { Log } from '@services/log';
 import { Payfreq } from '@services/payfreq';
@@ -34,6 +35,7 @@ import { toast } from 'ngx-sonner';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Create implements OnInit {
+  confirmation = inject(Confirmation)
   payFreqs = signal<any[]>([])
   optionsLoading = signal(true)
 
@@ -67,7 +69,7 @@ export class Create implements OnInit {
   /** Submits the client creation form with confirmation and audit logging */
   async submit() {
     if(this.form.invalid) { this.form.markAllAsTouched(); return }
-    if(!confirm('Are you sure you want to create this Client?')) return
+    if(!(await this.confirmation.confirm('Are you sure you want to create this Client?'))) return
     this.loading = true
 
     try {
