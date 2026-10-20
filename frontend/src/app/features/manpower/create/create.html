@@ -8,44 +8,62 @@
     <button mat-stroked-button type="button" (click)="backToList()">Back to list</button>
   </header>
 
-  <mat-card class="employee-create-panel">
-    <mat-card-content>
-      <section class="employee-create-information" aria-labelledby="employee-information-title">
-        <div class="employee-create-information__heading">
-          <h2 id="employee-information-title">Employee information</h2>
-          <p>Complete the employee details for this billing unit.</p>
-        </div>
+  @if (loading()) {
+    <div class="flex justify-center py-8">
+      <mat-progress-spinner diameter="32" mode="indeterminate"></mat-progress-spinner>
+    </div>
+  } @else if (needsTemplateSelection() && !selectedTemplate()) {
+    <mat-card class="employee-create-panel">
+      <mat-card-content>
+        <section class="employee-create-information">
+          <div class="employee-create-information__heading">
+            <h2>Select template</h2>
+            <p>Choose the template where to add the employee.</p>
+          </div>
+          <mat-form-field class="w-full">
+            <mat-label>Template</mat-label>
+            <mat-select (selectionChange)="onTemplateSelected($event.value)">
+              @for (t of templates(); track t.id) {
+                <mat-option [value]="t">{{ t.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </section>
+      </mat-card-content>
+    </mat-card>
+  } @else if (selectedTemplate()) {
+    <mat-card class="employee-create-panel">
+      <mat-card-content>
+        <section class="employee-create-information" aria-labelledby="employee-information-title">
+          <div class="employee-create-information__heading">
+            <h2 id="employee-information-title">Employee information</h2>
+            <p>Template: {{ selectedTemplate()?.name }}</p>
+          </div>
 
-        <form [formGroup]="form" class="employee-create-form">
-
-          @for (field of formConfig(); track field.key) {
-            <mat-form-field class="employee-create-form__field">
-              <mat-label>{{field.label}}</mat-label>
-              @switch (field.type) {
-                @case ('text') {
+          @if (columnsLoading()) {
+            <div class="flex justify-center py-6">
+              <mat-progress-spinner diameter="28" mode="indeterminate"></mat-progress-spinner>
+            </div>
+          } @else {
+            <form [formGroup]="form" class="employee-create-form">
+              @for (field of formConfig(); track field.key) {
+                <mat-form-field class="employee-create-form__field">
+                  <mat-label>{{ field.label }}</mat-label>
                   <input matInput [formControlName]="field.key">
-                }
-                @case ('number') {
-                  <input type="number" matInput (keypress)="decimalFilter($event)">
-                }
+                  @if(form.get(field.key)?.invalid && form.get(field.key)?.touched) {
+                    <mat-error>{{ field.label }} is required</mat-error>
+                  }
+                </mat-form-field>
               }
+            </form>
 
-              @if(form.get(field.key)?.invalid && form.get(field.key)?.touched) {
-                <mat-error>{{field.label}} is required</mat-error>
-              }
-            </mat-form-field>
+            <div class="employee-create-actions">
+              <button mat-raised-button color="primary" type="button" [disabled]="form.invalid" (click)="addData()">Add Employee</button>
+              <button mat-stroked-button type="button" (click)="backToList()">Back to List</button>
+            </div>
           }
-        </form>
-
-        <div class="employee-create-actions">
-        <button mat-raised-button color="primary" type="button" [disabled]="form.invalid" (click)="addData()">
-            Add Employee
-          </button>
-          <button mat-stroked-button type="button" (click)="backToList()">
-            Back to List
-          </button>
-        </div>
-      </section>
-    </mat-card-content>
-  </mat-card>
+        </section>
+      </mat-card-content>
+    </mat-card>
+  }
 </section>
