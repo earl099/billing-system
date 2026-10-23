@@ -5,6 +5,20 @@
 
 import clientModel from '#models/client.model.js';
 import payFreqModel from '#models/payfreq.model.js';
+import userModel from '#models/user.model.js';
+
+/** Returns public signup options without exposing system placeholder clients. */
+export async function getSignupOptions(_req, res) {
+    try {
+        const [clients, admin] = await Promise.all([
+            clientModel.find({ code: { $nin: ['ALL', 'NONE'] } }).select('_id code name').sort({ name: 1 }),
+            userModel.exists({ role: 'Admin' })
+        ])
+        res.json({ clients, hasAdmin: Boolean(admin) })
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' })
+    }
+}
 
 /**
  * Gets all clients
@@ -31,6 +45,18 @@ export async function getClients(_req, res) {
         }
 
         res.json({ clients, total })
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' })
+    }
+}
+
+export async function getAccessibleClients(req, res) {
+    try {
+        const filter = req.user.role === 'Admin'
+            ? {}
+            : { _id: { $in: req.user.handledClients } }
+        const clients = await clientModel.find(filter)
+        res.json({ clients, total: clients.length })
     } catch (error) {
         res.status(500).json({ message: 'Server error' })
     }

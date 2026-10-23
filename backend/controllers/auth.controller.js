@@ -5,6 +5,7 @@
 
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import { model, Schema } from 'mongoose'
 import userModel from "#models/user.model.js";
 import clientModel from "#models/client.model.js";
 import payFreqModel from "#models/payfreq.model.js";
@@ -15,14 +16,17 @@ if (!JWT_SECRET) {
     throw new Error('CRITICAL: JWT_SECRET environment variable is required')
 }
 
+const bootstrapClaimModel = model('AdminBootstrapClaim', new Schema({
+    _id: String
+}, { versionKey: false }))
+
 /**
  * Registers a new user account
- * First user automatically becomes Admin with access to all clients.
- * Subsequent users are created as regular Users with the selected handled
- * clients (falls back to the NONE placeholder when none are provided/valid).
+ * The first administrator must provide the one-time bootstrap key.
+ * Subsequent public registrations are regular Users with selected client access.
  * Returns a JWT token and user info on success.
  * 
- * @param {import('express').Request} req - Request with body: { name, username, email, password, handledClients? }
+ * @param {import('express').Request} req - Request with body: { name, username, email, password, bootstrapKey?, handledClients? }
  * @param {import('express').Response} res - Response with { token, user } or error
  */
 export async function signup(req, res) {
@@ -38,68 +42,79 @@ export async function signup(req, res) {
         const salt = await bcrypt.genSalt(10)
         const hash = await bcrypt.hash(password, salt)
 
-        const users = await userModel.find()
-        
+        const [userCount, existingAdmin] = await Promise.all([
+            userModel.countDocuments(),
+            userModel.exists({ role: 'Admin' })
+        ])
         let user
-        if(users.length < 1) {
-            // First user: create Admin with ALL clients access
-            const payFreqObj = { payType: 'ALL' }
-            await payFreqModel.create(payFreqObj)
-
-            const payFreq = await payFreqModel.findOne({ payType: 'ALL' })
-            const clientObj = {
-                code: 'ALL',
-                name: 'All Clients',
-                payFreq: payFreq._id
+        if (!existingAdmin) {
+            const bootstrapKey = process.env.ADMIN_BOOTSTRAP_KEY
+            if (!bootstrapKey || req.body.bootstrapKey !== bootstrapKey) {
+                return res.status(403).json({ message: 'Admin bootstrap key is required for the first account' })
             }
 
-            await clientModel.create(clientObj)
+            try {
+                await bootstrapClaimModel.create({ _id: 'initial-admin' })
+            } catch (error) {
+                if (error.code === 11000) {
+                    return res.status(403).json({ message: 'Initial admin account has already been claimed' })
+                }
+                throw error
+            }
 
-            const client = await clientModel.findOne({ code: 'ALL' })
+            try {
+                let client = await clientModel.findOne({ code: 'ALL' })
+                if (!client) {
+                    let payFreq = await payFreqModel.findOne({ payType: 'ALL' })
+                    if (!payFreq) {
+                        payFreq = await payFreqModel.create({ payType: 'ALL' })
+                    }
+                    client = await clientModel.create({
+                        code: 'ALL',
+                        name: 'All Clients',
+                        payFreq: payFreq._id
+                    })
+                }
 
-            user = await userModel.create({
-                name,
-                username,
-                email,
-                password: hash,
-                role: 'Admin',
-                handledClients: client._id
-            })
+                user = await userModel.create({
+                    name,
+                    username,
+                    email,
+                    password: hash,
+                    role: 'Admin',
+                    handledClients: [client._id]
+                })
+            } catch (error) {
+                await bootstrapClaimModel.deleteOne({ _id: 'initial-admin' })
+                throw error
+            }
         }
         else {
-            // Subsequent users: create regular User with no client access
-            if(users.length === 1) {
-                const payFreqObj = { payType: 'NONE' }
-                await payFreqModel.create(payFreqObj)
-
-                const payFreq = await payFreqModel.findOne({ payType: 'NONE' })
-                const clientObj = {
+            if (userCount === 1 && !(await clientModel.exists({ code: 'NONE' }))) {
+                const payFreq = await payFreqModel.create({ payType: 'NONE' })
+                await clientModel.create({
                     code: 'NONE',
                     name: 'No Clients',
                     payFreq: payFreq._id
-                }
-
-                await clientModel.create(clientObj)
+                })
             }
 
-            // Use selected handled clients; fall back to NONE placeholder when none provided
-            let clientIds = []
-            if(Array.isArray(handledClients) && handledClients.length > 0) {
-                const validIds = handledClients.filter(id => /^[0-9a-fA-F]{24}$/.test(id))
-                const existingClients = await clientModel.find({ _id: { $in: validIds } }).select('_id')
-                clientIds = existingClients.map(c => c._id)
-            }
-            if(clientIds.length === 0) {
-                const client = await clientModel.findOne({ code: 'NONE' })
-                clientIds = client ? [client._id] : []
-            }
+            const selectedClients = await clientModel.find({
+                _id: { $in: handledClients ?? [] },
+                code: { $nin: ['ALL', 'NONE'] }
+            }).select('_id')
+
             user = await userModel.create({
                 name,
                 username,
                 email,
                 password: hash,
-                handledClients: clientIds
+                handledClients: selectedClients.map((client) => client._id)
             })
+        }
+
+        if (!user) {
+            throw new Error('User registration did not create an account')
         }
 
         const token = jwt.sign({ id: user._id, username: user.username, name: user.name }, JWT_SECRET, { expiresIn: '1d' })

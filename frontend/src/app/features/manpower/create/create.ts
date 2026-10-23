@@ -8,9 +8,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
 import { Manpower } from '@services/manpower';
 import { FileEditor } from '@services/file-editor';
+import { Rates } from '@services/rates';
+import { BillingRate } from '@models/billing-rate';
 import { toast } from 'ngx-sonner';
 
-type FieldType = 'text' | 'number'
+type FieldType = 'text' | 'number' | 'select'
 interface FieldConfig {
   key: string
   label: string
@@ -38,6 +40,7 @@ export class Create implements OnInit {
   formConfig = signal<FieldConfig[]>([])
   manpowerService = inject(Manpower)
   fileEditor = inject(FileEditor)
+  ratesService = inject(Rates)
 
   route = inject(ActivatedRoute)
   router = inject(Router)
@@ -51,6 +54,10 @@ export class Create implements OnInit {
   loading = signal(false)
   columnsLoading = signal(false)
   needsTemplateSelection = signal(false)
+  columnsError = signal<string | null>(null)
+  positions = signal<BillingRate[]>([])
+  positionsLoading = signal(false)
+  positionsError = signal<string | null>(null)
 
   tableColumns = signal<string[]>([])
   form: UntypedFormGroup = this.fb.group({})
@@ -62,7 +69,7 @@ export class Create implements OnInit {
       this.router.navigate(['/'])
       return
     }
-    this.loadTemplates()
+    await this.loadTemplates()
   }
 
   async loadTemplates() {
@@ -112,28 +119,44 @@ export class Create implements OnInit {
     if (!code || !templateName) return
 
     this.columnsLoading.set(true)
+    this.columnsError.set(null)
+    const positionsRequest = this.loadPositions(code, templateName)
     try {
-      const { columns } = await this.manpowerService.getColumns(code, templateName, 'EmployeeTable')
+      const { columns, formulaColumns } = await this.manpowerService.getColumns(code, templateName, 'EmployeeTable')
       if (columns && columns.length > 0) {
         this.tableColumns.set(columns)
-        this.buildForm(columns)
+        const formulaColumnNames = new Set(formulaColumns.map((column) => column.trim().toLowerCase()))
+        this.buildForm(columns.filter((column) =>
+          !formulaColumnNames.has(column.trim().toLowerCase()) ||
+          (code === 'dof' && column.trim().toLowerCase() === 'name')
+        ))
       } else {
-        this.buildFallbackForm()
+        throw new Error('No employee table columns were found.')
       }
-    } catch (e) {
-      this.buildFallbackForm()
+    } catch (error) {
+      this.tableColumns.set([])
+      this.formConfig.set([])
+      this.form = this.fb.group({})
+      const message = error instanceof Error ? error.message : 'Failed to load employee table columns'
+      this.columnsError.set(message)
+      toast.error(message)
     } finally {
+      await positionsRequest
       this.columnsLoading.set(false)
     }
   }
 
   private buildForm(columns: string[]) {
-    const fields: FieldConfig[] = columns.map(col => ({
-      key: col,
-      label: col,
-      type: 'text',
-      required: ['empNo', 'name'].includes(col) || ['empno', 'name'].includes(col.toLowerCase())
-    }))
+    const fields: FieldConfig[] = columns.map((col) => {
+      const normalized = col.toLowerCase().replace(/[^a-z0-9]/g, '')
+      const isPositionCode = ['poscode', 'positioncode'].includes(normalized)
+      return {
+        key: col,
+        label: col,
+        type: isPositionCode ? 'select' : 'text',
+        required: isPositionCode || ['empno', 'employeeno', 'employeenumber', 'name', 'employeename'].includes(normalized)
+      }
+    })
 
     this.formConfig.set(fields)
     const group: any = {}
@@ -143,19 +166,32 @@ export class Create implements OnInit {
     this.form = this.fb.group(group)
   }
 
-  private buildFallbackForm() {
-    const fields: FieldConfig[] = [
-      { key: 'empNo', label: 'Employee No', type: 'text', required: true },
-      { key: 'name', label: 'Name', type: 'text', required: true },
-      { key: 'posCode', label: 'Position Code', type: 'text' },
-      { key: 'dept', label: 'Department', type: 'text' },
-    ]
-    this.formConfig.set(fields)
-    const group: any = {}
-    for (const field of fields) {
-      group[field.key] = ['', field.required ? Validators.required : []]
+  private async loadPositions(code: string, templateName: string): Promise<void> {
+    this.positionsLoading.set(true)
+    this.positionsError.set(null)
+    this.positions.set([])
+
+    try {
+      const rates = await this.ratesService.list(code, templateName)
+      const uniquePositions = new Map<string, BillingRate>()
+      for (const rate of rates) {
+        const posCode = String(rate.posCode ?? '').trim()
+        if (posCode && !uniquePositions.has(posCode)) {
+          uniquePositions.set(posCode, { ...rate, posCode })
+        }
+      }
+
+      this.positions.set([...uniquePositions.values()])
+      if (uniquePositions.size === 0) {
+        throw new Error('No position codes are available in this template’s PositionTable.')
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to load position codes'
+      this.positionsError.set(message)
+      toast.error(message)
+    } finally {
+      this.positionsLoading.set(false)
     }
-    this.form = this.fb.group(group)
   }
 
   async addData() {
@@ -167,6 +203,17 @@ export class Create implements OnInit {
       return
     }
 
+    if (this.tableColumns().length === 0 || this.formConfig().length === 0) {
+      toast.error('Employee table columns are unavailable')
+      return
+    }
+
+    const hasPositionCode = this.formConfig().some((field) => field.type === 'select')
+    if (hasPositionCode && (this.positionsLoading() || this.positionsError() || this.positions().length === 0)) {
+      toast.error(this.positionsError() ?? 'Position codes are unavailable')
+      return
+    }
+
     if (this.form.invalid) {
       this.form.markAllAsTouched()
       return
@@ -175,7 +222,7 @@ export class Create implements OnInit {
     try {
       await this.manpowerService.addToTable(code, templateName, 'EmployeeTable', {
         form: this.form.value,
-        columnMap: this.tableColumns().length > 0 ? this.tableColumns() : Object.keys(this.form.value)
+        columnMap: this.tableColumns()
       })
       toast.success('Added Employee Successfully!')
       this.router.navigate(['manpower', code, 'list'])

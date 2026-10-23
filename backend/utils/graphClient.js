@@ -1052,92 +1052,51 @@ export async function getTableColumns(req, res) {
 
         const columns = (colRes.data.value ?? []).map(c => c.name)
 
-        // Detect formula columns by inspecting the first data row's formulas
+        // Detect formula columns from formulas present anywhere in the table.
         let formulaColumns = []
+        let rangeFormulaError
+        const collectFormulaColumns = (formulas) => {
+            const formulaRows = Array.isArray(formulas?.[0]) ? formulas : [formulas ?? []]
+            formulaRows.forEach(row => {
+                columns.forEach((name, idx) => {
+                    const formula = row?.[idx]
+                    if (typeof formula === 'string' && formula.trim().startsWith('=') && !formulaColumns.includes(name)) {
+                        formulaColumns.push(name)
+                    }
+                })
+            })
+        }
+
         try {
             const rangeRes = await graphRequest(
                 'GET',
                 `/sites/${SITE_ID}/drive/root:/Templates/${code}/${fileName}:/workbook/tables/${tableName}/dataBodyRange?$select=formulas`
             )
-            const formulas = rangeRes.data?.formulas?.[0] ?? []
-            columns.forEach((name, idx) => {
-                const f = formulas[idx]
-                if (typeof f === 'string' && f.trim().startsWith('=')) {
-                    formulaColumns.push(name)
-                }
-            })
-            // Fallback: try rows endpoint if dataBodyRange returned nothing
-            if (formulaColumns.length === 0 && columns.length > 0) {
-                try {
-                    const rowRes = await graphRequest(
-                        'GET',
-                        `/sites/${SITE_ID}/drive/root:/Templates/${code}/${fileName}:/workbook/tables/${tableName}/rows?$top=1`
-                    )
-                    const firstRow = rowRes.data.value?.[0]
-                    // rows endpoint doesn't include formulas by default; try $select
-                    const rowRes2 = await graphRequest(
-                        'GET',
-                        `/sites/${SITE_ID}/drive/root:/Templates/${code}/${fileName}:/workbook/tables/${tableName}/rows?$top=1&$select=formulas`
-                    )
-                    const formulas2 = rowRes2.data.value?.[0]?.formulas?.[0] ?? []
-                    columns.forEach((name, idx) => {
-                        const f = formulas2[idx]
-                        if (typeof f === 'string' && f.trim().startsWith('=')) {
-                            formulaColumns.push(name)
-                        }
-                    })
-                } catch (e2) {
-                    // ignore
-                }
-            }
-        } catch (e) {
-            // Fall back to known formula columns matched by index against canonical order
-            formulaColumns = []
+            collectFormulaColumns(rangeRes.data?.formulas)
+        } catch (error) {
+            rangeFormulaError = error
         }
 
-        // Fallback: match formula columns by name (case-insensitive) plus any column
-        // not in the known input set (so unmatched formula columns are still caught).
-        {
-            const variants = {
-                'posname': ['position name', 'pos name', 'positionname'],
-                'endorsed': ['endorsed'],
-                'difference': ['difference'],
-                'dbillingrate': ['daily billing rate', 'dbillingrate', 'dailybillingrate'],
-                'mbillingrate': ['monthly billing rate', 'mbillingrate', 'monthlybillingrate'],
-                'semimonthlyrate': ['semi monthly rate', 'semimonthlyrate', 'semi-monthly rate'],
+        // Fall back to the rows endpoint if the range formulas could not be read,
+        // or contained no formulas.
+        if (formulaColumns.length === 0) {
+            let rowsFormulaError
+            if (columns.length > 0) {
+                try {
+                    const rowsRes = await graphRequest(
+                        'GET',
+                        `/sites/${SITE_ID}/drive/root:/Templates/${code}/${fileName}:/workbook/tables/${tableName}/rows?$select=formulas`
+                    )
+                    rowsRes.data?.value?.forEach(row => {
+                        collectFormulaColumns(row?.formulas)
+                    })
+                } catch (error) {
+                    rowsFormulaError = error
+                }
             }
-            columns.forEach(c => {
-                const norm = c.toLowerCase().replace(/\s+/g, '')
-                for (const key of Object.keys(variants)) {
-                    if (variants[key].includes(c.toLowerCase()) || variants[key].includes(norm)) {
-                        if (!formulaColumns.includes(c)) formulaColumns.push(c)
-                    }
-                }
-            })
-            const knownInputs = new Set([
-                'empno', 'employeeno', 'employeenumber',
-                'name', 'employeename',
-                'poscode', 'positioncode',
-                'dept', 'department',
-                'status',
-                'type',
-                'paytype',
-                'payfreq', 'payfrequency',
-                'tin',
-                'sssno', 'sssnumber',
-                'phicno', 'phicnumber',
-                'hdmfno', 'hdmfnumber',
-                'hd',
-                'mfopt', 'mfoptamount',
-                'salary',
-                'bankno', 'bankaccountno', 'bankaccountnumber'
-            ])
-            const normCol = (c) => c.toLowerCase().replace(/[^a-z0-9]/g, '')
-            columns.forEach(c => {
-                if (!knownInputs.has(normCol(c)) && !formulaColumns.includes(c)) {
-                    formulaColumns.push(c)
-                }
-            })
+            if (rangeFormulaError && rowsFormulaError) {
+                throw new Error(`Unable to inspect table formulas: ${rowsFormulaError.message}`)
+            }
         }
 
         res.json({ columns, formulaColumns })

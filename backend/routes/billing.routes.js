@@ -16,63 +16,70 @@ import {
     previewBilling
 } from '#controllers/billing.controller.js'
 import { authMiddleware } from '#middleware/auth.middleware.js'
+import { clientAccessMiddleware } from '#middleware/client-access.middleware.js'
+import { uploadLimiter } from '#middleware/rateLimit.middleware.js'
 
 const billingRouter = Router()
+
+/** Authenticate before route-level client checks and file parsing. */
+billingRouter.use(authMiddleware)
 
 /** POST /billing/:code/generate - Generate final merged billing PDF */
 billingRouter.post(
     '/billing/:code/generate',
+    clientAccessMiddleware,
+    uploadLimiter,
     upload.fields([
         { name: 'billingLetter', maxCount: 1 },
-        { name: 'attachments', maxCount: 50 }
-    ]), 
-    authMiddleware,
+        { name: 'attachments', maxCount: 10 }
+    ]),
     generateBilling
 )
 
 /** POST /billing/:code/preview - Upload and preview billing letter + attachments */
 billingRouter.post(
     '/billing/:code/preview',
+    clientAccessMiddleware,
+    uploadLimiter,
     upload.fields([
         { name: 'billingLetter', maxCount: 1 },
-        { name: 'attachments', maxCount: 50 }
+        { name: 'attachments', maxCount: 10 }
     ]),
-    authMiddleware,
     previewBilling
 )
 
 /** POST /billing/:code/cleanup - Delete preview files from Cloudinary */
 billingRouter.post(
     '/billing/:code/cleanup',
-    authMiddleware,
+    clientAccessMiddleware,
     deletePreviews
 )
 
 /** GET /billing/:code/download/:publicId - Download billing PDF by Cloudinary public ID */
 billingRouter.get(
     '/billing/:code/download/:publicId',
-    authMiddleware,
+    clientAccessMiddleware,
     downloadBilling
 )
 
 /** GET /billing/:code/list - List all billing records with pagination */
 billingRouter.get(
     '/billing/:code/list',
-    authMiddleware,
+    clientAccessMiddleware,
     billingList
 )
 
 /** GET /billing/:code/:_id - Get single billing record by ID */
 billingRouter.get(
     '/billing/:code/:_id',
-    authMiddleware,
+    clientAccessMiddleware,
     getBilling
 )
 
 /** DELETE /billing/:code/:_id - Delete billing record by ID */
 billingRouter.delete(
     '/billing/:code/:_id',
-    authMiddleware,
+    clientAccessMiddleware,
     deleteBilling
 )
 

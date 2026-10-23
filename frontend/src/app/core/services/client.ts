@@ -19,6 +19,19 @@ interface ClientListResponse {
   clients: ClientDTO[];
 }
 
+/** Client fields exposed by the public registration options endpoint */
+export interface SignupClientDTO {
+  _id?: string;
+  code: string;
+  name: string;
+}
+
+/** Public signup configuration response shape */
+interface SignupOptionsResponse {
+  clients: SignupClientDTO[];
+  hasAdmin: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -103,10 +116,17 @@ export class Client {
   }
 
   /**
-   * Fetches all clients from the public signup endpoint
-   * Used during registration to populate client selection
-   * @returns Array of all client records
+   * Fetches public signup options, including selectable clients and admin status.
    */
+  async signupOptions(): Promise<SignupOptionsResponse> {
+    try {
+      return await firstValueFrom(this.http.get<SignupOptionsResponse>(`${this.apiUrl}/signup/options`))
+    } catch (error: unknown) {
+      throw new Error(`Failed to fetch signup options: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    }
+  }
+
+  /** Fetches the client list used by existing signup callers. */
   async allList(): Promise<ClientDTO[]> {
     if (this.allClients) return this.allClients
 

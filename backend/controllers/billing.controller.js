@@ -142,6 +142,14 @@ export async function generateBilling(req, res) {
         return res.status(400).json({ error: 'Invalid previewUrls format' });
       }
     }
+    if (!Array.isArray(previewPublicIds) || previewPublicIds.some(
+      publicId => typeof publicId !== 'string' || !publicId.startsWith(`billing/${code}/previews/`)
+    )) {
+      return res.status(400).json({ error: 'Invalid previewPublicIds format' })
+    }
+    if (!Array.isArray(previewUrls) || previewUrls.length > 51) {
+      return res.status(400).json({ error: 'Invalid previewUrls format' })
+    }
 
     const billingLetter = req.files?.billingLetter?.[0];
     const attachments = req.files?.attachments || [];
@@ -155,12 +163,21 @@ export async function generateBilling(req, res) {
     // Use preview URLs if available, otherwise process uploaded files
     const hasPreviews = Array.isArray(previewUrls) && previewUrls.length;
     if (hasPreviews) {
-      previewUrls = previewUrls.filter(
-        u => typeof u === 'string' && u.startsWith('https://')
-      );
-
-      if (!previewUrls.length) {
-        throw new Error('No valid preview URLs provided');
+      const validPreviewUrls = previewUrls.every(url => {
+        if (typeof url !== 'string') return false
+        try {
+          const parsed = new URL(url)
+          return parsed.protocol === 'https:' &&
+            parsed.hostname === 'res.cloudinary.com' &&
+            !parsed.username &&
+            !parsed.password &&
+            !parsed.port
+        } catch {
+          return false
+        }
+      })
+      if (!validPreviewUrls) {
+        return res.status(400).json({ error: 'Preview URLs must be Cloudinary HTTPS URLs' })
       }
 
       for (const url of previewUrls) {
@@ -256,6 +273,11 @@ export async function deletePreviews(req, res) {
       if (!Array.isArray(previewPublicIds) || !previewPublicIds.length) {
           return res.json({ success: true, deleted: 0 });
       }
+      if (!previewPublicIds.every(
+        publicId => typeof publicId === 'string' && publicId.startsWith(`billing/${code}/previews/`)
+      )) {
+        return res.status(400).json({ message: 'Invalid preview public ID' })
+      }
 
       const result = await cloudinary.api.delete_resources(previewPublicIds, {
           resource_type: 'raw'
@@ -280,7 +302,14 @@ export async function deletePreviews(req, res) {
  */
 export async function downloadBilling(req, res) {
     try {
+        const { code } = req.params
         const { publicId } = req.params;
+
+        const billing = await billingModel.findOne({
+            client: code.toUpperCase(),
+            'finalPdf.public_id': publicId
+        }).select('_id')
+        if (!billing) return res.status(404).json({ message: 'Billing not found' })
 
         const resource = await cloudinary.api.resource(publicId, {
             resource_type: 'raw'
@@ -318,14 +347,15 @@ export async function billingList(req, res) {
         const limitNum = Math.min(100, Math.max(1, parseInt(limit) || 10))
         const skip = (pageNum - 1) * limitNum
 
+        const filter = { client: req.params.code.toUpperCase() }
         const list = await billingModel
-            .find()
+            .find(filter)
             .populate('createdBy')
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limitNum)
 
-        const total = await billingModel.countDocuments()
+        const total = await billingModel.countDocuments(filter)
         const pages = Math.ceil(total / limitNum)
 
         res.json({ 
@@ -353,7 +383,10 @@ export async function billingList(req, res) {
 export async function getBilling(req, res) {
     try {
       const { code } = req.params
-      const billing = await billingModel.findById(req.params._id).populate('createdBy')
+      const billing = await billingModel.findOne({
+        _id: req.params._id,
+        client: code.toUpperCase()
+      }).populate('createdBy')
 
       if(!billing) return res.status(404).json({ message: `${code.toUpperCase()} Billing not found` })
 
@@ -372,7 +405,10 @@ export async function getBilling(req, res) {
 export async function deleteBilling(req, res) {
   try {
     const { code } = req.params
-    const billing = await billingModel.findByIdAndDelete(req.params._id)
+    const billing = await billingModel.findOneAndDelete({
+      _id: req.params._id,
+      client: code.toUpperCase()
+    })
     if(!billing) return res.status(404).json({ message: `${code.toUpperCase()} Billing not found` });
     res.json({ message: `${code.toUpperCase()} Billing deleted successfully` })
   } catch (error) {
