@@ -17,6 +17,8 @@ export interface UserDTO {
   role?: 'Admin' | 'User'
   /** Array of client IDs this user has access to */
   handledClients?: string[] | null
+  /** One-time key for bootstrapping the initial administrator account */
+  bootstrapKey?: string
 }
 
 /**

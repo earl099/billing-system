@@ -11,7 +11,8 @@ export const signupSchema = z.object({
     username: z.string().min(3, 'Username must be 3+ characters').max(50, 'Username too long').toLowerCase().trim(),
     email: z.string().email('Invalid email format').toLowerCase().trim(),
     password: z.string().min(8, 'Password must be 8+ characters').max(100, 'Password too long'),
-    handledClients: z.array(z.string()).optional()
+    bootstrapKey: z.string().max(256).optional(),
+    handledClients: z.array(z.string().regex(/^[0-9a-fA-F]{24}$/)).optional()
 })
 
 export const loginSchema = z.object({
@@ -44,7 +45,8 @@ export const createUserSchema = z.object({
     username: z.string().min(3, 'Username must be 3+ characters').max(50, 'Username too long').trim(),
     email: z.string().email('Invalid email').toLowerCase().trim(),
     password: z.string().min(8, 'Password must be 8+ characters').max(100, 'Password too long'),
-    role: z.enum(['Admin', 'User']).optional()
+    role: z.enum(['Admin', 'User']).optional(),
+    handledClients: z.array(z.string().regex(/^[0-9a-fA-F]{24}$/)).optional()
 })
 
 export const updateUserSchema = z.object({
@@ -53,7 +55,7 @@ export const updateUserSchema = z.object({
     email: z.string().email('Invalid email').toLowerCase().trim().optional(),
     password: z.string().min(8, 'Password must be 8+ characters').max(100, 'Password too long').optional(),
     role: z.enum(['Admin', 'User']).optional(),
-    handledClients: z.array(z.string()).optional()
+    handledClients: z.array(z.string().regex(/^[0-9a-fA-F]{24}$/)).optional()
 }).strict()
 
 // Pay frequency schemas

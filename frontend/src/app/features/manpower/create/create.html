@@ -44,12 +44,27 @@
             <div class="flex justify-center py-6">
               <mat-progress-spinner diameter="28" mode="indeterminate"></mat-progress-spinner>
             </div>
+          } @else if (columnsError()) {
+            <p class="employee-create-error" role="alert">{{ columnsError() }}</p>
           } @else {
             <form [formGroup]="form" class="employee-create-form">
               @for (field of formConfig(); track field.key) {
                 <mat-form-field class="employee-create-form__field">
                   <mat-label>{{ field.label }}</mat-label>
-                  <input matInput [formControlName]="field.key">
+                  @if (field.type === 'select') {
+                    <mat-select [formControlName]="field.key">
+                      @for (position of positions(); track position.posCode) {
+                        <mat-option [value]="position.posCode">{{ position.posCode }} — {{ position.posName }}</mat-option>
+                      }
+                    </mat-select>
+                    @if (positionsLoading()) {
+                      <mat-hint>Loading position codes…</mat-hint>
+                    } @else if (positionsError()) {
+                      <mat-hint>{{ positionsError() }}</mat-hint>
+                    }
+                  } @else {
+                    <input matInput [formControlName]="field.key">
+                  }
                   @if(form.get(field.key)?.invalid && form.get(field.key)?.touched) {
                     <mat-error>{{ field.label }} is required</mat-error>
                   }

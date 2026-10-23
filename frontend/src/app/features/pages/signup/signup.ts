@@ -1,6 +1,6 @@
 /**
  * @fileoverview Signup component
- * Handles new user registration with name, username, email, and password.
+ * Handles new user registration and initial administrator bootstrap.
  * Redirects already-authenticated users to dashboard.
  */
 
@@ -9,10 +9,9 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { Router, RouterLink } from '@angular/router';
 import { MATERIAL_MODULES } from '@material';
-import { ClientDTO } from '@models/client';
 import { UserDTO } from '@models/user';
 import { Auth } from '@services/auth';
-import { Client } from '@services/client';
+import { Client, SignupClientDTO } from '@services/client';
 import { toast } from 'ngx-sonner';
 
 @Component({
@@ -33,15 +32,19 @@ export class Signup implements OnInit {
   clientService = inject(Client)
   router = inject(Router)
 
-  clients = signal<ClientDTO[]>([])
+  clients = signal<SignupClientDTO[]>([])
   clientSearch = signal('')
+  hasAdmin = signal<boolean | null>(null)
+  optionsLoading = signal(true)
+  optionsFailed = signal(false)
 
   form = this.fb.group({
     name: ['', [Validators.required, Validators.maxLength(100)]],
     username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
     email: ['', [Validators.required, Validators.email, Validators.maxLength(100)]],
     password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(100)]],
-    handledClients: [<string[]>[]]
+    handledClients: [[] as string[]],
+    bootstrapKey: ['']
   })
 
   loading = signal(false)
@@ -54,41 +57,48 @@ export class Signup implements OnInit {
     )
   })
 
-  /** Redirects to dashboard if user already has a valid token, otherwise loads selectable clients */
+  /** Redirects authenticated users, otherwise loads the public signup options. */
   async ngOnInit() {
     if (this.authService.hasValidToken()) {
       this.router.navigate(['/dashboard'])
       return
     }
-    await this.loadClients()
+    await this.loadSignupOptions()
   }
 
-  /**
-   * Fetches the public client list for the handled-clients selector.
-   * System placeholder clients (ALL/NONE) are excluded. The field is
-   * only required when selectable clients exist; an empty database
-   * means this is the first (Admin) signup, which gets ALL automatically.
-   */
-  async loadClients() {
+  /** Loads the available clients and whether an administrator already exists. */
+  async loadSignupOptions() {
     try {
-      const clientList = await this.clientService.allList()
-      const selectable = clientList.filter(c => c.code !== 'ALL' && c.code !== 'NONE')
-      this.clients.set(selectable)
+      const options = await this.clientService.signupOptions()
+      this.clients.set(options.clients.filter((client) => client.code !== 'ALL' && client.code !== 'NONE'))
+      this.hasAdmin.set(options.hasAdmin)
 
-      const handledClientsControl = this.form.get('handledClients')
-      if (selectable.length > 0) {
-        handledClientsControl?.setValidators([Validators.required])
+      const handledClientsControl = this.form.controls.handledClients
+      if (options.hasAdmin && this.clients().length > 0) {
+        handledClientsControl.setValidators([Validators.required])
       } else {
-        handledClientsControl?.clearValidators()
+        handledClientsControl.clearValidators()
       }
-      handledClientsControl?.updateValueAndValidity()
+      handledClientsControl.updateValueAndValidity()
+
+      const bootstrapKeyControl = this.form.controls.bootstrapKey
+      if (!options.hasAdmin) {
+        bootstrapKeyControl.setValidators([Validators.required])
+      } else {
+        bootstrapKeyControl.clearValidators()
+      }
+      bootstrapKeyControl.updateValueAndValidity()
     } catch (e) {
-      const errorMessage = e instanceof Error ? e.message : 'Failed to load clients'
+      const errorMessage = e instanceof Error ? e.message : 'Failed to load signup options'
+      this.optionsFailed.set(true)
+      this.error.set(`Error: ${errorMessage}`)
       toast.error(errorMessage)
+    } finally {
+      this.optionsLoading.set(false)
     }
   }
 
-  /** Submits registration data, creates the account, and redirects to login */
+  /** Submits registration data and redirects to login after account creation. */
   async submit() {
     if (this.form.invalid) return
     this.loading.set(true)
@@ -109,42 +119,35 @@ export class Signup implements OnInit {
     }
   }
 
-  /** Updates the visible client options without changing the selected clients. */
+  /** Updates the visible client options without changing the selection. */
   updateClientSearch(event: Event): void {
     if (event.target instanceof HTMLInputElement) {
       this.clientSearch.set(event.target.value)
     }
   }
 
-  /** Returns the currently selected client ids from the registration form. */
+  /** Returns the selected client IDs from the registration form. */
   selectedClientIds(): string[] {
     return this.form.controls.handledClients.value ?? []
   }
 
-  /** Reports whether a valid client is currently selected. */
+  /** Reports whether a client is selected. */
   isClientSelected(clientId: string | undefined): boolean {
     return clientId !== undefined && this.selectedClientIds().includes(clientId)
   }
 
-  /** Selects or removes one client from the registration form. */
-  toggleClient(clientId: string | undefined, selected: boolean): void {
-    if (!clientId) {
+  /** Applies a checkbox change to the selected client IDs. */
+  updateClientSelection(clientId: string | undefined, event: Event): void {
+    if (!clientId || !(event.target instanceof HTMLInputElement)) {
       return
     }
+
     const current = this.selectedClientIds()
-    const next = selected
+    const next = event.target.checked
       ? [...new Set([...current, clientId])]
       : current.filter((id) => id !== clientId)
-
     this.form.controls.handledClients.setValue(next)
     this.form.controls.handledClients.markAsTouched()
-  }
-
-  /** Applies a checkbox change to the selected clients. */
-  updateClientSelection(clientId: string | undefined, event: Event): void {
-    if (event.target instanceof HTMLInputElement) {
-      this.toggleClient(clientId, event.target.checked)
-    }
   }
 
   /** Selects every available client, or clears the current selection. */
@@ -156,4 +159,5 @@ export class Signup implements OnInit {
     this.form.controls.handledClients.setValue(hasEveryClient ? [] : allClientIds)
     this.form.controls.handledClients.markAsTouched()
   }
+
 }

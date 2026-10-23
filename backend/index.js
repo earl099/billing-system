@@ -9,8 +9,6 @@ import express from 'express'
 import cors from 'cors'
 import mongoose from 'mongoose'
 import ALL_ROUTES from '#routes/index.routes.js'
-import path from 'path'
-import { fileURLToPath } from 'url'
 import cookieParser from 'cookie-parser'
 import logger from '#utils/logger.util.js'
 import { httpLoggerMiddleware } from '#middleware/logger.middleware.js'
@@ -60,11 +58,6 @@ app.use('/api', csrfTokenMiddleware)
 
 /** Register all application route modules under /api prefix */
 app.use('/api', ALL_ROUTES)
-
-/** Serve uploaded files statically */
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-app.use('/uploads', express.static(path.join(__dirname, './uploads')))
 
 /** 404 handler for undefined routes - must be after all route registrations */
 app.use(notFoundHandler)

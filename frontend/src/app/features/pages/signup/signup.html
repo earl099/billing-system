@@ -60,7 +60,7 @@
             @if (form.get('password')?.hasError('minlength') || form.get('password')?.hasError('maxlength')) { <mat-error>Use 8–100 characters.</mat-error> }
           </mat-form-field>
 
-          @if (clients().length > 0) {
+          @if (hasAdmin() && clients().length > 0) {
             <section class="client-picker" aria-labelledby="handled-clients-label">
               <div class="picker-label-row">
                 <div>
@@ -88,11 +88,21 @@
                   <p class="empty-clients">No clients match your search.</p>
                 }
               </div>
-              @if (form.get('handledClients')?.touched && form.get('handledClients')?.hasError('required')) { <p class="client-error">Select at least one client.</p> }
+              @if (form.controls.handledClients.touched && form.controls.handledClients.hasError('required')) { <p class="client-error">Select at least one client.</p> }
             </section>
           }
 
-          <button mat-flat-button type="submit" class="signup-button" [disabled]="loading() || form.invalid">{{ loading() ? 'Creating account…' : 'Create account' }}</button>
+          @if (hasAdmin() === false) {
+            <mat-form-field appearance="outline">
+              <mat-label>Initial administrator setup key</mat-label>
+              <input matInput type="password" autocomplete="off" formControlName="bootstrapKey" />
+              <mat-icon matPrefix aria-hidden="true">vpn_key</mat-icon>
+              <mat-hint>Required when creating the first administrator account.</mat-hint>
+              @if (form.controls.bootstrapKey.hasError('required') && form.controls.bootstrapKey.touched) { <mat-error>Enter the initial administrator setup key.</mat-error> }
+            </mat-form-field>
+          }
+
+          <button mat-flat-button type="submit" class="signup-button" [disabled]="optionsLoading() || optionsFailed() || loading() || form.invalid">{{ loading() ? 'Creating account…' : 'Create account' }}</button>
           @if (error()) { <p class="form-error" role="alert">{{ error() }}</p> }
         </form>
 

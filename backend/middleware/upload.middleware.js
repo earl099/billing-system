@@ -22,7 +22,7 @@ const storage = multer.diskStorage({
 /**
  * Multer upload middleware instance
  * - Accepts only .pdf and .docx files
- * - Maximum file size: 10MB
+ * - Maximum file size: 5MB per file, 11 files per request
  * - Rejects invalid file types with a descriptive error message
  * 
  * @type {import('multer').Multer}
@@ -42,6 +42,9 @@ export const upload = multer({
         }
     },
     limits: {
-        fileSize: 10 * 1024 * 1024  // 10MB limit
+        fileSize: 5 * 1024 * 1024,
+        files: 11,
+        parts: 13,
+        fieldSize: 1024 * 1024
     }
 })
