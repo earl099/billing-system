@@ -18,7 +18,7 @@
 
       <mat-form-field appearance="outline">
         <mat-label>Pay Frequency</mat-label>
-        <mat-select formControlName="payFreq">
+        <mat-select formControlName="payFreq" multiple>
           @for (payFreq of payFreqs(); track payFreq) {
             <mat-option [value]="payFreq._id">{{ payFreq.payType }}</mat-option>
           }

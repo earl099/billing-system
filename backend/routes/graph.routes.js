@@ -14,17 +14,21 @@ import { validateManpowerRequest } from "#middleware/manpower-request.middleware
 import {
     addToTable,
     createOfbankBilling,
+    createUnacomBilling,
     createSpadBillingLetter,
     createWordBillingLetter,
     deleteFromTable,
     exportToPdf,
     getFromTable,
     getOfbankTables,
+    getUnacomTables,
     getTableColumns,
     listData,
     listTemplates,
     saveOfbankTables,
+    saveUnacomTables,
     setupOfbankBilling,
+    setupUnacomBilling,
     updateRow,
     createMonthlySuppliesBilling,
     setupMonthlySuppliesBilling,
@@ -38,6 +42,14 @@ import {
     saveBtrJanitorialTables,
     createBtrSuppliesBilling,
     setupBtrSuppliesBilling,
+    createDepdevCoBilling,
+    setupDepdevCoBilling,
+    getDepdevCoTables,
+    saveDepdevCoTables,
+    createDepdevIvaBilling,
+    setupDepdevIvaBilling,
+    getDepdevIvaTables,
+    saveDepdevIvaTables,
     createDofTimekeeping,
     createDofBilling,
     setupDofBilling,
@@ -91,6 +103,12 @@ graphRouter.get('/editor/ofbank/:fileId/tables', sharepointFileAccessMiddleware,
 /** PATCH /editor/ofbank/:fileId/save - Save edited billing data back to both tables */
 graphRouter.patch('/editor/ofbank/:fileId/save', sharepointFileAccessMiddleware, saveOfbankTables)
 
+// UNACOM MANPOWER BILLING
+graphRouter.post('/editor/create/:code/unacom', clientAccessMiddleware, sharepointTemplateAccessMiddleware, createUnacomBilling)
+graphRouter.patch('/editor/unacom/:fileId/setup', sharepointFileAccessMiddleware, setupUnacomBilling)
+graphRouter.get('/editor/unacom/:fileId/tables', sharepointFileAccessMiddleware, getUnacomTables)
+graphRouter.patch('/editor/unacom/:fileId/save', sharepointFileAccessMiddleware, saveUnacomTables)
+
 // OFBANK MONTHLY SUPPLIES BILLING
 
 /** POST /editor/create/:code/monthly-supplies - Copy monthly supplies template and rename file */
@@ -126,6 +144,18 @@ graphRouter.patch('/editor/btr-janitorial/:fileId/save', sharepointFileAccessMid
 graphRouter.post('/editor/create/:code/btr-supplies', clientAccessMiddleware, sharepointTemplateAccessMiddleware, createBtrSuppliesBilling)
 /** PATCH /editor/btr-supplies/:fileId/setup - Fill BTr supplies billing cells and insert rows */
 graphRouter.patch('/editor/btr-supplies/:fileId/setup', sharepointFileAccessMiddleware, setupBtrSuppliesBilling)
+
+// DEPDEV CO BILLING
+graphRouter.post('/editor/create/:code/depdev-co', clientAccessMiddleware, sharepointTemplateAccessMiddleware, createDepdevCoBilling)
+graphRouter.patch('/editor/depdev-co/:fileId/setup', sharepointFileAccessMiddleware, setupDepdevCoBilling)
+graphRouter.get('/editor/depdev-co/:fileId/tables', sharepointFileAccessMiddleware, getDepdevCoTables)
+graphRouter.patch('/editor/depdev-co/:fileId/save', sharepointFileAccessMiddleware, saveDepdevCoTables)
+
+// DEPDEV IV-A BILLING
+graphRouter.post('/editor/create/:code/depdev-iva', clientAccessMiddleware, sharepointTemplateAccessMiddleware, createDepdevIvaBilling)
+graphRouter.patch('/editor/depdev-iva/:fileId/setup', sharepointFileAccessMiddleware, setupDepdevIvaBilling)
+graphRouter.get('/editor/depdev-iva/:fileId/tables', sharepointFileAccessMiddleware, getDepdevIvaTables)
+graphRouter.patch('/editor/depdev-iva/:fileId/save', sharepointFileAccessMiddleware, saveDepdevIvaTables)
 
 // DOF BILLING
 

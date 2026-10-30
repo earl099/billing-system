@@ -1586,3 +1586,35 @@
 2026-10-23 10:04:46 [info]: Server running on port 3000 
 2026-10-23 10:05:13 [info]: Connected to MongoDB 
 2026-10-23 10:05:13 [info]: Server running on port 3000 
+2026-10-30 10:16:40 [info]: Connected to MongoDB 
+2026-10-30 10:16:40 [info]: Server running on port 3000 
+2026-10-30 10:58:59 [warn]: HTTP Request {
+  "method": "PUT",
+  "path": "/client/6ae4076d8d6ade8396ed83e9",
+  "status": 400,
+  "duration": "249ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:158.0) Gecko/20100101 Firefox/158.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-10-30 11:06:38 [info]: Connected to MongoDB 
+2026-10-30 11:06:38 [info]: Server running on port 3000 
+2026-10-30 11:08:12 [info]: Connected to MongoDB 
+2026-10-30 11:08:12 [info]: Server running on port 3000 
+2026-10-30 11:08:15 [info]: Connected to MongoDB 
+2026-10-30 11:08:15 [info]: Server running on port 3000 
+2026-10-30 11:08:32 [info]: Connected to MongoDB 
+2026-10-30 11:08:32 [info]: Server running on port 3000 
+2026-10-30 11:13:21 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/editor/templates/unacom",
+  "status": 500,
+  "duration": "1328ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:158.0) Gecko/20100101 Firefox/158.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-10-30 11:26:41 [info]: Connected to MongoDB 
+2026-10-30 11:26:41 [info]: Server running on port 3000 
+2026-10-30 12:35:16 [info]: Connected to MongoDB 
+2026-10-30 12:35:16 [info]: Server running on port 3000 

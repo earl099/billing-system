@@ -49,7 +49,7 @@ export class Create implements OnInit {
   form = this.fb.group({
     code: ['', Validators.required],
     name: ['', Validators.required],
-    payFreq: ['', Validators.required]
+    payFreq: [<string[]>[], Validators.required]
   })
 
   loading = false

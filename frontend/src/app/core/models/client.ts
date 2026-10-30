@@ -9,8 +9,8 @@ export interface ClientDTO {
   code: string
   /** Client display name */
   name: string
-  /** Associated pay frequency ID reference */
-  payFreq: string
+  /** Associated pay frequency ID reference(s) */
+  payFreq: string | string[]
   /** ISO timestamp of creation (auto-managed) */
   createdAt?: string
   /** ISO timestamp of last update (auto-managed) */

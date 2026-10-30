@@ -72,7 +72,7 @@ export async function signup(req, res) {
                     client = await clientModel.create({
                         code: 'ALL',
                         name: 'All Clients',
-                        payFreq: payFreq._id
+                        payFreq: [payFreq._id]
                     })
                 }
 
@@ -95,7 +95,7 @@ export async function signup(req, res) {
                 await clientModel.create({
                     code: 'NONE',
                     name: 'No Clients',
-                    payFreq: payFreq._id
+                    payFreq: [payFreq._id]
                 })
             }
 
