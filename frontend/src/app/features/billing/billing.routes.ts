@@ -10,8 +10,11 @@ export const BILLING_ROUTES: Route[] = [
   { path: 'letter', loadChildren: () => import('@billing/letter/letter.routes').then(mod => mod.BILLING_LETTER_ROUTES) },
   { path: 'soa', loadChildren: () => import('@billing/soa/soa.routes').then(mod => mod.SOA_ROUTES) },
   { path: 'soa/ofbank', loadChildren: () => import('@billing/ofbank/ofbank.routes').then(mod => mod.OFBANK_ROUTES) },
+  { path: 'soa/unacom', loadChildren: () => import('@billing/unacom/unacom.routes').then(mod => mod.UNACOM_ROUTES) },
   { path: 'soa/btr', loadChildren: () => import('@billing/btr/btr.routes').then(mod => mod.BTR_ROUTES) },
   { path: 'soa/dof', loadChildren: () => import('@billing/dof/dof.routes').then(mod => mod.DOF_ROUTES) },
+  { path: 'soa/depdev', loadChildren: () => import('@billing/depdev/depdev.routes').then(mod => mod.DEPDEV_ROUTES) },
   { path: 'btr', loadChildren: () => import('@billing/btr/btr.routes').then(mod => mod.BTR_ROUTES) },
+  { path: 'depdev', loadChildren: () => import('@billing/depdev/depdev.routes').then(mod => mod.DEPDEV_ROUTES) },
   { path: ':code', loadChildren: () => import('@billing/operations/operations.routes').then(mod => mod.BILLING_OPERATIONS_ROUTES) },
 ]

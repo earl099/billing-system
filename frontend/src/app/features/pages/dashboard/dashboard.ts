@@ -16,7 +16,7 @@ interface DashboardAction {
   icon: string;
 }
 
-const MANPOWER_CLIENT_CODES = new Set(['BTR', 'OFBANK', 'DOF']);
+const MANPOWER_CLIENT_CODES = new Set(['BTR', 'OFBANK', 'DOF', 'UNACOM']);
 const EXCLUDED_CLIENT_CODES = new Set(['ALL', 'NONE']);
 
 @Component({
@@ -118,10 +118,27 @@ export class Dashboard implements OnInit {
       ];
     }
 
+    if (client.code === 'UNACOM') {
+      return [
+        { label: 'Create SOA', route: '/billing/soa/unacom/create/manpower', icon: 'note_add' },
+        { label: 'Create Billing Letter', route: `/billing/letter/editor/${code}`, icon: 'description' },
+        { label: 'Generate Billing', route: `/billing/${code}/generate`, icon: 'picture_as_pdf' },
+        { label: 'Billing List', route: `/billing/${code}/list`, icon: 'format_list_bulleted' },
+      ];
+    }
+
     if (client.code === 'DOF') {
       return [
         { label: 'Create DOF Timekeeping', route: '/billing/soa/dof/timekeeping', icon: 'schedule' },
         { label: 'Create DOF Billing', route: '/billing/soa/dof/billing', icon: 'receipt_long' },
+      ];
+    }
+
+    if (client.code === 'DEPDEV') {
+      return [
+        { label: 'Create CO Billing', route: '/billing/soa/depdev/create/co', icon: 'note_add' },
+        { label: 'Create IV-A Billing', route: '/billing/soa/depdev/create/iva', icon: 'note_add' },
+        { label: 'Billing List', route: '/billing/depdev/list', icon: 'format_list_bulleted' },
       ];
     }
 

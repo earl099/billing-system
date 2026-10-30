@@ -24,12 +24,19 @@ export const loginSchema = z.object({
 export const createClientSchema = z.object({
     code: z.string().min(1, 'Code required').max(20, 'Code too long').toUpperCase().trim(),
     name: z.string().min(1, 'Name required').max(100, 'Name too long').trim(),
-    payFreq: z.string().min(1, 'Pay frequency required')
+    payFreq: z.union([
+        z.string().min(1, 'Pay frequency required'),
+        z.array(z.string().min(1, 'Pay frequency required')).min(1, 'Pay frequency required')
+    ])
 })
 
 export const updateClientSchema = z.object({
+    code: z.string().min(1, 'Code required').max(20, 'Code too long').toUpperCase().trim().optional(),
     name: z.string().min(1, 'Name required').max(100, 'Name too long').trim().optional(),
-    payFreq: z.string().min(1, 'Pay frequency required').optional()
+    payFreq: z.union([
+        z.string().min(1, 'Pay frequency required'),
+        z.array(z.string().min(1, 'Pay frequency required'))
+    ]).optional()
 }).strict()
 
 // Billing schemas

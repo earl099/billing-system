@@ -88,7 +88,8 @@ export async function getClient(req, res) {
 export async function createClient(req, res) {
     try {
         const { code, name, payFreq } = req.body
-        const client = await clientModel.create({ code, name, payFreq })
+        const normalizedPayFreq = Array.isArray(payFreq) ? payFreq : [payFreq]
+        const client = await clientModel.create({ code, name, payFreq: normalizedPayFreq })
         res.json({ client })
     } catch (error) {
         res.status(500).json({ message: 'Server error' })
@@ -104,9 +105,15 @@ export async function createClient(req, res) {
 export async function updateClient(req, res) {
     try {
         const { code, name, payFreq } = req.body
-        const update = { code, name, payFreq }
+        const update = {}
 
-        const client = await clientModel.findByIdAndUpdate(req.params._id, update, { new: true })
+        if (code !== undefined) update.code = code
+        if (name !== undefined) update.name = name
+        if (payFreq !== undefined) {
+            update.payFreq = Array.isArray(payFreq) ? payFreq : [payFreq]
+        }
+
+        const client = await clientModel.findByIdAndUpdate(req.params._id, update, { new: true, runValidators: true })
         if(!client) return res.status(404).json({ message: 'Client not found' })
         res.json({ client })
     } catch (error) {

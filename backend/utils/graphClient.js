@@ -843,24 +843,10 @@ export async function setupOfbankBilling(req, res) {
 
         await graphBatchRequest(dateBatch, sessionId)
 
-        const signatoryBatch = [
-            {
-                id: 'sig-1',
-                method: 'PATCH',
-                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('MISS')/range(address='B33')`,
-                headers: { 'Content-Type': 'application/json' },
-                body: { values: [[acctAsst.toUpperCase()]] }
-            },
-            {
-                id: 'sig-2',
-                method: 'PATCH',
-                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('MISS')/range(address='E33')`,
-                headers: { 'Content-Type': 'application/json' },
-                body: { values: [[bcuChief.toUpperCase()]] }
-            }
-        ]
-
-        await graphBatchRequest(signatoryBatch, sessionId)
+        await replacePlaceholdersInWorksheets(fileId, sessionId, SITE_ID, {
+            acctAsst: acctAsst.toUpperCase(),
+            bcuChief: bcuChief.toUpperCase()
+        })
 
         await graphRequest(
             'POST',
@@ -910,6 +896,267 @@ export async function getOfbankTables(req, res) {
 }
 
 export async function saveOfbankTables(req, res) {
+    try {
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+        const { fileId } = req.params
+        const { jBillingRows, oBillingRows } = req.body
+
+        const session = await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/createSession`,
+            { persistChanges: true }
+        )
+
+        const sessionId = session.data.id
+
+        const JBILLING_FORMULA_INDICES = [0, 2, 3, 4, 5, 6]
+        const OBILLING_FORMULA_INDICES = [0, 2, 3, 4]
+
+        function buildBatchRequests(rows, tableName, formulaIndices) {
+            return rows.map(row => {
+                const values = row.values.map((val, i) =>
+                    formulaIndices.includes(i) ? null : val
+                )
+                return {
+                    id: `${tableName}-${row.index}`,
+                    method: 'PATCH',
+                    url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/tables('${tableName}')/rows/itemAt(index=${row.index})`,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: { values: [values] }
+                }
+            })
+        }
+
+        const jBatch = buildBatchRequests(jBillingRows, 'jBillingTable', JBILLING_FORMULA_INDICES)
+        const oBatch = buildBatchRequests(oBillingRows, 'oBillingTable', OBILLING_FORMULA_INDICES)
+
+        const allRequests = [...jBatch, ...oBatch]
+
+        for (let i = 0; i < allRequests.length; i += 20) {
+            const chunk = allRequests.slice(i, i + 20)
+            await graphBatchRequest(chunk, sessionId)
+        }
+
+        await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/application/calculate`,
+            { calculationType: 'Full' }
+        )
+
+        await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/closeSession`,
+            null,
+            { headers: { 'workbook-session-id': sessionId } }
+        )
+
+        res.json({ message: 'Billing data saved successfully' })
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to save billing data' })
+    }
+}
+
+// ==========================================
+// UNACOM MANPOWER BILLING FUNCTIONS
+// ==========================================
+
+export async function createUnacomBilling(req, res) {
+    try {
+        const { code } = req.params
+        const { templateId, dateRange } = req.body
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+
+        const now = new Date()
+        const timestamp = `${now.getHours()}${now.getMinutes()}${now.getSeconds()}`
+        const fileName = `${code.toUpperCase()}-Billing-${dateRange.label}-${timestamp}.xlsm`
+
+        const folder = await graphRequest(
+            'GET',
+            `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts/${code}`
+        )
+
+        await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${templateId}/copy`,
+            {
+                name: fileName,
+                parentReference: { id: folder.data.id }
+            },
+            { validateStatus: s => s === 202 }
+        )
+
+        await new Promise(r => setTimeout(r, 5000))
+
+        const children = await graphRequest(
+            'GET',
+            `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts/${code}:/children`
+        )
+
+        const excelFile = children.data.value.find(f => f.name === fileName)
+
+        if (!excelFile) throw new Error('Copied Excel file not found')
+
+        res.json({
+            documentId: excelFile.id,
+            editUrl: excelFile.webUrl,
+            fileName
+        })
+
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to create UNACOM billing' })
+    }
+}
+
+export async function setupUnacomBilling(req, res) {
+    try {
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+        const { fileId } = req.params
+        const { dateRange, soaNo, month, year, period, billingPeriodStart, billingPeriodEnd } = req.body
+
+        const session = await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/createSession`,
+            { persistChanges: true }
+        )
+
+        const sessionId = session.data.id
+
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+        const monthIndex = months.indexOf(month)
+        const endMonth = (period === 'second' && monthIndex >= 0 && monthIndex < 11)
+            ? months[monthIndex + 1]
+            : (period === 'second' && monthIndex === 11 ? months[0] : month)
+        const monthUpper = String(month).toUpperCase()
+        const endMonthUpper = String(endMonth).toUpperCase()
+
+        const start = billingPeriodStart
+        const end = billingPeriodEnd
+        const billingPeriod = `${start}-${end}`
+
+        const janSheetName = `Janitorial ${dateRange.sheetLabel}`
+        const manSheetName = `Manpower ${month} ${start}-${endMonth} ${end}, ${year}`
+
+        // rename janitorial sheet
+        try {
+            await graphBatchRequest([{
+                id: 'rename-1',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets/{jBillingSheet}`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { name: janSheetName }
+            }], sessionId)
+        } catch (e) { /* ignore */ }
+
+        // rename manpower sheet
+        try {
+            await graphBatchRequest([{
+                id: 'rename-2',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets/{mBillingSheet}`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { name: manSheetName }
+            }], sessionId)
+        } catch (e) { /* ignore */ }
+
+        const dateBatch = [
+            {
+                id: 'date-1',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('${janSheetName}')/range(address='A4')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [['for the period ' + dateRange.label]] }
+            },
+            {
+                id: 'date-2',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('${manSheetName}')/range(address='A4')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [['for the period ' + month + ' ' + billingPeriod + ', ' + year]] }
+            }
+        ]
+        await graphBatchRequest(dateBatch, sessionId)
+
+        // UNACOM MANPOWER sheet B4
+        let b4Value
+        if (period === 'first') {
+            b4Value = `FOR THE PERIOD OF ${monthUpper} ${billingPeriod}, ${year}`
+        } else {
+            b4Value = `FOR THE PERIOD OF ${monthUpper} ${start}, ${year} TO ${endMonthUpper} ${end}, ${year}`
+        }
+
+        const summaryBatch = [
+            {
+                id: 'sum-1',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('UNACOM MANPOWER')/range(address='B4')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [[b4Value]] }
+            },
+            {
+                id: 'sum-2',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('UNACOM MANPOWER')/range(address='K7')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [[`SOA NO. ${soaNo}`]] }
+            }
+        ]
+        await graphBatchRequest(summaryBatch, sessionId)
+
+        await replacePlaceholdersInWorksheets(fileId, sessionId, SITE_ID, {
+            acctAsst: (req.body.acctAsst || '').toUpperCase(),
+            bcuChief: (req.body.bcuChief || '').toUpperCase()
+        })
+
+        await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/application/calculate`,
+            { calculationType: 'Full' }
+        )
+
+        await graphRequest(
+            'POST',
+            `/sites/${SITE_ID}/drive/items/${fileId}/workbook/closeSession`,
+            null,
+            { headers: { 'workbook-session-id': sessionId } }
+        )
+
+        res.json({ message: 'Billing setup complete' })
+
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to setup UNACOM billing' })
+    }
+}
+
+export async function getUnacomTables(req, res) {
+    try {
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+        const { fileId } = req.params
+
+        const [jRes, oRes] = await Promise.all([
+            graphRequest(
+                'GET',
+                `/sites/${SITE_ID}/drive/items/${fileId}/workbook/tables('jBillingTable')/rows`
+            ),
+            graphRequest(
+                'GET',
+                `/sites/${SITE_ID}/drive/items/${fileId}/workbook/tables('oBillingTable')/rows`
+            )
+        ])
+
+        res.json({
+            jBilling: jRes.data.value.map(r => ({ index: r.index, values: r.values[0] })),
+            oBilling: oRes.data.value.map(r => ({ index: r.index, values: r.values[0] }))
+        })
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to read billing tables' })
+    }
+}
+
+export async function saveUnacomTables(req, res) {
     try {
         const SITE_ID = process.env.SHAREPOINT_SITE_ID
         const { fileId } = req.params
@@ -1540,6 +1787,11 @@ export async function setupBtrMissBilling(req, res) {
 
         await graphBatchRequest(dateBatch, sessionId)
 
+        await replacePlaceholdersInWorksheets(fileId, sessionId, SITE_ID, {
+            acctAsst: acctAsst.toUpperCase(),
+            bcuChief: bcuChief.toUpperCase()
+        })
+
         await graphRequest(
             'POST',
             `/sites/${SITE_ID}/drive/items/${fileId}/workbook/application/calculate`,
@@ -1786,66 +2038,10 @@ export async function setupBtrJanitorialBilling(req, res) {
 
         await graphBatchRequest(dateBatch, sessionId)
 
-        const signatoryBatch = [
-            {
-                id: 'sig-1',
-                method: 'PATCH',
-                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('JANITORIAL')/range(address='B117')`,
-                headers: { 'Content-Type': 'application/json' },
-                body: { values: [[acctAsst.toUpperCase()]] }
-            },
-            {
-                id: 'sig-2',
-                method: 'PATCH',
-                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('JANITORIAL')/range(address='E117')`,
-                headers: { 'Content-Type': 'application/json' },
-                body: { values: [[bcuChief.toUpperCase()]] }
-            },
-            {
-                id: 'sig-3',
-                method: 'PATCH',
-                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('JANITORIAL OVERTIME')/range(address='B31')`,
-                headers: { 'Content-Type': 'application/json' },
-                body: { values: [[acctAsst.toUpperCase()]] }
-            },
-            {
-                id: 'sig-4',
-                method: 'PATCH',
-                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('JANITORIAL OVERTIME')/range(address='D31')`,
-                headers: { 'Content-Type': 'application/json' },
-                body: { values: [[bcuChief.toUpperCase()]] }
-            },
-            {
-                id: 'sig-5',
-                method: 'PATCH',
-                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('BTr-HAULER')/range(address='B29')`,
-                headers: { 'Content-Type': 'application/json' },
-                body: { values: [[acctAsst.toUpperCase()]] }
-            },
-            {
-                id: 'sig-6',
-                method: 'PATCH',
-                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('BTr-HAULER')/range(address='E29')`,
-                headers: { 'Content-Type': 'application/json' },
-                body: { values: [[bcuChief.toUpperCase()]] }
-            },
-            {
-                id: 'sig-7',
-                method: 'PATCH',
-                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('BTr-TFMCD')/range(address='B23')`,
-                headers: { 'Content-Type': 'application/json' },
-                body: { values: [[acctAsst.toUpperCase()]] }
-            },
-            {
-                id: 'sig-8',
-                method: 'PATCH',
-                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('BTr-TFMCD')/range(address='E23')`,
-                headers: { 'Content-Type': 'application/json' },
-                body: { values: [[bcuChief.toUpperCase()]] }
-            }
-        ]
-
-        await graphBatchRequest(signatoryBatch, sessionId)
+        await replacePlaceholdersInWorksheets(fileId, sessionId, SITE_ID, {
+            acctAsst: acctAsst.toUpperCase(),
+            bcuChief: bcuChief.toUpperCase()
+        })
 
         await graphRequest(
             'POST',
@@ -3191,3 +3387,400 @@ export async function exportToPdf(req, res) {
         res.status(500).json({ message: 'Failed to export PDF', err })
     }
 }
+
+// ==========================================
+// DEPDEV CO BILLING FUNCTIONS
+// ==========================================
+
+function colLetter(colIndex) {
+    let letter = ''
+    let n = colIndex + 1
+    while (n > 0) {
+        const mod = (n - 1) % 26
+        letter = String.fromCharCode(65 + mod) + letter
+        n = Math.floor((n - 1) / 26)
+    }
+    return letter
+}
+
+async function replacePlaceholdersInWorksheets(fileId, sessionId, SITE_ID, placeholders) {
+    // placeholders: { key: replacementValue }
+    const sheetsRes = await graphRequest('GET', `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets`)
+    const sheetNames = (sheetsRes.data.value || []).map(s => s.name)
+
+    const requests = []
+    for (const sheetName of sheetNames) {
+        let used
+        try {
+            used = await graphRequest('GET', `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('${encodeURIComponent(sheetName)}')/usedRange`)
+        } catch (e) {
+            continue
+        }
+        const values = used?.data?.values
+        if (!Array.isArray(values)) continue
+        for (let r = 0; r < values.length; r++) {
+            const row = values[r]
+            if (!Array.isArray(row)) continue
+            for (let c = 0; c < row.length; c++) {
+                const cell = row[c]
+                if (typeof cell !== 'string') continue
+                for (const [key, val] of Object.entries(placeholders)) {
+                    if (cell.includes(`{${key}}`)) {
+                        const addr = `${colLetter(c)}${r + 1}`
+                        requests.push({
+                            id: `ph-${sheetName}-${r}-${c}-${key}`,
+                            method: 'PATCH',
+                            url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('${sheetName}')/range(address='${addr}')`,
+                            headers: { 'Content-Type': 'application/json' },
+                            body: { values: [[cell.replace(`{${key}}`, val)]] }
+                        })
+                    }
+                }
+            }
+        }
+    }
+
+    for (let i = 0; i < requests.length; i += 20) {
+        const chunk = requests.slice(i, i + 20)
+        if (chunk.length) await graphBatchRequest(chunk, sessionId)
+    }
+}
+
+export async function createDepdevCoBilling(req, res) {
+    try {
+        const { code } = req.params
+        const { templateId, dateRange } = req.body
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+
+        const now = new Date()
+        const timestamp = `${now.getHours()}${now.getMinutes()}${now.getSeconds()}`
+        const fileName = `${code.toUpperCase()}-CO-Billing-${dateRange.label}-${timestamp}.xlsm`
+
+        const folder = await graphRequest('GET', `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts/${code}`)
+        await graphRequest('POST', `/sites/${SITE_ID}/drive/items/${templateId}/copy`, {
+            name: fileName,
+            parentReference: { id: folder.data.id }
+        }, { validateStatus: s => s === 202 })
+
+        await new Promise(r => setTimeout(r, 5000))
+
+        const children = await graphRequest('GET', `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts/${code}:/children`)
+        const excelFile = children.data.value.find(f => f.name === fileName)
+        if (!excelFile) throw new Error('Copied Excel file not found')
+
+        res.json({ documentId: excelFile.id, editUrl: excelFile.webUrl, fileName })
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to create DepDev CO billing' })
+    }
+}
+
+export async function setupDepdevCoBilling(req, res) {
+    try {
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+        const { fileId } = req.params
+        const { dateRange, month, year, billingPeriod, soaNo_OMS, soaNo_OVERTIME, acctAsst, bcuChief } = req.body
+
+        const session = await graphRequest('POST', `/sites/${SITE_ID}/drive/items/${fileId}/workbook/createSession`, { persistChanges: true })
+        const sessionId = session.data.id
+
+        const mSheetName = `Manpower ${month} ${billingPeriod}, ${year}`
+
+        // rename mBillingSheet placeholder -> mSheetName
+        // We don't know original sheet name; assume '{mBillingSheet}'? Use common default 'mBillingSheet'
+        // Try rename the sheet named 'mBillingSheet'
+        try {
+            await graphBatchRequest([{
+                id: 'rename-1',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets/{mBillingSheet}`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { name: mSheetName }
+            }], sessionId)
+        } catch (e) {
+            // ignore if sheet name differs
+        }
+
+        const batch = [
+            {
+                id: 'date-1',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('${mSheetName}')/range(address='A4')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [[`for the period ${month} ${billingPeriod}, ${year}`]] }
+            },
+            {
+                id: 'date-2',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('DEPDEV CO OMS')/range(address='B4')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [[`FOR THE PERIOD OF ${month.toUpperCase()} ${billingPeriod}, ${year}`]] }
+            },
+            {
+                id: 'date-3',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('DEPDEV CO OMS')/range(address='G6')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [[`SOA NO. ${soaNo_OMS}`]] }
+            },
+            {
+                id: 'date-4',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('DEPDEV CO (OVERTIME)')/range(address='B4')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [[`FOR THE PERIOD OF ${month.toUpperCase()} ${billingPeriod}, ${year}`]] }
+            },
+            {
+                id: 'date-5',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('DEPDEV CO (OVERTIME)')/range(address='K6')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [[`SOA NO. ${soaNo_OVERTIME}`]] }
+            },
+        ]
+        await graphBatchRequest(batch, sessionId)
+
+        // acctAsst / bcuChief search-and-replace across all worksheets
+        await replacePlaceholdersInWorksheets(fileId, sessionId, SITE_ID, {
+            acctAsst: acctAsst.toUpperCase(),
+            bcuChief: bcuChief.toUpperCase()
+        })
+
+        await graphRequest('POST', `/sites/${SITE_ID}/drive/items/${fileId}/workbook/application/calculate`, { calculationType: 'Full' })
+        await graphRequest('POST', `/sites/${SITE_ID}/drive/items/${fileId}/workbook/closeSession`, null, { headers: { 'workbook-session-id': sessionId } })
+
+        res.json({ message: 'DepDev CO billing setup complete' })
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to setup DepDev CO billing' })
+    }
+}
+
+export async function getDepdevCoTables(req, res) {
+    try {
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+        const { fileId } = req.params
+        const tRes = await graphRequest('GET', `/sites/${SITE_ID}/drive/items/${fileId}/workbook/tables('mBillingTable')/rows`)
+        res.json({ billing: tRes.data.value.map(r => ({ index: r.index, values: r.values[0] })) })
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to read DepDev CO billing tables' })
+    }
+}
+
+export async function saveDepdevCoTables(req, res) {
+    try {
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+        const { fileId } = req.params
+        const { billingRows } = req.body
+
+        const session = await graphRequest('POST', `/sites/${SITE_ID}/drive/items/${fileId}/workbook/createSession`, { persistChanges: true })
+        const sessionId = session.data.id
+
+        const FORMULA_INDICES = [0, 1, 2, 3, 4, 5, 6]
+
+        function buildBatchRequests(rows, tableName, formulaIndices) {
+            return rows.map(row => {
+                const values = row.values.map((val, i) => formulaIndices.includes(i) ? null : val)
+                return {
+                    id: `${tableName}-${row.index}`,
+                    method: 'PATCH',
+                    url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/tables('${tableName}')/rows/itemAt(index=${row.index})`,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: { values: [values] }
+                }
+            })
+        }
+
+        const batch = buildBatchRequests(billingRows, 'mBillingTable', FORMULA_INDICES)
+        for (let i = 0; i < batch.length; i += 20) {
+            const chunk = batch.slice(i, i + 20)
+            await graphBatchRequest(chunk, sessionId)
+        }
+
+        await graphRequest('POST', `/sites/${SITE_ID}/drive/items/${fileId}/workbook/application/calculate`, { calculationType: 'Full' })
+        await graphRequest('POST', `/sites/${SITE_ID}/drive/items/${fileId}/workbook/closeSession`, null, { headers: { 'workbook-session-id': sessionId } })
+
+        res.json({ message: 'DepDev CO billing data saved successfully' })
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to save DepDev CO billing data' })
+    }
+}
+
+// ==========================================
+// DEPDEV IV-A BILLING FUNCTIONS
+// ==========================================
+
+export async function createDepdevIvaBilling(req, res) {
+    try {
+        const { code } = req.params
+        const { templateId, dateRange } = req.body
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+
+        const now = new Date()
+        const timestamp = `${now.getHours()}${now.getMinutes()}${now.getSeconds()}`
+        const fileName = `${code.toUpperCase()}-IV-A-Billing-${dateRange.label}-${timestamp}.xlsm`
+
+        const folder = await graphRequest('GET', `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts/${code}`)
+        await graphRequest('POST', `/sites/${SITE_ID}/drive/items/${templateId}/copy`, {
+            name: fileName,
+            parentReference: { id: folder.data.id }
+        }, { validateStatus: s => s === 202 })
+
+        await new Promise(r => setTimeout(r, 5000))
+
+        const children = await graphRequest('GET', `/sites/${SITE_ID}/drive/root:/BillingLetterDrafts/${code}:/children`)
+        const excelFile = children.data.value.find(f => f.name === fileName)
+        if (!excelFile) throw new Error('Copied Excel file not found')
+
+        res.json({ documentId: excelFile.id, editUrl: excelFile.webUrl, fileName })
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to create DepDev IV-A billing' })
+    }
+}
+
+export async function setupDepdevIvaBilling(req, res) {
+    try {
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+        const { fileId } = req.params
+        const { dateRange, month, year, billingPeriod, soaNo_JANITORIAL, soaNo_TRANSPORTATION, soaNo_TS_OVERTIME, acctAsst, bcuChief } = req.body
+
+        const session = await graphRequest('POST', `/sites/${SITE_ID}/drive/items/${fileId}/workbook/createSession`, { persistChanges: true })
+        const sessionId = session.data.id
+
+        const jSheetName = `UMS ${month} ${billingPeriod}, ${year}`
+
+        try {
+            await graphBatchRequest([{
+                id: 'rename-1',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets/{jBillingSheet}`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { name: jSheetName }
+            }], sessionId)
+        } catch (e) {
+            // ignore
+        }
+
+        const batch = [
+            {
+                id: 'date-1',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('${jSheetName}')/range(address='B4')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [[`for the period ${month} ${billingPeriod}, ${year}`]] }
+            },
+            {
+                id: 'date-2',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('DEPDEV IV-A JANITORIAL')/range(address='B5')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [[`FOR THE PERIOD OF ${month.toUpperCase()} ${billingPeriod}, ${year}`]] }
+            },
+            {
+                id: 'date-3',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('DEPDEV IV-A JANITORIAL')/range(address='G7')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [[`SOA NO. ${soaNo_JANITORIAL}`]] }
+            },
+            {
+                id: 'date-4',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('DEPDEV IV-A TRANSPORTATION')/range(address='B5')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [[`FOR THE PERIOD OF ${month.toUpperCase()} ${billingPeriod}, ${year}`]] }
+            },
+            {
+                id: 'date-5',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('DEPDEV IV-A TRANSPORTATION')/range(address='G7')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [[`SOA NO. ${soaNo_TRANSPORTATION}`]] }
+            },
+            {
+                id: 'date-6',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('DEPDEV IV-A TS OVERTIME')/range(address='B5')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [[`FOR THE PERIOD OF ${month.toUpperCase()} ${billingPeriod}, ${year}`]] }
+            },
+            {
+                id: 'date-7',
+                method: 'PATCH',
+                url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/worksheets('DEPDEV IV-A TS OVERTIME')/range(address='G7')`,
+                headers: { 'Content-Type': 'application/json' },
+                body: { values: [[`SOA NO. ${soaNo_TS_OVERTIME}`]] }
+            },
+        ]
+        await graphBatchRequest(batch, sessionId)
+
+        await replacePlaceholdersInWorksheets(fileId, sessionId, SITE_ID, {
+            acctAsst: acctAsst.toUpperCase(),
+            bcuChief: bcuChief.toUpperCase()
+        })
+
+        await graphRequest('POST', `/sites/${SITE_ID}/drive/items/${fileId}/workbook/application/calculate`, { calculationType: 'Full' })
+        await graphRequest('POST', `/sites/${SITE_ID}/drive/items/${fileId}/workbook/closeSession`, null, { headers: { 'workbook-session-id': sessionId } })
+
+        res.json({ message: 'DepDev IV-A billing setup complete' })
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to setup DepDev IV-A billing' })
+    }
+}
+
+export async function getDepdevIvaTables(req, res) {
+    try {
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+        const { fileId } = req.params
+        const tRes = await graphRequest('GET', `/sites/${SITE_ID}/drive/items/${fileId}/workbook/tables('jBillingTable')/rows`)
+        res.json({ billing: tRes.data.value.map(r => ({ index: r.index, values: r.values[0] })) })
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to read DepDev IV-A billing tables' })
+    }
+}
+
+export async function saveDepdevIvaTables(req, res) {
+    try {
+        const SITE_ID = process.env.SHAREPOINT_SITE_ID
+        const { fileId } = req.params
+        const { billingRows } = req.body
+
+        const session = await graphRequest('POST', `/sites/${SITE_ID}/drive/items/${fileId}/workbook/createSession`, { persistChanges: true })
+        const sessionId = session.data.id
+
+        const FORMULA_INDICES = [0, 1, 2, 3, 4, 5, 6]
+
+        function buildBatchRequests(rows, tableName, formulaIndices) {
+            return rows.map(row => {
+                const values = row.values.map((val, i) => formulaIndices.includes(i) ? null : val)
+                return {
+                    id: `${tableName}-${row.index}`,
+                    method: 'PATCH',
+                    url: `/sites/${SITE_ID}/drive/items/${fileId}/workbook/tables('${tableName}')/rows/itemAt(index=${row.index})`,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: { values: [values] }
+                }
+            })
+        }
+
+        const batch = buildBatchRequests(billingRows, 'jBillingTable', FORMULA_INDICES)
+        for (let i = 0; i < batch.length; i += 20) {
+            const chunk = batch.slice(i, i + 20)
+            await graphBatchRequest(chunk, sessionId)
+        }
+
+        await graphRequest('POST', `/sites/${SITE_ID}/drive/items/${fileId}/workbook/application/calculate`, { calculationType: 'Full' })
+        await graphRequest('POST', `/sites/${SITE_ID}/drive/items/${fileId}/workbook/closeSession`, null, { headers: { 'workbook-session-id': sessionId } })
+
+        res.json({ message: 'DepDev IV-A billing data saved successfully' })
+    } catch (err) {
+        console.error(err?.response?.data || err)
+        res.status(500).json({ message: 'Failed to save DepDev IV-A billing data' })
+    }
+}
+

@@ -77,9 +77,11 @@ export class Update implements OnInit {
 
     try {
       const formValue = this.form.value
-      const payload: ClientDTO = Object.fromEntries(
-        Object.entries(formValue).filter(([_, value]) => value !== null)
-      ) as unknown as ClientDTO
+      const payload: Partial<ClientDTO> = {
+        code: formValue.code ?? undefined,
+        name: formValue.name ?? undefined,
+        payFreq: Array.isArray(formValue.payFreq) ? formValue.payFreq : undefined
+      }
 
       await this.clientService.update(this.clientId() ?? '', payload)
       await this.router.navigate(['/admin/client/list'])
