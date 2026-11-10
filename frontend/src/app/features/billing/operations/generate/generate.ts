@@ -47,6 +47,7 @@ export class Generate implements OnDestroy {
     const ids = this.previews().map((p: any) => p.public_id)
 
     if(!ids.length) return
+    if (typeof navigator === 'undefined' || typeof navigator.sendBeacon !== 'function') return
 
     navigator.sendBeacon(
       `${environment.apiUrl}/billing/${this.code().toLowerCase()}/cleanup`,
@@ -156,6 +157,8 @@ export class Generate implements OnDestroy {
 
     const res = await fetch(url)
     const blob = await res.blob()
+
+    if (typeof document === 'undefined' || typeof URL === 'undefined') return
 
     const a = document.createElement('a')
     const objectUrl = URL.createObjectURL(blob)

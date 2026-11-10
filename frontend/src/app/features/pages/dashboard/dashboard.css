@@ -5,7 +5,7 @@
 .dashboard {
   max-width: 78rem;
   margin: 0 auto;
-  color: #173a63;
+  color: var(--app-primary-dark);
 }
 
 .dashboard__header {
@@ -19,7 +19,7 @@
 .dashboard__eyebrow,
 .section-eyebrow {
   margin: 0 0 0.375rem;
-  color: #2187a7;
+  color: var(--app-accent-dark);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -29,7 +29,7 @@
 h1,
 h2 {
   margin: 0;
-  color: #102f53;
+  color: var(--app-primary-dark);
 }
 
 h1 {
@@ -49,10 +49,10 @@ h2 {
   min-width: min(100%, 18rem);
   gap: 0.75rem;
   padding: 0.75rem 1rem;
-  border: 1px solid #ccdbea;
+  border: 1px solid #d9e4ed;
   border-radius: 0.75rem;
   background: #fff;
-  box-shadow: 0 0.25rem 1rem rgb(18 59 104 / 8%);
+  box-shadow: 0 0.25rem 1rem rgb(0 132 61 / 8%);
 }
 
 .profile-card__avatar {
@@ -62,8 +62,8 @@ h2 {
   flex: 0 0 auto;
   place-items: center;
   border-radius: 50%;
-  color: #15527c;
-  background: #e7f3fb;
+  color: var(--app-primary);
+  background: #e6f4ec;
 }
 
 .profile-card__details {
@@ -73,14 +73,14 @@ h2 {
 }
 
 .profile-card__details strong {
-  color: #102f53;
+  color: var(--app-primary-dark);
   font-size: 0.9375rem;
 }
 
 .profile-card__details span,
 .profile-card__details small {
   overflow: hidden;
-  color: #58708c;
+  color: #586f82;
   font-size: 0.8125rem;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -92,10 +92,10 @@ h2 {
 
 .dashboard-panel {
   padding: 1.25rem;
-  border: 1px solid #d7e3ef;
+  border: 1px solid #d9e4ed;
   border-radius: 0.875rem;
   background: #fff;
-  box-shadow: 0 0.375rem 1.5rem rgb(18 59 104 / 7%);
+  box-shadow: 0 0.375rem 1.5rem rgb(0 132 61 / 7%);
 }
 
 .dashboard-loading {
@@ -108,13 +108,13 @@ h2 {
 .dashboard-loading > .mat-icon {
   width: 2.5rem;
   height: 2.5rem;
-  color: #2187a7;
+  color: var(--app-accent-dark);
   font-size: 2.5rem;
 }
 
 .dashboard-loading p {
   margin: 0.375rem 0 0;
-  color: #607a93;
+  color: #586f82;
 }
 
 .dashboard-panel__heading {
@@ -143,9 +143,9 @@ h2 {
   gap: 0.875rem;
   min-height: 4.75rem;
   padding: 1rem 1.125rem;
-  border: 1px solid #cdddeb;
+  border: 1px solid #d9e4ed;
   border-radius: 0.625rem;
-  color: #173a63;
+  color: var(--app-primary-dark);
   background: #fff;
   font: inherit;
   font-weight: 650;
@@ -156,26 +156,26 @@ h2 {
 
 .action-link:hover,
 .workspace-button:hover {
-  border-color: #4ea4c1;
-  background: #f4fbff;
+  border-color: var(--app-primary-light);
+  background: #f4faf6;
 }
 
 .action-link:focus-visible,
 .workspace-button:focus-visible,
 .workspace-actions a:focus-visible {
-  outline: 3px solid #36bcd2;
+  outline: 3px solid var(--app-accent);
   outline-offset: 2px;
 }
 
 .action-link > .mat-icon,
 .workspace-button > .mat-icon:first-child {
-  color: #145079;
+  color: var(--app-primary);
 }
 
 .action-link__arrow,
 .workspace-button__arrow {
   margin-left: auto;
-  color: #376d94;
+  color: var(--app-primary-light);
 }
 
 .workspace-grid {
@@ -207,9 +207,9 @@ h2 {
   gap: 0.375rem;
   margin-top: 0.5rem;
   padding: 0.625rem;
-  border: 1px solid #d6e5f0;
+  border: 1px solid #d9e4ed;
   border-radius: 0.625rem;
-  background: #f6faff;
+  background: #f4faf6;
 }
 
 .workspace-actions a {
@@ -219,15 +219,15 @@ h2 {
   min-height: 2.5rem;
   padding: 0 0.625rem;
   border-radius: 0.375rem;
-  color: #1b5b82;
+  color: var(--app-primary-light);
   font-size: 0.8125rem;
   font-weight: 600;
   text-decoration: none;
 }
 
 .workspace-actions a:hover {
-  color: #102f53;
-  background: #e5f3fa;
+  color: var(--app-primary-dark);
+  background: #e6f4ec;
 }
 
 .workspace-actions .mat-icon {
@@ -239,7 +239,7 @@ h2 {
 .empty-state {
   margin: 0;
   padding: 1.25rem 0;
-  color: #607a93;
+  color: #586f82;
   font-size: 0.875rem;
 }
 
@@ -249,7 +249,7 @@ h2 {
   justify-content: center;
   gap: 0.5rem;
   margin: 1.25rem 0 0;
-  color: #617b95;
+  color: #586f82;
   font-size: 0.8125rem;
 }
 
@@ -260,18 +260,18 @@ h2 {
 }
 
 :host-context(html.dark) .dashboard {
-  color: #dbe9f3;
+  color: #f3f8fc;
 }
 
 :host-context(html.dark) h1,
 :host-context(html.dark) h2,
 :host-context(html.dark) .profile-card__details strong {
-  color: #f1f7fb;
+  color: #f3f8fc;
 }
 
 :host-context(html.dark) .dashboard__eyebrow,
 :host-context(html.dark) .section-eyebrow {
-  color: #55d3e5;
+  color: var(--app-accent);
 }
 
 :host-context(html.dark) .profile-card,
@@ -282,8 +282,8 @@ h2 {
 }
 
 :host-context(html.dark) .profile-card__avatar {
-  color: #7ce1ef;
-  background: #203d52;
+  color: var(--app-primary);
+  background: #1a3b2b;
 }
 
 :host-context(html.dark) .profile-card__details span,
@@ -291,27 +291,27 @@ h2 {
 :host-context(html.dark) .empty-state,
 :host-context(html.dark) .dashboard__hint,
 :host-context(html.dark) .dashboard-loading p {
-  color: #aac0d1;
+  color: #b7c7d6;
 }
 
 :host-context(html.dark) .action-link,
 :host-context(html.dark) .workspace-button {
   border-color: #365973;
-  color: #e7f1f8;
+  color: #f3f8fc;
   background: #1a3043;
 }
 
 :host-context(html.dark) .action-link:hover,
 :host-context(html.dark) .workspace-button:hover {
-  border-color: #53bdd0;
-  background: #203c51;
+  border-color: var(--app-primary-light);
+  background: #1a3b2b;
 }
 
 :host-context(html.dark) .action-link > .mat-icon,
 :host-context(html.dark) .workspace-button > .mat-icon:first-child,
 :host-context(html.dark) .action-link__arrow,
 :host-context(html.dark) .workspace-button__arrow {
-  color: #72d8e7;
+  color: var(--app-accent);
 }
 
 :host-context(html.dark) .workspace-actions {
@@ -320,12 +320,12 @@ h2 {
 }
 
 :host-context(html.dark) .workspace-actions a {
-  color: #b9d8e9;
+  color: #b7c7d6;
 }
 
 :host-context(html.dark) .workspace-actions a:hover {
-  color: #f1f7fb;
-  background: #203c51;
+  color: #f3f8fc;
+  background: #1a3b2b;
 }
 
 @media (max-width: 48rem) {

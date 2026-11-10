@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -10,9 +10,10 @@ import { Manpower } from '@services/manpower';
 import { FileEditor } from '@services/file-editor';
 import { Rates } from '@services/rates';
 import { BillingRate } from '@models/billing-rate';
+import { DateTime } from 'luxon';
 import { toast } from 'ngx-sonner';
 
-type FieldType = 'text' | 'number' | 'select'
+type FieldType = 'text' | 'number' | 'select' | 'date'
 interface FieldConfig {
   key: string
   label: string
@@ -44,7 +45,7 @@ export class Create implements OnInit {
 
   route = inject(ActivatedRoute)
   router = inject(Router)
-  fb = inject(UntypedFormBuilder)
+  fb = inject(FormBuilder)
 
   readonly code = signal(this.route.snapshot.paramMap.get('code')?.toLowerCase() ?? '')
 
@@ -60,7 +61,7 @@ export class Create implements OnInit {
   positionsError = signal<string | null>(null)
 
   tableColumns = signal<string[]>([])
-  form: UntypedFormGroup = this.fb.group({})
+  form = this.fb.group({})
 
   async ngOnInit() {
     const code = this.code()
@@ -150,10 +151,11 @@ export class Create implements OnInit {
     const fields: FieldConfig[] = columns.map((col) => {
       const normalized = col.toLowerCase().replace(/[^a-z0-9]/g, '')
       const isPositionCode = ['poscode', 'positioncode'].includes(normalized)
+      const isEntryDate = normalized === 'entrydate'
       return {
         key: col,
         label: col,
-        type: isPositionCode ? 'select' : 'text',
+        type: isPositionCode ? 'select' : isEntryDate ? 'date' : 'text',
         required: isPositionCode || ['empno', 'employeeno', 'employeenumber', 'name', 'employeename'].includes(normalized)
       }
     })
@@ -219,9 +221,17 @@ export class Create implements OnInit {
       return
     }
 
+    const formValue = { ...this.form.value }
+    for (const field of this.formConfig()) {
+      if (field.type === 'date' && formValue[field.key]) {
+        const dt = DateTime.fromISO(String(formValue[field.key]))
+        if (dt.isValid) formValue[field.key] = dt.toFormat('d-MMM-yy')
+      }
+    }
+
     try {
       await this.manpowerService.addToTable(code, templateName, 'EmployeeTable', {
-        form: this.form.value,
+        form: formValue,
         columnMap: this.tableColumns()
       })
       toast.success('Added Employee Successfully!')

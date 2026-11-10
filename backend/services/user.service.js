@@ -83,8 +83,8 @@ export class UserService {
      */
     async updateUser(userId, updateData) {
         try {
-            // Prevent password updates via this method
-            const { password, ...safeData } = updateData
+            // Prevent password/role updates via this method
+            const { password, role, ...safeData } = updateData
 
             const user = await userModel.findByIdAndUpdate(
                 userId,

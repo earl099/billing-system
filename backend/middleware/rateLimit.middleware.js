@@ -19,11 +19,7 @@ export const authLimiter = rateLimit({
     message: 'Too many login/signup attempts, please try again after 15 minutes',
     standardHeaders: true,  // Return rate limit info in the `RateLimit-*` headers
     legacyHeaders: false,  // Disable the `X-RateLimit-*` headers
-    skipSuccessfulRequests: true,  // Don't count successful requests
-    skip: (req) => {
-        // Skip rate limiting for admin/test users if needed
-        return false
-    }
+    skipSuccessfulRequests: true  // Don't count successful requests
 })
 
 /**

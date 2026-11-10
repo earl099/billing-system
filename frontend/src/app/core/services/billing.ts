@@ -120,6 +120,8 @@ export class Billing {
         )
       );
 
+      if (typeof document === 'undefined' || typeof URL === 'undefined') return
+
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;

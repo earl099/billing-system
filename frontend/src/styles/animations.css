@@ -50,3 +50,21 @@
   from { opacity: 0; transform: translateY(20px) scale(.96); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-in,
+  .slide-up,
+  .scale-in,
+  .hero-animate,
+  .card-animate {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .motion-smooth,
+  .motion-smooth:hover {
+    transition: none;
+    transform: none;
+  }
+}

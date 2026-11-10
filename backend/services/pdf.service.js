@@ -4,23 +4,25 @@
  */
 
 import fs from 'fs'
-import libre from 'libreoffice-convert'
+import path from 'path'
+import { promisify } from 'util'
+import { execFile } from 'child_process'
 
-libre.convertAsync = require('util').promisify(libre.convert)
+const execFileAsync = promisify(execFile)
 
 /**
- * Converts a DOCX file to PDF using LibreOffice
- * Reads the DOCX from disk, converts it, and writes the PDF to the output path
+ * Converts a DOCX file to PDF using LibreOffice headless mode
+ * Writes the PDF to the same directory as the input file
  * 
  * @param {string} inputPath - Absolute path to the source DOCX file
  * @param {string} outputPath - Absolute path to write the resulting PDF file
  * @returns {Promise<void>}
- * 
- * @example
- * await convertDocxToPdf('/tmp/document.docx', '/tmp/document.pdf')
  */
 export async function convertDocxToPdf(inputPath, outputPath) {
-    const docx = fs.readFileSync(inputPath)
-    const pdf = await libre.convertAsync(docx, '.pdf', undefined)
+    const outputDir = path.dirname(inputPath)
+    await execFileAsync('soffice', ['--headless', '--convert-to', 'pdf', '--outdir', outputDir, inputPath])
+    const pdfPath = inputPath.replace(/\.docx$/i, '.pdf')
+    const pdf = fs.readFileSync(pdfPath)
     fs.writeFileSync(outputPath, pdf)
+    fs.unlinkSync(pdfPath)
 }

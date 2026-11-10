@@ -62,6 +62,8 @@
                     } @else if (positionsError()) {
                       <mat-hint>{{ positionsError() }}</mat-hint>
                     }
+                  } @else if (field.type === 'date') {
+                    <input matInput type="date" [formControlName]="field.key">
                   } @else {
                     <input matInput [formControlName]="field.key">
                   }

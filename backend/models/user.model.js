@@ -48,10 +48,11 @@ const userSchema = Schema({
         maxlength: 255
         // Note: password should be hashed before storage (handled in controller)
     },
-    role: { 
-        type: String, 
-        enum: ['Admin', 'User'], 
-        default: 'User'
+    role: {
+        type: String,
+        enum: ['Admin', 'User'],
+        default: 'User',
+        immutable: true
     },
     handledClients: { 
         type: [Schema.Types.ObjectId], 

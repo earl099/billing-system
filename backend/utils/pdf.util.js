@@ -7,7 +7,6 @@ import { execFile } from 'child_process'
 import { promisify } from 'util'
 import path from 'path'
 import fs from 'fs/promises'
-import fetch from 'node-fetch'
 
 import { PDFDocument } from 'pdf-lib'
 
@@ -65,7 +64,7 @@ export async function mergePdfBuffers(sources) {
       bytes = src;
     }
     else if (typeof src === 'string' && src.startsWith('https://')) {
-      const res = await fetch(src);
+      const res = await globalThis.fetch(src);
       bytes = Buffer.from(await res.arrayBuffer());
     }
     else {

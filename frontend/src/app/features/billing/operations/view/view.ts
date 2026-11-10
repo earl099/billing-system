@@ -67,6 +67,7 @@ export class View implements OnInit {
       const response = await fetch(url)
       if (!response.ok) throw new Error('Download failed')
       const blob = await response.blob()
+      if (typeof document === 'undefined' || typeof URL === 'undefined') return
       const objectUrl = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = objectUrl
