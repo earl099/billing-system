@@ -5,7 +5,7 @@
  */
 
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
+import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -44,11 +44,11 @@ export class Update implements OnInit {
   confirmation = inject(Confirmation)
   route = inject(ActivatedRoute)
   router = inject(Router)
-  fb = inject(UntypedFormBuilder)
+  fb = inject(FormBuilder)
   manpowerService = inject(Manpower)
 
   formConfig = signal<FieldConfig[]>([])
-  form: UntypedFormGroup = this.fb.group({})
+  form = this.fb.group({})
 
   code = signal(this.route.snapshot.paramMap.get('code')?.toLowerCase() ?? '')
   index = signal(this.route.snapshot.paramMap.get('index'))
@@ -56,6 +56,42 @@ export class Update implements OnInit {
   /** Client-specific form field schemas (same as create component) */
   private employeeSchema: Record<string, FieldConfig[]> = {
     ofbank: [
+      { key: 'empNo', label: 'Employee No', type: 'text', required: true },
+      { key: 'name', label: 'Name', type: 'text', required: true },
+      { key: 'posCode', label: 'Position Code', type: 'text', required: true },
+      { key: 'dept', label: 'Department', type: 'text', required: true },
+      { key: 'status', label: 'Status', type: 'text', required: true },
+      { key: 'type', label: 'Type', type: 'text' },
+      { key: 'payType', label: 'Pay type', type: 'text' },
+      { key: 'payFreq', label: 'Pay Frequency', type: 'text' },
+      { key: 'tin', label: 'TIN', type: 'text' },
+      { key: 'sssNo', label: 'SSS No.', type: 'text' },
+      { key: 'phicNo', label: 'PHIC No.', type: 'text' },
+      { key: 'hdmfNo', label: 'HDMF No.', type: 'text' },
+      { key: 'hd', label: 'HD', type: 'text' },
+      { key: 'mfopt', label: 'MFOPT Amount', type: 'text'},
+      { key: 'salary', label: 'Salary', type: 'text' },
+      { key: 'bankNo', label: 'Bank Account No.',  type: 'text' },
+    ],
+    unacom: [
+      { key: 'empNo', label: 'Employee No', type: 'text', required: true },
+      { key: 'name', label: 'Name', type: 'text', required: true },
+      { key: 'posCode', label: 'Position Code', type: 'text', required: true },
+      { key: 'dept', label: 'Department', type: 'text', required: true },
+      { key: 'status', label: 'Status', type: 'text', required: true },
+      { key: 'type', label: 'Type', type: 'text' },
+      { key: 'payType', label: 'Pay type', type: 'text' },
+      { key: 'payFreq', label: 'Pay Frequency', type: 'text' },
+      { key: 'tin', label: 'TIN', type: 'text' },
+      { key: 'sssNo', label: 'SSS No.', type: 'text' },
+      { key: 'phicNo', label: 'PHIC No.', type: 'text' },
+      { key: 'hdmfNo', label: 'HDMF No.', type: 'text' },
+      { key: 'hd', label: 'HD', type: 'text' },
+      { key: 'mfopt', label: 'MFOPT Amount', type: 'text'},
+      { key: 'salary', label: 'Salary', type: 'text' },
+      { key: 'bankNo', label: 'Bank Account No.',  type: 'text' },
+    ],
+    depdev: [
       { key: 'empNo', label: 'Employee No', type: 'text', required: true },
       { key: 'name', label: 'Name', type: 'text', required: true },
       { key: 'posCode', label: 'Position Code', type: 'text', required: true },
@@ -118,6 +154,16 @@ export class Update implements OnInit {
       'payType', 'payFreq', 'tin', 'sssNo', 'phicNo', 'hdmfNo',
       'hd', 'mfopt', 'salary', 'bankNo',
     ],
+    unacom: [
+      'empNo', 'name', 'posCode', 'dept', 'status', 'type',
+      'payType', 'payFreq', 'tin', 'sssNo', 'phicNo', 'hdmfNo',
+      'hd', 'mfopt', 'salary', 'bankNo',
+    ],
+    depdev: [
+      'empNo', 'name', 'posCode', 'dept', 'status', 'type',
+      'payType', 'payFreq', 'tin', 'sssNo', 'phicNo', 'hdmfNo',
+      'hd', 'mfopt', 'salary', 'bankNo',
+    ],
     btr: [
       'empNo', 'name', 'posCode', 'dept', 'status', 'type',
       'payType', 'payFreq', 'tin', 'sssNo', 'phicNo', 'hdmfNo',
@@ -133,6 +179,18 @@ export class Update implements OnInit {
   /** Full column map including formula-derived columns in the Excel table */
   fullColumnMap: Record<string, string[]> = {
     ofbank: [
+      'empNo', 'name', 'posCode', 'posName', 'dept', 'status',
+      'type', 'payType', 'payFreq', 'tin', 'sssNo', 'phicNo',
+      'hdmfNo', 'hd', 'mfopt', 'salary', 'bankNo',
+      'endorsed', 'difference', 'dBillingRate', 'mBillingRate'
+    ],
+    unacom: [
+      'empNo', 'name', 'posCode', 'posName', 'dept', 'status',
+      'type', 'payType', 'payFreq', 'tin', 'sssNo', 'phicNo',
+      'hdmfNo', 'hd', 'mfopt', 'salary', 'bankNo',
+      'endorsed', 'difference', 'dBillingRate', 'mBillingRate'
+    ],
+    depdev: [
       'empNo', 'name', 'posCode', 'posName', 'dept', 'status',
       'type', 'payType', 'payFreq', 'tin', 'sssNo', 'phicNo',
       'hdmfNo', 'hd', 'mfopt', 'salary', 'bankNo',

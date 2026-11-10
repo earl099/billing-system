@@ -4,7 +4,8 @@
  * Redirects already-authenticated users to dashboard.
  */
 
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { Router, RouterLink } from '@angular/router';
@@ -31,6 +32,8 @@ export class Signup implements OnInit {
   authService = inject(Auth)
   clientService = inject(Client)
   router = inject(Router)
+  private platformId = inject(PLATFORM_ID)
+  private isBrowser = isPlatformBrowser(this.platformId)
 
   clients = signal<SignupClientDTO[]>([])
   clientSearch = signal('')
@@ -61,6 +64,10 @@ export class Signup implements OnInit {
   async ngOnInit() {
     if (this.authService.hasValidToken()) {
       this.router.navigate(['/dashboard'])
+      return
+    }
+    if (!this.isBrowser) {
+      this.optionsLoading.set(false)
       return
     }
     await this.loadSignupOptions()

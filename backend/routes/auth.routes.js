@@ -4,7 +4,7 @@
  */
 
 import { Router } from "express";
-import { login, me, signup } from "#controllers/auth.controller.js";
+import { login, logout, me, signup } from "#controllers/auth.controller.js";
 import { authMiddleware } from "#middleware/auth.middleware.js";
 import { validate } from "#middleware/validate.middleware.js";
 import { authLimiter } from "#middleware/rateLimit.middleware.js";
@@ -18,5 +18,7 @@ authRouter.post('/auth/signup', authLimiter, validate(signupSchema), signup)
 authRouter.post('/auth/login', authLimiter, validate(loginSchema), login)
 /** GET /auth/me - Get current authenticated user profile */
 authRouter.get('/auth/me', authMiddleware, me)
+/** POST /auth/logout - Clear auth cookie */
+authRouter.post('/auth/logout', logout)
 
 export default authRouter

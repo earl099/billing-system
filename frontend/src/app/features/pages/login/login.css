@@ -3,11 +3,11 @@
   --login-surface: #f4f8fc;
   --login-card: #ffffff;
   --login-border: #d9e4ed;
-  --login-heading: #102a43;
+  --login-heading: #0a2e18;
   --login-copy: #52677a;
-  --login-action: #12395c;
+  --login-action: #00843d;
   --login-outline: #6e899f;
-  --login-shadow: rgb(16 42 67 / 14%);
+  --login-shadow: rgb(0 132 61 / 14%);
 }
 
 :host-context(html.dark) {
@@ -16,7 +16,7 @@
   --login-border: #2c4357;
   --login-heading: #f3f8fc;
   --login-copy: #b7c7d6;
-  --login-action: #31bfd0;
+  --login-action: #2ecc71;
   --login-outline: #7ea5ba;
   --login-shadow: rgb(0 0 0 / 32%);
 }
@@ -46,8 +46,8 @@
   padding: 3rem;
   color: #f7fbff;
   background:
-    radial-gradient(circle at 78% 45%, rgb(50 186 207 / 26%), transparent 28rem),
-    linear-gradient(145deg, #164b75, #09283f 58%, #071b2e);
+    radial-gradient(circle at 78% 45%, rgb(0 132 61 / 26%), transparent 28rem),
+    linear-gradient(145deg, #006f32, #003d1c 58%, #002810);
 }
 
 .brand-panel::after {
@@ -56,8 +56,8 @@
   inset: 0;
   opacity: .22;
   background-image:
-    linear-gradient(rgb(127 232 250 / 25%) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(127 232 250 / 25%) 1px, transparent 1px);
+    linear-gradient(rgb(184 241 208 / 25%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(184 241 208 / 25%) 1px, transparent 1px);
   background-size: 3rem 3rem;
   transform: perspective(35rem) rotateX(62deg) translateY(28%);
   transform-origin: bottom;
@@ -88,7 +88,7 @@
 
 .brand-mark span {
   width: .35rem;
-  background: #65e3f4;
+  background: var(--login-action);
   transform: skewY(-30deg);
 }
 
@@ -103,7 +103,7 @@
 
 .eyebrow {
   margin: 0 0 .75rem;
-  color: #72e6f6;
+  color: var(--login-action);
   font-size: .75rem;
   font-weight: 700;
   letter-spacing: .1em;
@@ -118,7 +118,7 @@ h1 {
 }
 
 h1 em {
-  color: #60ddea;
+  color: var(--login-action);
   font-style: normal;
 }
 
@@ -151,8 +151,8 @@ h1 em {
   place-items: center;
   padding: .625rem;
   border-radius: .75rem;
-  color: #6ae9f5;
-  background: rgb(106 233 245 / 13%);
+  color: var(--login-action);
+  background: rgb(46 204 113 / 13%);
 }
 
 .benefit-list strong,

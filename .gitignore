@@ -65,4 +65,8 @@ Thumbs.db
 *.swo
 *~
 
+# Agent tooling state
+.engram/
+docs/audit-findings.md
+
 backend/node_modules

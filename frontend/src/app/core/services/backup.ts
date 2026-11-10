@@ -31,6 +31,8 @@ export class Backup {
         this.http.get(`${this.apiUrl}/backup/export`, { responseType: 'blob' })
       )
 
+      if (typeof document === 'undefined' || typeof window === 'undefined') return
+
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
       const filename = `lbs-backup-${timestamp}.json`
       const url = window.URL.createObjectURL(blob)

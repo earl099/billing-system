@@ -15,13 +15,13 @@ import { Schema, model } from 'mongoose'
  * @property {Date} createdAt - Timestamp of creation
  */
 const billingSchema = new Schema({
-    client: String,
-    billingLetter: String,
-    attachments: [String],
+    client: { type: String, trim: true },
+    billingLetter: { type: String, trim: true },
+    attachments: [{ type: String, trim: true }],
     finalPdf: { secure_url: String, public_id: String },
-    createdBy:{ type: Schema.Types.ObjectId, ref: 'User' },
+    createdBy: { type: Schema.Types.ObjectId, ref: 'User', index: true },
     createdAt: { type: Date, default: Date.now }
-})
+}, { timestamps: true })
 
 const billingModel = model('Billing', billingSchema)
 

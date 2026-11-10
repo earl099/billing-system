@@ -6,13 +6,51 @@
 // custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
 
+$logo-green-palette: (
+  0: #000000,
+  10: #001f0b,
+  20: #003615,
+  25: #00421b,
+  30: #004e20,
+  35: #005b26,
+  40: #00682b,
+  50: #00843d,
+  60: #00a04f,
+  70: #00bc61,
+  80: #2ed885,
+  90: #7af0b6,
+  95: #b5fbd4,
+  98: #e8fff1,
+  99: #f4fff8,
+  100: #ffffff,
+);
+
+$logo-amber-palette: (
+  0: #000000,
+  10: #261900,
+  20: #432c00,
+  25: #513600,
+  30: #5f4200,
+  35: #6e4d00,
+  40: #7c5800,
+  50: #9c7300,
+  60: #bc8e00,
+  70: #dda900,
+  80: #ffc107,
+  90: #ffe2a1,
+  95: #fff0d4,
+  98: #fff8ee,
+  99: #fffcf7,
+  100: #ffffff,
+);
+
 html {
   height: 100%;
   color-scheme: light;
   @include mat.theme((
     color: (
-      primary: mat.$cyan-palette,
-      tertiary: mat.$orange-palette,
+      primary: $logo-green-palette,
+      tertiary: $logo-amber-palette,
     ),
     typography: Roboto,
     density: 0,

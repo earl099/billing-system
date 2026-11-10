@@ -30,9 +30,12 @@ const bootstrapClaimModel = model('AdminBootstrapClaim', new Schema({
  * @param {import('express').Response} res - Response with { token, user } or error
  */
 export async function signup(req, res) {
-    const { name, username, email, password, handledClients } = req.body
+    const { name, username, email, password, handledClients, bootstrapKey } = req.body || {}
 
     try {
+        if (!name || !username || !email || !password) {
+            return res.status(400).json({ message: 'Missing required fields' })
+        }
         const existingEmail = await userModel.findOne({ email })
         if(existingEmail) return res.status(400).json({ message: 'Email already exists' });
 
@@ -48,8 +51,8 @@ export async function signup(req, res) {
         ])
         let user
         if (!existingAdmin) {
-            const bootstrapKey = process.env.ADMIN_BOOTSTRAP_KEY
-            if (!bootstrapKey || req.body.bootstrapKey !== bootstrapKey) {
+            const adminBootstrapKey = process.env.ADMIN_BOOTSTRAP_KEY
+            if (!adminBootstrapKey || bootstrapKey !== adminBootstrapKey) {
                 return res.status(403).json({ message: 'Admin bootstrap key is required for the first account' })
             }
 
@@ -118,6 +121,7 @@ export async function signup(req, res) {
         }
 
         const token = jwt.sign({ id: user._id, username: user.username, name: user.name }, JWT_SECRET, { expiresIn: '1d' })
+        res.cookie('app_token', token, { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production', maxAge: 24 * 60 * 60 * 1000, path: '/' })
         res.status(200).json({
             token,
             user: {
@@ -142,9 +146,12 @@ export async function signup(req, res) {
  * @param {import('express').Response} res - Response with { token, user } or error
  */
 export async function login(req, res) {
-    const { identifier, password } = req.body
+    const { identifier, password } = req.body || {}
 
     try {
+        if (!identifier || typeof identifier !== 'string' || !password) {
+            return res.status(400).json({ message: 'Invalid credentials' })
+        }
         let user
         // Determine if identifier is email or username
         if(identifier.includes('@')) {
@@ -165,6 +172,8 @@ export async function login(req, res) {
             name: user.name,
             role: user.role
         }, JWT_SECRET, { expiresIn: '1d' })
+
+        res.cookie('app_token', token, { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production', maxAge: 24 * 60 * 60 * 1000, path: '/' })
 
         if(identifier.includes('@')) {
             return res.status(200).json({
@@ -203,31 +212,21 @@ export async function login(req, res) {
  * @param {import('express').Request} req - Request with req.user.id from authMiddleware
  * @param {import('express').Response} res - Response with { user } or error
  */
+/**
+ * Clears the auth cookie and ends the session
+ */
+export async function logout(req, res) {
+    res.clearCookie('app_token', { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production', path: '/' })
+    res.status(200).json({ message: 'Logged out' })
+}
+
 export async function me(req, res) {
     try {
-        const user = await userModel.findById(req.user.id).select('-password')
+        const user = await userModel.findById(req.user.id).select('name username email role handledClients')
         if(!user) return res.status(404).json({ message: 'User not found' });
         res.status(200).json({ user })
     } catch (error) {
-        res.status(500).json({ message: `Server error: ${error}` })
+        res.status(500).json({ message: 'Server error' })
     }
 }
 
-/**
- * Deletes all users, pay frequencies, and clients from the database
- * WARNING: Destructive operation - clears all authentication-related data
- * 
- * @param {import('express').Request} _req - Express request (unused)
- * @param {import('express').Response} res - Response with deletion results
- */
-export async function clearAll(_req, res) {
-    try {
-        const user = await userModel.deleteMany({})
-        const payFreq = await payFreqModel.deleteMany({})
-        const client = await clientModel.deleteMany({})
-
-        res.json({ user, payFreq, client })
-    } catch (error) {
-        res.json({ error })
-    }
-}

@@ -9,10 +9,10 @@ import billingModel from '#models/billing.model.js'
 import { docxToPdfBuffer, mergePdfBuffers,  } from '#utils/pdf.util.js'
 import { deleteResources, uploadPdfBuffer } from '#utils/cloudinary.util.js'
 import { promisify } from 'util'
-import { exec } from 'child_process'
+import { execFile } from 'child_process'
 import cloudinary from '#config/cloudinary.js'
 
-const execAsync = promisify(exec)
+const execAsync = promisify(execFile)
 
 /**
  * Ensures a file is converted to PDF buffer
@@ -23,26 +23,21 @@ const execAsync = promisify(exec)
  * @returns {Promise<Buffer>} PDF file buffer
  */
 async function ensurePdfBuffer(file) {
-    if(file.mimetype === 'application/pdf') {
-        const buffer = await fs.readFile(file.path)
-        await fs.unlink(file.path)
-        return buffer
-    }
-
-    const outputDir = path.dirname(file.path)
-
-    await execAsync(
-        `soffice --headless --convert-to pdf --outdir "${outputDir}" "${file.path}"`
-    )
-
     const pdfPath = file.path.replace(/\.[^/.]+$/, '.pdf')
+    try {
+        if (file.mimetype === 'application/pdf') {
+            const buffer = await fs.readFile(file.path)
+            return buffer
+        }
 
-    const buffer = await fs.readFile(pdfPath)
+        const outputDir = path.dirname(file.path)
+        await execAsync('soffice', ['--headless', '--convert-to', 'pdf', '--outdir', outputDir, file.path], { timeout: 120000 })
 
-    await fs.unlink(file.path)
-    await fs.unlink(pdfPath)
-
-    return buffer
+        return await fs.readFile(pdfPath)
+    } finally {
+        await fs.unlink(file.path).catch(() => {})
+        await fs.unlink(pdfPath).catch(() => {})
+    }
 }
 
 /**
@@ -99,8 +94,8 @@ export async function previewBilling(req, res) {
     return res.json({ previews });
 
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: 'Preview generation failed', error });
+    console.error('Preview generation failed:', error);
+    res.status(500).json({ message: 'Preview generation failed' });
   }
 }
 
@@ -180,6 +175,7 @@ export async function generateBilling(req, res) {
         return res.status(400).json({ error: 'Preview URLs must be Cloudinary HTTPS URLs' })
       }
 
+      const MAX_PREVIEW_BYTES = 25 * 1024 * 1024
       for (const url of previewUrls) {
         const resPdf = await fetch(url);
 
@@ -187,7 +183,14 @@ export async function generateBilling(req, res) {
           throw new Error(`Cloudinary blocked preview fetch (${resPdf.status}): ${url}`);
         }
 
-        const buffer = Buffer.from(await resPdf.arrayBuffer());
+        const contentLength = Number(resPdf.headers.get('content-length') || 0)
+        if (contentLength > MAX_PREVIEW_BYTES) {
+          throw new Error('Preview file too large')
+        }
+        const buffer = Buffer.from(await resPdf.arrayBuffer())
+        if (buffer.length > MAX_PREVIEW_BYTES) {
+          throw new Error('Preview file too large')
+        }
         sources.push(buffer);
       }
     }
@@ -250,11 +253,8 @@ export async function generateBilling(req, res) {
     });
 
   } catch (error) {
-    console.log('Generate error:', error);
-    res.status(500).json({
-      message: 'Billing generation failed',
-      error: error.message || error
-    });
+    console.error('Generate error:', error);
+    res.status(500).json({ message: 'Billing generation failed' });
   }
 }
 
@@ -287,9 +287,9 @@ export async function deletePreviews(req, res) {
           success: true,
           deleted: Object.keys(result.deleted || {}).length
       });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ message: 'Failed to delete previews', error });
+     } catch (error) {
+        console.error('Failed to delete previews:', error);
+        res.status(500).json({ message: 'Failed to delete previews' });
     }
 }
 
@@ -327,9 +327,9 @@ export async function downloadBilling(req, res) {
         );
 
         res.send(Buffer.from(buffer));
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ message: 'Download failed', error });
+     } catch (error) {
+        console.error('Download failed:', error);
+        res.status(500).json({ message: 'Download failed' });
     }
 }
 
@@ -350,7 +350,7 @@ export async function billingList(req, res) {
         const filter = { client: req.params.code.toUpperCase() }
         const list = await billingModel
             .find(filter)
-            .populate('createdBy')
+            .populate('createdBy', 'name username email role')
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limitNum)
@@ -416,19 +416,3 @@ export async function deleteBilling(req, res) {
   }
 }
 
-/**
- * Deletes all billing records from the database
- * WARNING: Destructive operation - clears all billing data
- * 
- * @param {import('express').Request} req - Express request (unused)
- * @param {import('express').Response} res - Response with deletion result
- */
-export async function clearBilling(req, res) {
-  try {
-    const billing = await billingModel.deleteMany({})
-
-    res.json({ billing })
-  } catch (error) {
-    res.json({ error })
-  }
-}

@@ -50,6 +50,7 @@ describe('App', () => {
     startTokenWatcher: vi.fn(),
     clearTokenWatcher: vi.fn(),
     getProfile: vi.fn(async () => ({ role: 'User', handledClients: [] as string[] })),
+    restoreSession: vi.fn(async () => false),
     logout: vi.fn(async () => undefined),
   };
 

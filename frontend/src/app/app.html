@@ -183,11 +183,13 @@
     </mat-toolbar>
 
     <main class="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
-    <ngx-sonner-toaster
-      [theme]="themeService.darkMode() ? 'dark' : 'light'"
-      [richColors]="true"
-      position="bottom-right"
-      [duration]="4000" />
+      @if (browserReady()) {
+        <ngx-sonner-toaster
+          [theme]="themeService.darkMode() ? 'dark' : 'light'"
+          [richColors]="true"
+          position="bottom-right"
+          [duration]="4000" />
+      }
       <router-outlet />
     </main>
   </mat-sidenav-content>

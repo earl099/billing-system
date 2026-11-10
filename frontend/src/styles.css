@@ -3,6 +3,30 @@
 @import url('@styles/animations.css');
 @import "tailwindcss";
 
+:root {
+  --app-primary: #00843d;
+  --app-primary-dark: #006f32;
+  --app-primary-light: #33a366;
+  --app-accent: #ffc107;
+  --app-accent-dark: #c79300;
+  --app-on-primary: #ffffff;
+  --app-text: #000000;
+  --app-background: #ffffff;
+  --app-surface: #f5f8fb;
+}
+
+html.dark {
+  --app-primary: #2ecc71;
+  --app-primary-dark: #27ae60;
+  --app-primary-light: #58d68d;
+  --app-accent: #ffd54f;
+  --app-accent-dark: #ffca28;
+  --app-on-primary: #000000;
+  --app-text: #f3f8fc;
+  --app-background: #101c29;
+  --app-surface: #172534;
+}
+
 /* Confirmation dialogs render in Angular Material's global overlay so their backdrop
    covers both the content area and the persistent application sidebar. */
 .cdk-overlay-backdrop.app-confirmation-backdrop {
@@ -29,21 +53,21 @@
    the same visual system regardless of which feature opened it. */
 div.mat-mdc-select-panel {
   --mat-select-panel-background-color: #fff !important;
-  border: 1px solid #cdddeb !important;
+  border: 1px solid #d9e4ed !important;
   border-radius: .625rem !important;
   background-color: #fff !important;
-  box-shadow: 0 .75rem 1.5rem rgb(18 59 104 / 14%) !important;
+  box-shadow: 0 .75rem 1.5rem rgb(0 132 61 / 14%) !important;
   padding: .375rem 0 !important;
 }
 
 .mat-mdc-select-panel .mat-mdc-option {
-  --mat-option-label-text-color: #173a63 !important;
-  --mat-option-hover-state-layer-color: #e7f3fb !important;
-  --mat-option-focus-state-layer-color: #e7f3fb !important;
-  --mat-option-selected-state-layer-color: #d5ecf7 !important;
-  --mat-option-selected-state-label-text-color: #12395c !important;
+  --mat-option-label-text-color: var(--app-primary-dark) !important;
+  --mat-option-hover-state-layer-color: #e6f4ec !important;
+  --mat-option-focus-state-layer-color: #e6f4ec !important;
+  --mat-option-selected-state-layer-color: #d0f0dd !important;
+  --mat-option-selected-state-label-text-color: var(--app-primary-dark) !important;
   min-height: 2.875rem;
-  color: #173a63 !important;
+  color: var(--app-primary-dark) !important;
   font-size: .875rem;
   background-color: transparent !important;
 }
@@ -51,20 +75,20 @@ div.mat-mdc-select-panel {
 .mat-mdc-select-panel .mat-mdc-option:hover:not(.mdc-list-item--disabled),
 .mat-mdc-select-panel .mat-mdc-option:focus:not(.mdc-list-item--disabled),
 .mat-mdc-select-panel .mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) {
-  background: #e7f3fb !important;
+  background: #e6f4ec !important;
 }
 
 .mat-mdc-select-panel .mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) {
-  border-left: 3px solid #2187a7;
+  border-left: 3px solid var(--app-accent-dark);
   padding-left: 13px;
 }
 
 .mat-mdc-select-panel .mat-mdc-option .mat-pseudo-checkbox {
-  border-color: #3985a5;
+  border-color: var(--app-primary-light);
 }
 
 .mat-mdc-select-panel .mat-mdc-option.mdc-list-item--selected .mat-pseudo-checkbox {
-  color: #2187a7;
+  color: var(--app-accent-dark);
 }
 
 html.dark div.mat-mdc-select-panel {
@@ -75,30 +99,30 @@ html.dark div.mat-mdc-select-panel {
 }
 
 html.dark .mat-mdc-select-panel .mat-mdc-option {
-  --mat-option-label-text-color: #e7f1f8 !important;
-  --mat-option-hover-state-layer-color: #27465c !important;
-  --mat-option-focus-state-layer-color: #27465c !important;
-  --mat-option-selected-state-layer-color: #203c51 !important;
-  --mat-option-selected-state-label-text-color: #f1f8fc !important;
-  color: #e7f1f8 !important;
+  --mat-option-label-text-color: #f3f8fc !important;
+  --mat-option-hover-state-layer-color: #1a3b2b !important;
+  --mat-option-focus-state-layer-color: #1a3b2b !important;
+  --mat-option-selected-state-layer-color: #1a3b2b !important;
+  --mat-option-selected-state-label-text-color: #f3f8fc !important;
+  color: #f3f8fc !important;
 }
 
 html.dark .mat-mdc-select-panel .mat-mdc-option:hover:not(.mdc-list-item--disabled),
 html.dark .mat-mdc-select-panel .mat-mdc-option:focus:not(.mdc-list-item--disabled),
 html.dark .mat-mdc-select-panel .mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) {
-  background: #203c51 !important;
+  background: #1a3b2b !important;
 }
 
 html.dark .mat-mdc-select-panel .mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) {
-  border-left-color: #55d3e5;
+  border-left-color: var(--app-accent);
 }
 
 html.dark .mat-mdc-select-panel .mat-mdc-option .mat-pseudo-checkbox {
-  border-color: #72d8e7;
+  border-color: var(--app-primary-light);
 }
 
 html.dark .mat-mdc-select-panel .mat-mdc-option.mdc-list-item--selected .mat-pseudo-checkbox {
-  color: #72d8e7;
+  color: var(--app-accent);
 }
 
 /* Application notifications: keep status feedback aligned with the corporate navy/cyan UI. */
@@ -108,9 +132,9 @@ html.dark .mat-mdc-select-panel .mat-mdc-option.mdc-list-item--selected .mat-pse
 }
 
 [data-sonner-toaster][data-theme='light'] {
-  --ngx-sonner-toast-success-background: #e7f3fb;
-  --ngx-sonner-toast-success-border: #b8ddea;
-  --ngx-sonner-toast-success-color: #12395c;
+  --ngx-sonner-toast-success-background: #e6f4ec;
+  --ngx-sonner-toast-success-border: #b8e2c8;
+  --ngx-sonner-toast-success-color: #0a2e18;
 }
 
 [data-sonner-toaster][data-theme='dark'] {
@@ -120,7 +144,7 @@ html.dark .mat-mdc-select-panel .mat-mdc-option.mdc-list-item--selected .mat-pse
 }
 
 [data-sonner-toaster] [data-sonner-toast][data-type='success'] {
-  box-shadow: 0 0.75rem 1.75rem rgb(18 59 104 / 16%);
+  box-shadow: 0 0.75rem 1.75rem rgb(0 132 61 / 16%);
 }
 
 [data-sonner-toaster][data-theme='dark'] [data-sonner-toast][data-type='success'] {
@@ -128,9 +152,9 @@ html.dark .mat-mdc-select-panel .mat-mdc-option.mdc-list-item--selected .mat-pse
 }
 
 [data-sonner-toaster] [data-sonner-toast][data-type='success'] [data-icon] {
-  color: #2187a7;
+  color: var(--app-primary);
 }
 
 [data-sonner-toaster][data-theme='dark'] [data-sonner-toast][data-type='success'] [data-icon] {
-  color: #72d8e7;
+  color: var(--app-primary-light);
 }

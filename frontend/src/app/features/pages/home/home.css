@@ -3,11 +3,11 @@
   --home-surface: #f5f8fb;
   --home-card: #ffffff;
   --home-border: #d9e4ed;
-  --home-heading: #102a43;
+  --home-heading: #0a2e18;
   --home-copy: #586f82;
-  --home-accent: #137b9a;
-  --home-primary: #12395c;
-  --home-shadow: rgb(16 42 67 / 12%);
+  --home-accent: #c79300;
+  --home-primary: #00843d;
+  --home-shadow: rgb(0 132 61 / 12%);
 }
 
 :host-context(html.dark) {
@@ -16,8 +16,8 @@
   --home-border: #2c4357;
   --home-heading: #f3f8fc;
   --home-copy: #b7c7d6;
-  --home-accent: #63dcea;
-  --home-primary: #31bfd0;
+  --home-accent: #ffd54f;
+  --home-primary: #2ecc71;
   --home-shadow: rgb(0 0 0 / 32%);
 }
 
@@ -119,8 +119,8 @@ h1 span {
   padding: 3rem;
   color: #eaf8fc;
   background:
-    radial-gradient(circle at 15% 85%, rgb(65 214 229 / 28%), transparent 16rem),
-    linear-gradient(145deg, #174d78, #09283f 58%, #071b2e);
+    radial-gradient(circle at 15% 85%, rgb(0 132 61 / 28%), transparent 16rem),
+    linear-gradient(145deg, #006f32, #003d1c 58%, #002810);
 }
 
 .hero-visual::before {
@@ -128,7 +128,7 @@ h1 span {
   position: absolute;
   inset: 0;
   opacity: .2;
-  background-image: linear-gradient(rgb(125 231 248 / 22%) 1px, transparent 1px), linear-gradient(90deg, rgb(125 231 248 / 22%) 1px, transparent 1px);
+  background-image: linear-gradient(rgb(184 241 208 / 22%) 1px, transparent 1px), linear-gradient(90deg, rgb(184 241 208 / 22%) 1px, transparent 1px);
   background-size: 2.5rem 2.5rem;
 }
 
@@ -146,14 +146,14 @@ h1 span {
   width: .55rem;
   height: .55rem;
   border-radius: 50%;
-  background: rgb(226 249 252 / 65%);
+  background: rgb(226 252 235 / 65%);
 }
 
 .visual-content {
   padding: 1.5rem;
-  border: 1px solid rgb(184 241 248 / 28%);
+  border: 1px solid rgb(184 241 208 / 28%);
   border-radius: 1rem;
-  background: rgb(6 31 53 / 42%);
+  background: rgb(0 45 20 / 42%);
   backdrop-filter: blur(.4rem);
 }
 
@@ -169,8 +169,8 @@ h1 span {
   width: 2.75rem;
   height: 2.75rem;
   border-radius: .75rem;
-  color: #0d3f5d;
-  background: #6ae7f3;
+  color: #0a2e18;
+  background: var(--home-accent);
 }
 
 .visual-title b,
@@ -180,7 +180,7 @@ h1 span {
 
 .visual-title small {
   margin-top: .15rem;
-  color: #bed8e7;
+  color: #c4e8d4;
   font-size: .8rem;
 }
 
@@ -194,7 +194,7 @@ h1 span {
   display: block;
   height: .55rem;
   border-radius: 99rem;
-  background: rgb(220 247 251 / 25%);
+  background: rgb(220 251 231 / 25%);
 }
 
 .visual-lines span:nth-child(2) { width: 78%; }
@@ -219,7 +219,7 @@ h1 span {
 
 .visual-stats span {
   margin-top: .2rem;
-  color: #bed8e7;
+  color: #c4e8d4;
   font-size: .72rem;
 }
 
@@ -230,9 +230,9 @@ h1 span {
   width: fit-content;
   padding: .5rem .75rem;
   border-radius: 99rem;
-  color: #ccecf2;
+  color: #e2f6e9;
   font-size: .8rem;
-  background: rgb(102 225 240 / 13%);
+  background: rgb(46 204 113 / 13%);
 }
 
 .visual-badge mat-icon {

@@ -6,7 +6,8 @@
  */
 
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { Component, computed, effect, inject, OnDestroy, OnInit, signal, untracked, ChangeDetectionStrategy } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { afterNextRender, Component, computed, effect, inject, OnDestroy, OnInit, PLATFORM_ID, signal, untracked, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
@@ -63,6 +64,9 @@ export class App implements OnInit, OnDestroy {
   clientService = inject(Client);
   breakpointObserver = inject(BreakpointObserver);
   router = inject(Router);
+  private platformId = inject(PLATFORM_ID);
+  readonly isBrowser = isPlatformBrowser(this.platformId);
+  readonly browserReady = signal(false);
 
   /** Current authenticated user profile, null if not logged in */
   user = signal<any>(null);
@@ -78,6 +82,23 @@ export class App implements OnInit, OnDestroy {
   readonly shouldShowAppNavigation = computed(() =>
     this.authService.isLoggedIn() && !this.isPublicRoute(),
   );
+
+  constructor() {
+    afterNextRender(() => {
+      this.browserReady.set(true);
+      void this.authService.restoreSession();
+      this.isMobile.set(this.breakpointObserver.isMatched(Breakpoints.Handset));
+      this.sidenavOpened.set(!this.isMobile() && this.shouldShowAppNavigation());
+
+      this.breakpointObserver
+        .observe([Breakpoints.Handset])
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((result) => {
+          this.isMobile.set(result.matches);
+          this.sidenavOpened.update(() => !result.matches && this.shouldShowAppNavigation());
+        });
+    });
+  }
 
   /** Keeps shell navigation in sync when authentication changes without recreating the app shell. */
   private readonly sessionEffect = effect(() => {
@@ -168,17 +189,6 @@ export class App implements OnInit, OnDestroy {
 
   /** Starts token expiration watcher, loads user profile/clients, and sets up responsive sidenav */
   ngOnInit(): void {
-    this.isMobile.set(this.breakpointObserver.isMatched(Breakpoints.Handset));
-    this.sidenavOpened.set(!this.isMobile() && this.authService.isLoggedIn());
-
-    this.breakpointObserver
-      .observe([Breakpoints.Handset])
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((result) => {
-        this.isMobile.set(result.matches);
-        this.sidenavOpened.update(() => !result.matches && this.shouldShowAppNavigation());
-      });
-
     this.router.events
       .pipe(
         filter((event): event is NavigationEnd => event instanceof NavigationEnd),
@@ -187,7 +197,9 @@ export class App implements OnInit, OnDestroy {
       .subscribe((event) => {
         const isPublic = this.isPublicUrl(event.urlAfterRedirects);
         this.isPublicRoute.set(isPublic);
-        this.sidenavOpened.set(!isPublic && !this.isMobile() && this.authService.isLoggedIn());
+        if (this.isBrowser) {
+          this.sidenavOpened.set(!isPublic && !this.isMobile() && this.authService.isLoggedIn());
+        }
       });
   }
 

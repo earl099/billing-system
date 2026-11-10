@@ -24,13 +24,19 @@ if (!JWT_SECRET) {
  * @returns {void} Returns 401 on missing/invalid/expired token, or proceeds to next middleware
  */
 export async function authMiddleware(req, res, next) {
+    let token = null
     const authHeader = req.headers['authorization']
-    if(!authHeader) return res.status(401).json({ message: 'Missing token' });
-
-    const [scheme, token, ...extra] = authHeader.split(' ')
-    if(scheme !== 'Bearer' || !token || extra.length) {
-        return res.status(401).json({ message: 'Invalid token format' })
+    if (authHeader) {
+        const [scheme, headerToken, ...extra] = authHeader.split(' ')
+        if (scheme !== 'Bearer' || !headerToken || extra.length) {
+            return res.status(401).json({ message: 'Invalid token format' })
+        }
+        token = headerToken
+    } else if (req.cookies && req.cookies.app_token) {
+        token = req.cookies.app_token
     }
+
+    if (!token) return res.status(401).json({ message: 'Missing token' })
 
     try {
         const decoded = jwt.verify(token, JWT_SECRET)

@@ -15,7 +15,7 @@ html {
 /* Authenticated navigation */
 .app-sidenav {
   width: 18rem;
-  border-right: 1px solid #d7e3ef !important;
+  border-right: 1px solid #d9e4ed !important;
   background: #fff;
 }
 
@@ -32,9 +32,9 @@ html {
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem;
-  border: 1px solid #d7e3ef;
+  border: 1px solid #d9e4ed;
   border-radius: 0.75rem;
-  background: #f6faff;
+  background: #f4faf6;
 }
 
 .app-nav__avatar {
@@ -44,8 +44,8 @@ html {
   flex: 0 0 auto;
   place-items: center;
   border-radius: 50%;
-  color: #15527c;
-  background: #e0f2fa;
+  color: var(--app-primary);
+  background: #e6f4ec;
   font-size: 0.875rem;
   font-weight: 800;
 }
@@ -59,14 +59,14 @@ html {
 .app-nav__account p,
 .app-nav__account span,
 .app-nav__label {
-  color: #617b95;
+  color: #586f82;
   font-size: 0.6875rem;
 }
 
 .app-nav__account h2 {
   overflow: hidden;
   margin: 0.125rem 0;
-  color: #102f53;
+  color: var(--app-primary-dark);
   font-size: 0.9375rem;
   font-weight: 750;
   text-overflow: ellipsis;
@@ -99,7 +99,7 @@ html {
 
 .sidenav-accordion .mat-expansion-panel-header:hover,
 .sidenav-accordion .mat-expansion-panel-header:focus-visible {
-  background: #f4fbff;
+  background: #f4faf6;
 }
 
 .sidenav-accordion .mat-expansion-panel-body {
@@ -110,13 +110,13 @@ html {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  color: #173a63;
+  color: var(--app-primary-dark);
   font-size: 0.875rem;
   font-weight: 700;
 }
 
 .app-nav__panel-title .mat-icon {
-  color: #376d94;
+  color: var(--app-primary-light);
 }
 
 .app-nav__panel-content,
@@ -128,7 +128,7 @@ html {
 }
 
 .app-nav__nested-title {
-  color: #58708c;
+  color: #586f82;
   font-size: 0.8125rem;
   font-weight: 700;
 }
@@ -143,7 +143,7 @@ html {
   margin: 0.125rem 0;
   border: 1px solid transparent;
   border-radius: 0.625rem;
-  color: #173a63 !important;
+  color: var(--app-primary-dark) !important;
   font-size: 0.875rem;
   font-weight: 700;
   text-decoration: none;
@@ -151,31 +151,31 @@ html {
 
 .app-nav__sublink {
   min-height: 2.625rem !important;
-  color: #58708c !important;
+  color: #586f82 !important;
   font-size: 0.8125rem;
   font-weight: 650;
 }
 
 .app-nav__link .mat-icon,
 .app-nav__sublink .mat-icon {
-  color: #376d94;
+  color: var(--app-primary-light);
 }
 
 .app-nav__link:hover,
 .app-nav__sublink:hover {
-  background: #f4fbff;
+  background: #f4faf6;
 }
 
 .app-nav__link--active,
 .app-nav__sublink--active {
-  border-color: #b9dcea;
-  color: #102f53 !important;
-  background: #e7f3fb;
+  border-color: #b8e2c8;
+  color: var(--app-primary-dark) !important;
+  background: #e6f4ec;
 }
 
 .app-nav__link--active .mat-icon,
 .app-nav__sublink--active .mat-icon {
-  color: #2187a7;
+  color: var(--app-accent-dark);
 }
 
 .app-nav__security {
@@ -184,10 +184,10 @@ html {
   gap: 0.5rem;
   margin: auto 0.25rem 0;
   padding: 0.75rem;
-  border: 1px solid #d7e3ef;
+  border: 1px solid #d9e4ed;
   border-radius: 0.625rem;
-  color: #617b95;
-  background: #f6faff;
+  color: #586f82;
+  background: #f4faf6;
   font-size: 0.75rem;
   font-weight: 650;
 }
@@ -195,7 +195,7 @@ html {
 .app-nav__security .mat-icon {
   width: 1.125rem;
   height: 1.125rem;
-  color: #2187a7;
+  color: var(--app-accent-dark);
   font-size: 1.125rem;
 }
 
@@ -255,14 +255,14 @@ mat-toolbar {
 }
 
 :host-context(html.dark) .app-nav__avatar {
-  color: #72d8e7;
-  background: #203d52;
+  color: var(--app-primary);
+  background: #1a3b2b;
 }
 
 :host-context(html.dark) .app-nav__account h2,
 :host-context(html.dark) .app-nav__panel-title,
 :host-context(html.dark) .app-nav__link {
-  color: #e7f1f8 !important;
+  color: #f3f8fc !important;
 }
 
 :host-context(html.dark) .app-nav__account p,
@@ -271,28 +271,33 @@ mat-toolbar {
 :host-context(html.dark) .app-nav__nested-title,
 :host-context(html.dark) .app-nav__sublink,
 :host-context(html.dark) .app-nav__security {
-  color: #aac0d1 !important;
+  color: #b7c7d6 !important;
 }
 
 :host-context(html.dark) .app-nav__panel-title .mat-icon,
 :host-context(html.dark) .app-nav__link .mat-icon,
 :host-context(html.dark) .app-nav__sublink .mat-icon,
 :host-context(html.dark) .app-nav__security .mat-icon {
-  color: #72d8e7;
+  color: var(--app-primary-light);
 }
 
 :host-context(html.dark) .sidenav-accordion .mat-expansion-panel-header:hover,
 :host-context(html.dark) .sidenav-accordion .mat-expansion-panel-header:focus-visible,
 :host-context(html.dark) .app-nav__link:hover,
 :host-context(html.dark) .app-nav__sublink:hover {
-  background: #1a3043;
+  background: #1a3b2b;
 }
 
 :host-context(html.dark) .app-nav__link--active,
 :host-context(html.dark) .app-nav__sublink--active {
-  border-color: #365f7e;
-  color: #f1f7fb !important;
-  background: #203c51;
+  border-color: #3a6b4d;
+  color: #f3f8fc !important;
+  background: #1a3b2b;
+}
+
+:host-context(html.dark) .app-nav__link--active .mat-icon,
+:host-context(html.dark) .app-nav__sublink--active .mat-icon {
+  color: var(--app-accent);
 }
 
 /* Guest navigation: a compact branded drawer for visitors who are not signed in. */
@@ -318,8 +323,8 @@ mat-toolbar {
   height: 2.5rem;
   place-items: center;
   border-radius: 0.75rem;
-  color: #07334a;
-  background: #58d8eb;
+  color: #0a2e18;
+  background: var(--app-accent);
 }
 
 .guest-nav__mark .mat-icon {
@@ -332,7 +337,7 @@ mat-toolbar {
 .guest-nav__label {
   display: block;
   margin: 0;
-  color: #21b9d2;
+  color: var(--app-primary);
   font-size: 0.6875rem;
   font-weight: 800;
   letter-spacing: 0.1em;
@@ -380,18 +385,18 @@ mat-toolbar {
 }
 
 .guest-nav__link:focus-visible {
-  outline: 3px solid #58d8eb;
+  outline: 3px solid var(--app-accent);
   outline-offset: 2px;
 }
 
 .guest-nav__link--active {
-  border-color: color-mix(in srgb, #21b9d2 45%, var(--mat-sys-outline-variant));
+  border-color: color-mix(in srgb, var(--app-primary) 45%, var(--mat-sys-outline-variant));
   color: var(--mat-sys-on-surface);
-  background: color-mix(in srgb, #21b9d2 16%, var(--mat-sys-surface));
+  background: color-mix(in srgb, var(--app-primary) 12%, var(--mat-sys-surface));
 }
 
 .guest-nav__link--active .mat-icon {
-  color: #21b9d2;
+  color: var(--app-primary);
 }
 
 .guest-nav__help {
@@ -408,7 +413,7 @@ mat-toolbar {
 
 .guest-nav__help .mat-icon {
   flex: 0 0 auto;
-  color: #21b9d2;
+  color: var(--app-primary);
   font-size: 1.125rem;
 }
 
@@ -439,13 +444,13 @@ mat-toolbar {
   margin: -0.5rem -0.5rem 0.5rem;
   padding: 1rem;
   border-bottom: 1px solid var(--mat-sys-outline-variant);
-  background: color-mix(in srgb, #21b9d2 10%, var(--mat-sys-surface));
+  background: color-mix(in srgb, var(--app-primary) 10%, var(--mat-sys-surface));
 }
 
 ::ng-deep .user-menu__summary > .mat-icon {
   width: 2.25rem;
   height: 2.25rem;
-  color: #21b9d2;
+  color: var(--app-primary);
   font-size: 2.25rem;
 }
 
@@ -477,5 +482,5 @@ mat-toolbar {
 }
 
 ::ng-deep .user-menu .mat-mdc-menu-item .mat-icon {
-  color: #21b9d2;
+  color: var(--app-primary);
 }

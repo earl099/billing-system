@@ -6,8 +6,9 @@
  * - Catches 401 responses and triggers logout
  */
 
+import { isPlatformBrowser } from '@angular/common';
 import type { HttpInterceptorFn } from '@angular/common/http';
-import { inject } from '@angular/core';
+import { inject, PLATFORM_ID } from '@angular/core';
 import { Auth } from '@services/auth';
 import { catchError, throwError } from 'rxjs';
 
@@ -21,27 +22,27 @@ import { catchError, throwError } from 'rxjs';
  */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(Auth)
+  const platformId = inject(PLATFORM_ID)
+  const isBrowser = isPlatformBrowser(platformId)
   const token = auth.token()
 
   // Check if token is expired and logout if necessary
   if(token && auth.isTokenExpired()) {
-    auth.logout()
+    if (isBrowser) {
+      setTimeout(() => auth.logout(), 0)
+    }
     return throwError(() => new Error('Token expired'))
   }
 
-  // Clone request with Authorization header if token exists
+  // Attach Bearer token for cross-origin API auth (Render frontend/backend often on different origins)
   const authReq = token
-    ? req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-    : req
+    ? req.clone({ withCredentials: true, setHeaders: { Authorization: `Bearer ${token}` } })
+    : req.clone({ withCredentials: true })
 
   return next(authReq).pipe(
     catchError(err => {
       // Auto-logout on 401 Unauthorized responses
-      if(err.status === 401) {
+      if(err.status === 401 && isBrowser) {
         auth.logout()
       }
       return throwError(() => err)

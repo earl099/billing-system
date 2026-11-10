@@ -4,7 +4,8 @@
  * Redirects to login page if token is missing or expired.
  */
 
-import { inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { inject, PLATFORM_ID } from '@angular/core';
 import { type CanActivateFn } from '@angular/router';
 import { Auth } from '@services/auth';
 
@@ -16,11 +17,16 @@ import { Auth } from '@services/auth';
  * @param state - The router state snapshot
  * @returns true if token is valid, false otherwise (triggers logout redirect)
  */
-export const authGuard: CanActivateFn = (route, state) => {
+export const authGuard: CanActivateFn = async (route, state) => {
   const auth = inject(Auth)
+  const platformId = inject(PLATFORM_ID)
 
-  const token = auth.hasValidToken()
-  if(!token) {
+  if (!isPlatformBrowser(platformId)) return true
+
+  if (auth.hasValidToken()) return true
+
+  const restored = await auth.restoreSession()
+  if (!restored) {
     auth.logout()
     return false
   }

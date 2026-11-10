@@ -3,7 +3,8 @@
  * Handles user login, signup, logout, JWT token management, and auto-logout on expiration
  */
 
-import { inject, Injectable, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import { UserAuthDTO, UserDTO } from '@models/user';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
@@ -22,7 +23,7 @@ interface AuthResponse {
   providedIn: 'root'
 })
 export class Auth {
-  private jwtHelper = new JwtHelperService
+  private jwtHelper = new JwtHelperService()
   /** localStorage key for JWT token */
   private tokenKey = 'app_token'
   /** localStorage key for username */
@@ -30,15 +31,44 @@ export class Auth {
   private apiUrl = environment.apiUrl
   private http = inject(HttpClient)
   private router = inject(Router)
+  private platformId = inject(PLATFORM_ID)
+  private isBrowser = isPlatformBrowser(this.platformId)
   /** Timer reference for auto-logout on token expiration */
   private watcherTimeout: ReturnType<typeof setTimeout> | null = null
 
-  /** Reactive signal indicating whether the user has a valid, non-expired token */
-  isLoggedIn = signal<boolean>(this.hasValidToken())
+  /** Reactive signal indicating whether the user has a valid session */
+  isLoggedIn = signal<boolean>(this.isBrowser && this.hasValidToken())
   /** Verified profile for the active session, reused by route guards after it is loaded. */
   currentUser = signal<any | null>(null)
   /** In-progress profile request, shared by the shell, dashboard, and route guards. */
   private profileRequest: Promise<UserDTO> | null = null
+
+  private getStorageItem(key: string): string | null {
+    if (!this.isBrowser) return null
+    try {
+      return localStorage.getItem(key)
+    } catch {
+      return null
+    }
+  }
+
+  private setStorageItem(key: string, value: string): void {
+    if (!this.isBrowser) return
+    try {
+      localStorage.setItem(key, value)
+    } catch {
+      // ignore storage errors
+    }
+  }
+
+  private removeStorageItem(key: string): void {
+    if (!this.isBrowser) return
+    try {
+      localStorage.removeItem(key)
+    } catch {
+      // ignore storage errors
+    }
+  }
 
   /**
    * Authenticates a user with username/email and password
@@ -49,9 +79,9 @@ export class Auth {
    */
   async login(payload: UserAuthDTO): Promise<AuthResponse> {
     try {
-      const res = await firstValueFrom(this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, payload))
-      localStorage.setItem(this.tokenKey, res.token)
-      localStorage.setItem(this.user, res.user.name)
+      const res = await firstValueFrom(this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, payload, { withCredentials: true }))
+      if (res.token) this.setStorageItem(this.tokenKey, res.token)
+      this.setStorageItem(this.user, res.user.name)
       this.currentUser.set(null)
       this.isLoggedIn.set(true)
       return res
@@ -82,7 +112,7 @@ export class Auth {
    */
   async signup(payload: UserDTO): Promise<AuthResponse> {
     try {
-      const res = await firstValueFrom(this.http.post<AuthResponse>(`${this.apiUrl}/auth/signup`, payload))
+      const res = await firstValueFrom(this.http.post<AuthResponse>(`${this.apiUrl}/auth/signup`, payload, { withCredentials: true }))
       return res
     } catch (error) {
       throw new Error(`Signup failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
@@ -95,18 +125,28 @@ export class Auth {
    */
   async logout() {
     this.clearTokenWatcher()
-    localStorage.clear()
+    if (this.isBrowser) {
+      try {
+        await firstValueFrom(this.http.post(`${this.apiUrl}/auth/logout`, {}, { withCredentials: true }))
+      } catch {
+        // ignore network errors on logout
+      }
+    }
+    this.removeStorageItem(this.tokenKey)
+    this.removeStorageItem(this.user)
     this.isLoggedIn.set(false)
     this.currentUser.set(null)
     this.profileRequest = null
-    this.router.navigate(['/'])
+    if (this.isBrowser) {
+      this.router.navigate(['/'])
+    }
   }
 
   /** @returns The stored JWT token string, or null if not logged in */
-  token() { return localStorage.getItem(this.tokenKey) }
+  token() { return this.getStorageItem(this.tokenKey) }
 
   /** @returns The stored username string, or null if not logged in */
-  fetchUser() { return localStorage.getItem(this.user) }
+  fetchUser() { return this.getStorageItem(this.user) }
 
   /**
    * Fetches the current authenticated user's profile from the server
@@ -118,7 +158,7 @@ export class Auth {
     if (cachedProfile) return cachedProfile as UserDTO
 
     if (!this.profileRequest) {
-      this.profileRequest = firstValueFrom(this.http.get<{ user: UserDTO }>(`${this.apiUrl}/auth/me`))
+      this.profileRequest = firstValueFrom(this.http.get<{ user: UserDTO }>(`${this.apiUrl}/auth/me`, { withCredentials: true }))
         .then((res) => {
           this.currentUser.set(res.user)
           return res.user
@@ -143,12 +183,32 @@ export class Auth {
     const token = this.token()
     if(!token) return true
 
-    return this.jwtHelper.isTokenExpired(token)
+    try {
+      return this.jwtHelper.isTokenExpired(token)
+    } catch {
+      return true
+    }
+  }
+
+  /**
+   * Attempts to restore a session from an httpOnly cookie when no local token exists.
+   * Sets isLoggedIn on success.
+   */
+  async restoreSession(): Promise<boolean> {
+    if (this.isLoggedIn()) return true
+    try {
+      await this.getProfile()
+      this.isLoggedIn.set(true)
+      return true
+    } catch {
+      this.isLoggedIn.set(false)
+      return false
+    }
   }
 
   /**
    * Checks if the user has a valid, non-expired token
-   * 
+   *
    * @returns true if a token exists and has not expired
    */
   hasValidToken(): boolean {
@@ -162,6 +222,7 @@ export class Auth {
    * IMPORTANT: Must call clearTokenWatcher() or logout() to prevent memory leaks
    */
   startTokenWatcher() {
+    if (!this.isBrowser) return
     // Clear any existing watcher to avoid duplicate timers
     this.clearTokenWatcher()
 

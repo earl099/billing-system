@@ -898,3 +898,165 @@
   "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:158.0) Gecko/20100101 Firefox/158.0",
   "userId": "695f4b3fc9882594236f3394"
 }
+2026-11-06 08:07:09 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/auth/me",
+  "status": 401,
+  "duration": "6ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-06 08:07:32 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/editor/templates/unacom",
+  "status": 500,
+  "duration": "1349ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-11-06 08:36:25 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/editor/templates/unacom",
+  "status": 500,
+  "duration": "579ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-11-06 08:36:43 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/editor/templates/unacom",
+  "status": 500,
+  "duration": "544ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-11-06 08:36:49 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/editor/templates/unacom",
+  "status": 500,
+  "duration": "512ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-11-06 08:42:14 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/editor/templates/unacom",
+  "status": 500,
+  "duration": "554ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "695f4b3fc9882594236f3394"
+}
+2026-11-10 14:57:00 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/auth/me",
+  "status": 401,
+  "duration": "14ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-10 16:10:25 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/auth/me",
+  "status": 401,
+  "duration": "1ms",
+  "ip": "::1",
+  "userAgent": "node",
+  "userId": "anonymous"
+}
+2026-11-10 16:10:25 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/client/list",
+  "status": 401,
+  "duration": "0ms",
+  "ip": "::1",
+  "userAgent": "node",
+  "userId": "anonymous"
+}
+2026-11-10 16:19:09 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/auth/me",
+  "status": 401,
+  "duration": "1ms",
+  "ip": "::1",
+  "userAgent": "node",
+  "userId": "anonymous"
+}
+2026-11-10 16:19:09 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/client/list",
+  "status": 401,
+  "duration": "0ms",
+  "ip": "::1",
+  "userAgent": "node",
+  "userId": "anonymous"
+}
+2026-11-10 16:19:12 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/auth/me",
+  "status": 401,
+  "duration": "2ms",
+  "ip": "::1",
+  "userAgent": "node",
+  "userId": "anonymous"
+}
+2026-11-10 16:19:12 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/client/list",
+  "status": 401,
+  "duration": "0ms",
+  "ip": "::1",
+  "userAgent": "node",
+  "userId": "anonymous"
+}
+2026-11-10 16:39:51 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/auth/me",
+  "status": 401,
+  "duration": "0ms",
+  "ip": "::1",
+  "userAgent": "node",
+  "userId": "anonymous"
+}
+2026-11-10 16:40:17 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/auth/me",
+  "status": 401,
+  "duration": "0ms",
+  "ip": "::1",
+  "userAgent": "node",
+  "userId": "anonymous"
+}
+2026-11-10 16:40:17 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/client/list",
+  "status": 401,
+  "duration": "0ms",
+  "ip": "::1",
+  "userAgent": "node",
+  "userId": "anonymous"
+}
+2026-11-10 16:40:33 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/auth/me",
+  "status": 401,
+  "duration": "1ms",
+  "ip": "::1",
+  "userAgent": "node",
+  "userId": "anonymous"
+}
+2026-11-10 16:40:33 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/client/list",
+  "status": 401,
+  "duration": "1ms",
+  "ip": "::1",
+  "userAgent": "node",
+  "userId": "anonymous"
+}

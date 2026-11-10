@@ -14,7 +14,6 @@ import logger from '#utils/logger.util.js'
 import { httpLoggerMiddleware } from '#middleware/logger.middleware.js'
 import { globalErrorHandler, notFoundHandler } from '#middleware/errorHandler.middleware.js'
 import { apiLimiter } from '#middleware/rateLimit.middleware.js'
-import { csrfTokenMiddleware } from '#middleware/csrf.middleware.js'
 
 /** Use Google DNS servers for reliable hostname resolution */
 dns.setServers(['8.8.8.8', '8.8.4.4'])
@@ -32,14 +31,13 @@ if (!jwtSecret) {
  * Allows requests from local dev server and Netlify production deployment
  * Enables credentials and CSRF token header
  */
+const corsOrigins = (process.env.CORS_ORIGINS || 'http://localhost:4200,https://lbrdc-billing-system.netlify.app')
+    .split(',').map(s => s.trim()).filter(Boolean)
 app.use(cors({
-    origin: [
-        'http://localhost:4200',
-        'https://lbrdc-billing-system.netlify.app'
-    ],
+    origin: corsOrigins,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token']
+    allowedHeaders: ['Content-Type', 'Authorization']
 }))
 
 /** Body parsing middleware - JSON and URL-encoded with 10MB limit */
@@ -53,8 +51,6 @@ app.use(httpLoggerMiddleware)
 /** Global rate limiter for all API requests */
 app.use('/api', apiLimiter)
 
-/** CSRF token middleware - distributes token in response headers */
-app.use('/api', csrfTokenMiddleware)
 
 /** Register all application route modules under /api prefix */
 app.use('/api', ALL_ROUTES)

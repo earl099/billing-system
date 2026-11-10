@@ -9,7 +9,7 @@
 
 import { DecimalPipe, formatDate } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -130,13 +130,13 @@ export class Editor implements OnInit {
   sanitizer = inject(DomSanitizer)
   router = inject(Router)
   route = inject(ActivatedRoute)
-  fb = inject(UntypedFormBuilder)
+  fb = inject(FormBuilder)
 
   readonly code = signal(this.route.snapshot.paramMap.get('code') ?? '')
 
-  form: UntypedFormGroup = this.fb.group({})
-  form1: UntypedFormGroup = this.fb.group({})
-  transmittalItems: UntypedFormArray = this.fb.array([])
+  form = this.fb.group({})
+  form1 = this.fb.group({})
+  transmittalItems = this.fb.array<FormGroup<any>>([])
 
   /** Validates that a URL belongs to a trusted domain before allowing iframe embedding */
   private isUrlTrusted(url: string): boolean {
@@ -361,6 +361,7 @@ export class Editor implements OnInit {
 
   /** Opens a browser-approved placeholder tab before the async document request begins. */
   private openDocumentTab(): Window | null {
+    if (typeof window === 'undefined') return null
     const documentTab = window.open('', '_blank')
     if (!documentTab) {
       toast.error('Your browser blocked the document tab. Please allow pop-ups for this site and try again.')
@@ -454,7 +455,7 @@ export class Editor implements OnInit {
 
   /** @returns Typed array of transmittal FormGroup controls */
   get transmittalControls() {
-    return this.transmittalItems.controls as UntypedFormGroup[]
+    return this.transmittalItems.controls as FormGroup[]
   }
 
   /** @returns Sum of all transmittal item amounts */
