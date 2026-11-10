@@ -389,7 +389,7 @@ export class Editor implements OnInit {
    * For Excel templates, converts dates to ISO strings for Graph API compatibility.
    */
   private transformFormValues(type: 'word' | 'excel') {
-    const values = { ...this.form.value }
+    const values = { ...this.form.value } as Record<string, any>
     const schema = this.formConfig()
 
     for(const field of schema) {

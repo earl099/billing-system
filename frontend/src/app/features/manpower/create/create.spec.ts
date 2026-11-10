@@ -65,8 +65,8 @@ describe('Create employee form', () => {
     expect(fixture.componentInstance.form.contains('posCode')).toBe(true);
     expect(fixture.componentInstance.form.contains('posName')).toBe(true);
     expect(fixture.componentInstance.form.contains('calculatedTotal')).toBe(false);
-    expect(fixture.componentInstance.form.controls['posCode'].value).toBe('');
-    expect(fixture.componentInstance.form.controls['posCode'].hasError('required')).toBe(true);
+    expect(fixture.componentInstance.form.get('posCode')?.value).toBe('');
+    expect(fixture.componentInstance.form.get('posCode')?.hasError('required')).toBe(true);
     expect(fixture.componentInstance.positions()).toEqual(positionRates);
     expect(fixture.componentInstance.tableColumns()).toEqual(columns);
   });
@@ -137,7 +137,7 @@ describe('Create employee form', () => {
     await fixture.componentInstance.addData();
 
     expect(manpower.addToTable).not.toHaveBeenCalled();
-    expect(fixture.componentInstance.form.controls['empNo'].touched).toBe(true);
+    expect(fixture.componentInstance.form.get('empNo')?.touched).toBe(true);
   });
 
   it('submits the full table column order with only non-formula input values', async () => {
