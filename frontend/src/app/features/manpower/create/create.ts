@@ -221,7 +221,7 @@ export class Create implements OnInit {
       return
     }
 
-    const formValue = { ...this.form.value }
+    const formValue = { ...this.form.value } as Record<string, any>
     for (const field of this.formConfig()) {
       if (field.type === 'date' && formValue[field.key]) {
         const dt = DateTime.fromISO(String(formValue[field.key]))
