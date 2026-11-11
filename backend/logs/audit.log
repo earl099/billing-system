@@ -1060,3 +1060,716 @@
   "userAgent": "node",
   "userId": "anonymous"
 }
+2026-11-11 09:28:52 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/auth/me",
+  "status": 401,
+  "duration": "13ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 09:57:31 [error]: Unhandled Error Invalid namespace specified: billing-system/.users - MongoServerError: Invalid namespace specified: billing-system/.users
+    at Connection.sendCommand (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:322:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Connection.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:349:26)
+    at async Server.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\sdam\server.js:208:29)
+    at async executeOperationWithRetries (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:217:32)
+    at async executeOperation (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:85:16)
+    at async FindCursor._initialize (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:619:27)
+    at async FindCursor.fetchBatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:653:13)
+    at async FindCursor.next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:325:17)
+2026-11-11 09:57:31 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/api/auth/me",
+  "status": 500,
+  "duration": "27ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 09:57:31 [error]: Unhandled Error Invalid namespace specified: billing-system/.users - MongoServerError: Invalid namespace specified: billing-system/.users
+    at Connection.sendCommand (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:322:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Connection.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:349:26)
+    at async Server.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\sdam\server.js:208:29)
+    at async executeOperationWithRetries (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:217:32)
+    at async executeOperation (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:85:16)
+    at async FindCursor._initialize (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:619:27)
+    at async FindCursor.fetchBatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:653:13)
+    at async FindCursor.next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:325:17)
+2026-11-11 09:57:31 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/api/client/list",
+  "status": 500,
+  "duration": "17ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 09:57:41 [error]: Unhandled Error Invalid namespace specified: billing-system/.users - MongoServerError: Invalid namespace specified: billing-system/.users
+    at Connection.sendCommand (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:322:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Connection.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:349:26)
+    at async Server.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\sdam\server.js:208:29)
+    at async executeOperationWithRetries (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:217:32)
+    at async executeOperation (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:85:16)
+    at async FindCursor._initialize (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:619:27)
+    at async FindCursor.fetchBatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:653:13)
+    at async FindCursor.next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:325:17)
+2026-11-11 09:57:41 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/api/log",
+  "status": 500,
+  "duration": "3ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 09:57:53 [error]: Unhandled Error Invalid namespace specified: billing-system/.users - MongoServerError: Invalid namespace specified: billing-system/.users
+    at Connection.sendCommand (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:322:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Connection.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:349:26)
+    at async Server.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\sdam\server.js:208:29)
+    at async executeOperationWithRetries (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:217:32)
+    at async executeOperation (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:85:16)
+    at async FindCursor._initialize (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:619:27)
+    at async FindCursor.fetchBatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:653:13)
+    at async FindCursor.next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:325:17)
+2026-11-11 09:57:53 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/api/auth/me",
+  "status": 500,
+  "duration": "4ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 09:57:53 [error]: Unhandled Error Invalid namespace specified: billing-system/.users - MongoServerError: Invalid namespace specified: billing-system/.users
+    at Connection.sendCommand (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:322:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Connection.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:349:26)
+    at async Server.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\sdam\server.js:208:29)
+    at async executeOperationWithRetries (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:217:32)
+    at async executeOperation (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:85:16)
+    at async FindCursor._initialize (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:619:27)
+    at async FindCursor.fetchBatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:653:13)
+    at async FindCursor.next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:325:17)
+2026-11-11 09:57:53 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/api/client/list",
+  "status": 500,
+  "duration": "6ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 09:57:54 [error]: Unhandled Error Invalid namespace specified: billing-system/.users - MongoServerError: Invalid namespace specified: billing-system/.users
+    at Connection.sendCommand (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:322:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Connection.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:349:26)
+    at async Server.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\sdam\server.js:208:29)
+    at async executeOperationWithRetries (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:217:32)
+    at async executeOperation (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:85:16)
+    at async FindCursor._initialize (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:619:27)
+    at async FindCursor.fetchBatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:653:13)
+    at async FindCursor.next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:325:17)
+2026-11-11 09:57:54 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/api/auth/me",
+  "status": 500,
+  "duration": "3ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 09:57:54 [error]: Unhandled Error Invalid namespace specified: billing-system/.users - MongoServerError: Invalid namespace specified: billing-system/.users
+    at Connection.sendCommand (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:322:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Connection.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:349:26)
+    at async Server.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\sdam\server.js:208:29)
+    at async executeOperationWithRetries (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:217:32)
+    at async executeOperation (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:85:16)
+    at async FindCursor._initialize (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:619:27)
+    at async FindCursor.fetchBatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:653:13)
+    at async FindCursor.next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:325:17)
+2026-11-11 09:57:54 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/api/client/list",
+  "status": 500,
+  "duration": "3ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 09:58:22 [error]: Unhandled Error Invalid namespace specified: billing-system/.users - MongoServerError: Invalid namespace specified: billing-system/.users
+    at Connection.sendCommand (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:322:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Connection.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:349:26)
+    at async Server.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\sdam\server.js:208:29)
+    at async executeOperationWithRetries (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:217:32)
+    at async executeOperation (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:85:16)
+    at async FindCursor._initialize (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:619:27)
+    at async FindCursor.fetchBatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:653:13)
+    at async FindCursor.next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:325:17)
+2026-11-11 09:58:22 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/api/auth/me",
+  "status": 500,
+  "duration": "3ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 09:58:22 [error]: Unhandled Error Invalid namespace specified: billing-system/.users - MongoServerError: Invalid namespace specified: billing-system/.users
+    at Connection.sendCommand (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:322:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Connection.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:349:26)
+    at async Server.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\sdam\server.js:208:29)
+    at async executeOperationWithRetries (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:217:32)
+    at async executeOperation (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:85:16)
+    at async FindCursor._initialize (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:619:27)
+    at async FindCursor.fetchBatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:653:13)
+    at async FindCursor.next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:325:17)
+2026-11-11 09:58:22 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/api/client/list",
+  "status": 500,
+  "duration": "3ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 09:58:26 [error]: Unhandled Error Invalid namespace specified: billing-system/.users - MongoServerError: Invalid namespace specified: billing-system/.users
+    at Connection.sendCommand (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:322:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Connection.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:349:26)
+    at async Server.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\sdam\server.js:208:29)
+    at async executeOperationWithRetries (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:217:32)
+    at async executeOperation (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:85:16)
+    at async FindCursor._initialize (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:619:27)
+    at async FindCursor.fetchBatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:653:13)
+    at async FindCursor.next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:325:17)
+2026-11-11 09:58:26 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/api/log",
+  "status": 500,
+  "duration": "3ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 09:58:37 [error]: Unhandled Error Invalid namespace specified: billing-system/.users - MongoServerError: Invalid namespace specified: billing-system/.users
+    at Connection.sendCommand (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:322:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Connection.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:349:26)
+    at async Server.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\sdam\server.js:208:29)
+    at async executeOperationWithRetries (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:217:32)
+    at async executeOperation (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:85:16)
+    at async FindCursor._initialize (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:619:27)
+    at async FindCursor.fetchBatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:653:13)
+    at async FindCursor.next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:325:17)
+2026-11-11 09:58:37 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/api/auth/me",
+  "status": 500,
+  "duration": "3ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 09:58:37 [error]: Unhandled Error Invalid namespace specified: billing-system/.users - MongoServerError: Invalid namespace specified: billing-system/.users
+    at Connection.sendCommand (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:322:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Connection.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:349:26)
+    at async Server.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\sdam\server.js:208:29)
+    at async executeOperationWithRetries (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:217:32)
+    at async executeOperation (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:85:16)
+    at async FindCursor._initialize (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:619:27)
+    at async FindCursor.fetchBatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:653:13)
+    at async FindCursor.next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:325:17)
+2026-11-11 09:58:37 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/api/client/list",
+  "status": 500,
+  "duration": "2ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 09:58:45 [error]: Unhandled Error Invalid namespace specified: billing-system/.users - MongoServerError: Invalid namespace specified: billing-system/.users
+    at Connection.sendCommand (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:322:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Connection.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:349:26)
+    at async Server.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\sdam\server.js:208:29)
+    at async executeOperationWithRetries (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:217:32)
+    at async executeOperation (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:85:16)
+    at async FindCursor._initialize (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:619:27)
+    at async FindCursor.fetchBatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:653:13)
+    at async FindCursor.next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:325:17)
+2026-11-11 09:58:45 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/api/auth/me",
+  "status": 500,
+  "duration": "2ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 09:58:45 [error]: Unhandled Error Invalid namespace specified: billing-system/.users - MongoServerError: Invalid namespace specified: billing-system/.users
+    at Connection.sendCommand (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:322:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Connection.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:349:26)
+    at async Server.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\sdam\server.js:208:29)
+    at async executeOperationWithRetries (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:217:32)
+    at async executeOperation (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:85:16)
+    at async FindCursor._initialize (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:619:27)
+    at async FindCursor.fetchBatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:653:13)
+    at async FindCursor.next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:325:17)
+2026-11-11 09:58:45 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/api/client/list",
+  "status": 500,
+  "duration": "3ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 09:58:47 [error]: Unhandled Error Invalid namespace specified: billing-system/.users - MongoServerError: Invalid namespace specified: billing-system/.users
+    at Connection.sendCommand (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:322:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Connection.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:349:26)
+    at async Server.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\sdam\server.js:208:29)
+    at async executeOperationWithRetries (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:217:32)
+    at async executeOperation (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:85:16)
+    at async FindCursor._initialize (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:619:27)
+    at async FindCursor.fetchBatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:653:13)
+    at async FindCursor.next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:325:17)
+2026-11-11 09:58:47 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/api/auth/me",
+  "status": 500,
+  "duration": "3ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 09:58:47 [error]: Unhandled Error Invalid namespace specified: billing-system/.users - MongoServerError: Invalid namespace specified: billing-system/.users
+    at Connection.sendCommand (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:322:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Connection.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:349:26)
+    at async Server.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\sdam\server.js:208:29)
+    at async executeOperationWithRetries (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:217:32)
+    at async executeOperation (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:85:16)
+    at async FindCursor._initialize (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:619:27)
+    at async FindCursor.fetchBatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:653:13)
+    at async FindCursor.next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:325:17)
+2026-11-11 09:58:47 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/api/client/list",
+  "status": 500,
+  "duration": "3ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 09:59:23 [error]: Unhandled Error Invalid namespace specified: billing-system/.users - MongoServerError: Invalid namespace specified: billing-system/.users
+    at Connection.sendCommand (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:322:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Connection.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:349:26)
+    at async Server.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\sdam\server.js:208:29)
+    at async executeOperationWithRetries (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:217:32)
+    at async executeOperation (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:85:16)
+    at async FindCursor._initialize (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:619:27)
+    at async FindCursor.fetchBatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:653:13)
+    at async FindCursor.next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:325:17)
+2026-11-11 09:59:23 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/api/auth/me",
+  "status": 500,
+  "duration": "2ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 09:59:23 [error]: Unhandled Error Invalid namespace specified: billing-system/.users - MongoServerError: Invalid namespace specified: billing-system/.users
+    at Connection.sendCommand (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:322:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Connection.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:349:26)
+    at async Server.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\sdam\server.js:208:29)
+    at async executeOperationWithRetries (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:217:32)
+    at async executeOperation (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:85:16)
+    at async FindCursor._initialize (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:619:27)
+    at async FindCursor.fetchBatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:653:13)
+    at async FindCursor.next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:325:17)
+2026-11-11 09:59:23 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/api/client/list",
+  "status": 500,
+  "duration": "3ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 10:00:48 [error]: Unhandled Error Invalid namespace specified: billing-system/.users - MongoServerError: Invalid namespace specified: billing-system/.users
+    at Connection.sendCommand (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:322:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Connection.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:349:26)
+    at async Server.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\sdam\server.js:208:29)
+    at async executeOperationWithRetries (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:217:32)
+    at async executeOperation (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:85:16)
+    at async FindCursor._initialize (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:619:27)
+    at async FindCursor.fetchBatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:653:13)
+    at async FindCursor.next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:325:17)
+2026-11-11 10:00:48 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/api/client/list",
+  "status": 500,
+  "duration": "29ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 10:00:48 [error]: Unhandled Error Invalid namespace specified: billing-system/.users - MongoServerError: Invalid namespace specified: billing-system/.users
+    at Connection.sendCommand (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:322:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Connection.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:349:26)
+    at async Server.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\sdam\server.js:208:29)
+    at async executeOperationWithRetries (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:217:32)
+    at async executeOperation (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:85:16)
+    at async FindCursor._initialize (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:619:27)
+    at async FindCursor.fetchBatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:653:13)
+    at async FindCursor.next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:325:17)
+2026-11-11 10:00:48 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/api/auth/me",
+  "status": 500,
+  "duration": "37ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 10:00:54 [error]: Unhandled Error Invalid namespace specified: billing-system/.users - MongoServerError: Invalid namespace specified: billing-system/.users
+    at Connection.sendCommand (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:322:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Connection.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:349:26)
+    at async Server.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\sdam\server.js:208:29)
+    at async executeOperationWithRetries (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:217:32)
+    at async executeOperation (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:85:16)
+    at async FindCursor._initialize (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:619:27)
+    at async FindCursor.fetchBatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:653:13)
+    at async FindCursor.next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:325:17)
+2026-11-11 10:00:54 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/api/auth/me",
+  "status": 500,
+  "duration": "2ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 10:00:54 [error]: Unhandled Error Invalid namespace specified: billing-system/.users - MongoServerError: Invalid namespace specified: billing-system/.users
+    at Connection.sendCommand (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:322:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Connection.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:349:26)
+    at async Server.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\sdam\server.js:208:29)
+    at async executeOperationWithRetries (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:217:32)
+    at async executeOperation (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:85:16)
+    at async FindCursor._initialize (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:619:27)
+    at async FindCursor.fetchBatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:653:13)
+    at async FindCursor.next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:325:17)
+2026-11-11 10:00:54 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/api/client/list",
+  "status": 500,
+  "duration": "2ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 10:01:11 [error]: Unhandled Error Invalid namespace specified: billing-system/.users - MongoServerError: Invalid namespace specified: billing-system/.users
+    at Connection.sendCommand (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:322:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Connection.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:349:26)
+    at async Server.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\sdam\server.js:208:29)
+    at async executeOperationWithRetries (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:217:32)
+    at async executeOperation (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:85:16)
+    at async FindCursor._initialize (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:619:27)
+    at async FindCursor.fetchBatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:653:13)
+    at async FindCursor.next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:325:17)
+2026-11-11 10:01:11 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/api/log",
+  "status": 500,
+  "duration": "2ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 10:02:16 [error]: Unhandled Error Invalid namespace specified: billing-system/.users - MongoServerError: Invalid namespace specified: billing-system/.users
+    at Connection.sendCommand (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:322:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Connection.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:349:26)
+    at async Server.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\sdam\server.js:208:29)
+    at async executeOperationWithRetries (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:217:32)
+    at async executeOperation (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:85:16)
+    at async FindCursor._initialize (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:619:27)
+    at async FindCursor.fetchBatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:653:13)
+    at async FindCursor.next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:325:17)
+2026-11-11 10:02:16 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/api/auth/me",
+  "status": 500,
+  "duration": "3ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 10:02:16 [error]: Unhandled Error Invalid namespace specified: billing-system/.users - MongoServerError: Invalid namespace specified: billing-system/.users
+    at Connection.sendCommand (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:322:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Connection.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:349:26)
+    at async Server.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\sdam\server.js:208:29)
+    at async executeOperationWithRetries (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:217:32)
+    at async executeOperation (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:85:16)
+    at async FindCursor._initialize (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:619:27)
+    at async FindCursor.fetchBatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:653:13)
+    at async FindCursor.next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:325:17)
+2026-11-11 10:02:16 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/api/client/list",
+  "status": 500,
+  "duration": "2ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 10:02:53 [error]: Unhandled Error Invalid namespace specified: billing-system/.users - MongoServerError: Invalid namespace specified: billing-system/.users
+    at Connection.sendCommand (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:322:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Connection.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:349:26)
+    at async Server.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\sdam\server.js:208:29)
+    at async executeOperationWithRetries (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:217:32)
+    at async executeOperation (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:85:16)
+    at async FindCursor._initialize (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:619:27)
+    at async FindCursor.fetchBatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:653:13)
+    at async FindCursor.next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:325:17)
+2026-11-11 10:02:53 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/api/auth/me",
+  "status": 500,
+  "duration": "2ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 10:02:53 [error]: Unhandled Error Invalid namespace specified: billing-system/.users - MongoServerError: Invalid namespace specified: billing-system/.users
+    at Connection.sendCommand (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:322:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Connection.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:349:26)
+    at async Server.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\sdam\server.js:208:29)
+    at async executeOperationWithRetries (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:217:32)
+    at async executeOperation (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:85:16)
+    at async FindCursor._initialize (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:619:27)
+    at async FindCursor.fetchBatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:653:13)
+    at async FindCursor.next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:325:17)
+2026-11-11 10:02:53 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/api/client/list",
+  "status": 500,
+  "duration": "3ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 10:02:59 [error]: Unhandled Error Invalid namespace specified: billing-system/.users - MongoServerError: Invalid namespace specified: billing-system/.users
+    at Connection.sendCommand (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:322:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Connection.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cmap\connection.js:349:26)
+    at async Server.command (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\sdam\server.js:208:29)
+    at async executeOperationWithRetries (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:217:32)
+    at async executeOperation (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\operations\execute_operation.js:85:16)
+    at async FindCursor._initialize (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:619:27)
+    at async FindCursor.fetchBatch (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:653:13)
+    at async FindCursor.next (C:\Users\lbrdc\OneDrive\Desktop\billing-system\backend\node_modules\mongoose\node_modules\mongodb\lib\cursor\abstract_cursor.js:325:17)
+2026-11-11 10:02:59 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/api/log",
+  "status": 500,
+  "duration": "2ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 10:03:18 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/auth/me",
+  "status": 401,
+  "duration": "0ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 10:03:37 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/auth/me",
+  "status": 401,
+  "duration": "0ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 10:03:54 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/auth/login",
+  "status": 500,
+  "duration": "4ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 10:08:18 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/auth/login",
+  "status": 500,
+  "duration": "2ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 10:08:31 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/signup/options",
+  "status": 500,
+  "duration": "4ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 10:17:06 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/auth/me",
+  "status": 401,
+  "duration": "0ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 10:17:13 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/auth/login",
+  "status": 500,
+  "duration": "1ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 10:17:17 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/signup/options",
+  "status": 500,
+  "duration": "2ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 10:19:48 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/auth/me",
+  "status": 401,
+  "duration": "0ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 10:19:57 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/signup/options",
+  "status": 500,
+  "duration": "2ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 10:21:30 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/signup/options",
+  "status": 500,
+  "duration": "1ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 11:09:46 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/signup/options",
+  "status": 500,
+  "duration": "19ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 11:11:17 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/signup/options",
+  "status": 500,
+  "duration": "1ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 11:15:38 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/auth/me",
+  "status": 401,
+  "duration": "1ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 11:15:38 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/signup/options",
+  "status": 500,
+  "duration": "2ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
+2026-11-11 11:15:42 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/signup/options",
+  "status": 500,
+  "duration": "2ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "userId": "anonymous"
+}
