@@ -31,7 +31,7 @@ if (!jwtSecret) {
  * Allows requests from local dev server and Netlify production deployment
  * Enables credentials and CSRF token header
  */
-const corsOrigins = (process.env.CORS_ORIGINS || 'http://localhost:4200,https://lbrdc-billing-system.netlify.app')
+const corsOrigins = (process.env.CORS_ORIGINS || 'http://localhost:4200,https://lbrdc-billing-system.netlify.app,https://billing-system-v3jo.onrender.com')
     .split(',').map(s => s.trim()).filter(Boolean)
 app.use(cors({
     origin: corsOrigins,
