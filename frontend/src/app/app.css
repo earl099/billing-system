@@ -14,7 +14,7 @@ html {
 
 /* Authenticated navigation */
 .app-sidenav {
-  width: 18rem;
+  width: min(18rem, calc(100vw - 3.5rem));
   border-right: 1px solid #d9e4ed !important;
   background: #fff;
 }
@@ -203,6 +203,7 @@ html {
 mat-sidenav-container {
   display: block;
   height: 100vh;
+  height: 100dvh;
 }
 
 /* Give the authenticated workspace a quiet, corporate canvas rather than a
@@ -425,7 +426,8 @@ mat-toolbar {
 
 /* MatMenu is rendered in the overlay container, so these selectors intentionally cross component encapsulation. */
 ::ng-deep .user-menu.mat-mdc-menu-panel {
-  min-width: 17rem;
+  min-width: min(17rem, calc(100vw - 1rem));
+  max-width: calc(100vw - 1rem);
   overflow: hidden;
   border: 1px solid var(--mat-sys-outline-variant);
   border-radius: 0.875rem;

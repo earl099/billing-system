@@ -20,6 +20,7 @@
     "axios": "^1.13.5",
     "bcrypt": "^6.0.0",
     "cloudinary": "^2.8.0",
+    "compression": "^1.8.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "docx": "^9.5.1",
@@ -35,6 +36,8 @@
     "multer": "^2.0.2",
     "pdf-lib": "^1.17.1",
     "pizzip": "^3.2.0",
+    "rate-limit-redis": "^4.2.0",
+    "redis": "^4.7.0",
     "uuid": "^13.0.0",
     "winston": "^3.19.0",
     "zod": "^4.3.5"

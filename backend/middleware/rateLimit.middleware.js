@@ -1,69 +1,78 @@
 /**
  * @fileoverview Rate limiting middleware configurations
- * Provides pre-configured rate limiters for different endpoint categories
- * to prevent brute force attacks and denial-of-service
+ * Uses Redis-backed shared store when REDIS_URL is set (required for multi-instance/LB),
+ * falls back to in-memory store for single-instance local dev.
  */
 
 import rateLimit from 'express-rate-limit'
+import logger from '#utils/logger.util.js'
 
-/**
- * Strict rate limiter for authentication endpoints (login/signup)
- * Allows 5 requests per 15-minute window; skips counting successful requests
- * so only failed attempts contribute to the limit
- * 
- * @type {import('express-rate-limit').RateLimitRequestHandler}
- */
+/** @type {import('redis').RedisClientType|undefined} */
+let redisClient
+
+const redisUrl = process.env.REDIS_URL
+if (redisUrl) {
+    try {
+        const { RedisStore } = await import('rate-limit-redis')
+        const { createClient } = await import('redis')
+        redisClient = createClient({ url: redisUrl })
+        redisClient.on('error', (err) => logger.error('Redis rate-limit client error', err))
+        await redisClient.connect()
+        logger.info('Rate limiting using Redis shared store')
+    } catch (err) {
+        redisClient = undefined
+        logger.error('REDIS_URL set but Redis rate-limit store unavailable; falling back to memory store', err)
+    }
+}
+
+/** Build a rate-limit-redis store for a prefix, or undefined for memory fallback. */
+let RedisStoreClass
+if (redisClient) {
+    ({ RedisStore: RedisStoreClass } = await import('rate-limit-redis'))
+}
+const limitStore = (prefix) => redisClient && RedisStoreClass
+    ? new RedisStoreClass({ sendCommand: (...args) => redisClient.sendCommand(args), prefix: `rl:${prefix}:` })
+    : undefined
+
+/** Closes the shared Redis client used by rate limiters. */
+export async function closeRateLimitStore() {
+    if (redisClient?.isOpen) await redisClient.quit()
+}
+
 export const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,  // 15 minutes
-    max: 5,  // 5 requests per window
+    windowMs: 15 * 60 * 1000,
+    max: 5,
     message: 'Too many login/signup attempts, please try again after 15 minutes',
-    standardHeaders: true,  // Return rate limit info in the `RateLimit-*` headers
-    legacyHeaders: false,  // Disable the `X-RateLimit-*` headers
-    skipSuccessfulRequests: true  // Don't count successful requests
+    standardHeaders: true,
+    legacyHeaders: false,
+    skipSuccessfulRequests: true,
+    store: limitStore('auth')
 })
 
-/**
- * Moderate rate limiter for general API endpoints
- * Allows 100 requests per 15-minute window
- * 
- * @type {import('express-rate-limit').RateLimitRequestHandler}
- */
 export const apiLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,  // 15 minutes
-    max: 100,  // 100 requests per window
+    windowMs: 15 * 60 * 1000,
+    max: 100,
     message: 'Too many API requests, please try again later',
     standardHeaders: true,
-    legacyHeaders: false
+    legacyHeaders: false,
+    store: limitStore('api')
 })
 
-/**
- * Strict rate limiter for file upload endpoints
- * Allows 20 uploads per hour; only applies to POST requests
- * 
- * @type {import('express-rate-limit').RateLimitRequestHandler}
- */
 export const uploadLimiter = rateLimit({
-    windowMs: 60 * 60 * 1000,  // 1 hour
-    max: 20,  // 20 uploads per hour
+    windowMs: 60 * 60 * 1000,
+    max: 20,
     message: 'Too many file uploads, please try again later',
     standardHeaders: true,
     legacyHeaders: false,
-    skip: (req) => {
-        // Only rate limit POST requests for file uploads
-        return req.method !== 'POST'
-    }
+    skip: (req) => req.method !== 'POST',
+    store: limitStore('upload')
 })
 
-/**
- * Rate limiter for data-heavy list endpoints (users, clients)
- * Allows 30 requests per minute to limit data exposure risk
- * 
- * @type {import('express-rate-limit').RateLimitRequestHandler}
- */
 export const dataLimiter = rateLimit({
-    windowMs: 60 * 1000,  // 1 minute
-    max: 30,  // 30 requests per minute
+    windowMs: 60 * 1000,
+    max: 30,
     message: 'Too many data requests, please try again later',
     standardHeaders: true,
-    legacyHeaders: false
+    legacyHeaders: false,
+    store: limitStore('data')
 })

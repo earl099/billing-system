@@ -1,3 +1,12 @@
 :host {
   display: block;
 }
+
+.employee-update-page { max-width: 72rem; margin: 0 auto; }
+.employee-update-actions { display: flex; flex-wrap: wrap; gap: .75rem; }
+.employee-update-actions > * { flex: 1 1 12rem; }
+
+@media (max-width: 38rem) {
+  .employee-update-actions { flex-direction: column; }
+  .employee-update-actions > * { width: 100%; }
+}

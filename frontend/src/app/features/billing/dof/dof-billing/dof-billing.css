@@ -52,4 +52,10 @@ mat-tab-group {
 :host ::ng-deep .dof-panel .mat-mdc-tab .mdc-tab__content { min-width: 0; }
 :host ::ng-deep .dof-panel .mat-mdc-tab .mdc-tab__text-label { display: block; overflow-wrap: anywhere; white-space: normal; color: #315f80; font-size: .6875rem; font-weight: 700; line-height: 1.25; text-align: center; }
 :host-context(html.dark) ::ng-deep .dof-panel .mat-mdc-tab .mdc-tab__text-label { color: #c2d7e5; }
-@media (max-width: 42rem) { :host ::ng-deep .dof-panel .mat-mdc-tab { height: 5rem; padding: 0 .25rem; }:host ::ng-deep .dof-panel .mat-mdc-tab .mdc-tab__text-label { font-size: .625rem; } }
+@media (max-width: 64rem) {
+  :host ::ng-deep .dof-panel .mat-mdc-tab-header-pagination { display: flex; }
+  :host ::ng-deep .dof-panel .mat-mdc-tab-label-container { overflow: hidden; }
+  :host ::ng-deep .dof-panel .mat-mdc-tab-labels { display: flex; width: max-content; min-width: 100%; }
+  :host ::ng-deep .dof-panel .mat-mdc-tab { min-width: 8rem; width: auto; }
+}
+@media (max-width: 42rem) { :host ::ng-deep .dof-panel .mat-mdc-tab { height: 5rem; padding: 0 .25rem; min-width: 7rem; }:host ::ng-deep .dof-panel .mat-mdc-tab .mdc-tab__text-label { font-size: .625rem; } }

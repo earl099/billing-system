@@ -5,17 +5,22 @@
 
 import multer from 'multer'
 import path from 'path'
+import os from 'os'
+import fs from 'fs'
+
+const uploadDir = process.env.UPLOAD_DIR || path.join(os.tmpdir(), 'billing-uploads')
+fs.mkdirSync(uploadDir, { recursive: true })
 
 /**
  * Multer disk storage configuration
- * Saves files to the 'uploads/' directory with unique timestamped filenames
+ * Saves files to a temp/upload directory with unique timestamped filenames
  * preserving the original file extension
  */
 const storage = multer.diskStorage({
-    destination: 'uploads/',
+    destination: (_req, _file, cb) => cb(null, uploadDir),
     filename: (_, file, cb) => {
         const ext = path.extname(file.originalname)
-        cb(null, `${Date.now()}${ext}`)
+        cb(null, `${Date.now()}-${Math.random().toString(16).slice(2)}${ext}`)
     }
 })
 

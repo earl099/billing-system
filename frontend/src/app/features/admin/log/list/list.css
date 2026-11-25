@@ -12,7 +12,7 @@ h1 { margin: 0; color: #102f53; font-size: clamp(2rem, 4vw, 2.5rem); font-weight
 .search-field:focus-within { border-color: #36bcd2; box-shadow: 0 0 0 3px rgb(54 188 210 / 16%); }
 .search-field input { width: 100%; min-width: 0; border: 0; outline: 0; color: #173a63; background: transparent; font: inherit; }
 .search-field input::placeholder { color: #7890a7; }
-.table-scroll { overflow-x: auto; }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
 .audit-table { width: 100%; min-width: 48rem; background: transparent; }
 .audit-table .mat-mdc-header-row { background: #edf5fa; }
 .audit-table .mat-mdc-header-cell { height: 3.25rem; padding: 0 1.25rem; border-bottom-color: #d7e3ef; color: #376d94; font-size: .75rem; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; }

@@ -61,40 +61,36 @@ const format = winston.format.combine(
     )
 )
 
+const logToFiles = process.env.LOG_TO_FILES === 'true' || process.env.NODE_ENV !== 'production'
+
 /**
  * Logger transport configuration
- * - Console: All log levels
- * - error.log: Error-level logs only (5MB rotation, 5 files)
- * - combined.log: All log levels (5MB rotation, 5 files)
- * - audit.log: Security and audit events at warn level (5MB rotation, 10 files)
+ * - Console: always on (capture via container/platform log aggregation)
+ * - File transports: enabled in dev or when LOG_TO_FILES=true; disabled in production by default
  */
-const transports = [
-    // Console transport
-    new winston.transports.Console(),
-    
-    // Error file transport
-    new winston.transports.File({
-        filename: path.join(logDir, 'error.log'),
-        level: 'error',
-        maxsize: 5242880, // 5MB
-        maxFiles: 5,
-    }),
-    
-    // Combined file transport
-    new winston.transports.File({
-        filename: path.join(logDir, 'combined.log'),
-        maxsize: 5242880, // 5MB
-        maxFiles: 5,
-    }),
-    
-    // Audit log for security events
-    new winston.transports.File({
-        filename: path.join(logDir, 'audit.log'),
-        level: 'warn',
-        maxsize: 5242880, // 5MB
-        maxFiles: 10,
-    })
-]
+const transports = [new winston.transports.Console()]
+
+if (logToFiles) {
+    transports.push(
+        new winston.transports.File({
+            filename: path.join(logDir, 'error.log'),
+            level: 'error',
+            maxsize: 5242880,
+            maxFiles: 5,
+        }),
+        new winston.transports.File({
+            filename: path.join(logDir, 'combined.log'),
+            maxsize: 5242880,
+            maxFiles: 5,
+        }),
+        new winston.transports.File({
+            filename: path.join(logDir, 'audit.log'),
+            level: 'warn',
+            maxsize: 5242880,
+            maxFiles: 10,
+        })
+    )
+}
 
 /**
  * Winston logger instance
@@ -113,12 +109,12 @@ const logger = winston.createLogger({
     levels,
     format,
     transports,
-    exceptionHandlers: [
-        new winston.transports.File({ filename: path.join(logDir, 'exceptions.log') })
-    ],
-    rejectionHandlers: [
-        new winston.transports.File({ filename: path.join(logDir, 'rejections.log') })
-    ]
+    exceptionHandlers: logToFiles
+        ? [new winston.transports.File({ filename: path.join(logDir, 'exceptions.log') })]
+        : [new winston.transports.Console()],
+    rejectionHandlers: logToFiles
+        ? [new winston.transports.File({ filename: path.join(logDir, 'rejections.log') })]
+        : [new winston.transports.Console()]
 })
 
 export default logger

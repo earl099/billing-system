@@ -1773,3 +1773,174 @@
   "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
   "userId": "anonymous"
 }
+2026-11-21 18:00:18 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/auth/me",
+  "status": 401,
+  "duration": "7ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0",
+  "userId": "anonymous"
+}
+2026-11-21 18:00:30 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/auth/login",
+  "status": 400,
+  "duration": "20ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0",
+  "userId": "anonymous"
+}
+2026-11-21 18:00:45 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/auth/login",
+  "status": 400,
+  "duration": "2ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0",
+  "userId": "anonymous"
+}
+2026-11-21 18:00:55 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/auth/me",
+  "status": 401,
+  "duration": "1ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0",
+  "userId": "anonymous"
+}
+2026-11-21 18:01:06 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/auth/login",
+  "status": 400,
+  "duration": "1ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0",
+  "userId": "anonymous"
+}
+2026-11-21 18:01:16 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/auth/login",
+  "status": 400,
+  "duration": "1ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0",
+  "userId": "anonymous"
+}
+2026-11-25 11:28:12 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/auth/me",
+  "status": 401,
+  "duration": "6ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0",
+  "userId": "anonymous"
+}
+2026-11-25 11:28:28 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/auth/login",
+  "status": 400,
+  "duration": "11ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0",
+  "userId": "anonymous"
+}
+2026-11-25 11:28:55 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/auth/me",
+  "status": 401,
+  "duration": "1ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0",
+  "userId": "anonymous"
+}
+2026-11-25 11:29:02 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/auth/login",
+  "status": 400,
+  "duration": "2ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0",
+  "userId": "anonymous"
+}
+2026-11-25 11:29:08 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/auth/login",
+  "status": 400,
+  "duration": "3ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0",
+  "userId": "anonymous"
+}
+2026-11-25 11:29:09 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/auth/login",
+  "status": 400,
+  "duration": "2ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0",
+  "userId": "anonymous"
+}
+2026-11-25 11:30:02 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/auth/login",
+  "status": 400,
+  "duration": "2ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0",
+  "userId": "anonymous"
+}
+2026-11-25 11:30:03 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/auth/login",
+  "status": 429,
+  "duration": "0ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0",
+  "userId": "anonymous"
+}
+2026-11-25 11:30:08 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/auth/login",
+  "status": 429,
+  "duration": "1ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0",
+  "userId": "anonymous"
+}
+2026-11-25 11:30:13 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/auth/me",
+  "status": 401,
+  "duration": "1ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0",
+  "userId": "anonymous"
+}
+2026-11-25 11:30:34 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/auth/login",
+  "status": 429,
+  "duration": "0ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0",
+  "userId": "anonymous"
+}
+2026-11-25 14:16:38 [warn]: HTTP Request {
+  "method": "GET",
+  "path": "/auth/me",
+  "status": 401,
+  "duration": "6ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0",
+  "userId": "anonymous"
+}
+2026-11-25 14:16:50 [warn]: HTTP Request {
+  "method": "POST",
+  "path": "/auth/login",
+  "status": 400,
+  "duration": "9ms",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0",
+  "userId": "anonymous"
+}
