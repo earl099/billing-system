@@ -22,7 +22,7 @@
 .rate-list-search { box-sizing: border-box; width: min(100%, 26rem); min-height: 2.75rem; padding: 0 .875rem; border: 1px solid #8fb0cb; border-radius: .625rem; color: #173a63; background: #fff; font: inherit; }
 .rate-list-search:focus { border-color: #2187a7; outline: .1875rem solid rgb(54 188 210 / 20%); outline-offset: 0; }
 .rate-list-state { display: flex; align-items: center; gap: .75rem; min-height: 8rem; padding: 1.25rem; border: 1px solid #d7e3ef; border-radius: .875rem; color: #58708c; background: #f6faff; }
-.rate-list-table-scroll { overflow-x: auto; }
+.rate-list-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
 .rate-list-table { width: 100%; min-width: 40rem; border-collapse: collapse; }
 .rate-list-table th.mat-mdc-header-cell { padding: 1rem; color: #315f80; background: #f6faff; font-size: .75rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; }
 .rate-list-table td.mat-mdc-cell { padding: 1rem; border-bottom-color: #d7e3ef; color: #173a63; font-size: .875rem; }

@@ -72,6 +72,10 @@ The backend exits on startup if these are missing:
 - `CORS_ORIGINS` — comma-separated allowed origins  
   If unset, backend defaults include: `http://localhost:4200,https://lbrdc-billing-system.netlify.app,https://billing-system-v3jo.onrender.com`
 - `LOG_LEVEL=info`
+- `TRUST_PROXY` — set when behind an LB/reverse proxy (e.g. `1`, `2`, `true`); required for correct client IP/rate limiting
+- `REDIS_URL` — shared Redis for rate limiting across multiple backend instances; leave unset for single-instance in-memory limiting
+- `UPLOAD_DIR` — optional upload/temp directory (defaults to OS temp dir)
+- `LOG_TO_FILES=true` — also write local log files in production; default production mode logs to console for aggregation
 
 #### Bootstrap / integrations (as needed)
 
@@ -129,8 +133,9 @@ npm run serve:ssr:frontend    # Serve built SSR app: node dist/frontend/server/s
 
 | Area | Variables |
 | --- | --- |
-| Core | `MONGO_URI`, `JWT_SECRET`, `PORT`, `NODE_ENV`, `LOG_LEVEL` |
+| Core | `MONGO_URI`, `JWT_SECRET`, `PORT`, `NODE_ENV`, `LOG_LEVEL`, `LOG_TO_FILES` |
 | CORS | `CORS_ORIGINS` (used in `backend/index.js`) |
+| Scaling / LB | `TRUST_PROXY`, `REDIS_URL`, `UPLOAD_DIR` |
 | Bootstrap | `ADMIN_BOOTSTRAP_KEY` |
 | Cloudinary | `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` |
 | Azure / Graph / SharePoint | `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_CLIENT_SECRET`, `SHAREPOINT_SITE_ID` |
@@ -175,6 +180,19 @@ npm run serve:ssr:frontend    # Serve built SSR app: node dist/frontend/server/s
 - `docker-compose.yml` provides **MongoDB only** for local development (no backend/frontend application services).
 - `backend/Dockerfile` can be used for containerized backend runs and includes LibreOffice for document/PDF workflows.
 - Frontend production API URL is configured in `frontend/src/environments/environment.prod.ts`. Ensure backend CORS configuration allows the deployed frontend origin.
+
+### Load balancing / horizontal scaling
+
+The backend is mostly stateless (JWT auth, MongoDB-backed state), but **not safe to scale horizontally as-is without config**:
+
+- **Rate limiting:** set `REDIS_URL` so all instances share rate-limit counters. Without it, each instance uses in-memory limits and clients can bypass limits across instances.
+- **Proxy awareness:** set `TRUST_PROXY` to the number of trusted proxy hops (or `true`) when behind an LB/reverse proxy so `req.ip` and rate limiting use the real client IP.
+- **Health checks:** use `GET /api/health` for liveness and `GET /api/ready` for readiness (Mongo connected).
+- **Graceful shutdown:** backend handles `SIGTERM`/`SIGINT`, stops accepting new connections, and closes Mongo/Redis before exit; configure your platform/LB drain timeout accordingly.
+- **Logging:** in `NODE_ENV=production`, logs go to console by default for aggregation. Set `LOG_TO_FILES=true` only when local log files are needed.
+- **Uploads/temp files:** request-scoped upload/conversion files use `UPLOAD_DIR` or OS temp dir and are cleaned up after processing; each instance still needs LibreOffice and writable temp space.
+
+For a first scaled deployment: run 2+ backend instances behind an HTTP LB, point them at the same MongoDB and Redis, set `TRUST_PROXY`/`REDIS_URL`/`CORS_ORIGINS`, and use `/api/ready` for health checks. Keep heavy document generation request-scoped unless load requires a separate worker/queue.
 
 ## Troubleshooting / Notes
 

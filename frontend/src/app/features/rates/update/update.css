@@ -167,8 +167,10 @@
     flex-direction: column;
   }
 
-  .rate-form-page__header button {
-    align-self: flex-start;
+  .rate-form-page__header button,
+  .rate-form__actions button {
+    width: 100%;
+    justify-content: center;
   }
 
   .rate-form-card__heading,
@@ -182,5 +184,9 @@
 
   .rate-form__field--wide {
     grid-column: auto;
+  }
+
+  .rate-form__actions {
+    flex-direction: column;
   }
 }

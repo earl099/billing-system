@@ -3,6 +3,18 @@
 @import url('@styles/animations.css');
 @import "tailwindcss";
 
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+}
+
 :root {
   --app-primary: #00843d;
   --app-primary-dark: #006f32;

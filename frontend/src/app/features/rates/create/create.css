@@ -37,4 +37,4 @@
 :host-context(html.dark) .rate-create-actions { border-color: #315168; }
 :host-context(html.dark) .rate-create-actions button[mat-raised-button] { color: #072c40 !important; background: #55d3e5 !important; }
 :host-context(html.dark) .rate-create-error { border-color: #8d4c58; color: #f0a5b0; background: #3b2028; }
-@media (max-width: 42rem) { .rate-create-workspace__header { align-items: stretch; flex-direction: column; }.rate-create-workspace__header button, .rate-create-actions button { width: 100%; justify-content: center; }.rate-create-form { grid-template-columns: 1fr; }.rate-create-actions { flex-direction: column; } }
+@media (max-width: 42rem) { .rate-create-workspace__header { align-items: stretch; flex-direction: column; }.rate-create-workspace__header button, .rate-create-actions button { width: 100%; justify-content: center; }.rate-create-form { grid-template-columns: 1fr; }.rate-create-actions { flex-direction: column; } .rate-create-panel mat-card-header, .rate-create-panel mat-card-content { padding: 1rem; } }

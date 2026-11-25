@@ -1,3 +1,13 @@
 :host {
   display: block;
 }
+
+.employee-details-page { max-width: 48rem; margin: 0 auto; }
+.employee-details-card { display: block; }
+.employee-details-grid { display: grid; gap: .5rem 1rem; }
+.employee-details-grid p { margin: 0; padding: .5rem 0; border-bottom: 1px solid var(--mat-sys-outline-variant); overflow-wrap: anywhere; }
+.employee-details-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1rem; }
+
+@media (max-width: 38rem) {
+  .employee-details-actions > * { flex: 1 1 100%; }
+}

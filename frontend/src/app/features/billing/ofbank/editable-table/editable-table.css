@@ -1,5 +1,6 @@
 .overflow-x-auto {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   max-width: 100%;
 }
 
@@ -30,6 +31,13 @@ mat-form-field {
   padding: 6px 0 !important;
 }
 
+@media (max-width: 42rem) {
+  th, td {
+    padding: 4px 6px !important;
+    font-size: 12px;
+  }
+}
+
 .sticky-col {
   position: sticky;
   left: 0;
@@ -38,5 +46,5 @@ mat-form-field {
 }
 
 .sticky-col-2 {
-  left: 60px;
+  left: var(--editable-sticky-col-2-left, 60px);
 }

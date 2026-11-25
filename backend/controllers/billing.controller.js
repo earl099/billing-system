@@ -5,6 +5,8 @@
 
 import fs from 'fs/promises'
 import path from 'path'
+import { Readable } from 'node:stream'
+import { pipeline } from 'node:stream/promises'
 import billingModel from '#models/billing.model.js'
 import { docxToPdfBuffer, mergePdfBuffers,  } from '#utils/pdf.util.js'
 import { deleteResources, uploadPdfBuffer } from '#utils/cloudinary.util.js'
@@ -316,9 +318,10 @@ export async function downloadBilling(req, res) {
         });
 
         const fileUrl = resource.secure_url;
-
         const response = await fetch(fileUrl);
-        const buffer = await response.arrayBuffer();
+        if (!response.ok || !response.body) {
+            return res.status(502).json({ message: 'Download failed' })
+        }
 
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader(
@@ -326,10 +329,14 @@ export async function downloadBilling(req, res) {
             `attachment; filename="${resource.public_id.split('/').pop()}.pdf"`
         );
 
-        res.send(Buffer.from(buffer));
+        await pipeline(Readable.fromWeb(response.body), res);
      } catch (error) {
         console.error('Download failed:', error);
-        res.status(500).json({ message: 'Download failed' });
+        if (!res.headersSent) {
+            res.status(500).json({ message: 'Download failed' });
+        } else {
+            res.end();
+        }
     }
 }
 

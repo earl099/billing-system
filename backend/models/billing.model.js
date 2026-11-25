@@ -23,6 +23,8 @@ const billingSchema = new Schema({
     createdAt: { type: Date, default: Date.now }
 }, { timestamps: true })
 
+billingSchema.index({ client: 1, createdAt: -1 })
+
 const billingModel = model('Billing', billingSchema)
 
 export default billingModel
